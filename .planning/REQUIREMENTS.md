@@ -1,7 +1,7 @@
 # Requirements: LinkLobby
 
 **Defined:** 2026-01-23
-**Core Value:** The dashboard and live preview experience — artists watching their page become theirs.
+**Core Value:** The dashboard and live preview experience - artists watching their page become theirs.
 
 ## v1 Requirements
 
@@ -122,62 +122,62 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | TBD | Pending |
-| AUTH-02 | TBD | Pending |
-| AUTH-03 | TBD | Pending |
-| AUTH-04 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| DASH-04 | TBD | Pending |
-| DASH-05 | TBD | Pending |
-| LINK-01 | TBD | Pending |
-| LINK-02 | TBD | Pending |
-| LINK-03 | TBD | Pending |
-| LINK-04 | TBD | Pending |
-| LINK-05 | TBD | Pending |
-| LINK-06 | TBD | Pending |
-| LINK-07 | TBD | Pending |
-| LINK-08 | TBD | Pending |
-| DSGN-01 | TBD | Pending |
-| DSGN-02 | TBD | Pending |
-| DSGN-03 | TBD | Pending |
-| DSGN-04 | TBD | Pending |
-| DSGN-05 | TBD | Pending |
-| DSGN-06 | TBD | Pending |
-| DSGN-07 | TBD | Pending |
-| DSGN-08 | TBD | Pending |
-| DSGN-09 | TBD | Pending |
-| DSGN-10 | TBD | Pending |
-| AUDIO-01 | TBD | Pending |
-| AUDIO-02 | TBD | Pending |
-| AUDIO-03 | TBD | Pending |
-| AUDIO-04 | TBD | Pending |
-| AUDIO-05 | TBD | Pending |
-| AUDIO-06 | TBD | Pending |
-| AUDIO-07 | TBD | Pending |
-| AUDIO-08 | TBD | Pending |
-| PAGE-01 | TBD | Pending |
-| PAGE-02 | TBD | Pending |
-| PAGE-03 | TBD | Pending |
-| PAGE-04 | TBD | Pending |
-| PAGE-05 | TBD | Pending |
-| PAGE-06 | TBD | Pending |
-| PAGE-07 | TBD | Pending |
-| PAGE-08 | TBD | Pending |
-| PAGE-09 | TBD | Pending |
-| ANLYT-01 | TBD | Pending |
-| ANLYT-02 | TBD | Pending |
-| ANLYT-03 | TBD | Pending |
-| ANLYT-04 | TBD | Pending |
-| ANLYT-05 | TBD | Pending |
-| ANLYT-06 | TBD | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| DASH-01 | Phase 2 | Pending |
+| DASH-02 | Phase 2 | Pending |
+| DASH-03 | Phase 2 | Pending |
+| DASH-04 | Phase 2 | Pending |
+| DASH-05 | Phase 2 | Pending |
+| LINK-01 | Phase 2 | Pending |
+| LINK-02 | Phase 2 | Pending |
+| LINK-03 | Phase 2 | Pending |
+| LINK-04 | Phase 2 | Pending |
+| LINK-05 | Phase 3 | Pending |
+| LINK-06 | Phase 3 | Pending |
+| LINK-07 | Phase 3 | Pending |
+| LINK-08 | Phase 3 | Pending |
+| DSGN-01 | Phase 4 | Pending |
+| DSGN-02 | Phase 4 | Pending |
+| DSGN-03 | Phase 4 | Pending |
+| DSGN-04 | Phase 6 | Pending |
+| DSGN-05 | Phase 6 | Pending |
+| DSGN-06 | Phase 4 | Pending |
+| DSGN-07 | Phase 6 | Pending |
+| DSGN-08 | Phase 6 | Pending |
+| DSGN-09 | Phase 6 | Pending |
+| DSGN-10 | Phase 4 | Pending |
+| AUDIO-01 | Phase 8 | Pending |
+| AUDIO-02 | Phase 8 | Pending |
+| AUDIO-03 | Phase 8 | Pending |
+| AUDIO-04 | Phase 8 | Pending |
+| AUDIO-05 | Phase 8 | Pending |
+| AUDIO-06 | Phase 8 | Pending |
+| AUDIO-07 | Phase 8 | Pending |
+| AUDIO-08 | Phase 8 | Pending |
+| PAGE-01 | Phase 5 | Pending |
+| PAGE-02 | Phase 5 | Pending |
+| PAGE-03 | Phase 5 | Pending |
+| PAGE-04 | Phase 5 | Pending |
+| PAGE-05 | Phase 8 | Pending |
+| PAGE-06 | Phase 8 | Pending |
+| PAGE-07 | Phase 8 | Pending |
+| PAGE-08 | Phase 5 | Pending |
+| PAGE-09 | Phase 5 | Pending |
+| ANLYT-01 | Phase 7 | Pending |
+| ANLYT-02 | Phase 7 | Pending |
+| ANLYT-03 | Phase 7 | Pending |
+| ANLYT-04 | Phase 7 | Pending |
+| ANLYT-05 | Phase 7 | Pending |
+| ANLYT-06 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 47 total
-- Mapped to phases: 0
-- Unmapped: 47 (pending roadmap creation)
+- Mapped to phases: 47
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 after initial definition*
+*Last updated: 2026-01-23 after roadmap creation*
