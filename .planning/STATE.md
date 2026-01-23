@@ -5,22 +5,42 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Scope refinement — component system defined
+**Current focus:** Phase 1 in progress - Foundation (Plan 01 complete)
 
 ## Current Position
 
-Phase: Pre-execution (scope expanded)
-Status: **ROADMAP NEEDS UPDATE** — Component system changes scope significantly
-Last activity: 2026-01-23 - Component system defined, scope expanded
+Phase: 1 of 11 - Foundation
+Plan: 1 of 3 complete
+Status: **In progress**
+Last activity: 2026-01-23 - Completed 01-01-PLAN.md (Project Scaffolding)
 
-Progress: [--------------------] 0%
+Progress: [█░░░░░░░░░░░░░░░░░░░] 3%
 
-## CRITICAL: Scope Evolution
+## Roadmap Summary (11 Phases)
 
-**Original scope:** Simple link-in-bio with themes (like Linktree+)
-**Refined scope:** Component-based PAGE BUILDER for artists
+| # | Phase | Status |
+|---|-------|--------|
+| 1 | Foundation | Plan 01 complete |
+| 2 | Dashboard Shell | - |
+| 3 | Canvas System | - |
+| 4 | Basic Cards | - |
+| 5 | Media Cards | - |
+| 6 | Advanced Cards | - |
+| 7 | Theme System | - |
+| 8 | Platform Integrations | - |
+| 9 | Public Page | - |
+| 10 | Analytics | - |
+| 11 | Audio System | - |
 
-### v1 Component System (LOCKED)
+## Phase 1 Progress
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Project Scaffolding | Complete |
+| 02 | Database Schema | Ready |
+| 03 | Auth Forms | Waiting on 02 |
+
+## v1 Component System (LOCKED)
 
 | Card Type | Description |
 |-----------|-------------|
@@ -32,24 +52,6 @@ Progress: [--------------------] 0%
 | Dropdown | Expandable link list, custom text |
 | Game Card | Mini-games (Snake, etc.) |
 
-### Layout System
-- **Free drag arrangement** — Not just stacked, artists place cards anywhere
-- **Grid constraints** — Within margins we define
-- **Unlimited cards** — No limits on count
-
-### UI Decisions
-- Dashboard: shadcn-admin template (dark mode, customize)
-- Public pages: shadcn/ui + heavy theme customization
-- Animations: ReactBits.dev for photo galleries
-
-### v1 Integrations (20+)
-- Music: Spotify, Apple Music, SoundCloud, Audiomack, Bandcamp
-- Video: YouTube, TikTok Video, Vimeo
-- Social: Instagram, TikTok Profile, Twitter/X
-- Events: Bandsintown
-- Payments: PayPal, Venmo, Tip Jar, Shopify
-- Utility: Contact Form, Generic URL
-
 **See:** `.planning/COMPONENT-SYSTEM.md` for full details
 
 ## Key Files
@@ -57,28 +59,23 @@ Progress: [--------------------] 0%
 | File | Purpose | Status |
 |------|---------|--------|
 | PROJECT.md | Vision | Current |
-| REQUIREMENTS.md | 47 requirements | Needs update for components |
-| ROADMAP.md | 8 phases | Needs restructure |
-| COMPONENT-SYSTEM.md | Card types, layout, integrations | **NEW - Source of truth** |
+| ROADMAP.md | 11 phases | Current |
+| COMPONENT-SYSTEM.md | Card types, layout, integrations | Current |
 | research/SUMMARY.md | Tech stack | Current |
+
+## Accumulated Decisions
+
+| Decision | Phase | Rationale |
+|----------|-------|-----------|
+| sonner instead of toast | 01-01 | toast deprecated in shadcn v3.7.0 |
+| @supabase/ssr for auth | 01-01 | Official SSR pattern, replaces deprecated auth-helpers |
+| getUser() not getSession() | 01-01 | Security: getUser() validates JWT with Supabase server |
 
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Component system discussion complete, roadmap needs restructure
-Resume with: `/gsd:resume-work` — READ COMPONENT-SYSTEM.md FIRST
-
-## Resume Instructions
-
-1. Read this STATE.md
-2. **Read COMPONENT-SYSTEM.md** — This is the expanded scope
-3. Roadmap phases need restructuring for:
-   - 7 card types (not just links)
-   - Free-form drag layout
-   - 20+ integrations
-   - Game card
-   - Photo gallery with ReactBits
-4. Original 8 phases may become 10-12 phases
+Stopped at: Completed 01-01-PLAN.md
+Resume with: `/gsd:execute-phase 1` to continue with Plan 02 (Database Schema)
 
 ---
-*Updated: 2026-01-23 after component system discussion*
+*Updated: 2026-01-23 after Plan 01-01 completion*
