@@ -5,60 +5,80 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Scope refinement — component system defined
 
 ## Current Position
 
-Phase: 1 of 8 (Foundation)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-01-23 - Roadmap created with 8 phases, 47 requirements mapped
+Phase: Pre-execution (scope expanded)
+Status: **ROADMAP NEEDS UPDATE** — Component system changes scope significantly
+Last activity: 2026-01-23 - Component system defined, scope expanded
 
 Progress: [--------------------] 0%
 
-## Performance Metrics
+## CRITICAL: Scope Evolution
 
-**Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+**Original scope:** Simple link-in-bio with themes (like Linktree+)
+**Refined scope:** Component-based PAGE BUILDER for artists
 
-**By Phase:**
+### v1 Component System (LOCKED)
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
+| Card Type | Description |
+|-----------|-------------|
+| Hero Card | Large CTA with photo/text/embed |
+| Horizontal Link | Linktree-style bar |
+| Square Card | Small tile |
+| Video Card | Video display |
+| Photo Gallery | Multi-image with ReactBits animations |
+| Dropdown | Expandable link list, custom text |
+| Game Card | Mini-games (Snake, etc.) |
 
-**Recent Trend:**
-- Last 5 plans: -
-- Trend: Not enough data
+### Layout System
+- **Free drag arrangement** — Not just stacked, artists place cards anywhere
+- **Grid constraints** — Within margins we define
+- **Unlimited cards** — No limits on count
 
-*Updated after each plan completion*
+### UI Decisions
+- Dashboard: shadcn-admin template (dark mode, customize)
+- Public pages: shadcn/ui + heavy theme customization
+- Animations: ReactBits.dev for photo galleries
 
-## Accumulated Context
+### v1 Integrations (20+)
+- Music: Spotify, Apple Music, SoundCloud, Audiomack, Bandcamp
+- Video: YouTube, TikTok Video, Vimeo
+- Social: Instagram, TikTok Profile, Twitter/X
+- Events: Bandsintown
+- Payments: PayPal, Venmo, Tip Jar, Shopify
+- Utility: Contact Form, Generic URL
 
-### Decisions
+**See:** `.planning/COMPONENT-SYSTEM.md` for full details
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+## Key Files
 
-- None yet
-
-### Pending Todos
-
-None yet.
-
-### Blockers/Concerns
-
-Research flags for future phases:
-- Phase 8 (Audio): Superpowered licensing costs unknown, browser compatibility requires real device testing
-- Phase 6 (Media): Video background performance implications need validation
+| File | Purpose | Status |
+|------|---------|--------|
+| PROJECT.md | Vision | Current |
+| REQUIREMENTS.md | 47 requirements | Needs update for components |
+| ROADMAP.md | 8 phases | Needs restructure |
+| COMPONENT-SYSTEM.md | Card types, layout, integrations | **NEW - Source of truth** |
+| research/SUMMARY.md | Tech stack | Current |
 
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Roadmap creation complete
-Resume file: None
+Stopped at: Component system discussion complete, roadmap needs restructure
+Resume with: `/gsd:resume-work` — READ COMPONENT-SYSTEM.md FIRST
+
+## Resume Instructions
+
+1. Read this STATE.md
+2. **Read COMPONENT-SYSTEM.md** — This is the expanded scope
+3. Roadmap phases need restructuring for:
+   - 7 card types (not just links)
+   - Free-form drag layout
+   - 20+ integrations
+   - Game card
+   - Photo gallery with ReactBits
+4. Original 8 phases may become 10-12 phases
 
 ---
-*Created: 2026-01-23*
+*Updated: 2026-01-23 after component system discussion*
