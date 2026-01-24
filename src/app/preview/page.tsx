@@ -1,12 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { CanvasContainer } from "@/components/canvas/canvas-container"
+import { CARD_SIZES, type CardSize } from "@/types/card"
+import { cn } from "@/lib/utils"
 
-// Placeholder types - matching page-store.ts
-interface Card {
+// Card interface for preview (handles both old type and new card_type fields)
+interface PreviewCard {
   id: string
-  type: string
-  position: { x: number; y: number }
+  type?: string           // Legacy field
+  card_type?: string      // New schema field
+  title?: string | null
+  description?: string | null
+  size?: CardSize
   content: Record<string, unknown>
 }
 
@@ -16,7 +22,7 @@ interface Theme {
 }
 
 interface PageState {
-  cards: Card[]
+  cards: PreviewCard[]
   theme: Theme
 }
 
@@ -98,18 +104,35 @@ export default function PreviewPage() {
           </p>
         </div>
       ) : (
-        // Card rendering placeholder - actual card components come in Phase 4
-        <div className="max-w-md mx-auto space-y-4">
-          {state.cards.map((card) => (
-            <div
-              key={card.id}
-              className="p-4 bg-muted rounded-lg border border-border"
-            >
-              <p className="text-sm font-medium">Card: {card.type}</p>
-              <p className="text-xs text-muted-foreground">ID: {card.id}</p>
-            </div>
-          ))}
-        </div>
+        // Card rendering with proper Card type and sizes
+        <CanvasContainer>
+          <div className="space-y-4">
+            {state.cards.map((card) => {
+              const cardSize = (card.size as CardSize) || "medium"
+              const sizeConfig = CARD_SIZES[cardSize]
+              const cardType = card.card_type || card.type || "unknown"
+              return (
+                <div
+                  key={card.id}
+                  className={cn(
+                    "w-full rounded-lg border bg-card p-4",
+                    sizeConfig.minHeight
+                  )}
+                >
+                  <p className="font-medium">{card.title || "Untitled"}</p>
+                  <p className="text-sm text-muted-foreground capitalize">
+                    {cardType.replace("_", " ")}
+                  </p>
+                  {card.description && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {card.description}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </CanvasContainer>
       )}
     </div>
   )
