@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 2 of 11 - Dashboard Shell (IN PROGRESS)
-Plan: 1 of 4 complete
+Plan: 2 of 4 complete
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 02-01-PLAN.md (Dependencies & Infrastructure)
+Last activity: 2026-01-24 - Completed 02-02-PLAN.md (Dashboard Sidebar)
 
-Progress: [███░░░░░░░░░░░░░░░░░] 12%
+Progress: [████░░░░░░░░░░░░░░░░] 17%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Foundation | Complete |
-| 2 | Dashboard Shell | In progress (1/4) |
+| 2 | Dashboard Shell | In progress (2/4) |
 | 3 | Canvas System | - |
 | 4 | Basic Cards | - |
 | 5 | Media Cards | - |
@@ -37,7 +37,7 @@ Progress: [███░░░░░░░░░░░░░░░░░] 12%
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Dependencies & Infrastructure | Complete |
-| 02 | Dashboard Layout | Pending |
+| 02 | Dashboard Sidebar | Complete |
 | 03 | Sidebar Navigation | Pending |
 | 04 | Unsaved Changes | Pending |
 
@@ -75,12 +75,14 @@ Progress: [███░░░░░░░░░░░░░░░░░] 12%
 | React Hook Form + Zod | 01-03 | Form validation pattern |
 | Zustand for state management | 02-01 | Lightweight, no boilerplate |
 | hasChanges pattern | 02-01 | Set on mutations, cleared on save |
+| collapsible="icon" sidebar | 02-02 | Sidebar collapses to icon mode |
+| Cookie persistence for UI state | 02-02 | sidebar_state cookie read server-side |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 02-01-PLAN.md
-Resume with: Execute 02-02-PLAN.md for Dashboard Layout
+Stopped at: Completed 02-02-PLAN.md
+Resume with: Execute 02-03-PLAN.md for Sidebar Navigation
 
 ---
-*Updated: 2026-01-24 after 02-01 completion*
+*Updated: 2026-01-24 after 02-02 completion*
