@@ -101,10 +101,16 @@ Progress: [██████████████████████] 1
 | useMemo for sorted cards | 03-06 | Avoid infinite loop from getSortedCards() selector |
 | size column in database | 03-06 | Card size persists with card data |
 
+## Quick Tasks
+
+| # | Description | Status | Commit |
+|---|-------------|--------|--------|
+| 001 | Add delete button to cards | Complete | 735b927 |
+
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Phase 3 complete
+Stopped at: Phase 3 complete + Quick Task 001
 Resume with: `/gsd:plan-phase 4` or `/gsd:discuss-phase 4`
 
 **Phase 3 delivered:**
@@ -114,6 +120,7 @@ Resume with: `/gsd:plan-phase 4` or `/gsd:discuss-phase 4`
 - useCards hook for data fetching
 - Save button persists cards to database
 - Preview updates in real-time via postMessage
+- Delete button on cards (Quick Task 001)
 
 ---
 *Updated: 2026-01-24 — Phase 3 complete*
