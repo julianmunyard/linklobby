@@ -14,10 +14,11 @@ LinkLobby delivers a component-based page builder for artists in eleven phases. 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Project scaffolding, Supabase auth, database schema
-- [ ] **Phase 2: Dashboard Shell** - shadcn-admin setup, split-screen layout, navigation tabs
+- [x] **Phase 1: Foundation** - Project scaffolding, Supabase auth, database schema
+- [ ] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
 - [ ] **Phase 3: Canvas System** - Free-form drag grid, responsive layout engine, card positioning
 - [ ] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
+- [ ] **Phase 4.1: Linktree Import** - INSERTED - One-click import from existing Linktree page
 - [ ] **Phase 5: Media Cards** - Video Card, Photo Gallery with ReactBits animations
 - [ ] **Phase 6: Advanced Cards** - Dropdown (expandable lists), Game Card (Snake)
 - [ ] **Phase 7: Theme System** - Mac OS + Sleek Modern themes, color customization
@@ -40,25 +41,28 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffolding, dependencies, Supabase client setup (Wave 1)
-- [ ] 01-02-PLAN.md — Database schema with RLS and triggers (Wave 1)
-- [ ] 01-03-PLAN.md — Auth forms, middleware, protected routes (Wave 2)
+- [x] 01-01-PLAN.md — Project scaffolding, dependencies, Supabase client setup (Wave 1)
+- [x] 01-02-PLAN.md — Database schema with RLS and triggers (Wave 1)
+- [x] 01-03-PLAN.md — Auth forms, middleware, protected routes (Wave 2)
 
 ### Phase 2: Dashboard Shell
 **Goal**: Artists can access the split-screen dashboard with editor controls and live preview areas
 **Depends on**: Phase 1
 **Success Criteria** (what must be TRUE):
-  1. shadcn-admin template integrated and customized (dark mode default)
+  1. Dashboard uses shadcn/ui sidebar + react-resizable-panels (dark mode default)
   2. Dashboard displays split-screen: editor controls left, live preview right
   3. Three tabs implemented: Cards, Design, Insights (empty states OK)
   4. Mobile/desktop preview toggle works
   5. Save/discard prompt appears when exiting with unsaved changes
   6. User's username and public URL displayed in header
-**Plans**: TBD
+**Plans**: 5 plans in 3 waves
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Dependencies, ThemeProvider, Zustand store (Wave 1)
+- [ ] 02-02-PLAN.md — Sidebar navigation, dashboard layout (Wave 1)
+- [ ] 02-03-PLAN.md — Editor panel with tabs, preview panel, resizable layout (Wave 2)
+- [ ] 02-04-PLAN.md — Preview route, dashboard header, editor integration (Wave 2)
+- [ ] 02-05-PLAN.md — Unsaved changes hook, dialog, final wiring (Wave 3)
 
 ### Phase 3: Canvas System
 **Goal**: Artists can drag cards freely on a grid-constrained canvas with responsive behavior
@@ -92,9 +96,25 @@ Plans:
 - [ ] 04-01: TBD
 - [ ] 04-02: TBD
 
+### Phase 4.1: Linktree Import (INSERTED)
+**Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
+**Depends on**: Phase 4
+**Success Criteria** (what must be TRUE):
+  1. User enters Linktree username (e.g., "linktr.ee/artistname")
+  2. System fetches links, titles, images, and descriptions from Linktree page
+  3. Imported links create cards on canvas (smart card type detection where possible)
+  4. Artist can customize/delete imported cards like any other card
+  5. One-time import — no ongoing Linktree connection
+**Plans**: TBD
+
+Plans:
+- [ ] 04.1-01: TBD
+
+**Research needed:** Best method to fetch Linktree data (scraping vs API vs other)
+
 ### Phase 5: Media Cards
 **Goal**: Artists can showcase video and photo content with engaging animations
-**Depends on**: Phase 4
+**Depends on**: Phase 4.1
 **Success Criteria** (what must be TRUE):
   1. Video Card: Displays video with playback controls (YouTube/Vimeo embed or upload)
   2. Photo Gallery: Multi-image carousel with configurable display
@@ -209,14 +229,15 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 → 8 → 9 → 10 → 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planned | - |
-| 2. Dashboard Shell | 0/2 | Not started | - |
+| 1. Foundation | 3/3 | Complete | 2026-01-24 |
+| 2. Dashboard Shell | 0/5 | Planned | - |
 | 3. Canvas System | 0/2 | Not started | - |
 | 4. Basic Cards | 0/2 | Not started | - |
+| 4.1. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
 | 7. Theme System | 0/2 | Not started | - |
@@ -227,4 +248,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-23 — Phase 1 planned (3 plans in 2 waves)*
+*Last updated: 2026-01-24 — Phase 2 planned (5 plans in 3 waves)*
