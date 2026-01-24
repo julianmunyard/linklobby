@@ -2,19 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
-import { CARD_SIZES, type CardSize } from "@/types/card"
-import { cn } from "@/lib/utils"
-
-// Card interface for preview (handles both old type and new card_type fields)
-interface PreviewCard {
-  id: string
-  type?: string           // Legacy field
-  card_type?: string      // New schema field
-  title?: string | null
-  description?: string | null
-  size?: CardSize
-  content: Record<string, unknown>
-}
+import { CardRenderer } from "@/components/cards/card-renderer"
+import type { Card } from "@/types/card"
 
 interface Theme {
   id: string
@@ -22,7 +11,7 @@ interface Theme {
 }
 
 interface PageState {
-  cards: PreviewCard[]
+  cards: Card[]
   theme: Theme
 }
 
@@ -104,33 +93,12 @@ export default function PreviewPage() {
           </p>
         </div>
       ) : (
-        // Card rendering with proper Card type and sizes
+        // Card rendering using CardRenderer
         <CanvasContainer>
           <div className="space-y-4">
-            {state.cards.map((card) => {
-              const cardSize = (card.size as CardSize) || "medium"
-              const sizeConfig = CARD_SIZES[cardSize]
-              const cardType = card.card_type || card.type || "unknown"
-              return (
-                <div
-                  key={card.id}
-                  className={cn(
-                    "w-full rounded-lg border bg-card p-4",
-                    sizeConfig.minHeight
-                  )}
-                >
-                  <p className="font-medium">{card.title || "Untitled"}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {cardType.replace("_", " ")}
-                  </p>
-                  {card.description && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {card.description}
-                    </p>
-                  )}
-                </div>
-              )
-            })}
+            {state.cards.map((card) => (
+              <CardRenderer key={card.id} card={card} isPreview />
+            ))}
           </div>
         </CanvasContainer>
       )}
