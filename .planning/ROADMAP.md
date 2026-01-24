@@ -104,19 +104,21 @@ Plans:
 - [x] 04-04-PLAN.md — Wire editor + preview integration, end-to-end verification (Wave 3)
 
 ### Phase 4.1: Flow Layout (INSERTED)
-**Goal**: Cards can be sized (Large/Medium/Small) with flow layout enabling side-by-side arrangement
+**Goal**: Cards can be sized (Big/Small) with flow layout enabling side-by-side arrangement
 **Depends on**: Phase 4
 **Success Criteria** (what must be TRUE):
-  1. Large cards take full width (current behavior)
-  2. Medium cards take half width (2 cards side by side)
-  3. Small cards are icon-sized (~80px) and flow next to each other
-  4. Size selection in property editor affects preview layout
+  1. Big cards take full width (current behavior)
+  2. Small cards take half width (2 cards side by side)
+  3. Size selection in property editor affects preview layout
+  4. Small cards can be positioned left/center/right via drag
   5. Cards reflow responsively on different screen sizes
   6. Drag-to-reorder works with flow layout
-**Plans**: TBD
+**Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 04.1-01: TBD
+- [ ] 04.1-01-PLAN.md — Card types, database mapping, position field (Wave 1)
+- [ ] 04.1-02-PLAN.md — Property editor, FlowGrid, PositionDropZone components (Wave 2)
+- [ ] 04.1-03-PLAN.md — Preview integration, position updates, verification (Wave 3)
 
 ### Phase 4.2: Linktree Import (INSERTED)
 **Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
@@ -259,7 +261,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 4.2 → 5 → 6
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 6/6 | Complete | 2026-01-24 |
 | 4. Basic Cards | 4/4 | Complete | 2026-01-25 |
-| 4.1. Flow Layout | 0/? | Not started | - |
+| 4.1. Flow Layout | 0/3 | Not started | - |
 | 4.2. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
@@ -271,4 +273,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 4.2 → 5 → 6
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-25 — Phase 4.1 Flow Layout inserted*
+*Last updated: 2026-01-25 — Phase 4.1 plans created*
