@@ -35,7 +35,22 @@ export function CardsTab() {
   // Sort cards in useMemo to avoid infinite loop
   const cards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
 
-  const { isLoading, error, createCard } = useCards()
+  const removeCardFromStore = usePageStore((state) => state.removeCard)
+
+  const { isLoading, error, createCard, removeCard: removeCardFromDb } = useCards()
+
+  // Delete card from store and DB
+  const handleDeleteCard = async (id: string) => {
+    try {
+      // Remove from store first (optimistic)
+      removeCardFromStore(id)
+      // Then remove from database
+      await removeCardFromDb(id)
+    } catch (err) {
+      console.error("Failed to delete card:", err)
+      // TODO: Could restore card to store on failure
+    }
+  }
 
   // Create card in DB first, then add to store with DB-generated id
   const handleAddCard = async (type: CardType) => {
@@ -111,6 +126,7 @@ export function CardsTab() {
             onReorder={reorderCards}
             selectedCardId={selectedCardId}
             onSelectCard={selectCard}
+            onDeleteCard={handleDeleteCard}
           />
         </CanvasContainer>
       </div>

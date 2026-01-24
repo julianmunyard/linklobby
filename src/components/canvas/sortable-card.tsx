@@ -2,7 +2,8 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical } from "lucide-react"
+import { GripVertical, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Card } from "@/types/card"
 import { CARD_SIZES } from "@/types/card"
@@ -11,9 +12,10 @@ interface SortableCardProps {
   card: Card
   isSelected?: boolean
   onSelect?: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
-export function SortableCard({ card, isSelected, onSelect }: SortableCardProps) {
+export function SortableCard({ card, isSelected, onSelect, onDelete }: SortableCardProps) {
   const {
     attributes,
     listeners,
@@ -70,6 +72,22 @@ export function SortableCard({ card, isSelected, onSelect }: SortableCardProps) 
           </p>
         )}
       </div>
+
+      {/* Delete button */}
+      {onDelete && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="self-center mr-2 h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete(card.id)
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="sr-only">Delete card</span>
+        </Button>
+      )}
     </div>
   )
 }

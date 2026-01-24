@@ -23,6 +23,7 @@ interface SortableCardListProps {
   onReorder: (oldIndex: number, newIndex: number) => void
   selectedCardId?: string | null
   onSelectCard?: (id: string) => void
+  onDeleteCard?: (id: string) => void
 }
 
 export function SortableCardList({
@@ -30,6 +31,7 @@ export function SortableCardList({
   onReorder,
   selectedCardId,
   onSelectCard,
+  onDeleteCard,
 }: SortableCardListProps) {
   const [mounted, setMounted] = useState(false)
 
@@ -99,6 +101,7 @@ export function SortableCardList({
               card={card}
               isSelected={card.id === selectedCardId}
               onSelect={onSelectCard}
+              onDelete={onDeleteCard}
             />
           ))}
         </div>
