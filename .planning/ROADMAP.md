@@ -80,6 +80,8 @@ Grid/flow canvas with side-by-side card sizing
 5. One-time import — no ongoing Linktree connection
 
 **Plans:** 2 plans
+- [ ] 04.2-01-PLAN.md — Core import infrastructure (schemas, scraper, layout generator)
+- [ ] 04.2-02-PLAN.md — API route, UI dialog, editor integration
 
 ---
 
