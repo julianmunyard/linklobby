@@ -32,7 +32,7 @@ import { HorizontalLinkFields } from "./horizontal-link-fields"
 import { SquareCardFields } from "./square-card-fields"
 import { usePageStore } from "@/stores/page-store"
 import type { Card, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
-import { CARD_SIZES } from "@/types/card"
+import { CARD_SIZES, CARD_TYPE_SIZING } from "@/types/card"
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -132,25 +132,27 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               />
             </div>
 
-            {/* Card Size */}
-            <div className="space-y-2">
-              <Label htmlFor="cardSize">Card Size</Label>
-              <Select
-                value={card.size}
-                onValueChange={(value) => updateCard(card.id, { size: value as CardSize })}
-              >
-                <SelectTrigger id="cardSize">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(CARD_SIZES) as CardSize[]).map((size) => (
-                    <SelectItem key={size} value={size}>
-                      {CARD_SIZES[size].label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Card Size - only show if card type supports sizing */}
+            {CARD_TYPE_SIZING[card.card_type] && (
+              <div className="space-y-2">
+                <Label htmlFor="cardSize">Card Size</Label>
+                <Select
+                  value={card.size}
+                  onValueChange={(value) => updateCard(card.id, { size: value as CardSize })}
+                >
+                  <SelectTrigger id="cardSize">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARD_TYPE_SIZING[card.card_type]!.map((size) => (
+                      <SelectItem key={size} value={size}>
+                        {CARD_SIZES[size].label} - {CARD_SIZES[size].description}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Title */}
             <FormField
