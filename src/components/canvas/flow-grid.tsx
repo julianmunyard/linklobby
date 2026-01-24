@@ -15,6 +15,7 @@ import {
 import {
   SortableContext,
   sortableKeyboardCoordinates,
+  rectSortingStrategy,
 } from "@dnd-kit/sortable"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
@@ -118,7 +119,7 @@ export function FlowGrid({ cards, onReorder, onPositionChange }: FlowGridProps) 
     >
       <SortableContext
         items={cards.map((c) => c.id)}
-        strategy={() => null} // Disable auto-sorting for mixed sizes
+        strategy={rectSortingStrategy}
       >
         <div className="relative">
           {/* Position drop zones overlay - shown only when dragging small card */}

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
+import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateAppendKey, generateMoveKey, sortCardsBySortKey } from '@/lib/ordering'
 
 interface Theme {
@@ -49,6 +50,8 @@ export const usePageStore = create<PageState>()((set, get) => ({
   setCards: (cards) => set({ cards, hasChanges: true }),
 
   addCard: (type, size = 'big') => set((state) => {
+    // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
+    const effectiveSize = CARD_TYPE_SIZING[type] === null ? 'big' : size
     const newCard: Card = {
       id: crypto.randomUUID(),
       page_id: '', // Set when saving to DB
@@ -57,7 +60,7 @@ export const usePageStore = create<PageState>()((set, get) => ({
       description: null,
       url: null,
       content: {},
-      size,
+      size: effectiveSize,
       position: 'left',  // default position for small cards
       sortKey: generateAppendKey(state.cards),
       is_visible: true,
@@ -72,9 +75,15 @@ export const usePageStore = create<PageState>()((set, get) => ({
   }),
 
   updateCard: (id, updates) => set((state) => ({
-    cards: state.cards.map((c) =>
-      c.id === id ? { ...c, ...updates, updated_at: new Date().toISOString() } : c
-    ),
+    cards: state.cards.map((c) => {
+      if (c.id !== id) return c
+      // Prevent setting size to 'small' for card types that don't support sizing
+      let effectiveUpdates = { ...updates }
+      if (updates.size && CARD_TYPE_SIZING[c.card_type] === null) {
+        effectiveUpdates.size = 'big'
+      }
+      return { ...c, ...effectiveUpdates, updated_at: new Date().toISOString() }
+    }),
     hasChanges: true,
   })),
 

@@ -22,7 +22,8 @@ export function SortableFlowCard({ card, isDragging }: SortableFlowCardProps) {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // Use dnd-kit transition or fallback to smooth CSS transition
+    transition: transition ?? 'transform 200ms ease',
   }
 
   // Width classes based on size

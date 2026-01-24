@@ -15,6 +15,7 @@ import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
 import { generateAppendKey, sortCardsBySortKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
+import { CARD_TYPE_SIZING } from "@/types/card"
 
 const CARD_TYPES: { type: CardType; label: string }[] = [
   { type: "horizontal", label: "Horizontal Link" },
@@ -56,13 +57,15 @@ export function CardsTab() {
   const handleAddCard = async (type: CardType) => {
     try {
       const sortKey = generateAppendKey(cards)
+      // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
+      const size = CARD_TYPE_SIZING[type] === null ? "big" : "big"
       const newCard = await createCard({
         card_type: type,
         title: null,
         description: null,
         url: null,
         content: {},
-        size: "big",
+        size,
         position: "left",
         sortKey,
         is_visible: true,
