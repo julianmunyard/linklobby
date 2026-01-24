@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 2 in progress - Building Dashboard Shell
+**Current focus:** Phase 2 COMPLETE - Dashboard Shell built
 
 ## Current Position
 
-Phase: 2 of 11 - Dashboard Shell (IN PROGRESS)
-Plan: 3 of 4 complete
-Status: **In progress**
-Last activity: 2026-01-24 - Completed 02-03-PLAN.md (Editor Split-Screen)
+Phase: 2 of 11 - Dashboard Shell (COMPLETE)
+Plan: 4 of 4 complete
+Status: **Phase complete**
+Last activity: 2026-01-24 - Completed 02-04-PLAN.md (Preview Route & Header)
 
-Progress: [████░░░░░░░░░░░░░░░░] 20%
+Progress: [█████░░░░░░░░░░░░░░░] 22%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Foundation | Complete |
-| 2 | Dashboard Shell | In progress (3/4) |
+| 2 | Dashboard Shell | Complete |
 | 3 | Canvas System | - |
 | 4 | Basic Cards | - |
 | 5 | Media Cards | - |
@@ -39,7 +39,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20%
 | 01 | Dependencies & Infrastructure | Complete |
 | 02 | Dashboard Sidebar | Complete |
 | 03 | Editor Split-Screen | Complete |
-| 04 | Unsaved Changes | Pending |
+| 04 | Preview Route & Header | Complete |
 
 ## v1 Component System (LOCKED)
 
@@ -79,12 +79,14 @@ Progress: [████░░░░░░░░░░░░░░░░] 20%
 | Cookie persistence for UI state | 02-02 | sidebar_state cookie read server-side |
 | react-resizable-panels v4 API | 02-03 | Group/Panel/Separator replaces PanelGroup/PanelResizeHandle |
 | orientation prop not direction | 02-03 | v4 API change for panel orientation |
+| postMessage origin check | 02-04 | Security: only accept same-origin messages |
+| useDefaultLayout for persistence | 02-04 | v4 pattern for panel layout persistence |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 02-03-PLAN.md
-Resume with: Execute 02-04-PLAN.md for Unsaved Changes
+Stopped at: Completed 02-04-PLAN.md (Phase 2 complete)
+Resume with: Execute Phase 3 (Canvas System)
 
 ---
-*Updated: 2026-01-24 after 02-03 completion*
+*Updated: 2026-01-24 after 02-04 completion*
