@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Copy, Check, ExternalLink, Save } from "lucide-react"
+import { Copy, Check, ExternalLink, Save, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
 import { cn } from "@/lib/utils"
 
 interface DashboardHeaderProps {
@@ -18,8 +19,9 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ username }: DashboardHeaderProps) {
   const [copied, setCopied] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const hasChanges = usePageStore((state) => state.hasChanges)
-  const markSaved = usePageStore((state) => state.markSaved)
+  const { saveCards } = useCards()
 
   const publicUrl = `linklobby.com/${username}`
   const fullUrl = `https://${publicUrl}`
@@ -36,10 +38,15 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
   }
 
   const handleSave = async () => {
-    // TODO: Implement actual save to database in future phase
-    // For now, just mark as saved in the store
-    markSaved()
-    toast.success("Changes saved")
+    try {
+      setIsSaving(true)
+      await saveCards()
+      toast.success("Changes saved")
+    } catch {
+      toast.error("Failed to save changes")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -108,12 +115,16 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
         {/* Save button */}
         <Button
           size="sm"
-          disabled={!hasChanges}
+          disabled={!hasChanges || isSaving}
           onClick={handleSave}
           className="gap-2"
         >
-          <Save className="h-4 w-4" />
-          <span className="hidden sm:inline">Save</span>
+          {isSaving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save"}</span>
         </Button>
       </div>
     </div>
