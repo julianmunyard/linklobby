@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Project scaffolding, Supabase auth, database schema
 - [x] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
 - [x] **Phase 3: Canvas System** - Vertical stack layout, drag-to-reorder, card sizing
-- [ ] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
+- [x] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
 - [ ] **Phase 4.1: Linktree Import** - INSERTED - One-click import from existing Linktree page
 - [ ] **Phase 5: Media Cards** - Video Card, Photo Gallery with ReactBits animations
 - [ ] **Phase 6: Advanced Cards** - Dropdown (expandable lists), Game Card (Snake)
@@ -97,10 +97,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 04-01-PLAN.md — Card content types, Supabase Storage upload, ImageUpload component (Wave 1)
-- [ ] 04-02-PLAN.md — HeroCard, HorizontalLink, SquareCard, CardRenderer components (Wave 2)
-- [ ] 04-03-PLAN.md — CardPropertyEditor with type-specific form fields (Wave 2)
-- [ ] 04-04-PLAN.md — Wire editor + preview integration, end-to-end verification (Wave 3)
+- [x] 04-01-PLAN.md — Card content types, Supabase Storage upload, ImageUpload component (Wave 1)
+- [x] 04-02-PLAN.md — HeroCard, HorizontalLink, SquareCard, CardRenderer components (Wave 2)
+- [x] 04-03-PLAN.md — CardPropertyEditor with type-specific form fields (Wave 2)
+- [x] 04-04-PLAN.md — Wire editor + preview integration, end-to-end verification (Wave 3)
 
 ### Phase 4.1: Linktree Import (INSERTED)
 **Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
@@ -242,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 | 1. Foundation | 3/3 | Complete | 2026-01-24 |
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 6/6 | Complete | 2026-01-24 |
-| 4. Basic Cards | 0/4 | Planned | - |
+| 4. Basic Cards | 4/4 | Complete | 2026-01-25 |
 | 4.1. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
@@ -254,4 +254,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-24 — Phase 4 planned (4 plans in 3 waves)*
+*Last updated: 2026-01-25 — Phase 4 complete (4 plans executed)*

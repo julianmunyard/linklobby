@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 3 COMPLETE - Ready for Phase 4
+**Current focus:** Phase 4 COMPLETE - Ready for Phase 4.1
 
 ## Current Position
 
-Phase: 4 of 11 - Basic Cards (IN PROGRESS)
-Plan: 2 of 3 complete
-Status: **In progress**
-Last activity: 2026-01-24 - Completed 04-02-PLAN.md
+Phase: 4 of 11 - Basic Cards (COMPLETE)
+Plan: 4 of 4 complete
+Status: **Complete - verified**
+Last activity: 2026-01-25 - Phase 4 execution complete
 
-Progress: [█████░░░░░░░░░░░░░░░░░] 25%
+Progress: [██████████████████████] 100%
 
 ## Roadmap Summary (11 Phases)
 
@@ -23,8 +23,8 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 | 1 | Foundation | Complete ✓ |
 | 2 | Dashboard Shell | Complete ✓ |
 | 3 | Canvas System | Complete ✓ |
-| 4 | Basic Cards | In Progress |
-| 4.1 | Linktree Import | - |
+| 4 | Basic Cards | Complete ✓ |
+| 4.1 | Linktree Import | Next |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
 | 7 | Theme System | - |
@@ -33,13 +33,14 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 4 Progress (IN PROGRESS)
+## Phase 4 Progress (COMPLETE ✓)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Card Content Infrastructure | Complete ✓ |
 | 02 | Basic Card Components | Complete ✓ |
 | 03 | Card Property Editor | Complete ✓ |
+| 04 | Editor + Preview Integration | Complete ✓ |
 
 ## Phase 3 Progress (COMPLETE ✓)
 
@@ -119,6 +120,7 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 | Optimistic updates via form.watch() | 04-03 | Immediate feedback in preview without save button |
 | Type-specific field components | 04-03 | Each card type can extend fields independently |
 | react-hook-form for property editor | 04-03 | Established pattern from phase 01 |
+| Wildcard Supabase image domain | 04-04 | *.supabase.co covers all projects, future-proof |
 
 ## Quick Tasks
 
@@ -128,24 +130,22 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 
 ## Session Continuity
 
-Last session: 2026-01-24
-Stopped at: Completed 04-02-PLAN.md (Basic Card Components)
-Resume with: Execute 04-04-PLAN.md (if exists) or `/gsd:plan-phase 4`
+Last session: 2026-01-25
+Stopped at: Phase 4 complete
+Resume with: `/gsd:plan-phase 4.1` or `/gsd:discuss-phase 4.1`
 
-**Phase 4 Plan 02 delivered:**
-- HeroCard component with image background, gradient overlay, three button styles
-- HorizontalLink component (Linktree-style bar with thumbnail and chevron)
-- SquareCard component (tile with image and optional title overlay)
-- CardRenderer switch component for all card types
-- Field editor components (HeroCardFields, HorizontalLinkFields, SquareCardFields)
+**Phase 4 delivered:**
+- Card content types (HeroCardContent, HorizontalLinkContent, SquareCardContent)
+- Supabase Storage upload with ImageUpload component
+- HeroCard, HorizontalLink, SquareCard render components
+- CardRenderer switch component
+- CardPropertyEditor with type-specific form fields
+- Editor panel integration (shows property editor when card selected)
+- Preview page uses CardRenderer for visual cards
+- Real-time updates via form.watch() and postMessage
 
-**Fixed during execution:**
-- Created missing card field editor components (referenced by 04-03 but not implemented)
-
-**Next steps:**
-- Check if plan 04-04 exists
-- If phase 4 complete, move to phase 4.1 (Linktree Import) or phase 5 (Media Cards)
-- Integrate CardRenderer into canvas preview for visual card rendering
+**User feedback:**
+- "Done" button suggestion for property editor (future enhancement)
 
 ---
-*Updated: 2026-01-24 — Phase 4 Plan 02 complete*
+*Updated: 2026-01-25 — Phase 4 complete*
