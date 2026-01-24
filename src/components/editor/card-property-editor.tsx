@@ -18,12 +18,21 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
 import { HorizontalLinkFields } from "./horizontal-link-fields"
 import { SquareCardFields } from "./square-card-fields"
 import { usePageStore } from "@/stores/page-store"
-import type { Card, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
+import type { Card, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
+import { CARD_SIZES } from "@/types/card"
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -121,6 +130,26 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 cardId={card.id}
                 aspectRatio={card.card_type === "square" ? "square" : "video"}
               />
+            </div>
+
+            {/* Card Size */}
+            <div className="space-y-2">
+              <Label htmlFor="cardSize">Card Size</Label>
+              <Select
+                value={card.size}
+                onValueChange={(value) => updateCard(card.id, { size: value as CardSize })}
+              >
+                <SelectTrigger id="cardSize">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(CARD_SIZES) as CardSize[]).map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {CARD_SIZES[size].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Title */}
