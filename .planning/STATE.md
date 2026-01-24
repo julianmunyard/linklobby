@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 2 of 11 - Dashboard Shell (COMPLETE)
-Plan: 4 of 4 complete
+Plan: 5 of 5 complete
 Status: **Phase complete**
-Last activity: 2026-01-24 - Completed 02-04-PLAN.md (Preview Route & Header)
+Last activity: 2026-01-24 - Completed 02-05-PLAN.md (Unsaved Changes Protection)
 
-Progress: [█████░░░░░░░░░░░░░░░] 22%
+Progress: [██████░░░░░░░░░░░░░░] 27%
 
 ## Roadmap Summary (11 Phases)
 
@@ -40,6 +40,7 @@ Progress: [█████░░░░░░░░░░░░░░░] 22%
 | 02 | Dashboard Sidebar | Complete |
 | 03 | Editor Split-Screen | Complete |
 | 04 | Preview Route & Header | Complete |
+| 05 | Unsaved Changes Protection | Complete |
 
 ## v1 Component System (LOCKED)
 
@@ -81,12 +82,15 @@ Progress: [█████░░░░░░░░░░░░░░░] 22%
 | orientation prop not direction | 02-03 | v4 API change for panel orientation |
 | postMessage origin check | 02-04 | Security: only accept same-origin messages |
 | useDefaultLayout for persistence | 02-04 | v4 pattern for panel layout persistence |
+| Capture phase for link clicks | 02-05 | Intercept before React handlers |
+| PREVIEW_READY message | 02-05 | Reliable iframe state sync |
+| Client wrapper pattern | 02-05 | Separate client hooks from server components |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 02-04-PLAN.md (Phase 2 complete)
+Stopped at: Completed 02-05-PLAN.md (Phase 2 complete)
 Resume with: Execute Phase 3 (Canvas System)
 
 ---
-*Updated: 2026-01-24 after 02-04 completion*
+*Updated: 2026-01-24 after 02-05 completion*
