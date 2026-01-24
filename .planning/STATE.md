@@ -139,7 +139,8 @@ Progress: [███████████████████████
 | Fixed DragOverlay widths | 04.1-02 | w-80 (big) and w-40 (small) for visual consistency |
 | rectSortingStrategy for FlowGrid | 04.1-03 | Replaced null strategy for smooth drag animations |
 | CARD_TYPE_SIZING enforcement in store | 04.1-03 | addCard/updateCard force 'big' for non-sizable card types |
-| postMessage POSITION_CHANGE handler | 04.1-03 | Preview iframe communicates position updates to editor |
+| Removed position drop zones | 04.1-03 | Left/center/right zones were clunky - cards now flow by order only |
+| Hide original card during drag | 04.1-03 | opacity-0 instead of opacity-30 for cleaner drag UX |
 
 ## Quick Tasks
 
@@ -155,14 +156,12 @@ Resume with: Next phase (4.2 Linktree Import or Phase 5 Media Cards)
 
 **Phase 4.1 Flow Layout delivered:**
 - CardSize type changed to 'big' | 'small'
-- HorizontalPosition type for small card positioning
 - CARD_TYPE_SIZING config for sizing support per card type
 - FlowGrid component with CSS flexbox wrap layout
-- PositionDropZone for left/center/right drop zones
 - SortableFlowCard with size-aware width classes
 - Conditional size selector in property editor (hides for horizontal cards)
 - Preview page using FlowGrid with smooth drag animations
-- postMessage communication for position changes
+- Cards flow left-to-right by order (simplified - no position zones)
 
 ---
-*Updated: 2026-01-25 - Phase 4.1 complete*
+*Updated: 2026-01-25 - Phase 4.1 complete (simplified flow layout)*
