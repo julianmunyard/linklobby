@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
 - [x] **Phase 3: Canvas System** - Vertical stack layout, drag-to-reorder, card sizing
 - [x] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
-- [ ] **Phase 4.1: Flow Layout** - INSERTED - Grid/flow canvas with side-by-side card sizing
+- [x] **Phase 4.1: Flow Layout** - INSERTED - Grid/flow canvas with side-by-side card sizing
 - [ ] **Phase 4.2: Linktree Import** - INSERTED - One-click import from existing Linktree page
 - [ ] **Phase 5: Media Cards** - Video Card, Photo Gallery with ReactBits animations
 - [ ] **Phase 6: Advanced Cards** - Dropdown (expandable lists), Game Card (Snake)
@@ -116,9 +116,9 @@ Plans:
 **Plans**: 3 plans in 3 waves
 
 Plans:
-- [ ] 04.1-01-PLAN.md — Card types, database mapping, position field (Wave 1)
-- [ ] 04.1-02-PLAN.md — Property editor, FlowGrid, PositionDropZone components (Wave 2)
-- [ ] 04.1-03-PLAN.md — Preview integration, position updates, verification (Wave 3)
+- [x] 04.1-01-PLAN.md — Card types, database mapping, position field (Wave 1)
+- [x] 04.1-02-PLAN.md — Property editor, FlowGrid, PositionDropZone components (Wave 2)
+- [x] 04.1-03-PLAN.md — Preview integration, position updates, verification (Wave 3)
 
 ### Phase 4.2: Linktree Import (INSERTED)
 **Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
@@ -261,7 +261,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 4.2 → 5 → 6
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 6/6 | Complete | 2026-01-24 |
 | 4. Basic Cards | 4/4 | Complete | 2026-01-25 |
-| 4.1. Flow Layout | 0/3 | Not started | - |
+| 4.1. Flow Layout | 3/3 | Complete | 2026-01-25 |
 | 4.2. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
@@ -273,4 +273,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 4.2 → 5 → 6
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-25 — Phase 4.1 plans created*
+*Last updated: 2026-01-25 — Phase 4.1 complete*
