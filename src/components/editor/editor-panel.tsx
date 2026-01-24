@@ -4,6 +4,7 @@ import { Link2, Palette } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { CardsTab } from "./cards-tab"
 
 interface EmptyStateProps {
   icon: React.ReactNode
@@ -47,15 +48,11 @@ export function EditorPanel() {
         <TabsContent
           value="links"
           className={cn(
-            "h-full overflow-auto",
+            "flex-1 overflow-hidden",
             "data-[state=inactive]:hidden"
           )}
         >
-          <EmptyState
-            icon={<Link2 className="h-8 w-8 text-muted-foreground" />}
-            title="No links yet"
-            description="Add your first link to start building your page. Choose from links, images, videos, and more."
-          />
+          <CardsTab />
         </TabsContent>
 
         <TabsContent
