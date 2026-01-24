@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS public.cards (
   description TEXT,
   url TEXT,
   content JSONB DEFAULT '{}', -- Flexible content storage per card type
+  size TEXT NOT NULL DEFAULT 'medium', -- Card display size: 'small', 'medium', 'large'
   position_x INTEGER DEFAULT 0,
   position_y INTEGER DEFAULT 0,
   width INTEGER DEFAULT 1,
