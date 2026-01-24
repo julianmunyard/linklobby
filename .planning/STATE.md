@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 3 of 11 - Canvas System
-Plan: 3 of 6 complete (03-01, 03-02, 03-03)
+Plan: 4 of 6 complete (03-01, 03-02, 03-03, 03-04)
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 03-03 Sortable Card Components
+Last activity: 2026-01-24 - Completed 03-04 Store & Editor Integration
 
-Progress: [████████░░░░░░░░░░░░] 35%
+Progress: [█████████░░░░░░░░░░░] 40%
 
 ## Roadmap Summary (11 Phases)
 
@@ -22,7 +22,7 @@ Progress: [████████░░░░░░░░░░░░] 35%
 |---|-------|--------|
 | 1 | Foundation | Complete |
 | 2 | Dashboard Shell | Complete |
-| 3 | Canvas System | In Progress (3/6) |
+| 3 | Canvas System | In Progress (4/6) |
 | 4 | Basic Cards | - |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
@@ -50,7 +50,7 @@ Progress: [████████░░░░░░░░░░░░] 35%
 | 01 | Canvas Foundation | Complete |
 | 02 | Database Schema Updates | Complete |
 | 03 | Sortable Card Components | Complete |
-| 04 | Store & Editor Integration | - |
+| 04 | Store & Editor Integration | Complete |
 | 05 | API Routes & useCards | - |
 | 06 | End-to-End Wiring | - |
 
@@ -104,17 +104,18 @@ Progress: [████████░░░░░░░░░░░░] 35%
 | Drag handle isolation | 03-03 | touch-none on handle allows page scroll on mobile |
 | Hydration guard pattern | 03-03 | dnd-kit ID mismatch between server/client |
 | 8px activation distance | 03-03 | Prevents accidental drags |
+| getSortedCards computed | 03-04 | Store returns cards in display order |
+| selectedCardId for selection | 03-04 | Track selected card for property editing |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 03-03-PLAN.md
-Resume with: `/gsd:execute-phase 3` (will continue with 03-04)
+Stopped at: Completed 03-04-PLAN.md
+Resume with: `/gsd:execute-phase 3` (will continue with 03-05)
 
 **Phase 3 remaining:**
-- Wave 2: 03-04 (Store & Editor Integration)
 - Wave 3: 03-05 (API Routes & useCards)
 - Wave 4: 03-06 (End-to-End Wiring - has checkpoint)
 
 ---
-*Updated: 2026-01-24 — completed 03-03 Sortable Card Components*
+*Updated: 2026-01-24 — completed 03-04 Store & Editor Integration*
