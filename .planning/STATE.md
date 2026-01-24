@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 4.1 Flow Layout - Complete
+**Current focus:** Phase 4.2 Linktree Import - In Progress
 
 ## Current Position
 
-Phase: 4.1 of 18 - Flow Layout (COMPLETE)
-Plan: 3 of 3 complete
-Status: **Phase complete**
-Last activity: 2026-01-25 - Completed 04.1-03-PLAN.md
+Phase: 4.2 of 18 - Linktree Import (IN PROGRESS)
+Plan: 1 of 3 complete
+Status: **In progress**
+Last activity: 2026-01-25 - Completed 04.2-01-PLAN.md
 
-Progress: [█████████████████████████] 100%
+Progress: [█████░░░░░░░░░░░░░░░░░░░░] 20%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -26,7 +26,7 @@ Progress: [███████████████████████
 | 3 | Canvas System | Complete ✓ |
 | 4 | Basic Cards | Complete ✓ |
 | 4.1 | Flow Layout | Complete ✓ |
-| 4.2 | Linktree Import | Next |
+| 4.2 | Linktree Import | In Progress |
 | 4.3 | Card Context Menu & Undo/Redo | - |
 | 4.4 | Profile Editor | - |
 | 4.5 | Editor Polish (Mobile) | - |
@@ -52,6 +52,14 @@ Progress: [███████████████████████
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 4.2 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Linktree Import Infrastructure | Complete |
+| 02 | API Route & Image Downloader | - |
+| 03 | UI Integration | - |
 
 ## Phase 4.1 Progress (COMPLETE)
 
@@ -162,6 +170,11 @@ Progress: [███████████████████████
 | CARD_TYPE_SIZING enforcement in store | 04.1-03 | addCard/updateCard force 'big' for non-sizable card types |
 | Removed position drop zones | 04.1-03 | Left/center/right zones were clunky - cards now flow by order only |
 | Hide original card during drag | 04.1-03 | opacity-0 instead of opacity-30 for cleaner drag UX |
+| axios/cheerio for __NEXT_DATA__ scraping | 04.2-01 | Lighter weight than Puppeteer for extracting Linktree JSON |
+| Custom Linktree error classes | 04.2-01 | LinktreeNotFoundError, LinktreeEmptyError, LinktreeFetchError for clear user feedback |
+| Filter to clickable links only | 04.2-01 | Exclude HEADER type and locked links from import |
+| Pattern-based layout generation | 04.2-01 | 5 rhythm patterns create "this is different" feeling vs uniform Linktree |
+| Deterministic randomization | 04.2-01 | Link count modulo patterns = consistent but varied layouts |
 
 ## Quick Tasks
 
@@ -172,17 +185,15 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Completed 04.1-03-PLAN.md - Phase 4.1 complete
-Resume with: Next phase (4.2 Linktree Import or Phase 5 Media Cards)
+Stopped at: Completed 04.2-01-PLAN.md
+Resume with: 04.2-02 (API Route) or 04.2-03 (UI Integration)
 
-**Phase 4.1 Flow Layout delivered:**
-- CardSize type changed to 'big' | 'small'
-- CARD_TYPE_SIZING config for sizing support per card type
-- FlowGrid component with CSS flexbox wrap layout
-- SortableFlowCard with size-aware width classes
-- Conditional size selector in property editor (hides for horizontal cards)
-- Preview page using FlowGrid with smooth drag animations
-- Cards flow left-to-right by order (simplified - no position zones)
+**Phase 4.2-01 Linktree Import Infrastructure delivered:**
+- Zod schemas for Linktree __NEXT_DATA__ validation (LinktreeDataSchema, LinktreeLinkSchema)
+- scrapeLinktreeProfile service with normalizeLinktreeInput (username/URL auto-detect)
+- Custom error classes for user-friendly error messages
+- Layout generator with 5 visual rhythm patterns
+- Foundation ready for API route and mapper service
 
 ---
 *Updated: 2026-01-25 - Roadmap expanded to 18 phases based on competitive analysis*
