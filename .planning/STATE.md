@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 2 of 11 - Dashboard Shell (IN PROGRESS)
-Plan: 2 of 4 complete
+Plan: 3 of 4 complete
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 02-02-PLAN.md (Dashboard Sidebar)
+Last activity: 2026-01-24 - Completed 02-03-PLAN.md (Editor Split-Screen)
 
-Progress: [████░░░░░░░░░░░░░░░░] 17%
+Progress: [████░░░░░░░░░░░░░░░░] 20%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Foundation | Complete |
-| 2 | Dashboard Shell | In progress (2/4) |
+| 2 | Dashboard Shell | In progress (3/4) |
 | 3 | Canvas System | - |
 | 4 | Basic Cards | - |
 | 5 | Media Cards | - |
@@ -38,7 +38,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 17%
 |------|------|--------|
 | 01 | Dependencies & Infrastructure | Complete |
 | 02 | Dashboard Sidebar | Complete |
-| 03 | Sidebar Navigation | Pending |
+| 03 | Editor Split-Screen | Complete |
 | 04 | Unsaved Changes | Pending |
 
 ## v1 Component System (LOCKED)
@@ -77,12 +77,14 @@ Progress: [████░░░░░░░░░░░░░░░░] 17%
 | hasChanges pattern | 02-01 | Set on mutations, cleared on save |
 | collapsible="icon" sidebar | 02-02 | Sidebar collapses to icon mode |
 | Cookie persistence for UI state | 02-02 | sidebar_state cookie read server-side |
+| react-resizable-panels v4 API | 02-03 | Group/Panel/Separator replaces PanelGroup/PanelResizeHandle |
+| orientation prop not direction | 02-03 | v4 API change for panel orientation |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 02-02-PLAN.md
-Resume with: Execute 02-03-PLAN.md for Sidebar Navigation
+Stopped at: Completed 02-03-PLAN.md
+Resume with: Execute 02-04-PLAN.md for Unsaved Changes
 
 ---
-*Updated: 2026-01-24 after 02-02 completion*
+*Updated: 2026-01-24 after 02-03 completion*
