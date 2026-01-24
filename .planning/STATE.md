@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 4.1 Flow Layout - In Progress
+**Current focus:** Phase 4.1 Flow Layout - Complete
 
 ## Current Position
 
-Phase: 4.1 of 11 - Flow Layout (IN PROGRESS)
-Plan: 2 of 4 complete
-Status: **In progress**
-Last activity: 2026-01-25 - Completed 04.1-02-PLAN.md
+Phase: 4.1 of 11 - Flow Layout (COMPLETE)
+Plan: 3 of 3 complete
+Status: **Phase complete**
+Last activity: 2026-01-25 - Completed 04.1-03-PLAN.md
 
-Progress: [████████████████████████░] 96%
+Progress: [█████████████████████████] 100%
 
 ## Roadmap Summary (11 Phases)
 
@@ -24,7 +24,7 @@ Progress: [███████████████████████
 | 2 | Dashboard Shell | Complete |
 | 3 | Canvas System | Complete |
 | 4 | Basic Cards | Complete |
-| 4.1 | Flow Layout | In Progress |
+| 4.1 | Flow Layout | Complete |
 | 4.2 | Linktree Import | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
@@ -34,14 +34,13 @@ Progress: [███████████████████████
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 4.1 Progress (IN PROGRESS)
+## Phase 4.1 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Type Definitions & Database Mapping | Complete |
 | 02 | Flow Layout Components | Complete |
-| 03 | Size Selector Component | - |
-| 04 | Integration & Wiring | - |
+| 03 | Preview Integration & Wiring | Complete |
 
 ## Phase 4 Progress (COMPLETE)
 
@@ -138,6 +137,9 @@ Progress: [███████████████████████
 | Position zones overlay during small card drag | 04.1-02 | Only show left/center/right zones when relevant |
 | strategy={() => null} for mixed sizes | 04.1-02 | Disables dnd-kit auto-positioning for mixed card sizes |
 | Fixed DragOverlay widths | 04.1-02 | w-80 (big) and w-40 (small) for visual consistency |
+| rectSortingStrategy for FlowGrid | 04.1-03 | Replaced null strategy for smooth drag animations |
+| CARD_TYPE_SIZING enforcement in store | 04.1-03 | addCard/updateCard force 'big' for non-sizable card types |
+| postMessage POSITION_CHANGE handler | 04.1-03 | Preview iframe communicates position updates to editor |
 
 ## Quick Tasks
 
@@ -148,15 +150,19 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Completed 04.1-02-PLAN.md
-Resume with: `/gsd:execute-plan 04.1-03` or continue phase
+Stopped at: Completed 04.1-03-PLAN.md - Phase 4.1 complete
+Resume with: Next phase (4.2 Linktree Import or Phase 5 Media Cards)
 
-**Phase 4.1 Plan 02 delivered:**
+**Phase 4.1 Flow Layout delivered:**
+- CardSize type changed to 'big' | 'small'
+- HorizontalPosition type for small card positioning
+- CARD_TYPE_SIZING config for sizing support per card type
 - FlowGrid component with CSS flexbox wrap layout
 - PositionDropZone for left/center/right drop zones
 - SortableFlowCard with size-aware width classes
 - Conditional size selector in property editor (hides for horizontal cards)
-- DragOverlay visual feedback during drag
+- Preview page using FlowGrid with smooth drag animations
+- postMessage communication for position changes
 
 ---
-*Updated: 2026-01-25 - Phase 4.1 Plan 02 complete*
+*Updated: 2026-01-25 - Phase 4.1 complete*
