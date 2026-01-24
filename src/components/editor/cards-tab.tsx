@@ -1,7 +1,7 @@
 "use client"
 
-import { useMemo } from "react"
-import { Loader2, Plus } from "lucide-react"
+import { useMemo, useState } from "react"
+import { Loader2, Plus, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import { useCards } from "@/hooks/use-cards"
 import { generateAppendKey, sortCardsBySortKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
+import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string }[] = [
   { type: "horizontal", label: "Horizontal Link" },
@@ -27,6 +28,8 @@ const CARD_TYPES: { type: CardType; label: string }[] = [
 ]
 
 export function CardsTab() {
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+
   // Select raw cards array (stable reference)
   const rawCards = usePageStore((state) => state.cards)
   const selectedCardId = usePageStore((state) => state.selectedCardId)
@@ -99,41 +102,72 @@ export function CardsTab() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with add button */}
+      {/* Header with add and import buttons */}
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-sm font-medium">Cards</h2>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Card
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {CARD_TYPES.map(({ type, label }) => (
-              <DropdownMenuItem
-                key={type}
-                onClick={() => handleAddCard(type)}
-              >
-                {label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setImportDialogOpen(true)}
+          >
+            <Download className="h-4 w-4 mr-1" />
+            Import
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Card
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {CARD_TYPES.map(({ type, label }) => (
+                <DropdownMenuItem
+                  key={type}
+                  onClick={() => handleAddCard(type)}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Scrollable card list */}
       <div className="flex-1 overflow-y-auto p-4">
-        <CanvasContainer>
-          <SortableCardList
-            cards={cards}
-            onReorder={reorderCards}
-            selectedCardId={selectedCardId}
-            onSelectCard={selectCard}
-            onDeleteCard={handleDeleteCard}
-          />
-        </CanvasContainer>
+        {cards.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <p className="text-muted-foreground mb-4">No cards yet. Get started by importing from Linktree or creating your first card.</p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="default"
+                onClick={() => setImportDialogOpen(true)}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Import from Linktree
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <CanvasContainer>
+            <SortableCardList
+              cards={cards}
+              onReorder={reorderCards}
+              selectedCardId={selectedCardId}
+              onSelectCard={selectCard}
+              onDeleteCard={handleDeleteCard}
+            />
+          </CanvasContainer>
+        )}
       </div>
+
+      {/* Import dialog */}
+      <LinktreeImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+      />
     </div>
   )
 }
