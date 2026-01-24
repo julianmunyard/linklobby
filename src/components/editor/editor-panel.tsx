@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutGrid, Palette, BarChart3 } from "lucide-react"
+import { Link2, Palette, BarChart3 } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -30,12 +30,12 @@ function EmptyState({ icon, title, description }: EmptyStateProps) {
 export function EditorPanel() {
   return (
     <div className="flex h-full flex-col">
-      <Tabs defaultValue="cards" className="flex h-full flex-col">
+      <Tabs defaultValue="links" className="flex h-full flex-col">
         <div className="border-b px-4 py-2">
           <TabsList className="w-full">
-            <TabsTrigger value="cards" className="flex-1 gap-2">
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden sm:inline">Cards</span>
+            <TabsTrigger value="links" className="flex-1 gap-2">
+              <Link2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Links</span>
             </TabsTrigger>
             <TabsTrigger value="design" className="flex-1 gap-2">
               <Palette className="h-4 w-4" />
@@ -49,16 +49,16 @@ export function EditorPanel() {
         </div>
 
         <TabsContent
-          value="cards"
+          value="links"
           className={cn(
             "h-full overflow-auto",
             "data-[state=inactive]:hidden"
           )}
         >
           <EmptyState
-            icon={<LayoutGrid className="h-8 w-8 text-muted-foreground" />}
-            title="No cards yet"
-            description="Add your first card to start building your page. Choose from links, images, videos, and more."
+            icon={<Link2 className="h-8 w-8 text-muted-foreground" />}
+            title="No links yet"
+            description="Add your first link to start building your page. Choose from links, images, videos, and more."
           />
         </TabsContent>
 
