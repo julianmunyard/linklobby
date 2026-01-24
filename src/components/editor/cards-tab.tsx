@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,6 +11,8 @@ import {
 import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
+import { generateAppendKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
 
 const CARD_TYPES: { type: CardType; label: string }[] = [
@@ -25,9 +27,51 @@ const CARD_TYPES: { type: CardType; label: string }[] = [
 export function CardsTab() {
   const cards = usePageStore((state) => state.getSortedCards())
   const selectedCardId = usePageStore((state) => state.selectedCardId)
-  const addCard = usePageStore((state) => state.addCard)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
+
+  const { isLoading, error, createCard } = useCards()
+
+  // Create card in DB first, then add to store with DB-generated id
+  const handleAddCard = async (type: CardType) => {
+    try {
+      const sortKey = generateAppendKey(cards)
+      const newCard = await createCard({
+        card_type: type,
+        title: null,
+        description: null,
+        url: null,
+        content: {},
+        size: "medium",
+        sortKey,
+        is_visible: true,
+      })
+      // Add to store with DB-generated id
+      usePageStore.getState().setCards([...cards, newCard])
+      usePageStore.getState().selectCard(newCard.id)
+    } catch (err) {
+      // Error already tracked in hook
+      console.error("Failed to add card:", err)
+    }
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full text-destructive">
+        <p>Failed to load cards: {error}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -45,7 +89,7 @@ export function CardsTab() {
             {CARD_TYPES.map(({ type, label }) => (
               <DropdownMenuItem
                 key={type}
-                onClick={() => addCard(type)}
+                onClick={() => handleAddCard(type)}
               >
                 {label}
               </DropdownMenuItem>
