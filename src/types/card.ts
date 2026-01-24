@@ -44,3 +44,39 @@ export const CARD_SIZES = {
     minHeight: 'min-h-64',
   },
 } as const
+
+// Content schemas for each card type
+export interface HeroCardContent {
+  imageUrl?: string
+  imageAlt?: string
+  buttonText?: string
+  buttonStyle?: "primary" | "secondary" | "outline"
+}
+
+export interface HorizontalLinkContent {
+  imageUrl?: string
+  imageAlt?: string
+  iconName?: string  // Lucide icon name as alternative to image
+}
+
+export interface SquareCardContent {
+  imageUrl?: string
+  imageAlt?: string
+  showTitle?: boolean  // Whether to show title overlay (default true)
+}
+
+// Union type for all card content
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | Record<string, unknown>
+
+// Helper type guards
+export function isHeroContent(content: unknown): content is HeroCardContent {
+  return typeof content === 'object' && content !== null
+}
+
+export function isHorizontalContent(content: unknown): content is HorizontalLinkContent {
+  return typeof content === 'object' && content !== null
+}
+
+export function isSquareContent(content: unknown): content is SquareCardContent {
+  return typeof content === 'object' && content !== null
+}
