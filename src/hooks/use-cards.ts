@@ -1,8 +1,9 @@
 // src/hooks/use-cards.ts
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { usePageStore } from "@/stores/page-store"
+import { sortCardsBySortKey } from "@/lib/ordering"
 import type { Card } from "@/types/card"
 
 export function useCards() {
@@ -10,9 +11,12 @@ export function useCards() {
   const [error, setError] = useState<string | null>(null)
 
   const setCards = usePageStore((state) => state.setCards)
-  const cards = usePageStore((state) => state.getSortedCards())
+  const rawCards = usePageStore((state) => state.cards)
   const hasChanges = usePageStore((state) => state.hasChanges)
   const markSaved = usePageStore((state) => state.markSaved)
+
+  // Sort cards in useMemo to avoid infinite loop
+  const cards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
 
   // Load cards on mount
   useEffect(() => {

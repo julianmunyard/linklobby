@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { Loader2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +13,7 @@ import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
-import { generateAppendKey } from "@/lib/ordering"
+import { generateAppendKey, sortCardsBySortKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
 
 const CARD_TYPES: { type: CardType; label: string }[] = [
@@ -25,10 +26,14 @@ const CARD_TYPES: { type: CardType; label: string }[] = [
 ]
 
 export function CardsTab() {
-  const cards = usePageStore((state) => state.getSortedCards())
+  // Select raw cards array (stable reference)
+  const rawCards = usePageStore((state) => state.cards)
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
+
+  // Sort cards in useMemo to avoid infinite loop
+  const cards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
 
   const { isLoading, error, createCard } = useCards()
 
