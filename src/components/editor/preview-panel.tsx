@@ -16,7 +16,6 @@ export function PreviewPanel() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
-  const updateCardPosition = usePageStore((state) => state.updateCardPosition)
 
   // Send state to preview iframe
   const sendToPreview = () => {
@@ -42,15 +41,12 @@ export function PreviewPanel() {
         case "REORDER_CARDS":
           reorderCards(event.data.payload.oldIndex, event.data.payload.newIndex)
           break
-        case "POSITION_CHANGE":
-          updateCardPosition(event.data.payload.cardId, event.data.payload.position)
-          break
       }
     }
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, updateCardPosition])
+  }, [reorderCards])
 
   // Send initial state when preview becomes ready
   useEffect(() => {

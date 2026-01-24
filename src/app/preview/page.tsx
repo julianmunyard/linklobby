@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { FlowGrid } from "@/components/canvas/flow-grid"
-import type { Card, HorizontalPosition } from "@/types/card"
+import type { Card } from "@/types/card"
 
 interface Theme {
   id: string
@@ -92,7 +92,7 @@ export default function PreviewPage() {
           </p>
         </div>
       ) : (
-        // Card rendering using FlowGrid with drag-to-reorder and position changes
+        // Card rendering using FlowGrid with drag-to-reorder
         <FlowGrid
           cards={state.cards}
           onReorder={(oldIndex, newIndex) => {
@@ -100,15 +100,6 @@ export default function PreviewPage() {
             if (window.parent !== window) {
               window.parent.postMessage(
                 { type: "REORDER_CARDS", payload: { oldIndex, newIndex } },
-                window.location.origin
-              )
-            }
-          }}
-          onPositionChange={(cardId, position) => {
-            // Send position change message to parent editor
-            if (window.parent !== window) {
-              window.parent.postMessage(
-                { type: "POSITION_CHANGE", payload: { cardId, position } },
                 window.location.origin
               )
             }

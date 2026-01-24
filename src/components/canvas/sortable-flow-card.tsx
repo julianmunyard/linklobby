@@ -28,16 +28,10 @@ export function SortableFlowCard({ card, isDragging }: SortableFlowCardProps) {
 
   // Width classes based on size
   // Big = full width, Small = half width (minus gap)
+  // Cards flow left-to-right based on order - two small cards fill a row, then wrap
   const widthClass = card.size === "big"
     ? "w-full"
     : "w-[calc(50%-0.5rem)]"
-
-  // Position classes for small cards
-  const positionClass = card.size === "small" && card.position === "center"
-    ? "mx-auto"
-    : card.size === "small" && card.position === "right"
-    ? "ml-auto"
-    : ""
 
   return (
     <div
@@ -45,7 +39,6 @@ export function SortableFlowCard({ card, isDragging }: SortableFlowCardProps) {
       style={style}
       className={cn(
         widthClass,
-        positionClass,
         isDragging && "opacity-30",
         "cursor-grab active:cursor-grabbing"
       )}

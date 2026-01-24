@@ -20,16 +20,14 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { SortableFlowCard } from "./sortable-flow-card"
-import { PositionDropZone } from "./position-drop-zone"
-import type { Card, HorizontalPosition } from "@/types/card"
+import type { Card } from "@/types/card"
 
 interface FlowGridProps {
   cards: Card[]
   onReorder: (oldIndex: number, newIndex: number) => void
-  onPositionChange: (cardId: string, position: HorizontalPosition) => void
 }
 
-export function FlowGrid({ cards, onReorder, onPositionChange }: FlowGridProps) {
+export function FlowGrid({ cards, onReorder }: FlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -59,18 +57,6 @@ export function FlowGrid({ cards, onReorder, onPositionChange }: FlowGridProps) 
     setActiveCard(null)
 
     if (!over) return
-
-    const overId = over.id.toString()
-
-    // Position drop (small cards only)
-    if (overId.startsWith("position-")) {
-      const draggedCard = cards.find((c) => c.id === active.id)
-      if (draggedCard?.size === "small") {
-        const position = overId.replace("position-", "") as HorizontalPosition
-        onPositionChange(active.id.toString(), position)
-      }
-      return
-    }
 
     // Reorder drop
     if (active.id !== over.id) {
@@ -108,8 +94,6 @@ export function FlowGrid({ cards, onReorder, onPositionChange }: FlowGridProps) 
     )
   }
 
-  const isDraggingSmall = activeCard?.size === "small"
-
   return (
     <DndContext
       sensors={sensors}
@@ -121,29 +105,15 @@ export function FlowGrid({ cards, onReorder, onPositionChange }: FlowGridProps) 
         items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
-        <div className="relative">
-          {/* Position drop zones overlay - shown only when dragging small card */}
-          {isDraggingSmall && (
-            <div className="absolute inset-0 flex gap-4 z-10 p-1">
-              <PositionDropZone position="left" />
-              <PositionDropZone position="center" />
-              <PositionDropZone position="right" />
-            </div>
-          )}
-
-          {/* Cards in flow layout */}
-          <div className={cn(
-            "flex flex-wrap gap-4",
-            isDraggingSmall && "opacity-50"
-          )}>
-            {cards.map((card) => (
-              <SortableFlowCard
-                key={card.id}
-                card={card}
-                isDragging={activeCard?.id === card.id}
-              />
-            ))}
-          </div>
+        {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
+        <div className="flex flex-wrap gap-4">
+          {cards.map((card) => (
+            <SortableFlowCard
+              key={card.id}
+              card={card}
+              isDragging={activeCard?.id === card.id}
+            />
+          ))}
         </div>
       </SortableContext>
 
