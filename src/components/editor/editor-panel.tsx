@@ -1,6 +1,6 @@
 "use client"
 
-import { Link2, Palette, BarChart3 } from "lucide-react"
+import { Link2, Palette } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -41,10 +41,6 @@ export function EditorPanel() {
               <Palette className="h-4 w-4" />
               <span className="hidden sm:inline">Design</span>
             </TabsTrigger>
-            <TabsTrigger value="insights" className="flex-1 gap-2">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Insights</span>
-            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -76,20 +72,7 @@ export function EditorPanel() {
           />
         </TabsContent>
 
-        <TabsContent
-          value="insights"
-          className={cn(
-            "h-full overflow-auto",
-            "data-[state=inactive]:hidden"
-          )}
-        >
-          <EmptyState
-            icon={<BarChart3 className="h-8 w-8 text-muted-foreground" />}
-            title="Track your performance"
-            description="View page visits, link clicks, and engagement metrics once your page is live."
-          />
-        </TabsContent>
-      </Tabs>
+        </Tabs>
     </div>
   )
 }

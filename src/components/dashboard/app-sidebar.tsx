@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Settings, ExternalLink } from "lucide-react"
+import { LayoutDashboard, BarChart3, Settings, ExternalLink } from "lucide-react"
 
 import {
   Sidebar,
@@ -22,6 +22,11 @@ const navItems = [
     title: "Editor",
     href: "/editor",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Insights",
+    href: "/insights",
+    icon: BarChart3,
   },
   {
     title: "Settings",
