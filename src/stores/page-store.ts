@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Card, CardType, CardSize } from '@/types/card'
+import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { generateAppendKey, generateMoveKey, sortCardsBySortKey } from '@/lib/ordering'
 
 interface Theme {
@@ -28,6 +28,7 @@ interface PageState {
   updateCard: (id: string, updates: Partial<Card>) => void
   removeCard: (id: string) => void
   reorderCards: (oldIndex: number, newIndex: number) => void
+  updateCardPosition: (id: string, position: HorizontalPosition) => void
   selectCard: (id: string | null) => void
   setTheme: (theme: Theme) => void
   markSaved: () => void
@@ -100,6 +101,15 @@ export const usePageStore = create<PageState>()((set, get) => ({
       hasChanges: true,
     }
   }),
+
+  updateCardPosition: (id, position) => set((state) => ({
+    cards: state.cards.map((c) =>
+      c.id === id
+        ? { ...c, position, updated_at: new Date().toISOString() }
+        : c
+    ),
+    hasChanges: true,
+  })),
 
   selectCard: (id) => set({ selectedCardId: id }),
 

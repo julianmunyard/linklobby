@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CanvasContainer } from "@/components/canvas/canvas-container"
-import { CardRenderer } from "@/components/cards/card-renderer"
-import type { Card } from "@/types/card"
+import { FlowGrid } from "@/components/canvas/flow-grid"
+import type { Card, HorizontalPosition } from "@/types/card"
 
 interface Theme {
   id: string
@@ -93,14 +92,28 @@ export default function PreviewPage() {
           </p>
         </div>
       ) : (
-        // Card rendering using CardRenderer
-        <CanvasContainer>
-          <div className="space-y-4">
-            {state.cards.map((card) => (
-              <CardRenderer key={card.id} card={card} isPreview />
-            ))}
-          </div>
-        </CanvasContainer>
+        // Card rendering using FlowGrid with drag-to-reorder and position changes
+        <FlowGrid
+          cards={state.cards}
+          onReorder={(oldIndex, newIndex) => {
+            // Send reorder message to parent editor
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: "REORDER_CARDS", payload: { oldIndex, newIndex } },
+                window.location.origin
+              )
+            }
+          }}
+          onPositionChange={(cardId, position) => {
+            // Send position change message to parent editor
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: "POSITION_CHANGE", payload: { cardId, position } },
+                window.location.origin
+              )
+            }
+          }}
+        />
       )}
     </div>
   )

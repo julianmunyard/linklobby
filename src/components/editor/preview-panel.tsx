@@ -15,6 +15,8 @@ export function PreviewPanel() {
   const [previewReady, setPreviewReady] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
+  const reorderCards = usePageStore((state) => state.reorderCards)
+  const updateCardPosition = usePageStore((state) => state.updateCardPosition)
 
   // Send state to preview iframe
   const sendToPreview = () => {
@@ -28,18 +30,27 @@ export function PreviewPanel() {
     }
   }
 
-  // Listen for PREVIEW_READY message from iframe
+  // Listen for messages from preview iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
-      if (event.data.type === "PREVIEW_READY") {
-        setPreviewReady(true)
+
+      switch (event.data.type) {
+        case "PREVIEW_READY":
+          setPreviewReady(true)
+          break
+        case "REORDER_CARDS":
+          reorderCards(event.data.payload.oldIndex, event.data.payload.newIndex)
+          break
+        case "POSITION_CHANGE":
+          updateCardPosition(event.data.payload.cardId, event.data.payload.position)
+          break
       }
     }
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [])
+  }, [reorderCards, updateCardPosition])
 
   // Send initial state when preview becomes ready
   useEffect(() => {
