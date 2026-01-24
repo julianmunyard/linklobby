@@ -94,11 +94,13 @@ Plans:
   4. All cards support: title, description, URL, and image upload
   5. Cards render correctly on canvas at their designated sizes
   6. Card content editable via sidebar panel when selected
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md — Card content types, Supabase Storage upload, ImageUpload component (Wave 1)
+- [ ] 04-02-PLAN.md — HeroCard, HorizontalLink, SquareCard, CardRenderer components (Wave 2)
+- [ ] 04-03-PLAN.md — CardPropertyEditor with type-specific form fields (Wave 2)
+- [ ] 04-04-PLAN.md — Wire editor + preview integration, end-to-end verification (Wave 3)
 
 ### Phase 4.1: Linktree Import (INSERTED)
 **Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
@@ -240,7 +242,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 | 1. Foundation | 3/3 | Complete | 2026-01-24 |
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 6/6 | Complete | 2026-01-24 |
-| 4. Basic Cards | 0/2 | Not started | - |
+| 4. Basic Cards | 0/4 | Planned | - |
 | 4.1. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
@@ -252,4 +254,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-24 — Phase 3 complete (6/6 plans)*
+*Last updated: 2026-01-24 — Phase 4 planned (4 plans in 3 waves)*
