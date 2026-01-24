@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 1 in progress - Foundation (Plan 01 complete)
+**Current focus:** Phase 2 in progress - Building Dashboard Shell
 
 ## Current Position
 
-Phase: 1 of 11 - Foundation
-Plan: 1 of 3 complete
+Phase: 2 of 11 - Dashboard Shell (IN PROGRESS)
+Plan: 1 of 4 complete
 Status: **In progress**
-Last activity: 2026-01-23 - Completed 01-01-PLAN.md (Project Scaffolding)
+Last activity: 2026-01-24 - Completed 02-01-PLAN.md (Dependencies & Infrastructure)
 
-Progress: [█░░░░░░░░░░░░░░░░░░░] 3%
+Progress: [███░░░░░░░░░░░░░░░░░] 12%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Foundation | Plan 01 complete |
-| 2 | Dashboard Shell | - |
+| 1 | Foundation | Complete |
+| 2 | Dashboard Shell | In progress (1/4) |
 | 3 | Canvas System | - |
 | 4 | Basic Cards | - |
 | 5 | Media Cards | - |
@@ -32,13 +32,14 @@ Progress: [█░░░░░░░░░░░░░░░░░░░] 3%
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 1 Progress
+## Phase 2 Progress
 
 | Plan | Name | Status |
 |------|------|--------|
-| 01 | Project Scaffolding | Complete |
-| 02 | Database Schema | Ready |
-| 03 | Auth Forms | Waiting on 02 |
+| 01 | Dependencies & Infrastructure | Complete |
+| 02 | Dashboard Layout | Pending |
+| 03 | Sidebar Navigation | Pending |
+| 04 | Unsaved Changes | Pending |
 
 ## v1 Component System (LOCKED)
 
@@ -70,12 +71,16 @@ Progress: [█░░░░░░░░░░░░░░░░░░░] 3%
 | sonner instead of toast | 01-01 | toast deprecated in shadcn v3.7.0 |
 | @supabase/ssr for auth | 01-01 | Official SSR pattern, replaces deprecated auth-helpers |
 | getUser() not getSession() | 01-01 | Security: getUser() validates JWT with Supabase server |
+| User ran schema manually | 01-02 | Supabase project already existed |
+| React Hook Form + Zod | 01-03 | Form validation pattern |
+| Zustand for state management | 02-01 | Lightweight, no boilerplate |
+| hasChanges pattern | 02-01 | Set on mutations, cleared on save |
 
 ## Session Continuity
 
-Last session: 2026-01-23
-Stopped at: Completed 01-01-PLAN.md
-Resume with: `/gsd:execute-phase 1` to continue with Plan 02 (Database Schema)
+Last session: 2026-01-24
+Stopped at: Completed 02-01-PLAN.md
+Resume with: Execute 02-02-PLAN.md for Dashboard Layout
 
 ---
-*Updated: 2026-01-23 after Plan 01-01 completion*
+*Updated: 2026-01-24 after 02-01 completion*
