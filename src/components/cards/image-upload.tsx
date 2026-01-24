@@ -57,61 +57,51 @@ export function ImageUpload({
     // Note: We don't delete from storage immediately - orphan cleanup can happen later
   }
 
-  const aspectClass = aspectRatio === "square" ? "aspect-square" : "aspect-video"
-
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       {value ? (
-        // Image preview with remove button
-        <div className={cn("relative rounded-lg overflow-hidden bg-muted", aspectClass)}>
+        // Small thumbnail preview with remove button
+        <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
           <Image
             src={value}
             alt="Uploaded image"
             fill
             className="object-cover"
-            sizes="(max-width: 400px) 100vw, 400px"
+            sizes="64px"
           />
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 h-8 w-8"
-            onClick={handleRemove}
-            disabled={disabled}
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Remove image</span>
-          </Button>
         </div>
       ) : (
-        // Upload button/dropzone
+        // Small upload placeholder
+        <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+          <Upload className="h-5 w-5 text-muted-foreground" />
+        </div>
+      )}
+
+      {/* Upload/Change/Remove buttons */}
+      <div className="flex flex-col gap-1">
         <button
           type="button"
           className={cn(
-            "w-full border-2 border-dashed rounded-lg",
-            "flex flex-col items-center justify-center gap-2",
-            "text-muted-foreground hover:text-foreground hover:border-foreground/50",
-            "transition-colors cursor-pointer",
-            aspectClass,
+            "text-sm text-primary hover:underline text-left",
             disabled && "opacity-50 cursor-not-allowed"
           )}
           onClick={() => inputRef.current?.click()}
           disabled={disabled || isUploading}
         >
-          {isUploading ? (
-            <>
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="text-sm">Uploading...</span>
-            </>
-          ) : (
-            <>
-              <Upload className="h-8 w-8" />
-              <span className="text-sm">Click to upload image</span>
-              <span className="text-xs text-muted-foreground">Max 5MB</span>
-            </>
-          )}
+          {isUploading ? "Uploading..." : value ? "Change image" : "Upload image"}
         </button>
-      )}
+        {value && (
+          <button
+            type="button"
+            className="text-sm text-destructive hover:underline text-left"
+            onClick={handleRemove}
+            disabled={disabled}
+          >
+            Remove
+          </button>
+        )}
+        <span className="text-xs text-muted-foreground">Max 5MB</span>
+      </div>
 
       <input
         ref={inputRef}
