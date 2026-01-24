@@ -2,8 +2,8 @@
 
 import {
   Panel,
-  PanelGroup,
-  PanelResizeHandle,
+  Group,
+  Separator,
 } from "react-resizable-panels"
 
 import { EditorPanel } from "./editor-panel"
@@ -12,9 +12,9 @@ import { cn } from "@/lib/utils"
 
 export function EditorLayout() {
   return (
-    <PanelGroup
-      direction="horizontal"
-      autoSaveId="editor-layout"
+    <Group
+      orientation="horizontal"
+      id="editor-layout"
       className="h-full"
     >
       {/* Editor panel: 25-60% width, default 40% */}
@@ -28,7 +28,7 @@ export function EditorLayout() {
       </Panel>
 
       {/* Resize handle with extended hit area */}
-      <PanelResizeHandle
+      <Separator
         className={cn(
           "relative w-1 bg-border transition-colors",
           "hover:bg-primary/50 active:bg-primary",
@@ -48,6 +48,6 @@ export function EditorLayout() {
       >
         <PreviewPanel />
       </Panel>
-    </PanelGroup>
+    </Group>
   )
 }
