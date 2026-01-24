@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 3 of 11 - Canvas System (COMPLETE)
-Plan: 6 of 6 complete
-Status: **Complete - verified**
-Last activity: 2026-01-24 - Phase 3 execution complete
+Phase: 4 of 11 - Basic Cards (IN PROGRESS)
+Plan: 1 of 3 complete
+Status: **In progress**
+Last activity: 2026-01-24 - Completed 04-01-PLAN.md
 
-Progress: [██████████████████████] 100%
+Progress: [████░░░░░░░░░░░░░░░░░░] 20%
 
 ## Roadmap Summary (11 Phases)
 
@@ -23,7 +23,7 @@ Progress: [██████████████████████] 1
 | 1 | Foundation | Complete ✓ |
 | 2 | Dashboard Shell | Complete ✓ |
 | 3 | Canvas System | Complete ✓ |
-| 4 | Basic Cards | Next |
+| 4 | Basic Cards | In Progress |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
@@ -32,6 +32,14 @@ Progress: [██████████████████████] 1
 | 9 | Public Page | - |
 | 10 | Analytics | - |
 | 11 | Audio System | - |
+
+## Phase 4 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Card Content Infrastructure | Complete ✓ |
+| 02 | Hero Card | - |
+| 03 | Horizontal & Square Cards | - |
 
 ## Phase 3 Progress (COMPLETE ✓)
 
@@ -100,6 +108,10 @@ Progress: [██████████████████████] 1
 | mapDbToCard/mapCardToDb helpers | 03-05 | sortKey <-> sort_key field mapping |
 | useMemo for sorted cards | 03-06 | Avoid infinite loop from getSortedCards() selector |
 | size column in database | 03-06 | Card size persists with card data |
+| Card-type specific content schemas | 04-01 | Type safety for card components vs generic Record |
+| 5MB upload limit client-side | 04-01 | Better UX than server rejection |
+| cardId/uuid.ext upload structure | 04-01 | Groups images by card, unique filenames |
+| Deferred image deletion | 04-01 | Orphan cleanup via background job, avoid accidental loss |
 
 ## Quick Tasks
 
@@ -110,17 +122,18 @@ Progress: [██████████████████████] 1
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Phase 3 complete + Quick Task 001
-Resume with: `/gsd:plan-phase 4` or `/gsd:discuss-phase 4`
+Stopped at: Completed 04-01-PLAN.md (Card Content Infrastructure)
+Resume with: Execute 04-02-PLAN.md (Hero Card) or `/gsd:plan-phase 4`
 
-**Phase 3 delivered:**
-- Drag-and-drop card reordering with dnd-kit
-- Fractional-indexing for efficient sort order persistence
-- Card CRUD API routes
-- useCards hook for data fetching
-- Save button persists cards to database
-- Preview updates in real-time via postMessage
-- Delete button on cards (Quick Task 001)
+**Phase 4 Plan 01 delivered:**
+- Card content type schemas (HeroCardContent, HorizontalLinkContent, SquareCardContent)
+- Supabase Storage upload infrastructure (uploadCardImage, deleteCardImage)
+- Reusable ImageUpload component with preview and validation
+- Type guards for content validation
+
+**User setup required:**
+- Supabase Storage bucket 'card-images' must be created manually
+- RLS policies: INSERT for authenticated, SELECT for all (public)
 
 ---
-*Updated: 2026-01-24 — Phase 3 complete*
+*Updated: 2026-01-24 — Phase 4 Plan 01 complete*
