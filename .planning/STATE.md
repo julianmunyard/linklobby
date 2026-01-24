@@ -5,26 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 4 COMPLETE - Ready for Phase 4.1
+**Current focus:** Phase 4.1 Flow Layout - In Progress
 
 ## Current Position
 
-Phase: 4 of 11 - Basic Cards (COMPLETE)
-Plan: 4 of 4 complete
-Status: **Complete - verified**
-Last activity: 2026-01-25 - Phase 4 execution complete
+Phase: 4.1 of 11 - Flow Layout (IN PROGRESS)
+Plan: 1 of 4 complete
+Status: **In progress**
+Last activity: 2026-01-25 - Completed 04.1-01-PLAN.md
 
-Progress: [██████████████████████] 100%
+Progress: [███████████████████████░░] 92%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Foundation | Complete ✓ |
-| 2 | Dashboard Shell | Complete ✓ |
-| 3 | Canvas System | Complete ✓ |
-| 4 | Basic Cards | Complete ✓ |
-| 4.1 | Flow Layout | Next |
+| 1 | Foundation | Complete |
+| 2 | Dashboard Shell | Complete |
+| 3 | Canvas System | Complete |
+| 4 | Basic Cards | Complete |
+| 4.1 | Flow Layout | In Progress |
 | 4.2 | Linktree Import | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
@@ -34,16 +34,25 @@ Progress: [██████████████████████] 1
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 4 Progress (COMPLETE ✓)
+## Phase 4.1 Progress (IN PROGRESS)
 
 | Plan | Name | Status |
 |------|------|--------|
-| 01 | Card Content Infrastructure | Complete ✓ |
-| 02 | Basic Card Components | Complete ✓ |
-| 03 | Card Property Editor | Complete ✓ |
-| 04 | Editor + Preview Integration | Complete ✓ |
+| 01 | Type Definitions & Database Mapping | Complete |
+| 02 | Flow Layout Renderer | - |
+| 03 | Size Selector Component | - |
+| 04 | Integration & Wiring | - |
 
-## Phase 3 Progress (COMPLETE ✓)
+## Phase 4 Progress (COMPLETE)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Card Content Infrastructure | Complete |
+| 02 | Basic Card Components | Complete |
+| 03 | Card Property Editor | Complete |
+| 04 | Editor + Preview Integration | Complete |
+
+## Phase 3 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -122,6 +131,10 @@ Progress: [██████████████████████] 1
 | Type-specific field components | 04-03 | Each card type can extend fields independently |
 | react-hook-form for property editor | 04-03 | Established pattern from phase 01 |
 | Wildcard Supabase image domain | 04-04 | *.supabase.co covers all projects, future-proof |
+| CardSize is big/small not small/medium/large | 04.1-01 | Simplified for flow layout with half-width concept |
+| position field maps to position_x column | 04.1-01 | Reuse existing column (0=left, 1=center, 2=right) |
+| Legacy size migration: large->big, small/medium->small | 04.1-01 | Backward compatibility for existing cards |
+| CARD_TYPE_SIZING null = always full width | 04.1-01 | horizontal, dropdown, audio cards don't support sizing |
 
 ## Quick Tasks
 
@@ -132,21 +145,16 @@ Progress: [██████████████████████] 1
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Phase 4 complete
-Resume with: `/gsd:plan-phase 4.1` or `/gsd:discuss-phase 4.1`
+Stopped at: Completed 04.1-01-PLAN.md
+Resume with: `/gsd:execute-plan 04.1-02` or continue phase
 
-**Phase 4 delivered:**
-- Card content types (HeroCardContent, HorizontalLinkContent, SquareCardContent)
-- Supabase Storage upload with ImageUpload component
-- HeroCard, HorizontalLink, SquareCard render components
-- CardRenderer switch component
-- CardPropertyEditor with type-specific form fields
-- Editor panel integration (shows property editor when card selected)
-- Preview page uses CardRenderer for visual cards
-- Real-time updates via form.watch() and postMessage
-
-**User feedback:**
-- "Done" button suggestion for property editor (future enhancement)
+**Phase 4.1 Plan 01 delivered:**
+- CardSize type changed to 'big' | 'small'
+- HorizontalPosition type added (left/center/right)
+- CARD_TYPE_SIZING config for sizing support per card type
+- POSITION_MAP/POSITION_REVERSE for database mapping
+- mapLegacySize helper for backward compatibility
+- Updated addCard default to size='big', position='left'
 
 ---
-*Updated: 2026-01-25 — Phase 4 complete*
+*Updated: 2026-01-25 - Phase 4.1 Plan 01 complete*
