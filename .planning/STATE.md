@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 2 COMPLETE - Dashboard Shell built
+**Current focus:** Phase 3 IN PROGRESS - Canvas System
 
 ## Current Position
 
-Phase: 2 of 11 - Dashboard Shell (COMPLETE)
-Plan: 5 of 5 complete
-Status: **Phase complete, verified ✓**
-Last activity: 2026-01-24 - Phase 2 verified (6/6 must-haves passed)
+Phase: 3 of 11 - Canvas System
+Plan: 1 of 5 complete (03-01-PLAN.md)
+Status: **In progress**
+Last activity: 2026-01-24 - Completed 03-01-PLAN.md (Canvas Foundation)
 
-Progress: [██████░░░░░░░░░░░░░░] 27%
+Progress: [███████░░░░░░░░░░░░░] 30%
 
 ## Roadmap Summary (11 Phases)
 
@@ -22,7 +22,7 @@ Progress: [██████░░░░░░░░░░░░░░] 27%
 |---|-------|--------|
 | 1 | Foundation | Complete |
 | 2 | Dashboard Shell | Complete ✓ |
-| 3 | Canvas System | - |
+| 3 | Canvas System | In Progress (1/5) |
 | 4 | Basic Cards | - |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
@@ -33,7 +33,7 @@ Progress: [██████░░░░░░░░░░░░░░] 27%
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 2 Progress
+## Phase 2 Progress (COMPLETE ✓)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -42,6 +42,16 @@ Progress: [██████░░░░░░░░░░░░░░] 27%
 | 03 | Editor Split-Screen | Complete |
 | 04 | Preview Route & Header | Complete |
 | 05 | Unsaved Changes Protection | Complete |
+
+## Phase 3 Progress
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Canvas Foundation | Complete |
+| 02 | Database Schema Updates | - |
+| 03 | Sortable Card List | - |
+| 04 | Preview Canvas | - |
+| 05 | Card Size Control | - |
 
 ## v1 Component System (LOCKED)
 
@@ -86,12 +96,16 @@ Progress: [██████░░░░░░░░░░░░░░] 27%
 | Capture phase for link clicks | 02-05 | Intercept before React handlers |
 | PREVIEW_READY message | 02-05 | Reliable iframe state sync |
 | Client wrapper pattern | 02-05 | Separate client hooks from server components |
+| dnd-kit over react-beautiful-dnd | 03-01 | Actively maintained, React 19 compatible |
+| Fractional-indexing for order | 03-01 | Single UPDATE not N updates on reorder |
+| Predefined card sizes | 03-01 | Small/Medium/Large not free resize |
+| sortKey for ordering | 03-01 | Vertical stack uses 1D ordering, ignore position_x/y |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Phase 2 complete and verified
-Resume with: Plan Phase 3 (Canvas System)
+Stopped at: Completed 03-01-PLAN.md (Canvas Foundation)
+Resume with: Plan 03-02 (Database Schema Updates)
 
 ---
-*Updated: 2026-01-24 after Phase 2 verification*
+*Updated: 2026-01-24 after Plan 03-01 completion*
