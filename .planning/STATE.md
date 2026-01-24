@@ -5,25 +5,25 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 3 IN PROGRESS - Canvas System
+**Current focus:** Phase 3 COMPLETE - Ready for Phase 4
 
 ## Current Position
 
-Phase: 3 of 11 - Canvas System
-Plan: 5 of 6 complete (03-01, 03-02, 03-03, 03-04, 03-05)
-Status: **In progress**
-Last activity: 2026-01-24 - Completed 03-05 API Routes & useCards
+Phase: 3 of 11 - Canvas System (COMPLETE)
+Plan: 6 of 6 complete
+Status: **Complete - verified**
+Last activity: 2026-01-24 - Phase 3 execution complete
 
-Progress: [██████████░░░░░░░░░░] 45%
+Progress: [██████████████████████] 100%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
-| 1 | Foundation | Complete |
-| 2 | Dashboard Shell | Complete |
-| 3 | Canvas System | In Progress (5/6) |
-| 4 | Basic Cards | - |
+| 1 | Foundation | Complete ✓ |
+| 2 | Dashboard Shell | Complete ✓ |
+| 3 | Canvas System | Complete ✓ |
+| 4 | Basic Cards | Next |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
@@ -33,17 +33,7 @@ Progress: [██████████░░░░░░░░░░] 45%
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 2 Progress (COMPLETE)
-
-| Plan | Name | Status |
-|------|------|--------|
-| 01 | Dependencies & Infrastructure | Complete |
-| 02 | Dashboard Sidebar | Complete |
-| 03 | Editor Split-Screen | Complete |
-| 04 | Preview Route & Header | Complete |
-| 05 | Unsaved Changes Protection | Complete |
-
-## Phase 3 Progress
+## Phase 3 Progress (COMPLETE ✓)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -52,7 +42,7 @@ Progress: [██████████░░░░░░░░░░] 45%
 | 03 | Sortable Card Components | Complete |
 | 04 | Store & Editor Integration | Complete |
 | 05 | API Routes & useCards | Complete |
-| 06 | End-to-End Wiring | - |
+| 06 | End-to-End Wiring | Complete |
 
 ## v1 Component System (LOCKED)
 
@@ -108,15 +98,22 @@ Progress: [██████████░░░░░░░░░░] 45%
 | selectedCardId for selection | 03-04 | Track selected card for property editing |
 | fetchUserPage for API auth | 03-05 | Reusable auth pattern for card routes |
 | mapDbToCard/mapCardToDb helpers | 03-05 | sortKey <-> sort_key field mapping |
+| useMemo for sorted cards | 03-06 | Avoid infinite loop from getSortedCards() selector |
+| size column in database | 03-06 | Card size persists with card data |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 03-05-PLAN.md
-Resume with: `/gsd:execute-phase 3` (will continue with 03-06)
+Stopped at: Phase 3 complete
+Resume with: `/gsd:plan-phase 4` or `/gsd:discuss-phase 4`
 
-**Phase 3 remaining:**
-- Wave 4: 03-06 (End-to-End Wiring - has checkpoint)
+**Phase 3 delivered:**
+- Drag-and-drop card reordering with dnd-kit
+- Fractional-indexing for efficient sort order persistence
+- Card CRUD API routes
+- useCards hook for data fetching
+- Save button persists cards to database
+- Preview updates in real-time via postMessage
 
 ---
-*Updated: 2026-01-24 — completed 03-05 API Routes & useCards*
+*Updated: 2026-01-24 — Phase 3 complete*

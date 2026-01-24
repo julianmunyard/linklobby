@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffolding, Supabase auth, database schema
 - [x] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
-- [ ] **Phase 3: Canvas System** - Vertical stack layout, drag-to-reorder, card sizing
+- [x] **Phase 3: Canvas System** - Vertical stack layout, drag-to-reorder, card sizing
 - [ ] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
 - [ ] **Phase 4.1: Linktree Import** - INSERTED - One-click import from existing Linktree page
 - [ ] **Phase 5: Media Cards** - Video Card, Photo Gallery with ReactBits animations
@@ -77,12 +77,12 @@ Plans:
 **Plans**: 6 plans in 4 waves
 
 Plans:
-- [ ] 03-01-PLAN.md — Install dnd-kit, create Card types, ordering helpers (Wave 1)
-- [ ] 03-02-PLAN.md — Add sort_key column to database (Wave 1)
-- [ ] 03-03-PLAN.md — SortableCardList, SortableCard, CanvasContainer components (Wave 2)
-- [ ] 03-04-PLAN.md — Update page-store, create CardsTab, wire to editor (Wave 2)
-- [ ] 03-05-PLAN.md — Card API routes, database operations, useCards hook (Wave 3)
-- [ ] 03-06-PLAN.md — Wire useCards, update preview, verify end-to-end (Wave 4)
+- [x] 03-01-PLAN.md — Install dnd-kit, create Card types, ordering helpers (Wave 1)
+- [x] 03-02-PLAN.md — Add sort_key column to database (Wave 1)
+- [x] 03-03-PLAN.md — SortableCardList, SortableCard, CanvasContainer components (Wave 2)
+- [x] 03-04-PLAN.md — Update page-store, create CardsTab, wire to editor (Wave 2)
+- [x] 03-05-PLAN.md — Card API routes, database operations, useCards hook (Wave 3)
+- [x] 03-06-PLAN.md — Wire useCards, update preview, verify end-to-end (Wave 4)
 
 ### Phase 4: Basic Cards
 **Goal**: Artists can add and configure the three foundational card types
@@ -239,7 +239,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-01-24 |
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
-| 3. Canvas System | 0/6 | Planned | - |
+| 3. Canvas System | 6/6 | Complete | 2026-01-24 |
 | 4. Basic Cards | 0/2 | Not started | - |
 | 4.1. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
@@ -252,4 +252,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-24 — Phase 3 planned (6 plans in 4 waves)*
+*Last updated: 2026-01-24 — Phase 3 complete (6/6 plans)*
