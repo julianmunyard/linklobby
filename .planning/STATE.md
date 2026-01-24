@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4 of 11 - Basic Cards (IN PROGRESS)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 04-01-PLAN.md
+Last activity: 2026-01-24 - Completed 04-03-PLAN.md
 
-Progress: [████░░░░░░░░░░░░░░░░░░] 20%
+Progress: [█████░░░░░░░░░░░░░░░░░] 25%
 
 ## Roadmap Summary (11 Phases)
 
@@ -39,7 +39,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░] 2
 |------|------|--------|
 | 01 | Card Content Infrastructure | Complete ✓ |
 | 02 | Hero Card | - |
-| 03 | Horizontal & Square Cards | - |
+| 03 | Card Property Editor | Complete ✓ |
 
 ## Phase 3 Progress (COMPLETE ✓)
 
@@ -112,6 +112,9 @@ Progress: [████░░░░░░░░░░░░░░░░░░] 2
 | 5MB upload limit client-side | 04-01 | Better UX than server rejection |
 | cardId/uuid.ext upload structure | 04-01 | Groups images by card, unique filenames |
 | Deferred image deletion | 04-01 | Orphan cleanup via background job, avoid accidental loss |
+| Optimistic updates via form.watch() | 04-03 | Immediate feedback in preview without save button |
+| Type-specific field components | 04-03 | Each card type can extend fields independently |
+| react-hook-form for property editor | 04-03 | Established pattern from phase 01 |
 
 ## Quick Tasks
 
@@ -122,18 +125,19 @@ Progress: [████░░░░░░░░░░░░░░░░░░] 2
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 04-01-PLAN.md (Card Content Infrastructure)
+Stopped at: Completed 04-03-PLAN.md (Card Property Editor)
 Resume with: Execute 04-02-PLAN.md (Hero Card) or `/gsd:plan-phase 4`
 
-**Phase 4 Plan 01 delivered:**
-- Card content type schemas (HeroCardContent, HorizontalLinkContent, SquareCardContent)
-- Supabase Storage upload infrastructure (uploadCardImage, deleteCardImage)
-- Reusable ImageUpload component with preview and validation
-- Type guards for content validation
+**Phase 4 Plan 03 delivered:**
+- CardPropertyEditor with react-hook-form and optimistic updates
+- Type-specific field components (HeroCardFields, HorizontalLinkFields, SquareCardFields)
+- Common fields: title, description, URL, image upload
+- Automatic form reset when card selection changes
+- shadcn select and switch components installed
 
-**User setup required:**
-- Supabase Storage bucket 'card-images' must be created manually
-- RLS policies: INSERT for authenticated, SELECT for all (public)
+**Next steps:**
+- Integrate CardPropertyEditor into editor panel sidebar
+- Build Hero card component (Plan 04-02)
 
 ---
-*Updated: 2026-01-24 — Phase 4 Plan 01 complete*
+*Updated: 2026-01-24 — Phase 4 Plan 03 complete*
