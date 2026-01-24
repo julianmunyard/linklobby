@@ -9,7 +9,9 @@ export type CardType =
   | 'game'
   | 'audio'
 
-export type CardSize = 'small' | 'medium' | 'large'
+export type CardSize = 'big' | 'small'
+
+export type HorizontalPosition = 'left' | 'center' | 'right'
 
 export interface Card {
   id: string
@@ -20,30 +22,49 @@ export interface Card {
   url: string | null
   content: Record<string, unknown>
   size: CardSize
+  position: HorizontalPosition  // horizontal position for small cards
   sortKey: string  // fractional-indexing key for ordering
   is_visible: boolean
   created_at: string
   updated_at: string
 }
 
-// Card size configuration for Tailwind classes
+// Card size configuration for flow layout
 export const CARD_SIZES = {
+  big: {
+    label: 'Big',
+    description: 'Full width',
+  },
   small: {
     label: 'Small',
-    height: 'h-24',      // 96px
-    minHeight: 'min-h-24',
-  },
-  medium: {
-    label: 'Medium',
-    height: 'h-40',      // 160px
-    minHeight: 'min-h-40',
-  },
-  large: {
-    label: 'Large',
-    height: 'h-64',      // 256px
-    minHeight: 'min-h-64',
+    description: 'Half width',
   },
 } as const
+
+// Define which card types support sizing (null = always full width)
+export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
+  hero: ['big', 'small'],
+  square: ['big', 'small'],
+  horizontal: null, // Always full width - no sizing option
+  video: ['big', 'small'],
+  gallery: ['big', 'small'],
+  dropdown: null, // Always full width
+  game: ['big', 'small'],
+  audio: null, // Always full width
+}
+
+// Position mapping for database storage
+export const POSITION_MAP: Record<HorizontalPosition, number> = {
+  left: 0,
+  center: 1,
+  right: 2,
+}
+
+export const POSITION_REVERSE: Record<number, HorizontalPosition> = {
+  0: 'left',
+  1: 'center',
+  2: 'right',
+}
 
 // Content schemas for each card type
 export interface HeroCardContent {
