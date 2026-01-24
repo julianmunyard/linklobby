@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 3 of 11 - Canvas System
-Plan: 4 of 6 complete (03-01, 03-02, 03-03, 03-04)
+Plan: 5 of 6 complete (03-01, 03-02, 03-03, 03-04, 03-05)
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 03-04 Store & Editor Integration
+Last activity: 2026-01-24 - Completed 03-05 API Routes & useCards
 
-Progress: [█████████░░░░░░░░░░░] 40%
+Progress: [██████████░░░░░░░░░░] 45%
 
 ## Roadmap Summary (11 Phases)
 
@@ -22,7 +22,7 @@ Progress: [█████████░░░░░░░░░░░] 40%
 |---|-------|--------|
 | 1 | Foundation | Complete |
 | 2 | Dashboard Shell | Complete |
-| 3 | Canvas System | In Progress (4/6) |
+| 3 | Canvas System | In Progress (5/6) |
 | 4 | Basic Cards | - |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
@@ -51,7 +51,7 @@ Progress: [█████████░░░░░░░░░░░] 40%
 | 02 | Database Schema Updates | Complete |
 | 03 | Sortable Card Components | Complete |
 | 04 | Store & Editor Integration | Complete |
-| 05 | API Routes & useCards | - |
+| 05 | API Routes & useCards | Complete |
 | 06 | End-to-End Wiring | - |
 
 ## v1 Component System (LOCKED)
@@ -106,16 +106,17 @@ Progress: [█████████░░░░░░░░░░░] 40%
 | 8px activation distance | 03-03 | Prevents accidental drags |
 | getSortedCards computed | 03-04 | Store returns cards in display order |
 | selectedCardId for selection | 03-04 | Track selected card for property editing |
+| fetchUserPage for API auth | 03-05 | Reusable auth pattern for card routes |
+| mapDbToCard/mapCardToDb helpers | 03-05 | sortKey <-> sort_key field mapping |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 03-04-PLAN.md
-Resume with: `/gsd:execute-phase 3` (will continue with 03-05)
+Stopped at: Completed 03-05-PLAN.md
+Resume with: `/gsd:execute-phase 3` (will continue with 03-06)
 
 **Phase 3 remaining:**
-- Wave 3: 03-05 (API Routes & useCards)
 - Wave 4: 03-06 (End-to-End Wiring - has checkpoint)
 
 ---
-*Updated: 2026-01-24 — completed 03-04 Store & Editor Integration*
+*Updated: 2026-01-24 — completed 03-05 API Routes & useCards*
