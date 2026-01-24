@@ -15,7 +15,7 @@ LinkLobby delivers a component-based page builder for artists in eleven phases. 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Project scaffolding, Supabase auth, database schema
-- [ ] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
+- [x] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
 - [ ] **Phase 3: Canvas System** - Free-form drag grid, responsive layout engine, card positioning
 - [ ] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
 - [ ] **Phase 4.1: Linktree Import** - INSERTED - One-click import from existing Linktree page
@@ -58,11 +58,11 @@ Plans:
 **Plans**: 5 plans in 3 waves
 
 Plans:
-- [ ] 02-01-PLAN.md — Dependencies, ThemeProvider, Zustand store (Wave 1)
-- [ ] 02-02-PLAN.md — Sidebar navigation, dashboard layout (Wave 1)
-- [ ] 02-03-PLAN.md — Editor panel with tabs, preview panel, resizable layout (Wave 2)
-- [ ] 02-04-PLAN.md — Preview route, dashboard header, editor integration (Wave 2)
-- [ ] 02-05-PLAN.md — Unsaved changes hook, dialog, final wiring (Wave 3)
+- [x] 02-01-PLAN.md — Dependencies, ThemeProvider, Zustand store (Wave 1)
+- [x] 02-02-PLAN.md — Sidebar navigation, dashboard layout (Wave 2)
+- [x] 02-03-PLAN.md — Editor panel with tabs, preview panel, resizable layout (Wave 3)
+- [x] 02-04-PLAN.md — Preview route, dashboard header, editor integration (Wave 3)
+- [x] 02-05-PLAN.md — Unsaved changes hook, dialog, final wiring (Wave 4)
 
 ### Phase 3: Canvas System
 **Goal**: Artists can drag cards freely on a grid-constrained canvas with responsive behavior
@@ -234,7 +234,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-01-24 |
-| 2. Dashboard Shell | 0/5 | Planned | - |
+| 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 0/2 | Not started | - |
 | 4. Basic Cards | 0/2 | Not started | - |
 | 4.1. Linktree Import | 0/1 | Not started | - |
@@ -248,4 +248,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-24 — Phase 2 planned (5 plans in 3 waves)*
+*Last updated: 2026-01-24 — Phase 2 complete (5 plans in 4 waves)*
