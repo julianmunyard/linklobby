@@ -18,7 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Dashboard Shell** - Split-screen layout, navigation, preview system
 - [x] **Phase 3: Canvas System** - Vertical stack layout, drag-to-reorder, card sizing
 - [x] **Phase 4: Basic Cards** - Hero Card, Horizontal Link, Square Card components
-- [ ] **Phase 4.1: Linktree Import** - INSERTED - One-click import from existing Linktree page
+- [ ] **Phase 4.1: Flow Layout** - INSERTED - Grid/flow canvas with side-by-side card sizing
+- [ ] **Phase 4.2: Linktree Import** - INSERTED - One-click import from existing Linktree page
 - [ ] **Phase 5: Media Cards** - Video Card, Photo Gallery with ReactBits animations
 - [ ] **Phase 6: Advanced Cards** - Dropdown (expandable lists), Game Card (Snake)
 - [ ] **Phase 7: Theme System** - Mac OS + Sleek Modern themes, color customization
@@ -102,9 +103,24 @@ Plans:
 - [x] 04-03-PLAN.md — CardPropertyEditor with type-specific form fields (Wave 2)
 - [x] 04-04-PLAN.md — Wire editor + preview integration, end-to-end verification (Wave 3)
 
-### Phase 4.1: Linktree Import (INSERTED)
-**Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
+### Phase 4.1: Flow Layout (INSERTED)
+**Goal**: Cards can be sized (Large/Medium/Small) with flow layout enabling side-by-side arrangement
 **Depends on**: Phase 4
+**Success Criteria** (what must be TRUE):
+  1. Large cards take full width (current behavior)
+  2. Medium cards take half width (2 cards side by side)
+  3. Small cards are icon-sized (~80px) and flow next to each other
+  4. Size selection in property editor affects preview layout
+  5. Cards reflow responsively on different screen sizes
+  6. Drag-to-reorder works with flow layout
+**Plans**: TBD
+
+Plans:
+- [ ] 04.1-01: TBD
+
+### Phase 4.2: Linktree Import (INSERTED)
+**Goal**: Artists can import their existing Linktree links with one click to jumpstart their page
+**Depends on**: Phase 4.1
 **Success Criteria** (what must be TRUE):
   1. User enters Linktree username (e.g., "linktr.ee/artistname")
   2. System fetches links, titles, images, and descriptions from Linktree page
@@ -114,13 +130,13 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 04.1-01: TBD
+- [ ] 04.2-01: TBD
 
 **Research needed:** Best method to fetch Linktree data (scraping vs API vs other)
 
 ### Phase 5: Media Cards
 **Goal**: Artists can showcase video and photo content with engaging animations
-**Depends on**: Phase 4.1
+**Depends on**: Phase 4.2
 **Success Criteria** (what must be TRUE):
   1. Video Card: Displays video with playback controls (YouTube/Vimeo embed or upload)
   2. Photo Gallery: Multi-image carousel with configurable display
@@ -235,7 +251,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 → 8 → 9 → 10 → 11
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 4.2 → 5 → 6 → 7 → 8 → 9 → 10 → 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -243,7 +259,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 | 2. Dashboard Shell | 5/5 | Complete | 2026-01-24 |
 | 3. Canvas System | 6/6 | Complete | 2026-01-24 |
 | 4. Basic Cards | 4/4 | Complete | 2026-01-25 |
-| 4.1. Linktree Import | 0/1 | Not started | - |
+| 4.1. Flow Layout | 0/? | Not started | - |
+| 4.2. Linktree Import | 0/1 | Not started | - |
 | 5. Media Cards | 0/2 | Not started | - |
 | 6. Advanced Cards | 0/2 | Not started | - |
 | 7. Theme System | 0/2 | Not started | - |
@@ -254,4 +271,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 → 6 → 7 �
 
 ---
 *Created: 2026-01-23*
-*Last updated: 2026-01-25 — Phase 4 complete (4 plans executed)*
+*Last updated: 2026-01-25 — Phase 4.1 Flow Layout inserted*

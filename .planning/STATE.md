@@ -24,7 +24,8 @@ Progress: [██████████████████████] 1
 | 2 | Dashboard Shell | Complete ✓ |
 | 3 | Canvas System | Complete ✓ |
 | 4 | Basic Cards | Complete ✓ |
-| 4.1 | Linktree Import | Next |
+| 4.1 | Flow Layout | Next |
+| 4.2 | Linktree Import | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
 | 7 | Theme System | - |
