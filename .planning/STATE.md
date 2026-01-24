@@ -9,15 +9,16 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 4.1 of 11 - Flow Layout (COMPLETE)
+Phase: 4.1 of 18 - Flow Layout (COMPLETE)
 Plan: 3 of 3 complete
 Status: **Phase complete**
 Last activity: 2026-01-25 - Completed 04.1-03-PLAN.md
 
 Progress: [█████████████████████████] 100%
 
-## Roadmap Summary (11 Phases)
+## Roadmap Summary (18 Phases across 3 Milestones)
 
+### v1.0 MVP (Phases 4.2-9.5)
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Foundation | Complete ✓ |
@@ -26,13 +27,31 @@ Progress: [███████████████████████
 | 4 | Basic Cards | Complete ✓ |
 | 4.1 | Flow Layout | Complete ✓ |
 | 4.2 | Linktree Import | Next |
+| 4.3 | Card Context Menu & Undo/Redo | - |
+| 4.4 | Profile Editor | - |
+| 4.5 | Editor Polish (Mobile) | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
 | 7 | Theme System | - |
-| 8 | Platform Integrations | - |
-| 9 | Public Page | - |
-| 10 | Analytics | - |
-| 11 | Audio System | - |
+| 8 | Public Page | - |
+| 9 | Platform Integrations | - |
+| 9.5 | Onboarding | - |
+
+### v1.1 Growth (Phases 10-12.5)
+| # | Phase | Status |
+|---|-------|--------|
+| 10 | Fan Tools | - |
+| 11 | Analytics & Pixels & Legal | - |
+| 12 | Audio System | - |
+| 12.5 | Billing & Subscriptions | - |
+
+### v1.2 Pro (Phases 13-16)
+| # | Phase | Status |
+|---|-------|--------|
+| 13 | Tour & Events | - |
+| 14 | Custom Domains | - |
+| 15 | Advanced Analytics | - |
+| 16 | Accessibility | - |
 
 ## Phase 4.1 Progress (COMPLETE)
 
@@ -81,9 +100,11 @@ Progress: [███████████████████████
 | File | Purpose | Status |
 |------|---------|--------|
 | PROJECT.md | Vision | Current |
-| ROADMAP.md | 11 phases | Current |
+| ROADMAP.md | 18 phases across 3 milestones | Current |
 | COMPONENT-SYSTEM.md | Card types, layout, integrations | Current |
 | research/SUMMARY.md | Tech stack | Current |
+| research/COMPETITORS.md | Competitive analysis | NEW |
+| research/FEATURES.md | Feature landscape | Current |
 
 ## Accumulated Decisions
 
@@ -164,4 +185,4 @@ Resume with: Next phase (4.2 Linktree Import or Phase 5 Media Cards)
 - Cards flow left-to-right by order (simplified - no position zones)
 
 ---
-*Updated: 2026-01-25 - Phase 4.1 complete (simplified flow layout)*
+*Updated: 2026-01-25 - Roadmap expanded to 18 phases based on competitive analysis*
