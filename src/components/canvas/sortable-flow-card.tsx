@@ -8,16 +8,16 @@ import type { Card } from "@/types/card"
 
 interface SortableFlowCardProps {
   card: Card
-  isDragging?: boolean
 }
 
-export function SortableFlowCard({ card, isDragging }: SortableFlowCardProps) {
+export function SortableFlowCard({ card }: SortableFlowCardProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: card.id })
 
   const style = {
@@ -39,7 +39,8 @@ export function SortableFlowCard({ card, isDragging }: SortableFlowCardProps) {
       style={style}
       className={cn(
         widthClass,
-        isDragging && "opacity-30",
+        // Hide original card during drag - only DragOverlay should be visible
+        isDragging && "opacity-0",
         "cursor-grab active:cursor-grabbing"
       )}
       {...attributes}

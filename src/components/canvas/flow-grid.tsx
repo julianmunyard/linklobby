@@ -111,7 +111,6 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
             <SortableFlowCard
               key={card.id}
               card={card}
-              isDragging={activeCard?.id === card.id}
             />
           ))}
         </div>
