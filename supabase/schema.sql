@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS public.cards (
   height INTEGER DEFAULT 1,
   z_index INTEGER DEFAULT 0,
   is_visible BOOLEAN DEFAULT TRUE,
-  sort_order INTEGER NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0, -- Deprecated: use sort_key for ordering
+  sort_key TEXT NOT NULL DEFAULT 'a0', -- Fractional-indexing key for efficient reordering (a0, a1, a0V, etc.)
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -112,7 +113,8 @@ CREATE POLICY "Users can manage own cards"
 
 -- Indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_cards_page_id ON public.cards(page_id);
-CREATE INDEX IF NOT EXISTS idx_cards_sort_order ON public.cards(page_id, sort_order);
+CREATE INDEX IF NOT EXISTS idx_cards_sort_order ON public.cards(page_id, sort_order); -- Deprecated: use idx_cards_sort_key
+CREATE INDEX IF NOT EXISTS idx_cards_sort_key ON public.cards(page_id, sort_key); -- Primary ordering index
 
 -- ============================================
 -- TRIGGERS: Auto-create profile and page on signup
