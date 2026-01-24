@@ -10,19 +10,19 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 3 of 11 - Canvas System
-Plan: 1 of 5 complete (03-01-PLAN.md)
+Plan: 3 of 6 complete (03-01, 03-02, 03-03)
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 03-01-PLAN.md (Canvas Foundation)
+Last activity: 2026-01-24 - Completed 03-03 Sortable Card Components
 
-Progress: [███████░░░░░░░░░░░░░] 30%
+Progress: [████████░░░░░░░░░░░░] 35%
 
 ## Roadmap Summary (11 Phases)
 
 | # | Phase | Status |
 |---|-------|--------|
 | 1 | Foundation | Complete |
-| 2 | Dashboard Shell | Complete ✓ |
-| 3 | Canvas System | In Progress (1/5) |
+| 2 | Dashboard Shell | Complete |
+| 3 | Canvas System | In Progress (3/6) |
 | 4 | Basic Cards | - |
 | 4.1 | Linktree Import | - |
 | 5 | Media Cards | - |
@@ -33,7 +33,7 @@ Progress: [███████░░░░░░░░░░░░░] 30%
 | 10 | Analytics | - |
 | 11 | Audio System | - |
 
-## Phase 2 Progress (COMPLETE ✓)
+## Phase 2 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -48,10 +48,11 @@ Progress: [███████░░░░░░░░░░░░░] 30%
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Canvas Foundation | Complete |
-| 02 | Database Schema Updates | - |
-| 03 | Sortable Card List | - |
-| 04 | Preview Canvas | - |
-| 05 | Card Size Control | - |
+| 02 | Database Schema Updates | Complete |
+| 03 | Sortable Card Components | Complete |
+| 04 | Store & Editor Integration | - |
+| 05 | API Routes & useCards | - |
+| 06 | End-to-End Wiring | - |
 
 ## v1 Component System (LOCKED)
 
@@ -100,12 +101,20 @@ Progress: [███████░░░░░░░░░░░░░] 30%
 | Fractional-indexing for order | 03-01 | Single UPDATE not N updates on reorder |
 | Predefined card sizes | 03-01 | Small/Medium/Large not free resize |
 | sortKey for ordering | 03-01 | Vertical stack uses 1D ordering, ignore position_x/y |
+| Drag handle isolation | 03-03 | touch-none on handle allows page scroll on mobile |
+| Hydration guard pattern | 03-03 | dnd-kit ID mismatch between server/client |
+| 8px activation distance | 03-03 | Prevents accidental drags |
 
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 03-01-PLAN.md (Canvas Foundation)
-Resume with: Plan 03-02 (Database Schema Updates)
+Stopped at: Completed 03-03-PLAN.md
+Resume with: `/gsd:execute-phase 3` (will continue with 03-04)
+
+**Phase 3 remaining:**
+- Wave 2: 03-04 (Store & Editor Integration)
+- Wave 3: 03-05 (API Routes & useCards)
+- Wave 4: 03-06 (End-to-End Wiring - has checkpoint)
 
 ---
-*Updated: 2026-01-24 after Plan 03-01 completion*
+*Updated: 2026-01-24 — completed 03-03 Sortable Card Components*
