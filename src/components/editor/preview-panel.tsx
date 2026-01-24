@@ -12,13 +12,14 @@ const PREVIEW_SIZES = {
 
 export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop")
+  const [previewReady, setPreviewReady] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
 
-  // Send state to preview iframe when it loads or state changes
+  // Send state to preview iframe
   const sendToPreview = () => {
     const iframe = iframeRef.current
-    if (iframe?.contentWindow) {
+    if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: snapshot },
@@ -27,18 +28,33 @@ export function PreviewPanel() {
     }
   }
 
+  // Listen for PREVIEW_READY message from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data.type === "PREVIEW_READY") {
+        setPreviewReady(true)
+      }
+    }
+
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
+  }, [])
+
+  // Send initial state when preview becomes ready
+  useEffect(() => {
+    if (previewReady) {
+      sendToPreview()
+    }
+  }, [previewReady])
+
   // Subscribe to store changes and send updates to preview
   useEffect(() => {
     const unsubscribe = usePageStore.subscribe(() => {
       sendToPreview()
     })
     return () => unsubscribe()
-  }, [])
-
-  const handleIframeLoad = () => {
-    // Send initial state when iframe loads
-    sendToPreview()
-  }
+  }, [previewReady])
 
   const size = PREVIEW_SIZES[previewMode]
   const isMobile = previewMode === "mobile"
@@ -71,7 +87,6 @@ export function PreviewPanel() {
             src="/preview"
             className="w-full h-full border-0"
             title="Page preview"
-            onLoad={handleIframeLoad}
           />
         </div>
       </div>

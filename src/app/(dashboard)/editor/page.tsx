@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { EditorLayout } from "@/components/editor/editor-layout"
+import { EditorClientWrapper } from "@/components/editor/editor-client-wrapper"
 
 export default async function EditorPage() {
   const supabase = await createClient()
@@ -25,17 +23,5 @@ export default async function EditorPage() {
     redirect("/signup")
   }
 
-  return (
-    <TooltipProvider>
-      <div className="flex flex-col h-[calc(100vh-3.5rem)]">
-        {/* Editor header with username, URL, save status */}
-        <DashboardHeader username={profile.username} />
-
-        {/* Split-screen editor */}
-        <div className="flex-1 overflow-hidden">
-          <EditorLayout />
-        </div>
-      </div>
-    </TooltipProvider>
-  )
+  return <EditorClientWrapper username={profile.username} />
 }
