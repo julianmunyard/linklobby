@@ -47,7 +47,7 @@ export const usePageStore = create<PageState>()((set, get) => ({
 
   setCards: (cards) => set({ cards, hasChanges: true }),
 
-  addCard: (type, size = 'medium') => set((state) => {
+  addCard: (type, size = 'big') => set((state) => {
     const newCard: Card = {
       id: crypto.randomUUID(),
       page_id: '', // Set when saving to DB
@@ -57,6 +57,7 @@ export const usePageStore = create<PageState>()((set, get) => ({
       url: null,
       content: {},
       size,
+      position: 'left',  // default position for small cards
       sortKey: generateAppendKey(state.cards),
       is_visible: true,
       created_at: new Date().toISOString(),

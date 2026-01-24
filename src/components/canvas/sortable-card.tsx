@@ -6,7 +6,6 @@ import { GripVertical, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Card } from "@/types/card"
-import { CARD_SIZES } from "@/types/card"
 
 interface SortableCardProps {
   card: Card
@@ -30,7 +29,8 @@ export function SortableCard({ card, isSelected, onSelect, onDelete }: SortableC
     transition,
   }
 
-  const sizeConfig = CARD_SIZES[card.size || "medium"]
+  // Use fixed minimum height for canvas cards (admin view)
+  const minHeight = card.size === 'small' ? 'min-h-20' : 'min-h-24'
 
   return (
     <div
@@ -38,7 +38,7 @@ export function SortableCard({ card, isSelected, onSelect, onDelete }: SortableC
       style={style}
       className={cn(
         "relative flex items-stretch gap-3 bg-card border rounded-lg overflow-hidden",
-        sizeConfig.minHeight,
+        minHeight,
         isDragging && "opacity-50 shadow-lg z-50",
         isSelected && "ring-2 ring-primary"
       )}

@@ -39,7 +39,8 @@ export async function POST(request: Request) {
       description: description || null,
       url: url || null,
       content: content || {},
-      size: size || "medium",
+      size: size || "big",
+      position: body.position || "left",
       sortKey,
       is_visible: is_visible ?? true,
     })

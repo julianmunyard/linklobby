@@ -62,7 +62,8 @@ export function CardsTab() {
         description: null,
         url: null,
         content: {},
-        size: "medium",
+        size: "big",
+        position: "left",
         sortKey,
         is_visible: true,
       })

@@ -1,6 +1,14 @@
 // src/lib/supabase/cards.ts
 import { createClient } from "@/lib/supabase/server"
-import type { Card, CardType, CardSize } from "@/types/card"
+import type { Card, CardType, CardSize, HorizontalPosition } from "@/types/card"
+import { POSITION_REVERSE, POSITION_MAP } from "@/types/card"
+
+// Helper to migrate legacy size values
+function mapLegacySize(size: string | null | undefined): CardSize {
+  if (size === 'large') return 'big'
+  if (size === 'small' || size === 'medium') return 'small'
+  return 'big' // Default to big
+}
 
 // Map database row to Card type
 function mapDbToCard(row: Record<string, unknown>): Card {
@@ -12,7 +20,8 @@ function mapDbToCard(row: Record<string, unknown>): Card {
     description: row.description as string | null,
     url: row.url as string | null,
     content: (row.content as Record<string, unknown>) || {},
-    size: (row.size as CardSize) || "medium",
+    size: mapLegacySize(row.size as string),
+    position: POSITION_REVERSE[(row.position_x as number) ?? 0] || 'left',
     sortKey: row.sort_key as string,
     is_visible: row.is_visible as boolean,
     created_at: row.created_at as string,
@@ -30,6 +39,7 @@ function mapCardToDb(card: Partial<Card>) {
   if (card.url !== undefined) dbCard.url = card.url
   if (card.content !== undefined) dbCard.content = card.content
   if (card.size !== undefined) dbCard.size = card.size
+  if (card.position !== undefined) dbCard.position_x = POSITION_MAP[card.position]
   if (card.sortKey !== undefined) dbCard.sort_key = card.sortKey
   if (card.is_visible !== undefined) dbCard.is_visible = card.is_visible
   return dbCard
