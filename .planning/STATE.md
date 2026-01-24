@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.1 of 11 - Flow Layout (IN PROGRESS)
-Plan: 1 of 4 complete
+Plan: 2 of 4 complete
 Status: **In progress**
-Last activity: 2026-01-25 - Completed 04.1-01-PLAN.md
+Last activity: 2026-01-25 - Completed 04.1-02-PLAN.md
 
-Progress: [███████████████████████░░] 92%
+Progress: [████████████████████████░] 96%
 
 ## Roadmap Summary (11 Phases)
 
@@ -39,7 +39,7 @@ Progress: [███████████████████████
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Type Definitions & Database Mapping | Complete |
-| 02 | Flow Layout Renderer | - |
+| 02 | Flow Layout Components | Complete |
 | 03 | Size Selector Component | - |
 | 04 | Integration & Wiring | - |
 
@@ -135,6 +135,9 @@ Progress: [███████████████████████
 | position field maps to position_x column | 04.1-01 | Reuse existing column (0=left, 1=center, 2=right) |
 | Legacy size migration: large->big, small/medium->small | 04.1-01 | Backward compatibility for existing cards |
 | CARD_TYPE_SIZING null = always full width | 04.1-01 | horizontal, dropdown, audio cards don't support sizing |
+| Position zones overlay during small card drag | 04.1-02 | Only show left/center/right zones when relevant |
+| strategy={() => null} for mixed sizes | 04.1-02 | Disables dnd-kit auto-positioning for mixed card sizes |
+| Fixed DragOverlay widths | 04.1-02 | w-80 (big) and w-40 (small) for visual consistency |
 
 ## Quick Tasks
 
@@ -145,16 +148,15 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Completed 04.1-01-PLAN.md
-Resume with: `/gsd:execute-plan 04.1-02` or continue phase
+Stopped at: Completed 04.1-02-PLAN.md
+Resume with: `/gsd:execute-plan 04.1-03` or continue phase
 
-**Phase 4.1 Plan 01 delivered:**
-- CardSize type changed to 'big' | 'small'
-- HorizontalPosition type added (left/center/right)
-- CARD_TYPE_SIZING config for sizing support per card type
-- POSITION_MAP/POSITION_REVERSE for database mapping
-- mapLegacySize helper for backward compatibility
-- Updated addCard default to size='big', position='left'
+**Phase 4.1 Plan 02 delivered:**
+- FlowGrid component with CSS flexbox wrap layout
+- PositionDropZone for left/center/right drop zones
+- SortableFlowCard with size-aware width classes
+- Conditional size selector in property editor (hides for horizontal cards)
+- DragOverlay visual feedback during drag
 
 ---
-*Updated: 2026-01-25 - Phase 4.1 Plan 01 complete*
+*Updated: 2026-01-25 - Phase 4.1 Plan 02 complete*
