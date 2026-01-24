@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 4 of 11 - Basic Cards (IN PROGRESS)
 Plan: 2 of 3 complete
 Status: **In progress**
-Last activity: 2026-01-24 - Completed 04-03-PLAN.md
+Last activity: 2026-01-24 - Completed 04-02-PLAN.md
 
 Progress: [█████░░░░░░░░░░░░░░░░░] 25%
 
@@ -38,7 +38,7 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Card Content Infrastructure | Complete ✓ |
-| 02 | Hero Card | - |
+| 02 | Basic Card Components | Complete ✓ |
 | 03 | Card Property Editor | Complete ✓ |
 
 ## Phase 3 Progress (COMPLETE ✓)
@@ -112,6 +112,10 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 | 5MB upload limit client-side | 04-01 | Better UX than server rejection |
 | cardId/uuid.ext upload structure | 04-01 | Groups images by card, unique filenames |
 | Deferred image deletion | 04-01 | Orphan cleanup via background job, avoid accidental loss |
+| Polymorphic wrapper pattern | 04-02 | a vs div based on URL presence for semantic HTML |
+| Stretched link pattern | 04-02 | Invisible overlay for full-card clickability |
+| Three button styles for hero | 04-02 | Primary, secondary (glass), outline for visual variety |
+| Gradient overlays on images | 04-02 | Text readability regardless of image colors |
 | Optimistic updates via form.watch() | 04-03 | Immediate feedback in preview without save button |
 | Type-specific field components | 04-03 | Each card type can extend fields independently |
 | react-hook-form for property editor | 04-03 | Established pattern from phase 01 |
@@ -125,19 +129,23 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 2
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 04-03-PLAN.md (Card Property Editor)
-Resume with: Execute 04-02-PLAN.md (Hero Card) or `/gsd:plan-phase 4`
+Stopped at: Completed 04-02-PLAN.md (Basic Card Components)
+Resume with: Execute 04-04-PLAN.md (if exists) or `/gsd:plan-phase 4`
 
-**Phase 4 Plan 03 delivered:**
-- CardPropertyEditor with react-hook-form and optimistic updates
-- Type-specific field components (HeroCardFields, HorizontalLinkFields, SquareCardFields)
-- Common fields: title, description, URL, image upload
-- Automatic form reset when card selection changes
-- shadcn select and switch components installed
+**Phase 4 Plan 02 delivered:**
+- HeroCard component with image background, gradient overlay, three button styles
+- HorizontalLink component (Linktree-style bar with thumbnail and chevron)
+- SquareCard component (tile with image and optional title overlay)
+- CardRenderer switch component for all card types
+- Field editor components (HeroCardFields, HorizontalLinkFields, SquareCardFields)
+
+**Fixed during execution:**
+- Created missing card field editor components (referenced by 04-03 but not implemented)
 
 **Next steps:**
-- Integrate CardPropertyEditor into editor panel sidebar
-- Build Hero card component (Plan 04-02)
+- Check if plan 04-04 exists
+- If phase 4 complete, move to phase 4.1 (Linktree Import) or phase 5 (Media Cards)
+- Integrate CardRenderer into canvas preview for visual card rendering
 
 ---
-*Updated: 2026-01-24 — Phase 4 Plan 03 complete*
+*Updated: 2026-01-24 — Phase 4 Plan 02 complete*
