@@ -1,6 +1,7 @@
 // src/components/cards/hero-card.tsx
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { ExternalLink } from "lucide-react"
 
@@ -12,20 +13,30 @@ interface HeroCardProps {
   isPreview?: boolean
 }
 
+// Check if URL looks valid for an image
+function isValidImageUrl(url: string | undefined): boolean {
+  if (!url) return false
+  // Must start with http/https and not be obviously broken
+  return url.startsWith('http') && !url.includes('undefined') && !url.includes('null')
+}
+
 export function HeroCard({ card, isPreview = false }: HeroCardProps) {
   const content = card.content as HeroCardContent
+  const [imageError, setImageError] = useState(false)
+  const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
 
   return (
     <div className="relative w-full h-64 rounded-xl overflow-hidden bg-card border">
       {/* Background image or gradient placeholder */}
-      {content.imageUrl ? (
+      {hasValidImage ? (
         <Image
-          src={content.imageUrl}
+          src={content.imageUrl!}
           alt={content.imageAlt || card.title || "Hero image"}
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 600px"
           priority={isPreview}
+          onError={() => setImageError(true)}
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />

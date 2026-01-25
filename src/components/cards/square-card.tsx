@@ -1,6 +1,7 @@
 // src/components/cards/square-card.tsx
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { ImageIcon } from "lucide-react"
 
@@ -12,10 +13,18 @@ interface SquareCardProps {
   isPreview?: boolean
 }
 
+// Check if URL looks valid for an image
+function isValidImageUrl(url: string | undefined): boolean {
+  if (!url) return false
+  return url.startsWith('http') && !url.includes('undefined') && !url.includes('null')
+}
+
 export function SquareCard({ card, isPreview = false }: SquareCardProps) {
   const content = card.content as SquareCardContent
+  const [imageError, setImageError] = useState(false)
   const hasLink = Boolean(card.url)
   const showTitle = content.showTitle !== false && Boolean(card.title)
+  const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -37,13 +46,14 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
       )}
     >
       {/* Image or placeholder */}
-      {content.imageUrl ? (
+      {hasValidImage ? (
         <Image
-          src={content.imageUrl}
+          src={content.imageUrl!}
           alt={content.imageAlt || card.title || "Card image"}
           fill
           className="object-cover"
           sizes="(max-width: 400px) 50vw, 200px"
+          onError={() => setImageError(true)}
         />
       ) : (
         <div className="absolute inset-0 bg-muted flex items-center justify-center">
