@@ -10,9 +10,13 @@ import type { Card } from '@/types/card'
 const BUCKET_NAME = 'card-images'
 
 export async function POST(request: Request) {
+  console.log('[API /import/linktree] POST request received')
+
   try {
     // Authenticate user
+    console.log('[API /import/linktree] Authenticating user...')
     const page = await fetchUserPage()
+    console.log('[API /import/linktree] User page:', page ? page.id : 'null')
     if (!page) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
@@ -24,7 +28,9 @@ export async function POST(request: Request) {
     }
 
     // Scrape Linktree profile
+    console.log('[API /import/linktree] Scraping username:', username)
     const profileData = await scrapeLinktreeProfile(username)
+    console.log('[API /import/linktree] Scraped links count:', profileData.links.length)
 
     // Map to our card format - returns structured {card, imageBlob} pairs
     const { mappedCards, failures } = await mapLinktreeToCards(profileData.links)
@@ -98,17 +104,22 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     // Handle known error types with user-friendly messages
-    if (error instanceof LinktreeNotFoundError) {
-      return NextResponse.json({ error: error.message }, { status: 404 })
+    // Use error.name check as instanceof can fail in bundled environments
+    const errorName = error instanceof Error ? error.name : ''
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+    console.error('Import error:', errorName, errorMessage, error)
+
+    if (errorName === 'LinktreeNotFoundError' || error instanceof LinktreeNotFoundError) {
+      return NextResponse.json({ error: errorMessage }, { status: 404 })
     }
-    if (error instanceof LinktreeEmptyError) {
-      return NextResponse.json({ error: error.message }, { status: 404 })
+    if (errorName === 'LinktreeEmptyError' || error instanceof LinktreeEmptyError) {
+      return NextResponse.json({ error: errorMessage }, { status: 404 })
     }
-    if (error instanceof LinktreeFetchError) {
-      return NextResponse.json({ error: error.message }, { status: 502 })
+    if (errorName === 'LinktreeFetchError' || error instanceof LinktreeFetchError) {
+      return NextResponse.json({ error: errorMessage }, { status: 502 })
     }
 
-    console.error('Import error:', error)
     return NextResponse.json(
       { error: 'Failed to import Linktree. Please try again.' },
       { status: 500 }

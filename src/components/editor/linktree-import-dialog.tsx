@@ -56,20 +56,27 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
 
     try {
       const existingCards = mode === 'add' ? cards : []
+      const trimmedUsername = username.trim()
+
+      console.log('[LinktreeImport] Starting import for:', trimmedUsername)
 
       const response = await fetch('/api/import/linktree', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: username.trim(),
+          username: trimmedUsername,
           existingCards,
         }),
       })
 
+      console.log('[LinktreeImport] Response status:', response.status)
+
       const data = await response.json()
+      console.log('[LinktreeImport] Response data:', data)
 
       if (!response.ok) {
-        toast.error(data.error || 'Failed to import')
+        console.error('[LinktreeImport] Error - status:', response.status, 'statusText:', response.statusText, 'data:', data)
+        toast.error(data.error || `Import failed (${response.status})`)
         return
       }
 
