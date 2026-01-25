@@ -1,21 +1,48 @@
 "use client"
 
+import { useState, useEffect, useCallback } from "react"
 import {
   Panel,
   Group,
   Separator,
-  useDefaultLayout,
+  type Layout,
 } from "react-resizable-panels"
 
 import { EditorPanel } from "./editor-panel"
 import { PreviewPanel } from "./preview-panel"
 import { cn } from "@/lib/utils"
 
+const STORAGE_KEY = "editor-layout"
+
 export function EditorLayout() {
-  // Persist layout between page loads using localStorage
-  const { defaultLayout, onLayoutChanged } = useDefaultLayout({
-    id: "editor-layout",
-  })
+  const [mounted, setMounted] = useState(false)
+  const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
+
+  // Only access localStorage after mount (client-side)
+  useEffect(() => {
+    setMounted(true)
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        setDefaultLayout(JSON.parse(saved))
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [])
+
+  const onLayoutChanged = useCallback((layout: Layout) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [])
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return null
+  }
 
   return (
     <Group
