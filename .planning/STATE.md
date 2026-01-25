@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 4.2 of 18 - Linktree Import (IN PROGRESS)
-Plan: 1 of 3 complete
-Status: **In progress**
-Last activity: 2026-01-25 - Completed 04.2-01-PLAN.md
+Phase: 4.2 of 18 - Linktree Import (COMPLETE)
+Plan: 2 of 2 complete
+Status: **Phase complete - awaiting verification**
+Last activity: 2026-01-25 - Completed 04.2-02-PLAN.md
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░] 20%
+Progress: [█████████████████████████] 100%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -53,13 +53,12 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 4.2 Progress (IN PROGRESS)
+## Phase 4.2 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Linktree Import Infrastructure | Complete |
-| 02 | API Route & Image Downloader | - |
-| 03 | UI Integration | - |
+| 02 | API Route, UI Dialog & Editor Integration | Complete |
 
 ## Phase 4.1 Progress (COMPLETE)
 
@@ -175,6 +174,10 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | Filter to clickable links only | 04.2-01 | Exclude HEADER type and locked links from import |
 | Pattern-based layout generation | 04.2-01 | 5 rhythm patterns create "this is different" feeling vs uniform Linktree |
 | Deterministic randomization | 04.2-01 | Link count modulo patterns = consistent but varied layouts |
+| Structured MappedCardWithImage return | 04.2-02 | Keep imageBlob separate from card data for clean API handling |
+| Permissive Zod schemas with passthrough | 04.2-02 | Handle Linktree data variations (null fields, extra properties) |
+| Confirmation dialog for existing cards | 04.2-02 | Ask user to add or replace when importing with existing cards |
+| Image re-upload to our storage | 04.2-02 | Download from Linktree, upload to Supabase for consistency |
 
 ## Quick Tasks
 
@@ -185,15 +188,20 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Completed 04.2-01-PLAN.md
-Resume with: 04.2-02 (API Route) or 04.2-03 (UI Integration)
+Stopped at: Completed 04.2-02-PLAN.md - Phase 4.2 complete
+Resume with: Next phase (4.3 Card Context Menu & Undo/Redo)
 
-**Phase 4.2-01 Linktree Import Infrastructure delivered:**
-- Zod schemas for Linktree __NEXT_DATA__ validation (LinktreeDataSchema, LinktreeLinkSchema)
+**Phase 4.2 Linktree Import delivered:**
+- Zod schemas for Linktree __NEXT_DATA__ validation (permissive with passthrough)
 - scrapeLinktreeProfile service with normalizeLinktreeInput (username/URL auto-detect)
 - Custom error classes for user-friendly error messages
 - Layout generator with 5 visual rhythm patterns
-- Foundation ready for API route and mapper service
+- API route at /api/import/linktree
+- Mapper service with image download and re-upload
+- Import dialog with username input and add/replace confirmation
+- Import button in Cards tab header
+- Empty state with "Import from Linktree" CTA
+- Verified working with real Linktree profiles including images
 
 ---
-*Updated: 2026-01-25 - Roadmap expanded to 18 phases based on competitive analysis*
+*Updated: 2026-01-25 - Phase 4.2 Linktree Import complete*
