@@ -184,6 +184,7 @@ Progress: [███████████████████████
 | # | Description | Status | Commit |
 |---|-------------|--------|--------|
 | 001 | Add delete button to cards | Complete | 735b927 |
+| 002 | Default preview mode to mobile | Complete | 882e9ac |
 
 ## Session Continuity
 
