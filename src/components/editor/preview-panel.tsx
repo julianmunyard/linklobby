@@ -11,7 +11,7 @@ const PREVIEW_SIZES = {
 } as const
 
 export function PreviewPanel() {
-  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop")
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile")
   const [previewReady, setPreviewReady] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
