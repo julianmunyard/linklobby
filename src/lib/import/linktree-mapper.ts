@@ -34,6 +34,12 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
     return null
   }
 
+  // Skip data URIs, SVGs, and other non-downloadable formats
+  if (imageUrl.startsWith('data:') || imageUrl.endsWith('.svg') || imageUrl.includes('/svg')) {
+    console.log('[ImageDownload] Skipping non-image URL:', imageUrl.substring(0, 50))
+    return null
+  }
+
   // Handle relative URLs (shouldn't happen but just in case)
   const fullUrl = imageUrl.startsWith('http') ? imageUrl : `https://linktr.ee${imageUrl}`
 
