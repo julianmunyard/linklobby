@@ -29,19 +29,46 @@ export interface ImportResult {
 
 // Download image from URL and return as Blob
 async function downloadImage(imageUrl: string): Promise<Blob | null> {
+  // Skip empty or invalid URLs
+  if (!imageUrl || imageUrl.trim() === '') {
+    return null
+  }
+
+  // Handle relative URLs (shouldn't happen but just in case)
+  const fullUrl = imageUrl.startsWith('http') ? imageUrl : `https://linktr.ee${imageUrl}`
+
+  console.log('[ImageDownload] Attempting:', fullUrl)
+
   try {
-    const response = await axios.get(imageUrl, {
+    const response = await axios.get(fullUrl, {
       responseType: 'arraybuffer',
-      timeout: 5000,
+      timeout: 15000, // Increased timeout to 15 seconds
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/*,*/*;q=0.8',
+        'Referer': 'https://linktr.ee/',
       },
+      maxRedirects: 5,
     })
 
     const contentType = response.headers['content-type'] || 'image/jpeg'
+    const dataSize = response.data.byteLength || 0
+
+    console.log('[ImageDownload] Success:', fullUrl, `(${dataSize} bytes, ${contentType})`)
+
+    // Skip very small images (likely broken or placeholder)
+    if (dataSize < 100) {
+      console.warn('[ImageDownload] Skipping tiny image:', fullUrl, `(${dataSize} bytes)`)
+      return null
+    }
+
     return new Blob([response.data], { type: contentType })
   } catch (error) {
-    console.warn('Failed to download image:', imageUrl, error)
+    if (axios.isAxiosError(error)) {
+      console.warn('[ImageDownload] Failed:', fullUrl, error.response?.status || error.code || error.message)
+    } else {
+      console.warn('[ImageDownload] Failed:', fullUrl, error)
+    }
     return null
   }
 }
@@ -56,6 +83,12 @@ export async function mapLinktreeToCards(
 ): Promise<ImportResult> {
   const layout = generateLayoutPatternRandomized(links.length)
 
+  // Log what we're processing
+  console.log('[LinktreeMapper] Processing', links.length, 'links')
+  links.forEach((link, i) => {
+    console.log(`[LinktreeMapper] Link ${i}: "${link.title}" thumbnail:`, link.thumbnail || '(none)')
+  })
+
   // Process links in parallel with Promise.allSettled
   const settledResults = await Promise.allSettled(
     links.map(async (link, index) => {
@@ -65,6 +98,9 @@ export async function mapLinktreeToCards(
       let imageBlob: Blob | null = null
       if (link.thumbnail) {
         imageBlob = await downloadImage(link.thumbnail)
+        if (!imageBlob) {
+          console.warn(`[LinktreeMapper] Failed to get image for "${link.title}"`)
+        }
       }
 
       // Map to our card format - image blob is separate, not embedded in content
