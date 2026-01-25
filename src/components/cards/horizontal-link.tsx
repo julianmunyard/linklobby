@@ -1,6 +1,7 @@
 // src/components/cards/horizontal-link.tsx
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import { ChevronRight, Link2 } from "lucide-react"
 
@@ -12,9 +13,17 @@ interface HorizontalLinkProps {
   isPreview?: boolean
 }
 
+// Check if URL looks valid for an image
+function isValidImageUrl(url: string | undefined): boolean {
+  if (!url) return false
+  return url.startsWith('http') && !url.includes('undefined') && !url.includes('null')
+}
+
 export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps) {
   const content = card.content as HorizontalLinkContent
+  const [imageError, setImageError] = useState(false)
   const hasLink = Boolean(card.url)
+  const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -36,14 +45,15 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
       )}
     >
       {/* Thumbnail or icon placeholder */}
-      {content.imageUrl ? (
+      {hasValidImage ? (
         <div className="relative h-12 w-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
           <Image
-            src={content.imageUrl}
+            src={content.imageUrl!}
             alt={content.imageAlt || ""}
             fill
             className="object-cover"
             sizes="48px"
+            onError={() => setImageError(true)}
           />
         </div>
       ) : (
