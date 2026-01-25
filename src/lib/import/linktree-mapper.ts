@@ -109,20 +109,14 @@ export async function mapLinktreeToCards(
         }
       }
 
-      // Smart card type: use horizontal for links without images
-      // Hero/square cards look bad without images, horizontal looks clean
-      const hasImage = imageBlob !== null
-      const cardType = hasImage ? layoutItem.type : 'horizontal'
-      const cardSize = hasImage ? layoutItem.size : 'big' // horizontal is always full width
-
       // Map to our card format - image blob is separate, not embedded in content
       const card: MappedCardData = {
-        card_type: cardType,
+        card_type: layoutItem.type,
         title: link.title || null,
         description: null, // Linktree doesn't have descriptions on links
         url: link.url,
         content: {}, // Clean content object - no embedded blobs
-        size: cardSize,
+        size: layoutItem.size,
         position: 'left' as HorizontalPosition, // Will flow naturally in our layout
       }
 
