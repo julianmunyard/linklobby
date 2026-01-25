@@ -18,9 +18,9 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 3: Canvas System
 - [x] Phase 4: Basic Cards
 - [x] Phase 4.1: Flow Layout
+- [x] Phase 4.2: Linktree Import
 
 ### MVP Milestone (v1.0 Launch)
-- [ ] Phase 4.2: Linktree Import *(quick win for user acquisition)*
 - [ ] Phase 4.3: Card Context Menu *(right-click convert, delete, duplicate, undo/redo)*
 - [ ] Phase 4.4: Profile Editor *(name, bio, photo, social icons)*
 - [ ] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)*
@@ -64,26 +64,12 @@ Hero Card, Horizontal Link, Square Card components
 #### Phase 4.1: Flow Layout ✓
 Grid/flow canvas with side-by-side card sizing
 
+#### Phase 4.2: Linktree Import ✓
+One-click import from Linktree with visual variety
+
 ---
 
 ### MVP MILESTONE (v1.0 Launch)
-
-#### Phase 4.2: Linktree Import
-**Goal:** Artists can import their existing Linktree links with one click
-**Competitive context:** Reduces friction for switching - meet artists where they are
-
-**Success Criteria:**
-1. User enters Linktree username (e.g., "linktr.ee/artistname")
-2. System fetches links, titles, images, and descriptions
-3. Imported links create cards on canvas (smart card type detection)
-4. Artist can customize/delete imported cards like any other
-5. One-time import — no ongoing Linktree connection
-
-**Plans:** 2 plans
-- [ ] 04.2-01-PLAN.md — Core import infrastructure (schemas, scraper, layout generator)
-- [ ] 04.2-02-PLAN.md — API route, UI dialog, editor integration
-
----
 
 #### Phase 4.3: Card Context Menu & Undo/Redo
 **Goal:** Artists can right-click cards and undo mistakes safely
