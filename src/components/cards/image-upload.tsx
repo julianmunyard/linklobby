@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { uploadCardImageBlob } from "@/lib/supabase/storage"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
+import { compressImageForUpload } from "@/lib/image-compression"
 import type { CardType } from "@/types/card"
 
 interface ImageUploadProps {
@@ -42,12 +43,17 @@ export function ImageUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [pendingBlob, setPendingBlob] = useState<Blob | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Handle file selection - open crop dialog
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Clear any previous errors
+    setUploadError(null)
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
@@ -83,16 +89,45 @@ export function ImageUpload({
     setCropDialogOpen(true)
   }
 
-  // Handle crop complete - upload cropped blob
+  // Handle crop complete - compress then upload
   async function handleCropComplete(croppedBlob: Blob) {
     try {
       setIsUploading(true)
-      const result = await uploadCardImageBlob(croppedBlob, cardId)
+      setUploadError(null)
+
+      // Compress the cropped image before upload
+      const fileToCompress = new File([croppedBlob], 'image.jpg', { type: croppedBlob.type })
+      const compressedBlob = await compressImageForUpload(fileToCompress)
+
+      // Store for potential retry
+      setPendingBlob(compressedBlob)
+
+      const result = await uploadCardImageBlob(compressedBlob, cardId)
       onChange(result.url)
+      setPendingBlob(null) // Clear pending blob on success
       toast.success("Image uploaded")
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
-      toast.error(message)
+      setUploadError(message)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  // Retry upload with the stored blob
+  async function handleRetry() {
+    if (!pendingBlob) return
+
+    try {
+      setIsUploading(true)
+      setUploadError(null)
+      const result = await uploadCardImageBlob(pendingBlob, cardId)
+      onChange(result.url)
+      setPendingBlob(null)
+      toast.success("Image uploaded")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed"
+      setUploadError(message)
     } finally {
       setIsUploading(false)
     }
@@ -106,77 +141,94 @@ export function ImageUpload({
 
   return (
     <>
-      <div className={cn("flex items-center gap-3", className)}>
-        {value ? (
-          // Small thumbnail preview with click-to-crop
-          <div
-            className={cn(
-              "relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0",
-              !disabled && !isUploading && "cursor-pointer hover:opacity-80 transition-opacity"
-            )}
-            onClick={handleThumbnailClick}
-            role="button"
-            tabIndex={disabled || isUploading ? -1 : 0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                handleThumbnailClick()
-              }
-            }}
-          >
-            <Image
-              src={value}
-              alt="Uploaded image"
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
-          </div>
-        ) : (
-          // Small upload placeholder
-          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-            {isUploading ? (
-              <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-            ) : (
-              <Upload className="h-5 w-5 text-muted-foreground" />
-            )}
-          </div>
-        )}
+      <div className={cn("flex flex-col gap-2", className)}>
+        <div className="flex items-center gap-3">
+          {value ? (
+            // Small thumbnail preview with click-to-crop
+            <div
+              className={cn(
+                "relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0",
+                !disabled && !isUploading && "cursor-pointer hover:opacity-80 transition-opacity"
+              )}
+              onClick={handleThumbnailClick}
+              role="button"
+              tabIndex={disabled || isUploading ? -1 : 0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleThumbnailClick()
+                }
+              }}
+            >
+              <Image
+                src={value}
+                alt="Uploaded image"
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            </div>
+          ) : (
+            // Small upload placeholder
+            <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              {isUploading ? (
+                <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+              ) : (
+                <Upload className="h-5 w-5 text-muted-foreground" />
+              )}
+            </div>
+          )}
 
-        {/* Upload/Change/Remove buttons */}
-        <div className="flex flex-col gap-1">
-          <button
-            type="button"
-            className={cn(
-              "text-sm text-primary hover:underline text-left",
-              disabled && "opacity-50 cursor-not-allowed"
-            )}
-            onClick={() => inputRef.current?.click()}
-            disabled={disabled || isUploading}
-          >
-            {isUploading ? "Uploading..." : value ? "Change image" : "Upload image"}
-          </button>
-          {value && (
+          {/* Upload/Change/Remove buttons */}
+          <div className="flex flex-col gap-1">
             <button
               type="button"
-              className="text-sm text-destructive hover:underline text-left"
-              onClick={handleRemove}
-              disabled={disabled}
+              className={cn(
+                "text-sm text-primary hover:underline text-left",
+                disabled && "opacity-50 cursor-not-allowed"
+              )}
+              onClick={() => inputRef.current?.click()}
+              disabled={disabled || isUploading}
             >
-              Remove
+              {isUploading ? "Uploading..." : value ? "Change image" : "Upload image"}
             </button>
-          )}
-          <span className="text-xs text-muted-foreground">Max 5MB · Click to crop</span>
+            {value && (
+              <button
+                type="button"
+                className="text-sm text-destructive hover:underline text-left"
+                onClick={handleRemove}
+                disabled={disabled}
+              >
+                Remove
+              </button>
+            )}
+            <span className="text-xs text-muted-foreground">Max 5MB · Click to crop</span>
+          </div>
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileSelect}
+            disabled={disabled || isUploading}
+          />
         </div>
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileSelect}
-          disabled={disabled || isUploading}
-        />
+        {/* Inline error with retry button */}
+        {uploadError && (
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <span>{uploadError}</span>
+            <button
+              type="button"
+              className="underline font-medium"
+              onClick={handleRetry}
+              disabled={isUploading}
+            >
+              Retry
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Crop dialog */}
