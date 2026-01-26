@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.4 of 18 - Profile Editor (IN PROGRESS)
-Plan: 5 of 8 complete
-Status: **In progress**
-Last activity: 2026-01-26 - Completed 04.4-04-PLAN.md: Header Section UI
+Plan: 8 of 8 complete
+Status: **Awaiting verification**
+Last activity: 2026-01-26 - Added profile photo toggle and logo size slider
 
-Progress: [██████████████████░░░░░░░] 72%
+Progress: [█████████████████████████] 100%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -53,7 +53,7 @@ Progress: [██████████████████░░░░░
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 4.4 Progress (IN PROGRESS)
+## Phase 4.4 Progress (COMPLETE - awaiting verification)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -62,9 +62,9 @@ Progress: [██████████████████░░░░░
 | 03 | Storage Extension | Complete |
 | 04 | Header Section UI | Complete |
 | 05 | Social Icons Editor | Complete |
-| 06 | Image Crop Dialog | - |
-| 07 | Profile-Preview Sync | - |
-| 08 | API & Persistence | - |
+| 06 | Social Icons Integration | Complete |
+| 07 | Profile-Preview Sync | Complete |
+| 08 | API & Persistence | Complete |
 
 ## Phase 4.3 Progress (COMPLETE)
 
@@ -218,6 +218,9 @@ Progress: [██████████████████░░░░░
 | ToggleGroup for profile toggles | 04.4-04 | Consistent UI pattern for layout, title style, title size selections |
 | Conditional rendering on titleStyle | 04.4-04 | Show display name + size picker for Text, logo upload for Logo |
 | Square aspect for avatar, free for logo | 04.4-04 | Avatar crops to 1:1, logo allows any aspect ratio |
+| Profile sync via postMessage | 04.4-07 | Preview iframe has separate Zustand instance - sync profile state in STATE_UPDATE message |
+| showAvatar toggle for profile photo | 04.4 | User can hide profile photo entirely via Switch toggle |
+| logoScale slider 50-150% | 04.4 | Scalable logo size with shadcn Slider, persisted to database |
 
 ## Quick Tasks
 
@@ -234,16 +237,26 @@ Progress: [██████████████████░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.4-04-PLAN.md - Header Section UI
-Resume with: Continue Wave 2 (04.4-06)
+Stopped at: Phase 4.4 complete - all plans executed
+Resume with: Run /gsd:verify-work to validate phase 4.4, then proceed to 4.5
 
-**Phase 04.4 in progress - Profile Editor:**
-- Profile type definitions and Zustand store (plan 01) - Complete
-- Image crop utility with react-easy-crop (plan 02) - Complete
-- Storage extension for profile images (plan 03) - Complete
-- Header section UI (plan 04) - Complete
-- Social icons editor components (plan 05) - Complete
-- Next: Image crop dialog (plan 06), then Wave 3 (07, 08)
+**Phase 04.4 complete - Profile Editor:**
+- All 8 plans executed successfully
+- User tested avatar upload (required Supabase bucket + RLS policies)
+- Fixed profile sync to preview iframe (separate Zustand instances)
+- Added user-requested features: showAvatar toggle, logoScale slider
+- Migration SQL ready: `show_avatar` and `logo_scale` columns
+
+**Key commits this session:**
+- `222d49d` - feat(04.4): add profile photo toggle and logo size slider
+- `03741d7` - fix(04.4-07): sync profile state to preview iframe
+- `5eaa99e` - feat(04.4-07): wire ProfileHeader into preview page
+- `38cb3e6` - feat(04.4-08): wire profile auto-save and load into editor
+
+**User setup required:**
+1. Run migration: `ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS show_avatar BOOLEAN NOT NULL DEFAULT true, ADD COLUMN IF NOT EXISTS logo_scale INTEGER NOT NULL DEFAULT 100;`
+2. Supabase storage bucket `profile-images` with public access
+3. RLS policies for authenticated upload/delete, public select
 
 ---
-*Updated: 2026-01-26 - Completed 04.4-04-PLAN.md*
+*Updated: 2026-01-26 - Phase 4.4 complete, awaiting verification*
