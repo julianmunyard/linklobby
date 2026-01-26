@@ -5,6 +5,7 @@ import { Camera, User, Upload, Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -17,15 +18,17 @@ import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
 import { uploadProfileImage, type ProfileImageType } from "@/lib/supabase/storage"
 import { createClient } from "@/lib/supabase/client"
-import type { TitleStyle, TitleSize, ProfileLayout } from "@/types/profile"
+import type { TitleSize, ProfileLayout } from "@/types/profile"
 
 export function HeaderSection() {
   // Profile store state
   const displayName = useProfileStore((state) => state.displayName)
+  const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const showAvatar = useProfileStore((state) => state.showAvatar)
-  const titleStyle = useProfileStore((state) => state.titleStyle)
+  const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
+  const showLogo = useProfileStore((state) => state.showLogo)
   const logoUrl = useProfileStore((state) => state.logoUrl)
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
@@ -33,10 +36,12 @@ export function HeaderSection() {
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
+  const setBio = useProfileStore((state) => state.setBio)
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
   const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
-  const setTitleStyle = useProfileStore((state) => state.setTitleStyle)
+  const setShowTitle = useProfileStore((state) => state.setShowTitle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
+  const setShowLogo = useProfileStore((state) => state.setShowLogo)
   const setLogoUrl = useProfileStore((state) => state.setLogoUrl)
   const setLogoScale = useProfileStore((state) => state.setLogoScale)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
@@ -205,46 +210,25 @@ export function HeaderSection() {
         </ToggleGroup>
       </div>
 
-      {/* Title Style */}
+      {/* Display Name / Title */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Title Style</Label>
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={titleStyle}
-          onValueChange={(value) => {
-            if (value) setTitleStyle(value as TitleStyle)
-          }}
-          className="justify-start"
-        >
-          <ToggleGroupItem value="text" aria-label="Text title">
-            Text
-          </ToggleGroupItem>
-          <ToggleGroupItem value="logo" aria-label="Logo title">
-            Logo
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      {/* Conditional fields based on title style */}
-      {titleStyle === "text" ? (
-        <>
-          {/* Display Name */}
-          <div className="space-y-3">
-            <Label htmlFor="display-name" className="text-sm font-medium">
-              Display Name
-            </Label>
-            <Input
-              id="display-name"
-              value={displayName || ""}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your display name"
-            />
-          </div>
-
-          {/* Title Size */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Title Size</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">Display Name</Label>
+          <Switch
+            id="show-title"
+            checked={showTitle}
+            onCheckedChange={setShowTitle}
+          />
+        </div>
+        <Input
+          id="display-name"
+          value={displayName || ""}
+          onChange={(e) => setDisplayName(e.target.value)}
+          placeholder="Your display name"
+        />
+        {showTitle && (
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Title Size</Label>
             <ToggleGroup
               type="single"
               variant="outline"
@@ -262,79 +246,99 @@ export function HeaderSection() {
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
-        </>
-      ) : (
-        /* Logo Upload */
-        <div className="space-y-3">
+        )}
+      </div>
+
+      {/* Logo */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Logo</Label>
-          <div className="flex items-center gap-4">
-            {logoUrl ? (
-              <div className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={logoUrl}
-                  alt="Logo"
-                  className="h-16 max-w-[200px] object-contain"
-                />
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
-                  onClick={() => logoInputRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  {isUploading && imageType === "logo" ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <Camera className="h-3 w-3" />
-                  )}
-                </Button>
-              </div>
-            ) : (
+          <Switch
+            id="show-logo"
+            checked={showLogo}
+            onCheckedChange={setShowLogo}
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          {logoUrl ? (
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="h-16 max-w-[200px] object-contain bg-transparent"
+              />
               <Button
-                variant="outline"
+                size="icon"
+                variant="secondary"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
                 onClick={() => logoInputRef.current?.click()}
                 disabled={isUploading}
               >
                 {isUploading && imageType === "logo" ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
                 ) : (
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Camera className="h-3 w-3" />
                 )}
-                Upload Logo
               </Button>
-            )}
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleLogoFileSelect}
-              className="hidden"
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading && imageType === "logo" ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              Upload Logo
+            </Button>
+          )}
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleLogoFileSelect}
+            className="hidden"
+          />
+        </div>
+        {uploadError && imageType === "logo" && (
+          <p className="text-xs text-destructive">{uploadError}</p>
+        )}
+
+        {/* Logo Size Slider */}
+        {logoUrl && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Logo Size</Label>
+              <span className="text-xs text-muted-foreground">{logoScale}%</span>
+            </div>
+            <Slider
+              value={[logoScale]}
+              onValueChange={(value) => setLogoScale(value[0])}
+              min={50}
+              max={300}
+              step={10}
+              className="w-full"
             />
           </div>
-          {uploadError && imageType === "logo" && (
-            <p className="text-xs text-destructive">{uploadError}</p>
-          )}
+        )}
+      </div>
 
-          {/* Logo Size Slider */}
-          {logoUrl && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Logo Size</Label>
-                <span className="text-xs text-muted-foreground">{logoScale}%</span>
-              </div>
-              <Slider
-                value={[logoScale]}
-                onValueChange={(value) => setLogoScale(value[0])}
-                min={50}
-                max={300}
-                step={10}
-                className="w-full"
-              />
-            </div>
-          )}
-        </div>
-      )}
+      {/* Bio */}
+      <div className="space-y-3">
+        <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
+        <Textarea
+          id="bio"
+          value={bio || ""}
+          onChange={(e) => setBio(e.target.value)}
+          placeholder="Tell your audience about yourself..."
+          rows={3}
+          className="resize-none"
+        />
+      </div>
 
       {/* Social Icons Section */}
       <div className="space-y-3">

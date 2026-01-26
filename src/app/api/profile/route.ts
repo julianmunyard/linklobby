@@ -29,12 +29,14 @@ export async function GET() {
   // Map database columns to frontend types
   return NextResponse.json({
     displayName: profile.display_name,
+    bio: profile.bio,
     avatarUrl: profile.avatar_url,
     showAvatar: profile.show_avatar ?? true,
+    showTitle: profile.show_title ?? true,
+    titleSize: profile.title_size,
+    showLogo: profile.show_logo ?? false,
     logoUrl: profile.logo_url,
     logoScale: profile.logo_scale ?? 100,
-    titleStyle: profile.title_style,
-    titleSize: profile.title_size,
     profileLayout: profile.profile_layout,
     showSocialIcons: profile.show_social_icons,
     socialIcons: profile.social_icons || [],
@@ -56,12 +58,14 @@ export async function POST(request: Request) {
     .from('profiles')
     .update({
       display_name: body.displayName,
+      bio: body.bio,
       avatar_url: body.avatarUrl,
       show_avatar: body.showAvatar,
+      show_title: body.showTitle,
+      title_size: body.titleSize,
+      show_logo: body.showLogo,
       logo_url: body.logoUrl,
       logo_scale: body.logoScale,
-      title_style: body.titleStyle,
-      title_size: body.titleSize,
       profile_layout: body.profileLayout,
       show_social_icons: body.showSocialIcons,
       social_icons: body.socialIcons,

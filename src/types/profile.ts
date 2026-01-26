@@ -63,11 +63,6 @@ export const SOCIAL_PLATFORMS: Record<SocialPlatform, SocialPlatformMeta> = {
 }
 
 /**
- * Title display style: plain text or uploaded logo image
- */
-export type TitleStyle = 'text' | 'logo'
-
-/**
  * Title size options
  */
 export type TitleSize = 'small' | 'large'
@@ -84,12 +79,14 @@ export type ProfileLayout = 'classic' | 'hero'
  */
 export interface Profile {
   displayName: string | null
+  bio: string | null
   avatarUrl: string | null
   showAvatar: boolean
-  titleStyle: TitleStyle
+  showTitle: boolean
   titleSize: TitleSize
+  showLogo: boolean
   logoUrl: string | null
-  logoScale: number  // 50-150 as percentage, default 100
+  logoScale: number  // 50-300 as percentage, default 100
   profileLayout: ProfileLayout
   showSocialIcons: boolean
   socialIcons: SocialIcon[]

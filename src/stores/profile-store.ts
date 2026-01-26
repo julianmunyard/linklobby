@@ -5,7 +5,6 @@ import type {
   Profile,
   SocialIcon,
   SocialPlatform,
-  TitleStyle,
   TitleSize,
   ProfileLayout,
 } from '@/types/profile'
@@ -55,10 +54,12 @@ interface ProfileState extends Profile {
 
   // Actions
   setDisplayName: (name: string | null) => void
+  setBio: (bio: string | null) => void
   setAvatarUrl: (url: string | null) => void
   setShowAvatar: (show: boolean) => void
-  setTitleStyle: (style: TitleStyle) => void
+  setShowTitle: (show: boolean) => void
   setTitleSize: (size: TitleSize) => void
+  setShowLogo: (show: boolean) => void
   setLogoUrl: (url: string | null) => void
   setLogoScale: (scale: number) => void
   setProfileLayout: (layout: ProfileLayout) => void
@@ -75,10 +76,12 @@ interface ProfileState extends Profile {
 
 const defaultProfile: Profile = {
   displayName: null,
+  bio: null,
   avatarUrl: null,
   showAvatar: true,
-  titleStyle: 'text',
+  showTitle: true,
   titleSize: 'large',
+  showLogo: false,
   logoUrl: null,
   logoScale: 100,
   profileLayout: 'classic',
@@ -94,13 +97,17 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
 
   setDisplayName: (name) => set({ displayName: name, hasChanges: true }),
 
+  setBio: (bio) => set({ bio: bio, hasChanges: true }),
+
   setAvatarUrl: (url) => set({ avatarUrl: url, hasChanges: true }),
 
   setShowAvatar: (show) => set({ showAvatar: show, hasChanges: true }),
 
-  setTitleStyle: (style) => set({ titleStyle: style, hasChanges: true }),
+  setShowTitle: (show) => set({ showTitle: show, hasChanges: true }),
 
   setTitleSize: (size) => set({ titleSize: size, hasChanges: true }),
+
+  setShowLogo: (show) => set({ showLogo: show, hasChanges: true }),
 
   setLogoUrl: (url) => set({ logoUrl: url, hasChanges: true }),
 
@@ -168,10 +175,12 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     const state = get()
     return {
       displayName: state.displayName,
+      bio: state.bio,
       avatarUrl: state.avatarUrl,
       showAvatar: state.showAvatar,
-      titleStyle: state.titleStyle,
+      showTitle: state.showTitle,
       titleSize: state.titleSize,
+      showLogo: state.showLogo,
       logoUrl: state.logoUrl,
       logoScale: state.logoScale,
       profileLayout: state.profileLayout,
