@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { PreviewToggle, type PreviewMode } from "./preview-toggle"
 import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
 import { cn } from "@/lib/utils"
 
 const PREVIEW_SIZES = {
@@ -17,6 +18,16 @@ export function PreviewPanel() {
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const hasChanges = usePageStore((state) => state.hasChanges)
+  const { saveCards } = useCards()
+
+  // Deselect card and save any pending changes
+  const handleDeselect = async () => {
+    selectCard(null)
+    if (hasChanges) {
+      await saveCards()
+    }
+  }
 
   // Send state to preview iframe
   const sendToPreview = () => {
@@ -80,10 +91,10 @@ export function PreviewPanel() {
         <PreviewToggle mode={previewMode} onModeChange={setPreviewMode} />
       </div>
 
-      {/* Preview area - click to deselect card */}
+      {/* Preview area - click to deselect card and save */}
       <div
         className="flex-1 overflow-auto p-4"
-        onClick={() => selectCard(null)}
+        onClick={handleDeselect}
       >
         <div
           className={cn(
