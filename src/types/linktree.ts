@@ -14,6 +14,12 @@ export const LinktreeLinkSchema = z.object({
   locked: z.boolean().optional().nullable(), // Can be null
 }).passthrough()
 
+// Social link schema - matches Linktree's socialLinks structure
+export const LinktreeSocialLinkSchema = z.object({
+  type: z.string(), // e.g., "INSTAGRAM", "TIKTOK", "YOUTUBE", "SPOTIFY", "TWITTER"
+  url: z.string(),
+}).passthrough()
+
 // Account schema - permissive
 const LinktreeAccountSchema = z.object({
   username: z.string(),
@@ -29,7 +35,7 @@ const LinktreeAccountSchema = z.object({
 export const LinktreePagePropsSchema = z.object({
   account: LinktreeAccountSchema.optional(),
   links: z.array(LinktreeLinkSchema),
-  socialLinks: z.array(z.any()).optional(),
+  socialLinks: z.array(LinktreeSocialLinkSchema).optional(),
 }).passthrough()
 
 // Full __NEXT_DATA__ schema
@@ -42,4 +48,5 @@ export const LinktreeDataSchema = z.object({
 // Export types
 export type LinktreeData = z.infer<typeof LinktreeDataSchema>
 export type LinktreeLink = z.infer<typeof LinktreeLinkSchema>
+export type LinktreeSocialLink = z.infer<typeof LinktreeSocialLinkSchema>
 export type LinktreePageProps = z.infer<typeof LinktreePagePropsSchema>

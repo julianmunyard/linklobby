@@ -1,7 +1,7 @@
 // src/lib/import/linktree-mapper.ts
 import axios from 'axios'
 import { generateLayoutPatternRandomized, type LayoutItem } from './layout-generator'
-import type { LinktreeLink } from '@/types/linktree'
+import type { LinktreeLink, LinktreeSocialLink } from '@/types/linktree'
 import type { CardType, CardSize, HorizontalPosition } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
 
@@ -65,6 +65,37 @@ function detectSocialPlatform(url: string): SocialPlatform | null {
     }
   }
   return null
+}
+
+/**
+ * Map Linktree's social type strings to our SocialPlatform type
+ */
+const LINKTREE_SOCIAL_TYPE_MAP: Record<string, SocialPlatform> = {
+  'INSTAGRAM': 'instagram',
+  'TIKTOK': 'tiktok',
+  'YOUTUBE': 'youtube',
+  'SPOTIFY': 'spotify',
+  'TWITTER': 'twitter',
+  'X': 'twitter',  // Linktree may use "X" now
+}
+
+/**
+ * Convert Linktree's socialLinks array to our DetectedSocialIcon format
+ */
+function mapSocialLinks(socialLinks: LinktreeSocialLink[] | undefined): DetectedSocialIcon[] {
+  if (!socialLinks) return []
+
+  const result: DetectedSocialIcon[] = []
+
+  for (const link of socialLinks) {
+    const platform = LINKTREE_SOCIAL_TYPE_MAP[link.type?.toUpperCase()]
+    if (platform && link.url) {
+      result.push({ platform, url: link.url })
+      console.log(`[LinktreeMapper] Mapped social link: ${link.type} -> ${platform} (${link.url})`)
+    }
+  }
+
+  return result
 }
 
 /**
@@ -158,27 +189,33 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
  * Returns array of {card, imageBlob} objects for clean API handling.
  */
 export async function mapLinktreeToCards(
-  links: LinktreeLink[]
+  links: LinktreeLink[],
+  socialLinks?: LinktreeSocialLink[]
 ): Promise<ImportResult> {
   // First pass: separate social links from regular links
-  const socialLinks: DetectedSocialIcon[] = []
+  const detectedSocialIcons: DetectedSocialIcon[] = []
   const regularLinks: LinktreeLink[] = []
 
+  // Start with socialLinks array (Linktree's explicit social icons)
+  const socialLinksFromArray = mapSocialLinks(socialLinks)
+  detectedSocialIcons.push(...socialLinksFromArray)
+
+  // Then process regular links, extracting profile URLs as social icons
   for (const link of links) {
     const platform = detectSocialPlatform(link.url)
     if (platform) {
       // Check if we already have this platform (avoid duplicates)
-      const alreadyHave = socialLinks.some(s => s.platform === platform)
+      const alreadyHave = detectedSocialIcons.some(s => s.platform === platform)
       if (!alreadyHave) {
-        socialLinks.push({ platform, url: link.url })
-        console.log(`[LinktreeMapper] Detected social icon: ${platform} -> ${link.url}`)
+        detectedSocialIcons.push({ platform, url: link.url })
+        console.log(`[LinktreeMapper] Detected social icon from URL: ${platform} -> ${link.url}`)
       }
     } else {
       regularLinks.push(link)
     }
   }
 
-  console.log(`[LinktreeMapper] Found ${socialLinks.length} social icons, ${regularLinks.length} regular links`)
+  console.log(`[LinktreeMapper] Found ${detectedSocialIcons.length} social icons (${socialLinksFromArray.length} from socialLinks array), ${regularLinks.length} regular links`)
 
   // Generate layout only for regular links
   const layout = generateLayoutPatternRandomized(regularLinks.length)
@@ -252,5 +289,5 @@ export async function mapLinktreeToCards(
     }
   }
 
-  return { mappedCards, detectedSocialIcons: socialLinks, failures }
+  return { mappedCards, detectedSocialIcons, failures }
 }
