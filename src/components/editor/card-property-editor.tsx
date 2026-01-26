@@ -252,7 +252,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   value={imageUrl}
                   onChange={handleImageChange}
                   cardId={card.id}
-                  aspectRatio={card.card_type === "square" ? "square" : "video"}
+                  cardType={card.card_type}
                 />
               </div>
             )}
