@@ -31,6 +31,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.91.0",
     "axios": "^1.13.2",
+    "browser-image-compression": "^2.0.2",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -47,6 +48,7 @@
     "react-resizable-panels": "^4.4.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
+    "vaul": "^1.1.2",
     "zod": "^4.3.6",
     "zundo": "^2.3.0",
     "zustand": "^5.0.10"
