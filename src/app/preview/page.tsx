@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { FlowGrid } from "@/components/canvas/flow-grid"
+import { useEffect, useState, useCallback } from "react"
+import { PreviewFlowGrid } from "@/components/canvas/preview-flow-grid"
 import type { Card } from "@/types/card"
 
 interface Theme {
@@ -29,6 +29,16 @@ const defaultState: PageState = {
 export default function PreviewPage() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
+
+  // Send SELECT_CARD message to parent editor
+  const handleCardClick = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: "SELECT_CARD", payload: { cardId } },
+        window.location.origin
+      )
+    }
+  }, [])
 
   useEffect(() => {
     // Handle incoming messages from parent editor
@@ -92,8 +102,8 @@ export default function PreviewPage() {
           </p>
         </div>
       ) : (
-        // Card rendering using FlowGrid with drag-to-reorder
-        <FlowGrid
+        // Card rendering using PreviewFlowGrid with drag-to-reorder and click-to-select
+        <PreviewFlowGrid
           cards={state.cards}
           onReorder={(oldIndex, newIndex) => {
             // Send reorder message to parent editor
@@ -104,6 +114,7 @@ export default function PreviewPage() {
               )
             }
           }}
+          onCardClick={handleCardClick}
         />
       )}
     </div>
