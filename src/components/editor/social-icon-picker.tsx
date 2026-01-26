@@ -25,6 +25,9 @@ import {
   type SocialPlatform,
 } from "@/types/profile"
 import { useProfileStore } from "@/stores/profile-store"
+import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
+import { generateAppendKey } from "@/lib/ordering"
 
 /**
  * Icon mapping for social platforms
@@ -56,6 +59,8 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
   const [url, setUrl] = useState("")
 
   const addSocialIcon = useProfileStore((state) => state.addSocialIcon)
+  const cards = usePageStore((state) => state.cards)
+  const { createCard } = useCards()
 
   // Get all platforms as array for rendering
   const platforms = Object.entries(SOCIAL_PLATFORMS) as [SocialPlatform, typeof SOCIAL_PLATFORMS[SocialPlatform]][]
@@ -93,11 +98,34 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
     return trimmed
   }
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!selectedPlatform || !url.trim()) return
 
     const normalizedUrl = normalizeUrl(url)
     addSocialIcon(selectedPlatform, normalizedUrl)
+
+    // Auto-create social-icons card if it doesn't exist
+    const hasSocialIconsCard = cards.some(c => c.card_type === "social-icons")
+    if (!hasSocialIconsCard) {
+      try {
+        const sortKey = generateAppendKey(cards)
+        const newCard = await createCard({
+          card_type: "social-icons",
+          title: null,
+          description: null,
+          url: null,
+          content: {},
+          size: "big",
+          position: "left",
+          sortKey,
+          is_visible: true,
+        })
+        usePageStore.getState().setCards([...cards, newCard])
+      } catch (err) {
+        console.error("Failed to create social icons card:", err)
+      }
+    }
+
     handleOpenChange(false)
   }
 
