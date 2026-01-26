@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { SortableFlowCard } from "./sortable-flow-card"
+import { useHistory } from "@/hooks/use-history"
 import type { Card } from "@/types/card"
 
 interface FlowGridProps {
@@ -30,6 +31,7 @@ interface FlowGridProps {
 export function FlowGrid({ cards, onReorder }: FlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mounted, setMounted] = useState(false)
+  const { pause, resume } = useHistory()
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -48,6 +50,8 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
   )
 
   function handleDragStart(event: DragStartEvent) {
+    // Pause history during drag to prevent intermediate states from polluting history
+    pause()
     const card = cards.find((c) => c.id === event.active.id)
     setActiveCard(card || null)
   }
@@ -56,7 +60,11 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
     const { active, over } = event
     setActiveCard(null)
 
-    if (!over) return
+    if (!over) {
+      // Resume history even if drop was cancelled
+      resume()
+      return
+    }
 
     // Reorder drop
     if (active.id !== over.id) {
@@ -66,6 +74,9 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
         onReorder(oldIndex, newIndex)
       }
     }
+
+    // Resume history after reorder is complete
+    resume()
   }
 
   // Show loading placeholder during SSR

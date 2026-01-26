@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { EditorLayout } from "@/components/editor/editor-layout"
 import { UnsavedChangesDialog } from "@/components/dashboard/unsaved-changes-dialog"
+import { HistoryHotkeys } from "@/components/editor/history-hotkeys"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { usePageStore } from "@/stores/page-store"
@@ -42,6 +43,9 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
 
   return (
     <TooltipProvider>
+      {/* Register undo/redo keyboard shortcuts */}
+      <HistoryHotkeys />
+
       <div className="flex flex-col h-[calc(100vh-3.5rem)]">
         {/* Editor header */}
         <DashboardHeader username={username} />
