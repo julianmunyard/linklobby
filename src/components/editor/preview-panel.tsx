@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { PreviewToggle, type PreviewMode } from "./preview-toggle"
 import { usePageStore } from "@/stores/page-store"
+import { useProfileStore } from "@/stores/profile-store"
 import { useCards } from "@/hooks/use-cards"
 import { cn } from "@/lib/utils"
 
@@ -18,6 +19,7 @@ export function PreviewPanel() {
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
   const { saveCards } = useCards()
 
   // Deselect card and save any pending changes
@@ -36,8 +38,9 @@ export function PreviewPanel() {
     const iframe = iframeRef.current
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
+      const profileSnapshot = getProfileSnapshot()
       iframe.contentWindow.postMessage(
-        { type: "STATE_UPDATE", payload: snapshot },
+        { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot } },
         window.location.origin
       )
     }
@@ -74,10 +77,16 @@ export function PreviewPanel() {
 
   // Subscribe to store changes and send updates to preview
   useEffect(() => {
-    const unsubscribe = usePageStore.subscribe(() => {
+    const unsubscribePage = usePageStore.subscribe(() => {
       sendToPreview()
     })
-    return () => unsubscribe()
+    const unsubscribeProfile = useProfileStore.subscribe(() => {
+      sendToPreview()
+    })
+    return () => {
+      unsubscribePage()
+      unsubscribeProfile()
+    }
   }, [previewReady])
 
   const size = PREVIEW_SIZES[previewMode]

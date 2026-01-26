@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from "react"
 import { PreviewFlowGrid } from "@/components/canvas/preview-flow-grid"
 import { ProfileHeader } from "@/components/preview/profile-header"
+import { useProfileStore } from "@/stores/profile-store"
 import type { Card } from "@/types/card"
+import type { Profile } from "@/types/profile"
 
 interface Theme {
   id: string
@@ -14,6 +16,7 @@ interface PageState {
   cards: Card[]
   theme: Theme
   selectedCardId: string | null
+  profile?: Profile
 }
 
 interface StateUpdateMessage {
@@ -66,6 +69,10 @@ export default function PreviewPage() {
 
       if (event.data?.type === "STATE_UPDATE") {
         setState(event.data.payload)
+        // Sync profile to store for ProfileHeader component
+        if (event.data.payload.profile) {
+          useProfileStore.getState().initializeProfile(event.data.payload.profile)
+        }
       }
     }
 
