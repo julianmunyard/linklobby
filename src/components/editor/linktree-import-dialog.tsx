@@ -28,7 +28,7 @@ import { Label } from '@/components/ui/label'
 import { usePageStore } from '@/stores/page-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { useCards } from '@/hooks/use-cards'
-import { generateAppendKey } from '@/lib/ordering'
+import { generateInsertKey } from '@/lib/ordering'
 import type { Card } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
 
@@ -97,6 +97,7 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
 
       // Handle detected social icons
       let socialIconsAdded = 0
+      let finalCards = newCards
       if (data.detectedSocialIcons && data.detectedSocialIcons.length > 0) {
         for (const icon of data.detectedSocialIcons as { platform: SocialPlatform; url: string }[]) {
           // Check if we already have this platform
@@ -107,12 +108,13 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
           }
         }
 
-        // Create social-icons card if we added icons and don't have one
+        // Create social-icons card at the TOP if we added icons and don't have one
         if (socialIconsAdded > 0) {
           const hasSocialIconsCard = newCards.some((c: Card) => c.card_type === 'social-icons')
           if (!hasSocialIconsCard) {
             try {
-              const sortKey = generateAppendKey(newCards)
+              // Put social icons card at the top (index 0)
+              const sortKey = generateInsertKey(newCards, 0)
               const socialCard = await createCard({
                 card_type: 'social-icons',
                 title: null,
@@ -124,10 +126,24 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
                 sortKey,
                 is_visible: true,
               })
-              setCards([...newCards, socialCard])
+              finalCards = [socialCard, ...newCards]
+              setCards(finalCards)
             } catch (err) {
               console.error('Failed to create social icons card:', err)
             }
+          }
+
+          // Save profile immediately so icons persist
+          try {
+            const profile = useProfileStore.getState().getSnapshot()
+            await fetch('/api/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(profile),
+            })
+            useProfileStore.getState().markSaved()
+          } catch (err) {
+            console.error('Failed to save profile with social icons:', err)
           }
         }
       }
