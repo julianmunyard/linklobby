@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 4.3 of 18 - Card Context Menu & Undo/Redo (COMPLETE)
 Plan: 2 of 2 complete
 Status: **Phase complete**
-Last activity: 2026-01-26 - Completed quick task 005: Fix auto-save on close
+Last activity: 2026-01-26 - Completed quick task 006: Fix stale closure in auto-save
 
 Progress: [██████████████░░░░░░░░░░░] 55%
 
@@ -202,6 +202,7 @@ Progress: [██████████████░░░░░░░░░
 | 003 | Smooth card drag animation | Complete | 7cb089f |
 | 004 | Auto-save on close | Complete | d8d7e65 |
 | 005 | Fix auto-save on close | Complete | 34e660c |
+| 006 | Fix stale closure in auto-save | Complete | 9f399bd |
 
 ## Session Continuity
 
@@ -218,4 +219,4 @@ Resume with: 04.4 Profile Editor
 - Header undo/redo buttons with disabled states
 
 ---
-*Updated: 2026-01-26 - Phase 04.3 complete*
+*Updated: 2026-01-26 - Completed quick task 006*
