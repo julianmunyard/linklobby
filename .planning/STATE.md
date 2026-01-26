@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 4.3 Card Context Menu & Undo/Redo - In Progress
+**Current focus:** Phase 4.4 Profile Editor
 
 ## Current Position
 
-Phase: 4.3 of 18 - Card Context Menu & Undo/Redo (IN PROGRESS)
-Plan: 1 of 2 complete
-Status: **In progress**
-Last activity: 2026-01-26 - Completed 04.3-01-PLAN.md
+Phase: 4.3 of 18 - Card Context Menu & Undo/Redo (COMPLETE)
+Plan: 2 of 2 complete
+Status: **Phase complete**
+Last activity: 2026-01-26 - Completed 04.3-02-PLAN.md
 
-Progress: [█████████████░░░░░░░░░░░░] 50%
+Progress: [██████████████░░░░░░░░░░░] 55%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -27,7 +27,7 @@ Progress: [█████████████░░░░░░░░░░
 | 4 | Basic Cards | Complete ✓ |
 | 4.1 | Flow Layout | Complete ✓ |
 | 4.2 | Linktree Import | Complete |
-| 4.3 | Card Context Menu & Undo/Redo | In Progress |
+| 4.3 | Card Context Menu & Undo/Redo | Complete |
 | 4.4 | Profile Editor | - |
 | 4.5 | Editor Polish (Mobile) | - |
 | 5 | Media Cards | - |
@@ -53,12 +53,12 @@ Progress: [█████████████░░░░░░░░░░
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 4.3 Progress (IN PROGRESS)
+## Phase 4.3 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Undo/Redo Infrastructure | Complete |
-| 02 | Context Menu | - |
+| 02 | Card Actions & Type Picker | Complete |
 
 ## Phase 4.2 Progress (COMPLETE)
 
@@ -189,6 +189,9 @@ Progress: [█████████████░░░░░░░░░░
 | partialize cards only | 04.3-01 | UI state (selectedCardId, hasChanges) not tracked in history |
 | 500ms throttle for history | 04.3-01 | Batch rapid field edits into single undo entry |
 | pause/resume during drag | 04.3-01 | Prevents intermediate drag states from polluting history |
+| Convertible types only | 04.3-02 | Only hero/horizontal/square can convert - dropdown is container, others are specialized |
+| Delete no confirmation | 04.3-02 | Delete immediately with undo toast - modern pattern, faster workflow |
+| Duplicate selects new card | 04.3-02 | User likely wants to edit the new card immediately |
 
 ## Quick Tasks
 
@@ -202,18 +205,16 @@ Progress: [█████████████░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.3-01-PLAN.md - Undo/Redo Infrastructure
-Resume with: 04.3-02-PLAN.md - Context Menu
+Stopped at: Completed 04.3-02-PLAN.md - Card Actions & Type Picker (Phase 4.3 complete)
+Resume with: 04.4 Profile Editor
 
-**Phase 04.3 Plan 01 Undo/Redo Infrastructure delivered:**
-- Zundo temporal middleware wrapping page store
-- partialize to track only cards array (not UI state)
-- 500ms throttle to batch rapid field edits
-- 50 entry history limit
-- useHistory hook exposing undo/redo/pause/resume/canUndo/canRedo
-- HistoryHotkeys component for Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z
-- Toast notifications for undo/redo feedback
-- Drag operations pause/resume history for atomic reorder entries
+**Phase 04.3 complete - Card Context Menu & Undo/Redo:**
+- Zundo temporal middleware for undo/redo history
+- Keyboard shortcuts (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z)
+- CardTypePicker for hero/horizontal/square conversion
+- Duplicate action creates copy after original
+- Delete with undo toast (5 second duration)
+- Header undo/redo buttons with disabled states
 
 ---
-*Updated: 2026-01-26 - Phase 04.3 Plan 01 Undo/Redo Infrastructure complete*
+*Updated: 2026-01-26 - Phase 04.3 complete*
