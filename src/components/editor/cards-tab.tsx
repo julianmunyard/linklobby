@@ -64,12 +64,28 @@ export function CardsTab() {
       const sortKey = generateAppendKey(cards)
       // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
       const size = CARD_TYPE_SIZING[type] === null ? "big" : "big"
+
+      // Type-specific default content (text and vertical alignment)
+      const defaultContent: Record<string, unknown> = (() => {
+        switch (type) {
+          case "hero":
+          case "square":
+            return { textAlign: "center", verticalAlign: "bottom" }
+          case "horizontal":
+            return { textAlign: "left", verticalAlign: "middle" }
+          case "link":
+            return { textAlign: "center", verticalAlign: "middle" }
+          default:
+            return {}
+        }
+      })()
+
       const newCard = await createCard({
         card_type: type,
         title: null,
         description: null,
         url: null,
-        content: {},
+        content: defaultContent,
         size,
         position: "left",
         sortKey,

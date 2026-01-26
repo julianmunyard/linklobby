@@ -57,6 +57,22 @@ export const usePageStore = create<PageState>()(
   addCard: (type, size = 'big') => set((state) => {
     // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
     const effectiveSize = CARD_TYPE_SIZING[type] === null ? 'big' : size
+
+    // Type-specific default content (text and vertical alignment)
+    const defaultContent: Record<string, unknown> = (() => {
+      switch (type) {
+        case 'hero':
+        case 'square':
+          return { textAlign: 'center', verticalAlign: 'bottom' }
+        case 'horizontal':
+          return { textAlign: 'left', verticalAlign: 'middle' }
+        case 'link':
+          return { textAlign: 'center', verticalAlign: 'middle' }
+        default:
+          return {}
+      }
+    })()
+
     const newCard: Card = {
       id: crypto.randomUUID(),
       page_id: '', // Set when saving to DB
@@ -64,7 +80,7 @@ export const usePageStore = create<PageState>()(
       title: null,
       description: null,
       url: null,
-      content: {},
+      content: defaultContent,
       size: effectiveSize,
       position: 'left',  // default position for small cards
       sortKey: generateAppendKey(state.cards),
