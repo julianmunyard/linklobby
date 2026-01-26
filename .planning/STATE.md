@@ -185,11 +185,12 @@ Progress: [███████████████████████
 |---|-------------|--------|--------|
 | 001 | Add delete button to cards | Complete | 735b927 |
 | 002 | Default preview mode to mobile | Complete | 882e9ac |
+| 003 | Smooth card drag animation | Complete | 7cb089f |
 
 ## Session Continuity
 
-Last session: 2026-01-25
-Stopped at: Completed 04.2-02-PLAN.md - Phase 4.2 complete
+Last session: 2026-01-26
+Stopped at: Completed quick task 003 - Smooth card drag animation
 Resume with: Next phase (4.3 Card Context Menu & Undo/Redo)
 
 **Phase 4.2 Linktree Import delivered:**
