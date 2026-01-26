@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, User, Upload, Plus, Loader2 } from "lucide-react"
+import { Camera, User, Upload, Plus, Loader2, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,13 +12,52 @@ import {
 } from "@/components/ui/toggle-group"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { useProfileStore } from "@/stores/profile-store"
 import { SocialIconsEditor } from "./social-icons-editor"
 import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
 import { uploadProfileImage, type ProfileImageType } from "@/lib/supabase/storage"
 import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 import type { TitleSize, ProfileLayout } from "@/types/profile"
+
+interface CollapsibleSectionProps {
+  title: string
+  defaultOpen?: boolean
+  children: React.ReactNode
+  toggle?: React.ReactNode
+}
+
+function CollapsibleSection({ title, defaultOpen = false, children, toggle }: CollapsibleSectionProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen)
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <div className="flex items-center justify-between">
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-2 text-sm font-medium hover:text-foreground/80 transition-colors">
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 transition-transform duration-200",
+                isOpen && "rotate-180"
+              )}
+            />
+            {title}
+          </button>
+        </CollapsibleTrigger>
+        {toggle}
+      </div>
+      <CollapsibleContent className="pt-3 space-y-3">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
 
 export function HeaderSection() {
   // Profile store state
@@ -63,7 +102,7 @@ export function HeaderSection() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setUploadError(null) // Clear any previous errors
+    setUploadError(null)
     const reader = new FileReader()
     reader.onload = () => {
       setSelectedImage(reader.result as string)
@@ -71,8 +110,6 @@ export function HeaderSection() {
       setCropDialogOpen(true)
     }
     reader.readAsDataURL(file)
-
-    // Reset input so same file can be selected again
     e.target.value = ""
   }
 
@@ -81,7 +118,7 @@ export function HeaderSection() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setUploadError(null) // Clear any previous errors
+    setUploadError(null)
     const reader = new FileReader()
     reader.onload = () => {
       setSelectedImage(reader.result as string)
@@ -89,8 +126,6 @@ export function HeaderSection() {
       setCropDialogOpen(true)
     }
     reader.readAsDataURL(file)
-
-    // Reset input so same file can be selected again
     e.target.value = ""
   }
 
@@ -100,7 +135,6 @@ export function HeaderSection() {
     setUploadError(null)
 
     try {
-      // Get current user ID
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
@@ -109,10 +143,8 @@ export function HeaderSection() {
         return
       }
 
-      // Upload to Supabase storage
       const result = await uploadProfileImage(croppedBlob, user.id, imageType)
 
-      // Update store with new URL
       if (imageType === "avatar") {
         setAvatarUrl(result.url)
       } else {
@@ -128,7 +160,7 @@ export function HeaderSection() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-4">
       {/* Section header */}
       <div className="border-b pb-2">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -137,17 +169,18 @@ export function HeaderSection() {
       </div>
 
       {/* Profile Photo */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Profile Photo</Label>
+      <CollapsibleSection
+        title="Profile Photo"
+        defaultOpen={true}
+        toggle={
           <Switch
             id="show-avatar"
             checked={showAvatar}
             onCheckedChange={setShowAvatar}
           />
-        </div>
+        }
+      >
         <div className="flex items-center gap-4">
-          {/* Avatar circle */}
           <div className="relative">
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
               {avatarUrl ? (
@@ -161,7 +194,6 @@ export function HeaderSection() {
                 <User className="h-8 w-8 text-muted-foreground" />
               )}
             </div>
-            {/* Edit overlay button */}
             <Button
               size="icon"
               variant="secondary"
@@ -187,11 +219,10 @@ export function HeaderSection() {
         {uploadError && imageType === "avatar" && (
           <p className="text-xs text-destructive">{uploadError}</p>
         )}
-      </div>
+      </CollapsibleSection>
 
-      {/* Profile Layout */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">Layout</Label>
+      {/* Layout */}
+      <CollapsibleSection title="Layout" defaultOpen={true}>
         <ToggleGroup
           type="single"
           variant="outline"
@@ -208,18 +239,20 @@ export function HeaderSection() {
             Hero
           </ToggleGroupItem>
         </ToggleGroup>
-      </div>
+      </CollapsibleSection>
 
       {/* Display Name / Title */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Display Name</Label>
+      <CollapsibleSection
+        title="Display Name"
+        defaultOpen={true}
+        toggle={
           <Switch
             id="show-title"
             checked={showTitle}
             onCheckedChange={setShowTitle}
           />
-        </div>
+        }
+      >
         <Input
           id="display-name"
           value={displayName || ""}
@@ -247,18 +280,20 @@ export function HeaderSection() {
             </ToggleGroup>
           </div>
         )}
-      </div>
+      </CollapsibleSection>
 
       {/* Logo */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Logo</Label>
+      <CollapsibleSection
+        title="Logo"
+        defaultOpen={false}
+        toggle={
           <Switch
             id="show-logo"
             checked={showLogo}
             onCheckedChange={setShowLogo}
           />
-        </div>
+        }
+      >
         <div className="flex items-center gap-4">
           {logoUrl ? (
             <div className="relative">
@@ -308,7 +343,6 @@ export function HeaderSection() {
           <p className="text-xs text-destructive">{uploadError}</p>
         )}
 
-        {/* Logo Size Slider */}
         {logoUrl && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -325,11 +359,10 @@ export function HeaderSection() {
             />
           </div>
         )}
-      </div>
+      </CollapsibleSection>
 
       {/* Bio */}
-      <div className="space-y-3">
-        <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
+      <CollapsibleSection title="Bio" defaultOpen={false}>
         <Textarea
           id="bio"
           value={bio || ""}
@@ -338,20 +371,20 @@ export function HeaderSection() {
           rows={3}
           className="resize-none"
         />
-      </div>
+      </CollapsibleSection>
 
-      {/* Social Icons Section */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="show-social-icons" className="text-sm font-medium">
-            Social Icons
-          </Label>
+      {/* Social Icons */}
+      <CollapsibleSection
+        title="Social Icons"
+        defaultOpen={false}
+        toggle={
           <Switch
             id="show-social-icons"
             checked={showSocialIcons}
             onCheckedChange={setShowSocialIcons}
           />
-        </div>
+        }
+      >
         <p className="text-xs text-muted-foreground">
           Icons appear in your page header
         </p>
@@ -368,7 +401,7 @@ export function HeaderSection() {
             </SocialIconPicker>
           </div>
         )}
-      </div>
+      </CollapsibleSection>
 
       {/* Image Crop Dialog */}
       {selectedImage && (
