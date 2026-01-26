@@ -21,7 +21,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4.2: Linktree Import
 
 ### MVP Milestone (v1.0 Launch)
-- [ ] Phase 4.3: Card Context Menu *(right-click convert, delete, duplicate, undo/redo)*
+- [ ] Phase 4.3: Card Context Menu *(type picker, delete, duplicate, undo/redo)*
 - [ ] Phase 4.4: Profile Editor *(name, bio, photo, social icons)*
 - [ ] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)*
 - [ ] Phase 5: Media Cards
@@ -72,21 +72,25 @@ One-click import from Linktree with visual variety
 ### MVP MILESTONE (v1.0 Launch)
 
 #### Phase 4.3: Card Context Menu & Undo/Redo
-**Goal:** Artists can right-click cards and undo mistakes safely
+**Goal:** Artists can convert card types, duplicate/delete cards, and undo mistakes safely
 **Competitive context:** Polish and UX - makes experimentation frictionless
 
 **Success Criteria:**
-1. **Right-click context menu** appears on cards in editor (not preview)
-2. **Convert to...** submenu with available card types (Square, Horizontal, Hero)
-3. Conversion preserves content (title, description, URL, image)
-4. **Duplicate** creates copy below original card
-5. **Delete** removes card (with undo option)
-6. Context menu styled consistently with theme
-7. **Undo/Redo stack** - Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z to redo
-8. Undo works for: add, delete, reorder, convert, property changes
-9. Visual feedback when undo/redo occurs (toast notification)
+1. **Card type picker** - icon tiles in property editor to switch between Hero, Horizontal, Square
+2. **Convert preserves content** - title, description, URL, image maintained when switching types
+3. **Duplicate** - creates copy below original card
+4. **Delete** - removes card immediately, shows toast with Undo button
+5. **Undo/Redo stack** - Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z to redo
+6. **Undo/Redo buttons** - visible in header for mobile and discoverability
+7. Undo works for: add, delete, reorder, convert, property changes
+8. Visual feedback when undo/redo occurs (toast notification)
+9. History paused during drag operations
 
 **Plans:** 2 plans
+
+Plans:
+- [ ] 04.3-01-PLAN.md - Undo/Redo Infrastructure
+- [ ] 04.3-02-PLAN.md - Card Actions & Type Picker
 
 ---
 
@@ -426,7 +430,7 @@ One-click import from Linktree with visual variety
 | Email collection | 10 | Inline email capture block |
 | QR codes | 10 | Auto-generated for offline promotion |
 | Easy migration from Linktree | 4.2 | One-click import of existing links |
-| Frictionless experimentation | 4.3 | Right-click convert, undo/redo |
+| Frictionless experimentation | 4.3 | Type picker, undo/redo |
 | Interactive/memorable experience | 6 | Game Card (Snake), Dropdown lists |
 | Quick organization | 6 | Multi-select cards → group into dropdown |
 | Mobile editing | 4.5 | Fully responsive editor for phone/tablet |
@@ -503,5 +507,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-01-25*
+*Last updated: 2026-01-26*
 *Based on: COMPETITORS.md competitive analysis*
