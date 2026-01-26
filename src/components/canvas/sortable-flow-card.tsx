@@ -21,7 +21,7 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
   } = useSortable({ id: card.id })
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     // Use dnd-kit transition or fallback to smooth CSS transition
     transition: transition ?? 'transform 200ms ease',
   }
