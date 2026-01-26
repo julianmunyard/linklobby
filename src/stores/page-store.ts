@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { temporal } from 'zundo'
+import throttle from 'lodash.throttle'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateAppendKey, generateMoveKey, sortCardsBySortKey } from '@/lib/ordering'
@@ -40,7 +42,9 @@ interface PageState {
   getSnapshot: () => { cards: Card[]; theme: Theme }
 }
 
-export const usePageStore = create<PageState>()((set, get) => ({
+export const usePageStore = create<PageState>()(
+  temporal(
+    (set, get) => ({
   cards: [],
   theme: defaultTheme,
   selectedCardId: null,
@@ -139,4 +143,18 @@ export const usePageStore = create<PageState>()((set, get) => ({
     const { cards, theme } = get()
     return { cards: sortCardsBySortKey(cards), theme }
   },
-}))
+    }),
+    {
+      // Only track cards array in history (not UI state like selectedCardId, hasChanges)
+      partialize: (state) => ({ cards: state.cards }),
+      // Throttle history updates to batch rapid field edits (500ms delay)
+      handleSet: (handleSet) =>
+        throttle<typeof handleSet>(handleSet, 500, {
+          leading: false,
+          trailing: true,
+        }),
+      // Limit history depth to 50 entries
+      limit: 50,
+    }
+  )
+)
