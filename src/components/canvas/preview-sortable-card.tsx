@@ -52,6 +52,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
         widthClass,
         isDragging && "opacity-0",
         "cursor-pointer",
+        "touch-none", // Required for touch drag to work
         // Selection highlight - white border with ring
         isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background rounded-xl"
       )}
