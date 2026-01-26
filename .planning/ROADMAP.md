@@ -133,13 +133,18 @@ Plans:
 3. Mobile-optimized sidebar (slide-out drawer or bottom sheet)
 4. **Image optimization** - auto-compress uploads, support PNG/JPG/WebP/GIF
 5. **Link URL validation** - detect malformed URLs, auto-add https://
-6. **Broken link detection** - warn if URL returns 404 (async check)
+6. **Broken link detection** - warn if URL returns 404 (async check) [DEFERRED - CORS issues]
 7. **Error handling** - graceful failures with retry options
 8. Upload failure recovery (resume or retry)
-9. Save failure handling (local backup, retry)
+9. Save failure handling (retry with exponential backoff)
 10. Offline indicator (warn user if connection lost)
 
-**Plans:** 2-3 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 04.5-01-PLAN.md — Mobile foundation hooks and utilities
+- [ ] 04.5-02-PLAN.md — Mobile layout and bottom sheet navigation
+- [ ] 04.5-03-PLAN.md — Error handling, image compression, URL validation
 
 ---
 
