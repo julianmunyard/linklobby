@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { User } from "lucide-react"
 import { useProfileStore } from "@/stores/profile-store"
 import { cn } from "@/lib/utils"
@@ -82,12 +81,12 @@ export function ProfileHeader() {
         {showAvatar && (
           <div className="relative w-20 h-20 rounded-full bg-muted overflow-hidden">
             {avatarUrl ? (
-              <Image
+              /* Use img instead of Image to avoid Next.js optimization issues with transparent PNGs */
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
                 src={avatarUrl}
                 alt=""
-                fill
-                className="object-cover"
-                sizes="80px"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -116,12 +115,12 @@ export function ProfileHeader() {
       {showAvatar && (
         <div className="relative w-full aspect-[3/1] bg-muted overflow-hidden">
           {avatarUrl ? (
-            <Image
+            /* Use img instead of Image to avoid Next.js optimization issues with transparent PNGs */
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
               src={avatarUrl}
               alt=""
-              fill
-              className="object-cover"
-              sizes="100vw"
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
