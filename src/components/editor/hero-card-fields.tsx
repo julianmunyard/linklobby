@@ -3,6 +3,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -18,34 +19,49 @@ interface HeroCardFieldsProps {
 }
 
 export function HeroCardFields({ content, onChange }: HeroCardFieldsProps) {
+  const showButton = content.showButton !== false  // Default to true
+
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="buttonText">Button Text</Label>
-        <Input
-          id="buttonText"
-          placeholder="Visit"
-          value={content.buttonText ?? ""}
-          onChange={(e) => onChange({ buttonText: e.target.value })}
+      <div className="flex items-center justify-between">
+        <Label htmlFor="showButton">Show Button</Label>
+        <Switch
+          id="showButton"
+          checked={showButton}
+          onCheckedChange={(checked) => onChange({ showButton: checked })}
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="buttonStyle">Button Style</Label>
-        <Select
-          value={content.buttonStyle ?? "primary"}
-          onValueChange={(value) => onChange({ buttonStyle: value })}
-        >
-          <SelectTrigger id="buttonStyle">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="primary">Primary</SelectItem>
-            <SelectItem value="secondary">Secondary</SelectItem>
-            <SelectItem value="outline">Outline</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {showButton && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="buttonText">Button Text</Label>
+            <Input
+              id="buttonText"
+              placeholder="Visit"
+              value={content.buttonText ?? ""}
+              onChange={(e) => onChange({ buttonText: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="buttonStyle">Button Style</Label>
+            <Select
+              value={content.buttonStyle ?? "primary"}
+              onValueChange={(value) => onChange({ buttonStyle: value })}
+            >
+              <SelectTrigger id="buttonStyle">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="primary">Primary</SelectItem>
+                <SelectItem value="secondary">Secondary</SelectItem>
+                <SelectItem value="outline">Outline</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
     </div>
   )
 }

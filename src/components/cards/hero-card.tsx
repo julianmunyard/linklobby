@@ -26,6 +26,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "bottom"
+  const showButton = content.showButton !== false  // Default to true
 
   return (
     <div className="relative w-full h-64 rounded-xl overflow-hidden bg-card border">
@@ -69,7 +70,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
             {card.description}
           </p>
         )}
-        {card.url && (
+        {card.url && showButton && (
           <a
             href={card.url}
             target="_blank"
@@ -89,8 +90,8 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
         )}
       </div>
 
-      {/* Full-card click area when no button text (stretched link pattern) */}
-      {card.url && !content.buttonText && (
+      {/* Full-card click area when button is hidden (stretched link pattern) */}
+      {card.url && !showButton && (
         <a
           href={card.url}
           target="_blank"

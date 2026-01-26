@@ -93,6 +93,7 @@ export const POSITION_REVERSE: Record<number, HorizontalPosition> = {
 export interface HeroCardContent {
   imageUrl?: string
   imageAlt?: string
+  showButton?: boolean  // Whether to show the CTA button (default true)
   buttonText?: string
   buttonStyle?: "primary" | "secondary" | "outline"
 }

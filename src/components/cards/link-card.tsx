@@ -21,7 +21,7 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "w-full flex flex-col gap-1 px-4 py-3 rounded-lg transition-colors hover:bg-accent/30",
+        "w-full flex flex-col gap-1 px-4 py-3 rounded-lg transition-colors hover:bg-accent/30 border border-white/20",
         textAlign === "left" && "text-left items-start",
         textAlign === "center" && "text-center items-center",
         textAlign === "right" && "text-right items-end",
