@@ -261,6 +261,9 @@ Progress: [███████████████████████
 | Auto-open sheet on card selection | 04.5-02 | Mobile users tap card expecting immediate editing |
 | 44px minimum touch targets | 04.5-02 | h-11 for all interactive buttons (Apple HIG / Material Design guideline) |
 | touch-pan-y on scrollable areas | 04.5-02 | Prevents gesture conflicts between scroll and drawer swipe-to-dismiss |
+| TouchSensor for dnd-kit | 04.5-fix | PointerSensor alone doesn't work in Chrome DevTools mobile emulation |
+| touch-none on preview cards | 04.5-fix | Required for touch-based drag to work on preview sortable cards |
+| 50ms TouchSensor delay | 04.5-fix | Short delay prevents accidental drags while allowing responsive touch drag |
 
 ## Quick Tasks
 
@@ -284,21 +287,33 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 04.5-03-PLAN.md (Image upload polish & error handling)
-Resume file: None
+Stopped at: Phase 4.5 complete + post-execution mobile drag fixes
+Resume with: `/gsd:plan-phase 5` for Media Cards
 
-**This session's work (04.5-03):**
-- Image compression integration (GIF preservation)
-- URL validation with auto-fix (https:// protocol)
-- Inline error display with retry buttons
-- Offline detection with persistent warning banner
-- Automatic save retry with exponential backoff (1s, 2s, 4s)
-- Non-blocking validation (warnings don't prevent saves)
+**This session's work:**
+
+1. **Phase 4.5 Execution** (3 plans)
+   - Foundation utilities: useMediaQuery, useOnline, image compression, URL validation
+   - Mobile editor layout: bottom sheet, FAB, responsive switching
+   - Error handling: compression integration, URL validation, offline banner, retry logic
+
+2. **Post-execution mobile fixes:**
+   - Added TouchSensor to dnd-kit for mobile drag support
+   - Added touch-none to preview-sortable-card (required for touch drag)
+   - Reduced TouchSensor delay from 150ms to 50ms for faster response
+   - Note: Chrome DevTools mobile emulation has drag limitations - works better on real devices
 
 **Key commits this session:**
+- `b7da2e0` - chore(04.5-01): install dependencies and create media query hooks
+- `7373529` - feat(04.5-01): create online/offline detection hook
+- `5aec9ff` - feat(04.5-01): create image compression and URL validation utilities
+- `eb47704` - feat(04.5-02): create MobileBottomSheet wrapper component
+- `d036db1` - feat(04.5-02): add mobile responsive layout with FAB
 - `beaadaa` - feat(04.5-03): integrate image compression into ImageUpload
 - `3a4e0b2` - feat(04.5-03): add URL validation to card property editor
 - `d646050` - feat(04.5-03): add offline banner and save retry logic
+- `4e98c3c` - fix(dnd): add TouchSensor for mobile drag support
+- `dc20991` - fix(preview): add touch-none for mobile drag support
 
 **Migrations required (run in Supabase SQL editor):**
 ```sql
