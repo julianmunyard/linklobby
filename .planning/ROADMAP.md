@@ -107,8 +107,9 @@ Plans:
 6. **Social icons toggle** - show/hide in header
 7. Profile section in Design tab (Header section)
 8. Live preview updates as profile is edited
+9. **Profile persistence** - changes save to database
 
-**Plans:** 7 plans
+**Plans:** 8 plans
 
 Plans:
 - [ ] 04.4-01-PLAN.md - Profile Types & Store
@@ -118,6 +119,7 @@ Plans:
 - [ ] 04.4-05-PLAN.md - Social Icons Components
 - [ ] 04.4-06-PLAN.md - Social Icons Integration
 - [ ] 04.4-07-PLAN.md - Preview Integration & Verification
+- [ ] 04.4-08-PLAN.md - Database Persistence
 
 ---
 
