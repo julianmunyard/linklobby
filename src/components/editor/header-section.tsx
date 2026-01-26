@@ -159,17 +159,27 @@ export function HeaderSection() {
     }
   }
 
-  return (
-    <section className="space-y-4">
-      {/* Section header */}
-      <div className="border-b pb-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Header
-        </h2>
-      </div>
+  const [headerOpen, setHeaderOpen] = useState(true)
 
-      {/* Profile Photo */}
-      <CollapsibleSection
+  return (
+    <section>
+      <Collapsible open={headerOpen} onOpenChange={setHeaderOpen}>
+        <CollapsibleTrigger asChild>
+          <button className="flex items-center gap-2 w-full border-b pb-2 mb-4">
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 transition-transform duration-200",
+                headerOpen && "rotate-180"
+              )}
+            />
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Header
+            </h2>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-4">
+          {/* Profile Photo */}
+          <CollapsibleSection
         title="Profile Photo"
         defaultOpen={true}
         toggle={
@@ -401,7 +411,9 @@ export function HeaderSection() {
             </SocialIconPicker>
           </div>
         )}
-      </CollapsibleSection>
+          </CollapsibleSection>
+        </CollapsibleContent>
+      </Collapsible>
 
       {/* Image Crop Dialog */}
       {selectedImage && (
