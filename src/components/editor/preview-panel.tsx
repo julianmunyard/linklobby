@@ -22,11 +22,12 @@ export function PreviewPanel() {
   const { saveCards } = useCards()
 
   // Deselect card and save any pending changes
+  // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
   const handleDeselect = async () => {
-    selectCard(null)
     if (hasChanges) {
       await saveCards()
     }
+    selectCard(null)
   }
 
   // Send state to preview iframe

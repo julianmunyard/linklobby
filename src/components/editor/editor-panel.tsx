@@ -44,11 +44,12 @@ export function EditorPanel() {
     : null
 
   // Close editor and save any pending changes
+  // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
   const handleClose = async () => {
-    selectCard(null)
     if (hasChanges) {
       await saveCards()
     }
+    selectCard(null)
   }
 
   return (
