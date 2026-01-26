@@ -218,3 +218,32 @@ $$;
 -- SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';
 -- SELECT * FROM pg_policies WHERE schemaname = 'public';
 -- SELECT tgname, tgrelid::regclass FROM pg_trigger WHERE tgname LIKE 'on_%';
+
+-- ============================================
+-- STORAGE BUCKETS
+-- ============================================
+
+-- Note: Storage buckets are created via Supabase Dashboard or CLI
+-- This SQL documents the expected bucket configuration
+
+-- Bucket: card-images
+-- Purpose: Store card images (hero, horizontal, square, etc.)
+-- Access: Public read (for public pages), authenticated write
+-- Structure: {card_id}/{uuid}.{ext}
+--   - Example: abc123/def456.jpg
+
+-- Bucket: profile-images
+-- Purpose: Store user profile photos and logos
+-- Access: Public read (for public pages), authenticated write
+-- Structure: {user_id}/{type}-{uuid}.jpg
+--   - type: 'avatar' or 'logo'
+--   - Example: abc123/avatar-def456.jpg
+
+-- To create via Supabase Dashboard:
+-- 1. Go to Storage in Supabase Dashboard
+-- 2. Create bucket "profile-images"
+-- 3. Enable "Public bucket" toggle
+-- 4. RLS policies are optional for public buckets
+
+-- Alternatively, if using Supabase CLI:
+-- supabase storage create profile-images --public
