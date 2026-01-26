@@ -21,9 +21,11 @@ function isValidImageUrl(url: string | undefined): boolean {
 }
 
 export function HeroCard({ card, isPreview = false }: HeroCardProps) {
-  const content = card.content as HeroCardContent
+  const content = card.content as HeroCardContent & { textAlign?: string; verticalAlign?: string }
   const [imageError, setImageError] = useState(false)
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
+  const textAlign = content.textAlign || "left"
+  const verticalAlign = content.verticalAlign || "bottom"
 
   return (
     <div className="relative w-full h-64 rounded-xl overflow-hidden bg-card border">
@@ -45,8 +47,18 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
       {/* Gradient overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-      {/* Content positioned at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+      {/* Content with alignment */}
+      <div
+        className={cn(
+          "absolute inset-0 p-6 text-white flex flex-col",
+          textAlign === "left" && "items-start text-left",
+          textAlign === "center" && "items-center text-center",
+          textAlign === "right" && "items-end text-right",
+          verticalAlign === "top" && "justify-start",
+          verticalAlign === "middle" && "justify-center",
+          verticalAlign === "bottom" && "justify-end"
+        )}
+      >
         {card.title && (
           <h2 className="text-2xl font-bold mb-1 drop-shadow-sm">
             {card.title}

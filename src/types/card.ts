@@ -60,6 +60,22 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
 // Card types that don't support images
 export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio']
 
+// Text alignment options
+export type TextAlign = 'left' | 'center' | 'right'
+export type VerticalAlign = 'top' | 'middle' | 'bottom'
+
+export const TEXT_ALIGN_OPTIONS: { value: TextAlign; label: string }[] = [
+  { value: 'left', label: 'Left' },
+  { value: 'center', label: 'Center' },
+  { value: 'right', label: 'Right' },
+]
+
+export const VERTICAL_ALIGN_OPTIONS: { value: VerticalAlign; label: string }[] = [
+  { value: 'top', label: 'Top' },
+  { value: 'middle', label: 'Middle' },
+  { value: 'bottom', label: 'Bottom' },
+]
+
 // Position mapping for database storage
 export const POSITION_MAP: Record<HorizontalPosition, number> = {
   left: 0,

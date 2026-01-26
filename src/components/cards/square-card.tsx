@@ -20,11 +20,13 @@ function isValidImageUrl(url: string | undefined): boolean {
 }
 
 export function SquareCard({ card, isPreview = false }: SquareCardProps) {
-  const content = card.content as SquareCardContent
+  const content = card.content as SquareCardContent & { textAlign?: string; verticalAlign?: string }
   const [imageError, setImageError] = useState(false)
   const hasLink = Boolean(card.url)
   const showTitle = content.showTitle !== false && Boolean(card.title)
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
+  const textAlign = content.textAlign || "left"
+  const verticalAlign = content.verticalAlign || "bottom"
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -65,8 +67,24 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
       {showTitle && (
         <>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-3">
-            <h3 className="text-sm font-medium text-white truncate drop-shadow-sm">
+          <div
+            className={cn(
+              "absolute inset-0 p-3 flex",
+              textAlign === "left" && "justify-start",
+              textAlign === "center" && "justify-center",
+              textAlign === "right" && "justify-end",
+              verticalAlign === "top" && "items-start",
+              verticalAlign === "middle" && "items-center",
+              verticalAlign === "bottom" && "items-end"
+            )}
+          >
+            <h3
+              className={cn(
+                "text-sm font-medium text-white truncate drop-shadow-sm",
+                textAlign === "center" && "text-center",
+                textAlign === "right" && "text-right"
+              )}
+            >
               {card.title}
             </h3>
           </div>

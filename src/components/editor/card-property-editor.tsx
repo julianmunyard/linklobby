@@ -34,7 +34,9 @@ import { SquareCardFields } from "./square-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_SIZES, CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
@@ -237,6 +239,54 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 </Select>
               </div>
             )}
+
+            {/* Text Alignment */}
+            <div className="space-y-2">
+              <Label>Text Align</Label>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={(currentContent.textAlign as string) || "center"}
+                onValueChange={(value) => {
+                  if (value) handleContentChange({ textAlign: value as TextAlign })
+                }}
+                className="justify-start"
+              >
+                <ToggleGroupItem value="left" aria-label="Align left">
+                  <AlignLeft className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="center" aria-label="Align center">
+                  <AlignCenter className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="right" aria-label="Align right">
+                  <AlignRight className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+
+            {/* Vertical Alignment */}
+            <div className="space-y-2">
+              <Label>Vertical Align</Label>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={(currentContent.verticalAlign as string) || "middle"}
+                onValueChange={(value) => {
+                  if (value) handleContentChange({ verticalAlign: value as VerticalAlign })
+                }}
+                className="justify-start"
+              >
+                <ToggleGroupItem value="top" aria-label="Align top">
+                  <AlignVerticalJustifyStart className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="middle" aria-label="Align middle">
+                  <AlignVerticalJustifyCenter className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="bottom" aria-label="Align bottom">
+                  <AlignVerticalJustifyEnd className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
 
             {/* Title */}
             <FormField

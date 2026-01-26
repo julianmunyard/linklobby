@@ -20,10 +20,12 @@ function isValidImageUrl(url: string | undefined): boolean {
 }
 
 export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps) {
-  const content = card.content as HorizontalLinkContent
+  const content = card.content as HorizontalLinkContent & { textAlign?: string; verticalAlign?: string }
   const [imageError, setImageError] = useState(false)
   const hasLink = Boolean(card.url)
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
+  const textAlign = content.textAlign || "left"
+  const verticalAlign = content.verticalAlign || "middle"
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -38,10 +40,13 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "relative flex items-center gap-4 w-full p-4 rounded-lg border bg-card",
+        "relative flex gap-4 w-full p-4 rounded-lg border bg-card",
         "transition-colors duration-150",
         hasLink && "hover:bg-accent hover:border-accent-foreground/20 cursor-pointer",
-        !hasLink && "cursor-default"
+        !hasLink && "cursor-default",
+        verticalAlign === "top" && "items-start",
+        verticalAlign === "middle" && "items-center",
+        verticalAlign === "bottom" && "items-end"
       )}
     >
       {/* Thumbnail or icon placeholder */}
@@ -63,7 +68,14 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
       )}
 
       {/* Text content */}
-      <div className="flex-1 min-w-0">
+      <div
+        className={cn(
+          "flex-1 min-w-0",
+          textAlign === "left" && "text-left",
+          textAlign === "center" && "text-center",
+          textAlign === "right" && "text-right"
+        )}
+      >
         <h3 className="font-medium truncate">
           {card.title || "Untitled Link"}
         </h3>
