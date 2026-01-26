@@ -9,6 +9,7 @@ export type CardType =
   | 'game'
   | 'audio'
   | 'social-icons'
+  | 'link'
 
 export type CardSize = 'big' | 'small'
 
@@ -53,7 +54,11 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   game: ['big', 'small'],
   audio: null, // Always full width
   'social-icons': null, // Always full width - singleton widget
+  link: null, // Always full width - simple text link
 }
+
+// Card types that don't support images
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio']
 
 // Position mapping for database storage
 export const POSITION_MAP: Record<HorizontalPosition, number> = {

@@ -35,7 +35,7 @@ import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
-import { CARD_SIZES, CARD_TYPE_SIZING } from "@/types/card"
+import { CARD_SIZES, CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -203,16 +203,18 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Image upload */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Image</label>
-              <ImageUpload
-                value={imageUrl}
-                onChange={handleImageChange}
-                cardId={card.id}
-                aspectRatio={card.card_type === "square" ? "square" : "video"}
-              />
-            </div>
+            {/* Image upload - hidden for card types that don't support images */}
+            {!CARD_TYPES_NO_IMAGE.includes(card.card_type) && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Image</label>
+                <ImageUpload
+                  value={imageUrl}
+                  onChange={handleImageChange}
+                  cardId={card.id}
+                  aspectRatio={card.card_type === "square" ? "square" : "video"}
+                />
+              </div>
+            )}
 
             {/* Card Size - only show if card type supports sizing */}
             {CARD_TYPE_SIZING[card.card_type] && (

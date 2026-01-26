@@ -19,6 +19,7 @@ import { CARD_TYPE_SIZING } from "@/types/card"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
+  { type: "link", label: "Link" },
   { type: "horizontal", label: "Horizontal Link" },
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },

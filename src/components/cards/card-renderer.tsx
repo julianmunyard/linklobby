@@ -3,6 +3,7 @@ import { HeroCard } from "./hero-card"
 import { HorizontalLink } from "./horizontal-link"
 import { SquareCard } from "./square-card"
 import { SocialIconsCard } from "./social-icons-card"
+import { LinkCard } from "./link-card"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -20,6 +21,8 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       return <SquareCard card={card} isPreview={isPreview} />
     case "social-icons":
       return <SocialIconsCard card={card} isPreview={isPreview} />
+    case "link":
+      return <LinkCard card={card} isPreview={isPreview} />
     default:
       // Fallback for unimplemented card types (video, gallery, dropdown, game, audio)
       return (
