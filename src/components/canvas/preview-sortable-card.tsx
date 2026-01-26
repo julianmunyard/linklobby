@@ -8,14 +8,16 @@ import type { Card } from "@/types/card"
 
 interface PreviewSortableCardProps {
   card: Card
+  isSelected?: boolean
   onClick?: () => void
 }
 
 /**
  * Preview-specific sortable card that intercepts link clicks and calls onClick instead.
  * Used in the preview iframe to enable click-to-select functionality.
+ * Shows a white border highlight when selected.
  */
-export function PreviewSortableCard({ card, onClick }: PreviewSortableCardProps) {
+export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortableCardProps) {
   const {
     attributes,
     listeners,
@@ -49,7 +51,9 @@ export function PreviewSortableCard({ card, onClick }: PreviewSortableCardProps)
       className={cn(
         widthClass,
         isDragging && "opacity-0",
-        "cursor-pointer"
+        "cursor-pointer",
+        // Selection highlight - white border with ring
+        isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background rounded-xl"
       )}
       onClick={handleClick}
       {...attributes}

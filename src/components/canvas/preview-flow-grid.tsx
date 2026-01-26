@@ -24,6 +24,7 @@ import type { Card } from "@/types/card"
 
 interface PreviewFlowGridProps {
   cards: Card[]
+  selectedCardId?: string | null
   onReorder: (oldIndex: number, newIndex: number) => void
   onCardClick?: (cardId: string) => void
 }
@@ -32,7 +33,7 @@ interface PreviewFlowGridProps {
  * Preview-specific FlowGrid that doesn't use useHistory (which requires page store context).
  * Supports click-to-select functionality via onCardClick callback.
  */
-export function PreviewFlowGrid({ cards, onReorder, onCardClick }: PreviewFlowGridProps) {
+export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick }: PreviewFlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mounted, setMounted] = useState(false)
   const isDraggingRef = useRef(false)
@@ -130,6 +131,7 @@ export function PreviewFlowGrid({ cards, onReorder, onCardClick }: PreviewFlowGr
             <PreviewSortableCard
               key={card.id}
               card={card}
+              isSelected={card.id === selectedCardId}
               onClick={() => handleCardClick(card.id)}
             />
           ))}

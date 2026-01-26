@@ -12,6 +12,7 @@ interface Theme {
 interface PageState {
   cards: Card[]
   theme: Theme
+  selectedCardId: string | null
 }
 
 interface StateUpdateMessage {
@@ -24,6 +25,7 @@ type PreviewMessage = StateUpdateMessage
 const defaultState: PageState = {
   cards: [],
   theme: { id: "default", name: "Default" },
+  selectedCardId: null,
 }
 
 export default function PreviewPage() {
@@ -37,6 +39,19 @@ export default function PreviewPage() {
         { type: "SELECT_CARD", payload: { cardId } },
         window.location.origin
       )
+    }
+  }, [])
+
+  // Deselect when clicking empty space in preview
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    // Only trigger if clicking directly on the background, not on cards
+    if (e.target === e.currentTarget) {
+      if (window.parent !== window) {
+        window.parent.postMessage(
+          { type: "SELECT_CARD", payload: { cardId: null } },
+          window.location.origin
+        )
+      }
     }
   }, [])
 
@@ -72,7 +87,7 @@ export default function PreviewPage() {
   const hasCards = state.cards.length > 0
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-background p-4" onClick={handleBackgroundClick}>
       {/* Debug info - theme name */}
       <div className="fixed bottom-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
         Theme: {state.theme.name}
@@ -105,6 +120,7 @@ export default function PreviewPage() {
         // Card rendering using PreviewFlowGrid with drag-to-reorder and click-to-select
         <PreviewFlowGrid
           cards={state.cards}
+          selectedCardId={state.selectedCardId}
           onReorder={(oldIndex, newIndex) => {
             // Send reorder message to parent editor
             if (window.parent !== window) {

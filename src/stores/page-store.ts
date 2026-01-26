@@ -82,11 +82,17 @@ export const usePageStore = create<PageState>()(
   updateCard: (id, updates) => set((state) => ({
     cards: state.cards.map((c) => {
       if (c.id !== id) return c
-      // Prevent setting size to 'small' for card types that don't support sizing
+
       let effectiveUpdates = { ...updates }
-      if (updates.size && CARD_TYPE_SIZING[c.card_type] === null) {
+
+      // Determine the effective card type (new type if changing, otherwise current)
+      const effectiveCardType = updates.card_type ?? c.card_type
+
+      // Force size to 'big' for card types that don't support sizing
+      if (CARD_TYPE_SIZING[effectiveCardType] === null) {
         effectiveUpdates.size = 'big'
       }
+
       return { ...c, ...effectiveUpdates, updated_at: new Date().toISOString() }
     }),
     hasChanges: true,
@@ -167,8 +173,8 @@ export const usePageStore = create<PageState>()(
   },
 
   getSnapshot: () => {
-    const { cards, theme } = get()
-    return { cards: sortCardsBySortKey(cards), theme }
+    const { cards, theme, selectedCardId } = get()
+    return { cards: sortCardsBySortKey(cards), theme, selectedCardId }
   },
     }),
     {
