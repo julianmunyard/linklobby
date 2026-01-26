@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Copy, Check, ExternalLink, Save, Loader2 } from "lucide-react"
+import { Copy, Check, ExternalLink, Save, Loader2, Undo2, Redo2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
+import { useHistory } from "@/hooks/use-history"
 import { cn } from "@/lib/utils"
 
 interface DashboardHeaderProps {
@@ -22,6 +23,17 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
   const [isSaving, setIsSaving] = useState(false)
   const hasChanges = usePageStore((state) => state.hasChanges)
   const { saveCards } = useCards()
+  const { undo, redo, canUndo, canRedo } = useHistory()
+
+  const handleUndo = () => {
+    undo()
+    toast("Undone", { duration: 2000 })
+  }
+
+  const handleRedo = () => {
+    redo()
+    toast("Redone", { duration: 2000 })
+  }
 
   const publicUrl = `linklobby.com/${username}`
   const fullUrl = `https://${publicUrl}`
@@ -97,8 +109,45 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
         </div>
       </div>
 
-      {/* Right side: Save status and button */}
+      {/* Right side: Undo/Redo, Save status and button */}
       <div className="flex items-center gap-3">
+        {/* Undo/Redo buttons */}
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={handleUndo}
+                disabled={!canUndo}
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+                <span className="sr-only">Undo</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Undo (Ctrl+Z)</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={handleRedo}
+                disabled={!canRedo}
+              >
+                <Redo2 className="h-3.5 w-3.5" />
+                <span className="sr-only">Redo</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Redo (Ctrl+Shift+Z)</TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Visual separator */}
+        <div className="border-r h-4" />
+
         {/* Unsaved changes indicator */}
         {hasChanges && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
