@@ -109,13 +109,28 @@ export async function mapLinktreeToCards(
         }
       }
 
+      // Type-specific default content (text and vertical alignment)
+      const defaultContent: Record<string, unknown> = (() => {
+        switch (layoutItem.type) {
+          case 'hero':
+          case 'square':
+            return { textAlign: 'center', verticalAlign: 'bottom' }
+          case 'horizontal':
+            return { textAlign: 'left', verticalAlign: 'middle' }
+          case 'link':
+            return { textAlign: 'center', verticalAlign: 'middle' }
+          default:
+            return {}
+        }
+      })()
+
       // Map to our card format - image blob is separate, not embedded in content
       const card: MappedCardData = {
         card_type: layoutItem.type,
         title: link.title || null,
         description: null, // Linktree doesn't have descriptions on links
         url: link.url,
-        content: {}, // Clean content object - no embedded blobs
+        content: defaultContent,
         size: layoutItem.size,
         position: 'left' as HorizontalPosition, // Will flow naturally in our layout
       }

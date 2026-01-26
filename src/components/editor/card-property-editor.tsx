@@ -121,14 +121,53 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   }
 
   // Handle delete with undo toast
-  function handleDelete() {
+  async function handleDelete() {
+    // Remove from store (optimistic)
     removeCard(card.id)
     onClose()
+
+    // Delete from database
+    try {
+      const response = await fetch(`/api/cards/${card.id}`, {
+        method: "DELETE",
+      })
+      if (!response.ok) {
+        throw new Error("Failed to delete card")
+      }
+    } catch (error) {
+      console.error("Failed to delete card from database:", error)
+      // Card already removed from store - undo will restore it
+    }
+
     toast("Card deleted", {
       action: {
         label: "Undo",
-        onClick: () => {
+        onClick: async () => {
           undo()
+          // Re-create in database (card is restored in store by undo)
+          try {
+            const restoredCard = usePageStore.getState().cards.find(c => c.id === card.id)
+            if (restoredCard) {
+              await fetch("/api/cards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id: restoredCard.id,
+                  card_type: restoredCard.card_type,
+                  title: restoredCard.title,
+                  description: restoredCard.description,
+                  url: restoredCard.url,
+                  content: restoredCard.content,
+                  size: restoredCard.size,
+                  position: restoredCard.position,
+                  sortKey: restoredCard.sortKey,
+                  is_visible: restoredCard.is_visible,
+                }),
+              })
+            }
+          } catch (err) {
+            console.error("Failed to restore card:", err)
+          }
           toast("Card restored")
         },
       },
