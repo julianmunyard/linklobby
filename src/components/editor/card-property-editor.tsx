@@ -1,12 +1,13 @@
 // src/components/editor/card-property-editor.tsx
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { X, Copy, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { validateAndFixUrl } from "@/lib/url-validation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -58,6 +59,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const duplicateCard = usePageStore((state) => state.duplicateCard)
   const removeCard = usePageStore((state) => state.removeCard)
   const { undo } = useHistory()
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   const form = useForm<CardFormValues>({
     resolver: zodResolver(cardFormSchema),
@@ -104,6 +106,20 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   function handleContentChange(updates: Record<string, unknown>) {
     const content = { ...(card.content as Record<string, unknown>), ...updates }
     updateCard(card.id, { content })
+  }
+
+  // Handle URL blur - validate and auto-fix
+  function handleUrlBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const result = validateAndFixUrl(e.target.value)
+    if (!result.valid && result.error) {
+      setUrlError(result.error)
+    } else {
+      setUrlError(null)
+      // If URL was fixed (https added), update form
+      if (result.url && result.url !== e.target.value) {
+        form.setValue('url', result.url)
+      }
+    }
   }
 
   const currentContent = card.content as Record<string, unknown>
@@ -184,7 +200,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             <h2 className="font-semibold text-sm">Social Icons</h2>
             <p className="text-xs text-muted-foreground">Widget</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </Button>
@@ -202,7 +218,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               variant="destructive"
               size="sm"
               onClick={handleDelete}
-              className="w-full"
+              className="w-full h-11" // 44px minimum touch target
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Remove from page
@@ -223,14 +239,14 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {card.card_type.replace("_", " ")}
           </p>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </Button>
       </div>
 
       {/* Form */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
         <Form {...form}>
           <form className="space-y-6">
             {/* Card Type Picker - only for convertible types */}
@@ -379,8 +395,12 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                       placeholder="https://..."
                       {...field}
                       value={field.value ?? ""}
+                      onBlur={handleUrlBlur}
                     />
                   </FormControl>
+                  {urlError && (
+                    <p className="text-sm text-destructive">{urlError}</p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -413,7 +433,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleDuplicate}
-                className="flex-1"
+                className="flex-1 h-11" // 44px minimum touch target
               >
                 <Copy className="h-4 w-4 mr-2" />
                 Duplicate
@@ -423,7 +443,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 variant="destructive"
                 size="sm"
                 onClick={handleDelete}
-                className="flex-1"
+                className="flex-1 h-11" // 44px minimum touch target
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
