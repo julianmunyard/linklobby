@@ -251,6 +251,7 @@ Progress: [███████████████████████
 | 008 | Card defaults and type picker fixes | Complete | 45bd6e6 |
 | 009 | Profile auto-save, delete fix, import defaults | Complete | aadfdbf |
 | 010 | Link card border + hero button toggle | Complete | 7959232 |
+| 011 | Card text overflow and wrapping | Complete | 2bce896 |
 
 ## Session Continuity
 
