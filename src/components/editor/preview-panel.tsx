@@ -80,8 +80,11 @@ export function PreviewPanel() {
         <PreviewToggle mode={previewMode} onModeChange={setPreviewMode} />
       </div>
 
-      {/* Preview area */}
-      <div className="flex-1 overflow-auto p-4">
+      {/* Preview area - click to deselect card */}
+      <div
+        className="flex-1 overflow-auto p-4"
+        onClick={() => selectCard(null)}
+      >
         <div
           className={cn(
             "mx-auto bg-background rounded-lg shadow-lg overflow-hidden transition-all duration-300",
