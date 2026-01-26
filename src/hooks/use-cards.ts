@@ -2,9 +2,35 @@
 "use client"
 
 import { useEffect, useState, useCallback, useMemo } from "react"
+import { toast } from "sonner"
 import { usePageStore } from "@/stores/page-store"
 import { sortCardsBySortKey } from "@/lib/ordering"
 import type { Card } from "@/types/card"
+
+/**
+ * Retry an async operation with exponential backoff
+ * @param operation Function to retry
+ * @param maxRetries Maximum retry attempts (default 3)
+ * @returns Promise that resolves with operation result or rejects after all retries exhausted
+ */
+async function saveWithRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries = 3
+): Promise<T> {
+  let lastError: Error | null = null
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error as Error
+      if (attempt < maxRetries - 1) {
+        // Exponential backoff: 1s, 2s, 4s
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)))
+      }
+    }
+  }
+  throw lastError
+}
 
 export function useCards() {
   const [isLoading, setIsLoading] = useState(true)
@@ -44,7 +70,7 @@ export function useCards() {
     loadCards()
   }, [setCards, markSaved])
 
-  // Save all cards to database
+  // Save all cards to database with retry logic
   const saveCards = useCallback(async () => {
     try {
       setError(null)
@@ -52,29 +78,38 @@ export function useCards() {
       // Get cards from store (they may have been modified)
       const currentCards = usePageStore.getState().cards
 
-      // For each card, update in database
+      // For each card, update in database with retry
       const promises = currentCards.map((card) =>
-        fetch(`/api/cards/${card.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            card_type: card.card_type,
-            title: card.title,
-            description: card.description,
-            url: card.url,
-            content: card.content,
-            size: card.size,
-            position: card.position,
-            sortKey: card.sortKey,
-            is_visible: card.is_visible,
-          }),
-        })
+        saveWithRetry(() =>
+          fetch(`/api/cards/${card.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              card_type: card.card_type,
+              title: card.title,
+              description: card.description,
+              url: card.url,
+              content: card.content,
+              size: card.size,
+              position: card.position,
+              sortKey: card.sortKey,
+              is_visible: card.is_visible,
+            }),
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to save card: ${response.statusText}`)
+            }
+            return response
+          })
+        )
       )
 
       await Promise.all(promises)
       markSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save")
+      const message = err instanceof Error ? err.message : "Failed to save"
+      setError(message)
+      toast.error(`Save failed: ${message}`)
       throw err
     }
   }, [markSaved])

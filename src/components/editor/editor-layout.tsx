@@ -13,6 +13,7 @@ import { PreviewPanel } from "./preview-panel"
 import { MobileBottomSheet } from "./mobile-bottom-sheet"
 import { MobileFAB } from "./mobile-fab"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
+import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +24,7 @@ export function EditorLayout() {
   const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const isMobileLayout = useIsMobileLayout()
+  const isOnline = useOnline()
   const selectedCardId = usePageStore((state) => state.selectedCardId)
 
   // Only access localStorage after mount (client-side)
@@ -61,9 +63,16 @@ export function EditorLayout() {
   // Mobile layout: Full-screen preview with bottom sheet
   if (isMobileLayout) {
     return (
-      <div className="relative h-full">
+      <div className="relative h-full flex flex-col">
+        {/* Offline banner */}
+        {!isOnline && (
+          <div className="bg-destructive text-destructive-foreground px-4 py-2 text-center text-sm font-medium">
+            You&rsquo;re offline - changes won&rsquo;t be saved
+          </div>
+        )}
+
         {/* Full-width preview */}
-        <div className="h-full bg-muted/30">
+        <div className="flex-1 bg-muted/30">
           <PreviewPanel />
         </div>
 
@@ -84,43 +93,53 @@ export function EditorLayout() {
 
   // Desktop layout: Split-panel view
   return (
-    <Group
-      orientation="horizontal"
-      defaultLayout={defaultLayout}
-      onLayoutChanged={onLayoutChanged}
-      className="h-full"
-    >
-      {/* Editor panel: 25-60% width, default 40% */}
-      <Panel
-        id="editor"
-        defaultSize="40%"
-        minSize="25%"
-        maxSize="60%"
-        className="bg-background"
-      >
-        <EditorPanel />
-      </Panel>
+    <div className="h-full flex flex-col">
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="bg-destructive text-destructive-foreground px-4 py-2 text-center text-sm font-medium">
+          You&rsquo;re offline - changes won&rsquo;t be saved
+        </div>
+      )}
 
-      {/* Resize handle with extended hit area */}
-      <Separator
-        className={cn(
-          "relative w-1 bg-border transition-colors",
-          "hover:bg-primary/50 active:bg-primary",
-          // Extended hit area for accessibility
-          "before:absolute before:inset-y-0 before:-left-1 before:-right-1",
-          "before:content-['']"
-        )}
-      />
-
-      {/* Preview panel: 40%+ width, default 60% */}
-      <Panel
-        id="preview"
-        defaultSize="60%"
-        minSize="40%"
-        className="bg-muted/30"
+      {/* Split panel layout */}
+      <Group
+        orientation="horizontal"
+        defaultLayout={defaultLayout}
+        onLayoutChanged={onLayoutChanged}
+        className="flex-1"
       >
-        <PreviewPanel />
-      </Panel>
-    </Group>
+        {/* Editor panel: 25-60% width, default 40% */}
+        <Panel
+          id="editor"
+          defaultSize="40%"
+          minSize="25%"
+          maxSize="60%"
+          className="bg-background"
+        >
+          <EditorPanel />
+        </Panel>
+
+        {/* Resize handle with extended hit area */}
+        <Separator
+          className={cn(
+            "relative w-1 bg-border transition-colors",
+            "hover:bg-primary/50 active:bg-primary",
+            // Extended hit area for accessibility
+            "before:absolute before:inset-y-0 before:-left-1 before:-right-1",
+            "before:content-['']"
+          )}
+        />
+
+        {/* Preview panel: 40%+ width, default 60% */}
+        <Panel
+          id="preview"
+          defaultSize="60%"
+          minSize="40%"
+          className="bg-muted/30"
+        >
+          <PreviewPanel />
+        </Panel>
+      </Group>
+    </div>
   )
 }
