@@ -22,7 +22,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4.3: Card Context Menu
 
 ### MVP Milestone (v1.0 Launch)
-- [ ] Phase 4.4: Profile Editor *(name, bio, photo, social icons)*
+- [ ] Phase 4.4: Profile Editor *(name, photo, social icons)*
 - [ ] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)*
 - [ ] Phase 5: Media Cards
 - [ ] Phase 6: Advanced Cards *(Dropdown + Game Card)*
@@ -89,25 +89,35 @@ One-click import from Linktree with visual variety
 **Plans:** 2 plans
 
 Plans:
-- [ ] 04.3-01-PLAN.md - Undo/Redo Infrastructure
-- [ ] 04.3-02-PLAN.md - Card Actions & Type Picker
+- [x] 04.3-01-PLAN.md - Undo/Redo Infrastructure
+- [x] 04.3-02-PLAN.md - Card Actions & Type Picker
 
 ---
 
 #### Phase 4.4: Profile Editor
-**Goal:** Artists can edit their profile information displayed on their page
+**Goal:** Artists can edit their profile header (photo, title, layout, social icons) displayed at the top of their page
 **Competitive context:** Table stakes - every link-in-bio has this
 
 **Success Criteria:**
 1. **Display name** - editable text, shows at top of page
-2. **Bio/description** - multi-line text with character limit
-3. **Profile photo** - upload with crop/resize
-4. **Social icons row** - add/remove/reorder platform icons
-5. **Username display** - shows linklobby.com/username (read-only or editable with availability check)
-6. Profile section in editor sidebar (separate from Cards tab)
-7. Live preview updates as profile is edited
+2. **Profile photo** - upload with crop/resize (universal crop component)
+3. **Profile layout** - Classic (small circle) or Hero (larger/banner)
+4. **Title style** - Text or Logo with size picker
+5. **Social icons row** - add/remove/reorder platform icons (Big 5: Instagram, TikTok, YouTube, Spotify, Twitter/X)
+6. **Social icons toggle** - show/hide in header
+7. Profile section in Design tab (Header section)
+8. Live preview updates as profile is edited
 
-**Plans:** 1-2 plans
+**Plans:** 7 plans
+
+Plans:
+- [ ] 04.4-01-PLAN.md - Profile Types & Store
+- [ ] 04.4-02-PLAN.md - Image Crop Component
+- [ ] 04.4-03-PLAN.md - Profile Storage Utilities
+- [ ] 04.4-04-PLAN.md - Design Tab & Header Section
+- [ ] 04.4-05-PLAN.md - Social Icons Components
+- [ ] 04.4-06-PLAN.md - Social Icons Integration
+- [ ] 04.4-07-PLAN.md - Preview Integration & Verification
 
 ---
 
