@@ -250,6 +250,7 @@ Progress: [███████████████████████
 | 007 | Fix card type not saving | Complete | b29e077 |
 | 008 | Card defaults and type picker fixes | Complete | 45bd6e6 |
 | 009 | Profile auto-save, delete fix, import defaults | Complete | aadfdbf |
+| 010 | Link card border + hero button toggle | Complete | 7959232 |
 
 ## Session Continuity
 
