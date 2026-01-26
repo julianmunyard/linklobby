@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.5 of 18 - Editor Polish (Mobile) (IN PROGRESS)
-Plan: 2 of 4 complete
+Plan: 3 of 4 complete
 Status: **In Progress**
-Last activity: 2026-01-27 - Completed 04.5-02-PLAN.md (Mobile editor layout)
+Last activity: 2026-01-27 - Completed 04.5-03-PLAN.md (Image upload polish & error handling)
 
-Progress: [█████████████████████████░░░] 94%
+Progress: [█████████████████████████░░░] 95%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -59,8 +59,8 @@ Progress: [███████████████████████
 |------|------|--------|
 | 01 | Foundation Utilities | Complete |
 | 02 | Mobile Editor Layout | Complete |
-| 03 | Image Upload Polish | - |
-| 04 | Error Handling | - |
+| 03 | Image Upload Polish & Error Handling | Complete |
+| 04 | TBD | - |
 
 ## Phase 4.4 Progress (COMPLETE)
 
@@ -250,6 +250,13 @@ Progress: [███████████████████████
 | GIF preservation in compression | 04.5-01 | Animated GIFs bypass compression, other formats compressed to 1MB/1920px |
 | Auto-fix URLs with https:// | 04.5-01 | Add https:// if protocol missing, allow empty for optional fields |
 | browser-image-compression for uploads | 04.5-01 | Client-side compression before upload with web worker |
+| Compress after crop, not before | 04.5-03 | Cropping produces new blob - compress the cropped result for optimal size |
+| Store pending blob for retry | 04.5-03 | Allow retry without re-cropping - better UX on network failures |
+| Inline errors with retry buttons | 04.5-03 | Keep error context visible, provide immediate recovery option |
+| Non-blocking URL validation | 04.5-03 | Warn users of invalid URLs but don't prevent saving - forgiving UX |
+| 3 retries with exponential backoff | 04.5-03 | Balance between resilience and user wait time (1s, 2s, 4s delays) |
+| Toast on final failure only | 04.5-03 | Silent retries don't alarm users, only show error after exhausting attempts |
+| Persistent offline banner | 04.5-03 | Clear, always-visible warning - not dismissible to prevent accidental work loss |
 | Vaul Drawer for mobile bottom sheet | 04.5-02 | Built on Radix Dialog, handles swipe physics and iOS Safari quirks |
 | 85vh height for bottom sheet | 04.5-02 | Leaves 15% of preview visible (dimmed) for context |
 | Auto-open sheet on card selection | 04.5-02 | Mobile users tap card expecting immediate editing |
@@ -278,24 +285,21 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 04.5-02-PLAN.md (Mobile editor layout)
+Stopped at: Completed 04.5-03-PLAN.md (Image upload polish & error handling)
 Resume file: None
 
-**This session's work (04.5-02):**
-- Mobile-responsive editor with bottom sheet pattern
-- Vaul Drawer wrapper component (swipe-to-dismiss, 85vh height)
-- Floating action button (FAB) for mobile navigation
-- Conditional layout rendering (mobile vs desktop)
-- Auto-open bottom sheet when card selected
-- Touch-optimized UI (44px minimum touch targets)
-- touch-pan-y on scrollable areas to prevent gesture conflicts
-- Orientation-aware: landscape → desktop, portrait → mobile
+**This session's work (04.5-03):**
+- Image compression integration (GIF preservation)
+- URL validation with auto-fix (https:// protocol)
+- Inline error display with retry buttons
+- Offline detection with persistent warning banner
+- Automatic save retry with exponential backoff (1s, 2s, 4s)
+- Non-blocking validation (warnings don't prevent saves)
 
 **Key commits this session:**
-- `eb47704` - feat(04.5-02): create MobileBottomSheet wrapper component
-- `d036db1` - feat(04.5-02): add mobile responsive layout with FAB
-- `2e55c9b` - feat(04.5-02): add touch targets and touch-pan-y for mobile
-- `3bb2516` - feat: text alignment options for all cards
+- `beaadaa` - feat(04.5-03): integrate image compression into ImageUpload
+- `3a4e0b2` - feat(04.5-03): add URL validation to card property editor
+- `d646050` - feat(04.5-03): add offline banner and save retry logic
 
 **Migrations required (run in Supabase SQL editor):**
 ```sql
@@ -310,23 +314,10 @@ ALTER TABLE public.profiles
 ```
 
 **Files changed:**
-- `src/types/card.ts` - Added link, social-icons types; alignment types; CARD_TYPES_NO_IMAGE
-- `src/types/profile.ts` - Removed TitleStyle, added bio, showTitle, showLogo
-- `src/stores/profile-store.ts` - Updated for new profile fields
-- `src/components/cards/link-card.tsx` - NEW: Simple link card component
-- `src/components/cards/social-icons-card.tsx` - NEW: Social icons card component
-- `src/components/cards/card-renderer.tsx` - Added link and social-icons cases
-- `src/components/cards/hero-card.tsx` - Added text/vertical alignment support
-- `src/components/cards/horizontal-link.tsx` - Added alignment support
-- `src/components/cards/square-card.tsx` - Added alignment support
-- `src/components/editor/header-section.tsx` - Collapsible sections, new fields
-- `src/components/editor/card-property-editor.tsx` - Alignment controls, hide image for some types
-- `src/components/editor/cards-tab.tsx` - Added link type, singleton logic for social-icons
-- `src/components/editor/social-icon-picker.tsx` - Auto-create social-icons card
-- `src/components/preview/profile-header.tsx` - Removed social icons (now card), uses img for logo
-- `src/app/api/profile/route.ts` - Updated for new fields
-- `src/components/ui/collapsible.tsx` - NEW: shadcn component
-- `supabase/migrations/20260126_add_profile_columns_v2.sql` - NEW: bio, show_title, show_logo
+- `src/components/cards/image-upload.tsx` - Image compression, error state, retry button
+- `src/components/editor/card-property-editor.tsx` - URL validation and inline errors
+- `src/components/editor/editor-layout.tsx` - Offline banner display
+- `src/hooks/use-cards.ts` - Save retry with exponential backoff
 
 ---
-*Updated: 2026-01-26 - Extended profile editor session*
+*Updated: 2026-01-27 - Image upload polish and error handling*
