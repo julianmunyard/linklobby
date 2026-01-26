@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.4 of 18 - Profile Editor (IN PROGRESS)
-Plan: 4 of 8 complete
+Plan: 5 of 8 complete
 Status: **In progress**
-Last activity: 2026-01-26 - Completed 04.4-05-PLAN.md: Social Icons Editor
+Last activity: 2026-01-26 - Completed 04.4-04-PLAN.md: Header Section UI
 
-Progress: [█████████████████░░░░░░░░] 68%
+Progress: [██████████████████░░░░░░░] 72%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -60,7 +60,7 @@ Progress: [█████████████████░░░░░░
 | 01 | Profile Types & Store | Complete |
 | 02 | Image Crop Utility | Complete |
 | 03 | Storage Extension | Complete |
-| 04 | Header Section UI | - |
+| 04 | Header Section UI | Complete |
 | 05 | Social Icons Editor | Complete |
 | 06 | Image Crop Dialog | - |
 | 07 | Profile-Preview Sync | - |
@@ -215,6 +215,9 @@ Progress: [█████████████████░░░░░░
 | No temporal/undo for profile | 04.4-01 | Profile editing simpler than cards, defer if needed |
 | Export PLATFORM_ICONS for reuse | 04.4-05 | DRY - icon mapping shared between picker and editor |
 | 4px activation distance for icons | 04.4-05 | Smaller than cards (8px) since icons are smaller targets |
+| ToggleGroup for profile toggles | 04.4-04 | Consistent UI pattern for layout, title style, title size selections |
+| Conditional rendering on titleStyle | 04.4-04 | Show display name + size picker for Text, logo upload for Logo |
+| Square aspect for avatar, free for logo | 04.4-04 | Avatar crops to 1:1, logo allows any aspect ratio |
 
 ## Quick Tasks
 
@@ -231,15 +234,16 @@ Progress: [█████████████████░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.4-05-PLAN.md - Social Icons Editor
-Resume with: Continue Wave 2 (04.4-04, 04.4-06)
+Stopped at: Completed 04.4-04-PLAN.md - Header Section UI
+Resume with: Continue Wave 2 (04.4-06)
 
 **Phase 04.4 in progress - Profile Editor:**
 - Profile type definitions and Zustand store (plan 01) - Complete
 - Image crop utility with react-easy-crop (plan 02) - Complete
 - Storage extension for profile images (plan 03) - Complete
+- Header section UI (plan 04) - Complete
 - Social icons editor components (plan 05) - Complete
-- Next: Header section UI (plan 04), Image crop dialog (plan 06)
+- Next: Image crop dialog (plan 06), then Wave 3 (07, 08)
 
 ---
-*Updated: 2026-01-26 - Completed 04.4-05-PLAN.md*
+*Updated: 2026-01-26 - Completed 04.4-04-PLAN.md*
