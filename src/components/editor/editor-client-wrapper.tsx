@@ -5,6 +5,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { EditorLayout } from "@/components/editor/editor-layout"
 import { UnsavedChangesDialog } from "@/components/dashboard/unsaved-changes-dialog"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
+import { useAutoSave } from "@/hooks/use-auto-save"
 import { usePageStore } from "@/stores/page-store"
 import { toast } from "sonner"
 
@@ -19,6 +20,9 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
     confirmNavigation,
     cancelNavigation,
   } = useUnsavedChanges()
+
+  // Auto-save changes after 500ms of inactivity
+  useAutoSave(500)
 
   const markSaved = usePageStore((state) => state.markSaved)
 
