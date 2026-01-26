@@ -58,11 +58,13 @@ export function useCards() {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            card_type: card.card_type,
             title: card.title,
             description: card.description,
             url: card.url,
             content: card.content,
             size: card.size,
+            position: card.position,
             sortKey: card.sortKey,
             is_visible: card.is_visible,
           }),
