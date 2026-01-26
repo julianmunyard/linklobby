@@ -117,7 +117,8 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
       </SortableContext>
 
       {/* Drag overlay - visual feedback following cursor */}
-      <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
+      {/* dropAnimation={null} prevents jump: overlay disappears instantly on drop, card appears at new position */}
+      <DragOverlay dropAnimation={null}>
         {activeCard && (
           <div className={cn(
             "shadow-xl pointer-events-none",
