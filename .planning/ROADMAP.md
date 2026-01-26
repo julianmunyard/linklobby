@@ -161,7 +161,12 @@ Plans:
 4. Gallery supports add/remove/reorder
 5. Video Card supports short loop option (muted autoplay)
 
-**Plans:** 2-3 plans
+**Plans:** 3 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Types, dependencies, and video infrastructure
+- [ ] 05-02-PLAN.md — Video Card component and editor
+- [ ] 05-03-PLAN.md — Photo Gallery Card with Circular Gallery and Carousel styles
 
 ---
 
@@ -526,5 +531,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-01-26*
+*Last updated: 2026-01-27*
 *Based on: COMPETITORS.md competitive analysis*
