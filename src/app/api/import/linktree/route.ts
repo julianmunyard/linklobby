@@ -67,14 +67,14 @@ export async function POST(request: Request) {
           }
         }
 
-        // Create the card - content is clean, just add imageUrl if we have one
+        // Create the card - merge imageUrl into content (which has alignment defaults)
         const card = await createCard({
           page_id: page.id,
           card_type: cardData.card_type,
           title: cardData.title,
           description: cardData.description,
           url: cardData.url,
-          content: imageUrl ? { imageUrl } : {},
+          content: imageUrl ? { ...cardData.content, imageUrl } : cardData.content,
           size: cardData.size,
           position: cardData.position,
           sortKey: sortKeyBase,
