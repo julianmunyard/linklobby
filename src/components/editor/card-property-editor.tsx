@@ -5,7 +5,8 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X } from "lucide-react"
+import { X, Copy, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,8 +31,10 @@ import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
 import { HorizontalLinkFields } from "./horizontal-link-fields"
 import { SquareCardFields } from "./square-card-fields"
+import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
-import type { Card, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
+import { useHistory } from "@/hooks/use-history"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent } from "@/types/card"
 import { CARD_SIZES, CARD_TYPE_SIZING } from "@/types/card"
 
 // Common form schema
@@ -50,6 +53,9 @@ interface CardPropertyEditorProps {
 
 export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const updateCard = usePageStore((state) => state.updateCard)
+  const duplicateCard = usePageStore((state) => state.duplicateCard)
+  const removeCard = usePageStore((state) => state.removeCard)
+  const { undo } = useHistory()
 
   const form = useForm<CardFormValues>({
     resolver: zodResolver(cardFormSchema),
@@ -101,6 +107,33 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const currentContent = card.content as Record<string, unknown>
   const imageUrl = currentContent.imageUrl as string | undefined
 
+  // Handle card type change
+  function handleTypeChange(newType: CardType) {
+    updateCard(card.id, { card_type: newType })
+  }
+
+  // Handle duplicate
+  function handleDuplicate() {
+    duplicateCard(card.id)
+    onClose()
+  }
+
+  // Handle delete with undo toast
+  function handleDelete() {
+    removeCard(card.id)
+    onClose()
+    toast("Card deleted", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          undo()
+          toast("Card restored")
+        },
+      },
+      duration: 5000,
+    })
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -121,6 +154,17 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
       <div className="flex-1 overflow-y-auto p-4">
         <Form {...form}>
           <form className="space-y-6">
+            {/* Card Type Picker - only for convertible types */}
+            {isConvertibleType(card.card_type) && (
+              <div className="space-y-2">
+                <Label>Card Type</Label>
+                <CardTypePicker
+                  currentType={card.card_type}
+                  onChange={handleTypeChange}
+                />
+              </div>
+            )}
+
             {/* Image upload */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Image</label>
@@ -232,6 +276,30 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 onChange={handleContentChange}
               />
             )}
+
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleDuplicate}
+                className="flex-1"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                className="flex-1"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
