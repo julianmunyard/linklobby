@@ -252,6 +252,7 @@ Progress: [███████████████████████
 | 009 | Profile auto-save, delete fix, import defaults | Complete | aadfdbf |
 | 010 | Link card border + hero button toggle | Complete | 7959232 |
 | 011 | Card text overflow and wrapping | Complete | 2bce896 |
+| 012 | Auto-detect social icons from Linktree import | Complete | 4ed1a6c |
 
 ## Session Continuity
 
