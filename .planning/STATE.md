@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.4 of 18 - Profile Editor (IN PROGRESS)
-Plan: 3 of 5 complete
+Plan: 4 of 8 complete
 Status: **In progress**
-Last activity: 2026-01-26 - Completed 04.4-03-PLAN.md: Storage Extension
+Last activity: 2026-01-26 - Completed 04.4-05-PLAN.md: Social Icons Editor
 
-Progress: [██████████████░░░░░░░░░░░] 56%
+Progress: [█████████████████░░░░░░░░] 68%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -61,7 +61,7 @@ Progress: [██████████████░░░░░░░░░
 | 02 | Image Crop Utility | Complete |
 | 03 | Storage Extension | Complete |
 | 04 | Header Section UI | - |
-| 05 | Social Icons Editor | - |
+| 05 | Social Icons Editor | Complete |
 | 06 | Image Crop Dialog | - |
 | 07 | Profile-Preview Sync | - |
 | 08 | API & Persistence | - |
@@ -213,6 +213,8 @@ Progress: [██████████████░░░░░░░░░
 | Social icon sortKey pattern | 04.4-01 | Fractional indexing for social icon ordering (same as cards) |
 | Profile store separate from page-store | 04.4-01 | Cleaner boundaries, parallel structure |
 | No temporal/undo for profile | 04.4-01 | Profile editing simpler than cards, defer if needed |
+| Export PLATFORM_ICONS for reuse | 04.4-05 | DRY - icon mapping shared between picker and editor |
+| 4px activation distance for icons | 04.4-05 | Smaller than cards (8px) since icons are smaller targets |
 
 ## Quick Tasks
 
@@ -229,14 +231,15 @@ Progress: [██████████████░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.4-01-PLAN.md - Profile Types & Store
-Resume with: 04.4-04-PLAN.md - Header Section UI
+Stopped at: Completed 04.4-05-PLAN.md - Social Icons Editor
+Resume with: Continue Wave 2 (04.4-04, 04.4-06)
 
 **Phase 04.4 in progress - Profile Editor:**
-- Profile type definitions and Zustand store (plan 01)
-- Image crop utility with react-easy-crop (plan 02)
-- Storage extension for profile images (plan 03)
-- Next: Header section UI (plan 04)
+- Profile type definitions and Zustand store (plan 01) - Complete
+- Image crop utility with react-easy-crop (plan 02) - Complete
+- Storage extension for profile images (plan 03) - Complete
+- Social icons editor components (plan 05) - Complete
+- Next: Header section UI (plan 04), Image crop dialog (plan 06)
 
 ---
-*Updated: 2026-01-26 - Completed 04.4-01-PLAN.md*
+*Updated: 2026-01-26 - Completed 04.4-05-PLAN.md*
