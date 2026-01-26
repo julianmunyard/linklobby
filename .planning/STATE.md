@@ -108,17 +108,21 @@ Progress: [███████████████████████
 | 05 | API Routes & useCards | Complete |
 | 06 | End-to-End Wiring | Complete |
 
-## v1 Component System (LOCKED)
+## v1 Component System (UPDATED)
 
 | Card Type | Description |
 |-----------|-------------|
+| Link | Simple text link - no image, transparent |
 | Hero Card | Large CTA with photo/text/embed |
-| Horizontal Link | Linktree-style bar |
+| Horizontal Link | Linktree-style bar with thumbnail |
 | Square Card | Small tile |
 | Video Card | Video display |
 | Photo Gallery | Multi-image with ReactBits animations |
 | Dropdown | Expandable link list, custom text |
 | Game Card | Mini-games (Snake, etc.) |
+| Social Icons | Draggable widget for social platform links |
+
+**All cards support:** Text align (left/center/right), Vertical align (top/middle/bottom)
 
 **See:** `.planning/COMPONENT-SYSTEM.md` for full details
 
@@ -220,7 +224,18 @@ Progress: [███████████████████████
 | Square aspect for avatar, free for logo | 04.4-04 | Avatar crops to 1:1, logo allows any aspect ratio |
 | Profile sync via postMessage | 04.4-07 | Preview iframe has separate Zustand instance - sync profile state in STATE_UPDATE message |
 | showAvatar toggle for profile photo | 04.4 | User can hide profile photo entirely via Switch toggle |
-| logoScale slider 50-150% | 04.4 | Scalable logo size with shadcn Slider, persisted to database |
+| logoScale slider 50-300% | 04.4 | Scalable logo size with shadcn Slider, persisted to database |
+| img tag for logo (not Next Image) | 04.4 | Fixes transparent PNG black background issue |
+| Independent title/logo toggles | 04.4 | Removed titleStyle either/or, showTitle and showLogo are independent |
+| Bio field added to profile | 04.4 | Short text bio below title in profile header |
+| Collapsible sections in header editor | 04.4 | Each setting group (Photo, Layout, Name, Logo, Bio, Social) collapsible |
+| Outer HEADER collapsible | 04.4 | Entire header section collapses under one title for cleaner UI |
+| social-icons as card type | 04.4 | Social icons are draggable card, positioned in flow with other cards |
+| Social icons auto-create | 04.4 | Adding first icon auto-creates social-icons card at end |
+| link card type | 04.4 | Simple text link card - no image, transparent background |
+| CARD_TYPES_NO_IMAGE array | 04.4 | Hide image upload for social-icons, link, dropdown, audio cards |
+| Text alignment per card | 04.4 | textAlign (left/center/right) stored in card.content |
+| Vertical alignment per card | 04.4 | verticalAlign (top/middle/bottom) stored in card.content |
 
 ## Quick Tasks
 
@@ -237,26 +252,62 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Phase 4.4 complete - all plans executed
-Resume with: Run /gsd:verify-work to validate phase 4.4, then proceed to 4.5
+Stopped at: Extended profile editor with additional features
+Resume with: Run migrations, test new card types, then proceed to 4.5
 
-**Phase 04.4 complete - Profile Editor:**
-- All 8 plans executed successfully
-- User tested avatar upload (required Supabase bucket + RLS policies)
-- Fixed profile sync to preview iframe (separate Zustand instances)
-- Added user-requested features: showAvatar toggle, logoScale slider
-- Migration SQL ready: `show_avatar` and `logo_scale` columns
+**This session's work:**
+- Increased logo scale max to 300%
+- Fixed logo transparency (img tag instead of Next.js Image)
+- Independent title/logo toggles (removed either/or titleStyle)
+- Added bio text field
+- Collapsible sections in header editor (shadcn Collapsible)
+- Wrapped entire Header under collapsible title
+- Social icons now a draggable card type (positioned in flow)
+- Auto-create social-icons card when adding first icon
+- New "Link" card type - simple text, no image, transparent
+- Text alignment (left/center/right) for all cards
+- Vertical alignment (top/middle/bottom) for all cards
 
 **Key commits this session:**
-- `222d49d` - feat(04.4): add profile photo toggle and logo size slider
-- `03741d7` - fix(04.4-07): sync profile state to preview iframe
-- `5eaa99e` - feat(04.4-07): wire ProfileHeader into preview page
-- `38cb3e6` - feat(04.4-08): wire profile auto-save and load into editor
+- `b0deb1a` - feat: increase logo scale max to 300%
+- `0273737` - feat: independent title/logo toggles and bio field
+- `c399c52` - feat: collapsible sections in header editor
+- `aa18262` - feat: wrap all header settings under collapsible HEADER title
+- `398271e` - feat: social icons as draggable card
+- `9ac9fbe` - feat: auto-create social icons card when adding first icon
+- `763befb` - feat: add simple Link card type without image
+- `3bb2516` - feat: text alignment options for all cards
 
-**User setup required:**
-1. Run migration: `ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS show_avatar BOOLEAN NOT NULL DEFAULT true, ADD COLUMN IF NOT EXISTS logo_scale INTEGER NOT NULL DEFAULT 100;`
-2. Supabase storage bucket `profile-images` with public access
-3. RLS policies for authenticated upload/delete, public select
+**Migrations required (run in Supabase SQL editor):**
+```sql
+-- Migration v2: bio, show_title, show_logo
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS bio TEXT,
+  ADD COLUMN IF NOT EXISTS show_title BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS show_logo BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE public.profiles
+  DROP CONSTRAINT IF EXISTS profiles_title_style_check;
+```
+
+**Files changed:**
+- `src/types/card.ts` - Added link, social-icons types; alignment types; CARD_TYPES_NO_IMAGE
+- `src/types/profile.ts` - Removed TitleStyle, added bio, showTitle, showLogo
+- `src/stores/profile-store.ts` - Updated for new profile fields
+- `src/components/cards/link-card.tsx` - NEW: Simple link card component
+- `src/components/cards/social-icons-card.tsx` - NEW: Social icons card component
+- `src/components/cards/card-renderer.tsx` - Added link and social-icons cases
+- `src/components/cards/hero-card.tsx` - Added text/vertical alignment support
+- `src/components/cards/horizontal-link.tsx` - Added alignment support
+- `src/components/cards/square-card.tsx` - Added alignment support
+- `src/components/editor/header-section.tsx` - Collapsible sections, new fields
+- `src/components/editor/card-property-editor.tsx` - Alignment controls, hide image for some types
+- `src/components/editor/cards-tab.tsx` - Added link type, singleton logic for social-icons
+- `src/components/editor/social-icon-picker.tsx` - Auto-create social-icons card
+- `src/components/preview/profile-header.tsx` - Removed social icons (now card), uses img for logo
+- `src/app/api/profile/route.ts` - Updated for new fields
+- `src/components/ui/collapsible.tsx` - NEW: shadcn component
+- `supabase/migrations/20260126_add_profile_columns_v2.sql` - NEW: bio, show_title, show_logo
 
 ---
-*Updated: 2026-01-26 - Phase 4.4 complete, awaiting verification*
+*Updated: 2026-01-26 - Extended profile editor session*
