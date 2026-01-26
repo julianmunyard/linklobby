@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { usePageStore } from "@/stores/page-store"
+import { useProfileStore } from "@/stores/profile-store"
 import { useCards } from "@/hooks/use-cards"
 import { useHistory } from "@/hooks/use-history"
 import { cn } from "@/lib/utils"
@@ -21,7 +22,9 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ username }: DashboardHeaderProps) {
   const [copied, setCopied] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const hasChanges = usePageStore((state) => state.hasChanges)
+  const cardHasChanges = usePageStore((state) => state.hasChanges)
+  const profileHasChanges = useProfileStore((state) => state.hasChanges)
+  const hasChanges = cardHasChanges || profileHasChanges
   const { saveCards } = useCards()
   const { undo, redo, canUndo, canRedo } = useHistory()
 
@@ -52,7 +55,24 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
   const handleSave = async () => {
     try {
       setIsSaving(true)
-      await saveCards()
+
+      // Save cards if changed
+      if (cardHasChanges) {
+        await saveCards()
+      }
+
+      // Save profile if changed
+      if (profileHasChanges) {
+        const profile = useProfileStore.getState().getSnapshot()
+        const response = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profile),
+        })
+        if (!response.ok) throw new Error('Failed to save profile')
+        useProfileStore.getState().markSaved()
+      }
+
       toast.success("Changes saved")
     } catch {
       toast.error("Failed to save changes")
