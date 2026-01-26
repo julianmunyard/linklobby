@@ -26,7 +26,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { usePageStore } from '@/stores/page-store'
+import { useProfileStore } from '@/stores/profile-store'
+import { useCards } from '@/hooks/use-cards'
+import { generateAppendKey } from '@/lib/ordering'
 import type { Card } from '@/types/card'
+import type { SocialPlatform } from '@/types/profile'
 
 interface LinktreeImportDialogProps {
   open: boolean
@@ -44,6 +48,13 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
   const cards = usePageStore((state) => state.cards)
   const setCards = usePageStore((state) => state.setCards)
   const hasExistingCards = cards.length > 0
+
+  // Profile store for social icons
+  const addSocialIcon = useProfileStore((state) => state.addSocialIcon)
+  const existingSocialIcons = useProfileStore((state) => state.socialIcons)
+
+  // useCards for creating the social-icons card
+  const { createCard } = useCards()
 
   const handleImport = async (mode: ImportMode) => {
     if (!username.trim()) {
@@ -81,17 +92,52 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
       }
 
       // Update store with imported cards
-      if (mode === 'replace') {
-        setCards(data.cards)
-      } else {
-        setCards([...cards, ...data.cards])
+      const newCards = mode === 'replace' ? data.cards : [...cards, ...data.cards]
+      setCards(newCards)
+
+      // Handle detected social icons
+      let socialIconsAdded = 0
+      if (data.detectedSocialIcons && data.detectedSocialIcons.length > 0) {
+        for (const icon of data.detectedSocialIcons as { platform: SocialPlatform; url: string }[]) {
+          // Check if we already have this platform
+          const alreadyHave = existingSocialIcons.some(s => s.platform === icon.platform)
+          if (!alreadyHave) {
+            addSocialIcon(icon.platform, icon.url)
+            socialIconsAdded++
+          }
+        }
+
+        // Create social-icons card if we added icons and don't have one
+        if (socialIconsAdded > 0) {
+          const hasSocialIconsCard = newCards.some((c: Card) => c.card_type === 'social-icons')
+          if (!hasSocialIconsCard) {
+            try {
+              const sortKey = generateAppendKey(newCards)
+              const socialCard = await createCard({
+                card_type: 'social-icons',
+                title: null,
+                description: null,
+                url: null,
+                content: {},
+                size: 'big',
+                position: 'left',
+                sortKey,
+                is_visible: true,
+              })
+              setCards([...newCards, socialCard])
+            } catch (err) {
+              console.error('Failed to create social icons card:', err)
+            }
+          }
+        }
       }
 
       // Show success toast
+      const socialMsg = socialIconsAdded > 0 ? ` + ${socialIconsAdded} social icons` : ''
       if (data.failed > 0) {
-        toast.success(`Imported ${data.imported} links (${data.failed} failed)`)
+        toast.success(`Imported ${data.imported} links${socialMsg} (${data.failed} failed)`)
       } else {
-        toast.success(`Imported ${data.imported} links`)
+        toast.success(`Imported ${data.imported} links${socialMsg}`)
       }
 
       // Reset and close

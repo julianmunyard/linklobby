@@ -3,6 +3,70 @@ import axios from 'axios'
 import { generateLayoutPatternRandomized, type LayoutItem } from './layout-generator'
 import type { LinktreeLink } from '@/types/linktree'
 import type { CardType, CardSize, HorizontalPosition } from '@/types/card'
+import type { SocialPlatform } from '@/types/profile'
+
+/**
+ * URL patterns to detect social platform links
+ * These get extracted as social icons rather than cards
+ */
+const SOCIAL_URL_PATTERNS: { platform: SocialPlatform; patterns: RegExp[] }[] = [
+  {
+    platform: 'instagram',
+    patterns: [
+      /instagram\.com/i,
+      /instagr\.am/i,
+    ],
+  },
+  {
+    platform: 'tiktok',
+    patterns: [
+      /tiktok\.com/i,
+      /vm\.tiktok\.com/i,
+    ],
+  },
+  {
+    platform: 'youtube',
+    patterns: [
+      /youtube\.com/i,
+      /youtu\.be/i,
+    ],
+  },
+  {
+    platform: 'spotify',
+    patterns: [
+      /spotify\.com/i,
+      /open\.spotify\.com/i,
+    ],
+  },
+  {
+    platform: 'twitter',
+    patterns: [
+      /twitter\.com/i,
+      /x\.com/i,
+    ],
+  },
+]
+
+/**
+ * Detect if a URL is a social platform link
+ * Returns the platform if detected, null otherwise
+ */
+function detectSocialPlatform(url: string): SocialPlatform | null {
+  for (const { platform, patterns } of SOCIAL_URL_PATTERNS) {
+    if (patterns.some(pattern => pattern.test(url))) {
+      return platform
+    }
+  }
+  return null
+}
+
+/**
+ * Detected social icon from import
+ */
+export interface DetectedSocialIcon {
+  platform: SocialPlatform
+  url: string
+}
 
 // Card data without the image blob
 export interface MappedCardData {
@@ -24,6 +88,7 @@ export interface MappedCardWithImage {
 // Result of full import
 export interface ImportResult {
   mappedCards: MappedCardWithImage[]
+  detectedSocialIcons: DetectedSocialIcon[]
   failures: Array<{ index: number; title: string; reason: string }>
 }
 
@@ -82,22 +147,44 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
 /**
  * Map Linktree links to LinkLobby cards.
  * Downloads thumbnails and returns them separately from card data.
+ * Social platform links are extracted as social icons instead of cards.
  * Returns array of {card, imageBlob} objects for clean API handling.
  */
 export async function mapLinktreeToCards(
   links: LinktreeLink[]
 ): Promise<ImportResult> {
-  const layout = generateLayoutPatternRandomized(links.length)
+  // First pass: separate social links from regular links
+  const socialLinks: DetectedSocialIcon[] = []
+  const regularLinks: LinktreeLink[] = []
+
+  for (const link of links) {
+    const platform = detectSocialPlatform(link.url)
+    if (platform) {
+      // Check if we already have this platform (avoid duplicates)
+      const alreadyHave = socialLinks.some(s => s.platform === platform)
+      if (!alreadyHave) {
+        socialLinks.push({ platform, url: link.url })
+        console.log(`[LinktreeMapper] Detected social icon: ${platform} -> ${link.url}`)
+      }
+    } else {
+      regularLinks.push(link)
+    }
+  }
+
+  console.log(`[LinktreeMapper] Found ${socialLinks.length} social icons, ${regularLinks.length} regular links`)
+
+  // Generate layout only for regular links
+  const layout = generateLayoutPatternRandomized(regularLinks.length)
 
   // Log what we're processing
-  console.log('[LinktreeMapper] Processing', links.length, 'links')
-  links.forEach((link, i) => {
+  console.log('[LinktreeMapper] Processing', regularLinks.length, 'regular links')
+  regularLinks.forEach((link, i) => {
     console.log(`[LinktreeMapper] Link ${i}: "${link.title}" thumbnail:`, link.thumbnail || '(none)')
   })
 
-  // Process links in parallel with Promise.allSettled
+  // Process regular links in parallel with Promise.allSettled
   const settledResults = await Promise.allSettled(
-    links.map(async (link, index) => {
+    regularLinks.map(async (link, index) => {
       const layoutItem = layout[index]
 
       // Download thumbnail if available
@@ -152,11 +239,11 @@ export async function mapLinktreeToCards(
       const linkIndex = settledResults.indexOf(result)
       failures.push({
         index: linkIndex,
-        title: links[linkIndex]?.title || 'Unknown',
+        title: regularLinks[linkIndex]?.title || 'Unknown',
         reason: result.reason?.message || 'Unknown error',
       })
     }
   }
 
-  return { mappedCards, failures }
+  return { mappedCards, detectedSocialIcons: socialLinks, failures }
 }

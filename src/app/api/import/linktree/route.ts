@@ -32,8 +32,8 @@ export async function POST(request: Request) {
     const profileData = await scrapeLinktreeProfile(username)
     console.log('[API /import/linktree] Scraped links count:', profileData.links.length)
 
-    // Map to our card format - returns structured {card, imageBlob} pairs
-    const { mappedCards, failures } = await mapLinktreeToCards(profileData.links)
+    // Map to our card format - returns structured {card, imageBlob} pairs + detected social icons
+    const { mappedCards, detectedSocialIcons, failures } = await mapLinktreeToCards(profileData.links)
 
     // Create cards in database with images uploaded
     const supabase = await createClient()
@@ -100,6 +100,7 @@ export async function POST(request: Request) {
       imported: createdCards.length,
       failed: failures.length,
       cards: createdCards,
+      detectedSocialIcons,
       failures,
     })
   } catch (error) {
