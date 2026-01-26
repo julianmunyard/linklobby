@@ -53,6 +53,44 @@ export async function uploadCardImage(
   }
 }
 
+export async function uploadCardImageBlob(
+  blob: Blob,
+  cardId: string
+): Promise<UploadResult> {
+  // Validate blob size
+  if (blob.size > MAX_FILE_SIZE) {
+    throw new Error("Image must be less than 5MB")
+  }
+
+  const supabase = createClient()
+
+  // Generate unique filename: cardId/uuid.jpg
+  // Always .jpg since getCroppedImg outputs JPEG
+  const fileName = `${cardId}/${crypto.randomUUID()}.jpg`
+
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(fileName, blob, {
+      contentType: "image/jpeg",
+      upsert: false,
+    })
+
+  if (error) {
+    console.error("Upload error:", error)
+    throw new Error(error.message || "Failed to upload image")
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(data.path)
+
+  return {
+    url: urlData.publicUrl,
+    path: data.path,
+  }
+}
+
 export async function deleteCardImage(path: string): Promise<void> {
   const supabase = createClient()
 
