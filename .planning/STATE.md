@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 4.3 of 18 - Card Context Menu & Undo/Redo (COMPLETE)
-Plan: 2 of 2 complete
-Status: **Phase complete**
-Last activity: 2026-01-26 - Completed quick task 006: Fix stale closure in auto-save
+Phase: 4.4 of 18 - Profile Editor (IN PROGRESS)
+Plan: 3 of 5 complete
+Status: **In progress**
+Last activity: 2026-01-26 - Completed 04.4-03-PLAN.md: Storage Extension
 
-Progress: [██████████████░░░░░░░░░░░] 55%
+Progress: [██████████████░░░░░░░░░░░] 56%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -28,7 +28,7 @@ Progress: [██████████████░░░░░░░░░
 | 4.1 | Flow Layout | Complete ✓ |
 | 4.2 | Linktree Import | Complete |
 | 4.3 | Card Context Menu & Undo/Redo | Complete |
-| 4.4 | Profile Editor | - |
+| 4.4 | Profile Editor | In Progress |
 | 4.5 | Editor Polish (Mobile) | - |
 | 5 | Media Cards | - |
 | 6 | Advanced Cards | - |
@@ -52,6 +52,16 @@ Progress: [██████████████░░░░░░░░░
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 4.4 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Profile Type Definitions | Complete |
+| 02 | Image Crop Utility | Complete |
+| 03 | Storage Extension | Complete |
+| 04 | Profile Edit Dialog | - |
+| 05 | Editor Integration | - |
 
 ## Phase 4.3 Progress (COMPLETE)
 
@@ -194,6 +204,9 @@ Progress: [██████████████░░░░░░░░░
 | Duplicate selects new card | 04.3-02 | User likely wants to edit the new card immediately |
 | getState() for event handlers | quick-006 | Use `useStore.getState().value` in handlers, not hook-subscribed values (stale closure bug) |
 | Explicit save field list | quick-007 | saveCards must list all mutable fields - card_type/position were missing |
+| Blob input for profile images | 04.4-03 | getCroppedImg outputs Blob, not File - uploadProfileImage accepts Blob directly |
+| Always JPEG for cropped images | 04.4-03 | Crop dialog always outputs JPEG, no type detection needed |
+| userId/type-uuid.jpg path structure | 04.4-03 | Organizes profile images by user, distinguishes avatar vs logo |
 
 ## Quick Tasks
 
@@ -210,16 +223,14 @@ Progress: [██████████████░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.3-02-PLAN.md - Card Actions & Type Picker (Phase 4.3 complete)
-Resume with: 04.4 Profile Editor
+Stopped at: Completed 04.4-03-PLAN.md - Storage Extension
+Resume with: 04.4-04-PLAN.md - Profile Edit Dialog
 
-**Phase 04.3 complete - Card Context Menu & Undo/Redo:**
-- Zundo temporal middleware for undo/redo history
-- Keyboard shortcuts (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z)
-- CardTypePicker for hero/horizontal/square conversion
-- Duplicate action creates copy after original
-- Delete with undo toast (5 second duration)
-- Header undo/redo buttons with disabled states
+**Phase 04.4 in progress - Profile Editor:**
+- Profile type definitions (plan 01)
+- Image crop utility with react-easy-crop (plan 02)
+- Storage extension for profile images (plan 03)
+- Next: Profile edit dialog (plan 04)
 
 ---
-*Updated: 2026-01-26 - Completed quick task 007*
+*Updated: 2026-01-26 - Completed 04.4-03-PLAN.md*
