@@ -54,8 +54,8 @@ export function ProfileHeader() {
     return (
       <h1
         className={cn(
-          "font-bold text-center",
-          titleSize === "large" ? "text-2xl" : "text-lg"
+          "font-bold text-center break-words w-full max-w-xs",
+          titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
         )}
       >
         {displayName}

@@ -30,11 +30,11 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
         verticalAlign === "bottom" && "justify-end"
       )}
     >
-      <p className="font-medium">
+      <p className="font-medium break-words w-full line-clamp-2">
         {card.title || "Untitled Link"}
       </p>
       {card.description && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground break-words w-full line-clamp-3">
           {card.description}
         </p>
       )}

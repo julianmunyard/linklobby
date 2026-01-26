@@ -80,7 +80,7 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
           >
             <h3
               className={cn(
-                "text-sm font-medium text-white truncate drop-shadow-sm",
+                "text-sm font-medium text-white drop-shadow-sm break-words w-full line-clamp-2",
                 textAlign === "center" && "text-center",
                 textAlign === "right" && "text-right"
               )}

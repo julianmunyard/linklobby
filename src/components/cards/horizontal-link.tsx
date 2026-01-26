@@ -76,11 +76,11 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
           textAlign === "right" && "text-right"
         )}
       >
-        <h3 className="font-medium truncate">
+        <h3 className="font-medium break-words line-clamp-2">
           {card.title || "Untitled Link"}
         </h3>
         {card.description && (
-          <p className="text-sm text-muted-foreground truncate">
+          <p className="text-sm text-muted-foreground break-words line-clamp-2">
             {card.description}
           </p>
         )}
