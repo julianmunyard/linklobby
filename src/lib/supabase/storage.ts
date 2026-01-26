@@ -3,7 +3,9 @@ import { createClient } from "./client"
 
 const BUCKET_NAME = "card-images"
 const PROFILE_BUCKET = "profile-images"
+const VIDEO_BUCKET = "card-videos"
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
 
 export interface UploadResult {
   url: string
@@ -159,5 +161,66 @@ export async function deleteProfileImage(path: string): Promise<void> {
   if (error) {
     console.error("Profile delete error:", error)
     throw new Error(error.message || "Failed to delete profile image")
+  }
+}
+
+// ============================================
+// VIDEO STORAGE
+// ============================================
+
+export async function uploadCardVideo(
+  file: File,
+  cardId: string
+): Promise<UploadResult> {
+  // Validate file size
+  if (file.size > MAX_VIDEO_SIZE) {
+    throw new Error("Video must be less than 100MB")
+  }
+
+  // Validate file type (MP4, WebM, OGG)
+  const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
+  if (!validVideoTypes.includes(file.type)) {
+    throw new Error("Video must be MP4, WebM, or OGG format")
+  }
+
+  const supabase = createClient()
+
+  // Generate unique filename: cardId/uuid.ext
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "mp4"
+  const fileName = `${cardId}/${crypto.randomUUID()}.${fileExt}`
+
+  const { data, error } = await supabase.storage
+    .from(VIDEO_BUCKET)
+    .upload(fileName, file, {
+      contentType: file.type,
+      upsert: false,
+    })
+
+  if (error) {
+    console.error("Video upload error:", error)
+    throw new Error(error.message || "Failed to upload video")
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from(VIDEO_BUCKET)
+    .getPublicUrl(data.path)
+
+  return {
+    url: urlData.publicUrl,
+    path: data.path,
+  }
+}
+
+export async function deleteCardVideo(path: string): Promise<void> {
+  const supabase = createClient()
+
+  const { error } = await supabase.storage
+    .from(VIDEO_BUCKET)
+    .remove([path])
+
+  if (error) {
+    console.error("Video delete error:", error)
+    throw new Error(error.message || "Failed to delete video")
   }
 }
