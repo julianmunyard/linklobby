@@ -192,6 +192,8 @@ Progress: [██████████████░░░░░░░░░
 | Convertible types only | 04.3-02 | Only hero/horizontal/square can convert - dropdown is container, others are specialized |
 | Delete no confirmation | 04.3-02 | Delete immediately with undo toast - modern pattern, faster workflow |
 | Duplicate selects new card | 04.3-02 | User likely wants to edit the new card immediately |
+| getState() for event handlers | quick-006 | Use `useStore.getState().value` in handlers, not hook-subscribed values (stale closure bug) |
+| Explicit save field list | quick-007 | saveCards must list all mutable fields - card_type/position were missing |
 
 ## Quick Tasks
 
