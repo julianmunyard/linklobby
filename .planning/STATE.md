@@ -57,11 +57,14 @@ Progress: [██████████████░░░░░░░░░
 
 | Plan | Name | Status |
 |------|------|--------|
-| 01 | Profile Type Definitions | Complete |
+| 01 | Profile Types & Store | Complete |
 | 02 | Image Crop Utility | Complete |
 | 03 | Storage Extension | Complete |
-| 04 | Profile Edit Dialog | - |
-| 05 | Editor Integration | - |
+| 04 | Header Section UI | - |
+| 05 | Social Icons Editor | - |
+| 06 | Image Crop Dialog | - |
+| 07 | Profile-Preview Sync | - |
+| 08 | API & Persistence | - |
 
 ## Phase 4.3 Progress (COMPLETE)
 
@@ -207,6 +210,9 @@ Progress: [██████████████░░░░░░░░░
 | Blob input for profile images | 04.4-03 | getCroppedImg outputs Blob, not File - uploadProfileImage accepts Blob directly |
 | Always JPEG for cropped images | 04.4-03 | Crop dialog always outputs JPEG, no type detection needed |
 | userId/type-uuid.jpg path structure | 04.4-03 | Organizes profile images by user, distinguishes avatar vs logo |
+| Social icon sortKey pattern | 04.4-01 | Fractional indexing for social icon ordering (same as cards) |
+| Profile store separate from page-store | 04.4-01 | Cleaner boundaries, parallel structure |
+| No temporal/undo for profile | 04.4-01 | Profile editing simpler than cards, defer if needed |
 
 ## Quick Tasks
 
@@ -223,14 +229,14 @@ Progress: [██████████████░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 04.4-03-PLAN.md - Storage Extension
-Resume with: 04.4-04-PLAN.md - Profile Edit Dialog
+Stopped at: Completed 04.4-01-PLAN.md - Profile Types & Store
+Resume with: 04.4-04-PLAN.md - Header Section UI
 
 **Phase 04.4 in progress - Profile Editor:**
-- Profile type definitions (plan 01)
+- Profile type definitions and Zustand store (plan 01)
 - Image crop utility with react-easy-crop (plan 02)
 - Storage extension for profile images (plan 03)
-- Next: Profile edit dialog (plan 04)
+- Next: Header section UI (plan 04)
 
 ---
-*Updated: 2026-01-26 - Completed 04.4-03-PLAN.md*
+*Updated: 2026-01-26 - Completed 04.4-01-PLAN.md*
