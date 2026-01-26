@@ -52,8 +52,8 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 150, // Hold 150ms before drag starts (prevents scroll conflicts)
-        tolerance: 5, // Allow 5px movement during delay
+        delay: 50, // Short delay before drag starts
+        tolerance: 8, // Allow small movement during delay
       },
     }),
     useSensor(KeyboardSensor, {

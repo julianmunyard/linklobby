@@ -33,10 +33,10 @@ export function MobileBottomSheet({
     <Drawer
       open={open}
       onOpenChange={onOpenChange}
-      direction="bottom"
-      modal={true}
+      snapPoints={[1]} // Single snap point = full height, no bouncing
+      modal={false} // Don't block interaction with preview behind
     >
-      <DrawerContent className="h-[85vh] flex flex-col">
+      <DrawerContent className="h-[85vh] max-h-[85vh] flex flex-col">
         <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
           <DrawerTitle>{title}</DrawerTitle>
           <DrawerClose asChild>
