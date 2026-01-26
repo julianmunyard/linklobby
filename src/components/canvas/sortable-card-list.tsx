@@ -6,6 +6,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -44,6 +45,12 @@ export function SortableCardList({
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Prevent accidental drags
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // Hold 150ms before drag starts (prevents scroll conflicts)
+        tolerance: 5, // Allow 5px movement during delay
       },
     }),
     useSensor(KeyboardSensor, {

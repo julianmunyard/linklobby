@@ -6,6 +6,7 @@ import {
   DragOverlay,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -47,6 +48,12 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Prevent accidental drags
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // Hold 150ms before drag starts (prevents scroll conflicts)
+        tolerance: 5, // Allow 5px movement during delay
       },
     }),
     useSensor(KeyboardSensor, {
