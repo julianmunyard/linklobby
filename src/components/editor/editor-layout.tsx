@@ -10,6 +10,10 @@ import {
 
 import { EditorPanel } from "./editor-panel"
 import { PreviewPanel } from "./preview-panel"
+import { MobileBottomSheet } from "./mobile-bottom-sheet"
+import { MobileFAB } from "./mobile-fab"
+import { useIsMobileLayout } from "@/hooks/use-media-query"
+import { usePageStore } from "@/stores/page-store"
 import { cn } from "@/lib/utils"
 
 const STORAGE_KEY = "editor-layout"
@@ -17,6 +21,9 @@ const STORAGE_KEY = "editor-layout"
 export function EditorLayout() {
   const [mounted, setMounted] = useState(false)
   const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const isMobileLayout = useIsMobileLayout()
+  const selectedCardId = usePageStore((state) => state.selectedCardId)
 
   // Only access localStorage after mount (client-side)
   useEffect(() => {
@@ -31,6 +38,13 @@ export function EditorLayout() {
     }
   }, [])
 
+  // On mobile, open bottom sheet when a card is selected
+  useEffect(() => {
+    if (isMobileLayout && selectedCardId) {
+      setMobileSheetOpen(true)
+    }
+  }, [isMobileLayout, selectedCardId])
+
   const onLayoutChanged = useCallback((layout: Layout) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
@@ -44,6 +58,31 @@ export function EditorLayout() {
     return null
   }
 
+  // Mobile layout: Full-screen preview with bottom sheet
+  if (isMobileLayout) {
+    return (
+      <div className="relative h-full">
+        {/* Full-width preview */}
+        <div className="h-full bg-muted/30">
+          <PreviewPanel />
+        </div>
+
+        {/* FAB button for adding cards */}
+        <MobileFAB onClick={() => setMobileSheetOpen(true)} />
+
+        {/* Bottom sheet with editor */}
+        <MobileBottomSheet
+          open={mobileSheetOpen}
+          onOpenChange={setMobileSheetOpen}
+          title="Editor"
+        >
+          <EditorPanel />
+        </MobileBottomSheet>
+      </div>
+    )
+  }
+
+  // Desktop layout: Split-panel view
   return (
     <Group
       orientation="horizontal"
