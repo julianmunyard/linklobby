@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { CardsTab } from "./cards-tab"
 import { CardPropertyEditor } from "./card-property-editor"
 import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
 
 interface EmptyStateProps {
   icon: React.ReactNode
@@ -34,11 +35,21 @@ export function EditorPanel() {
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const hasChanges = usePageStore((state) => state.hasChanges)
+  const { saveCards } = useCards()
 
   // Find the selected card
   const selectedCard = selectedCardId
     ? cards.find((c) => c.id === selectedCardId)
     : null
+
+  // Close editor and save any pending changes
+  const handleClose = async () => {
+    selectCard(null)
+    if (hasChanges) {
+      await saveCards()
+    }
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -46,7 +57,7 @@ export function EditorPanel() {
         // Show property editor when card is selected
         <CardPropertyEditor
           card={selectedCard}
-          onClose={() => selectCard(null)}
+          onClose={handleClose}
         />
       ) : (
         // Show tabs when no card selected
