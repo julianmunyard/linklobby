@@ -110,8 +110,37 @@ export interface SquareCardContent {
   showTitle?: boolean  // Whether to show title overlay (default true)
 }
 
+export interface VideoCardContent {
+  videoType: 'embed' | 'upload'
+  // For embeds
+  embedUrl?: string           // Original URL (YouTube/Vimeo/TikTok)
+  embedService?: 'youtube' | 'vimeo' | 'tiktok'
+  embedVideoId?: string
+  embedThumbnailUrl?: string
+  // For uploads
+  uploadedVideoUrl?: string
+  uploadedVideoPath?: string  // Supabase Storage path for deletion
+}
+
+export interface GalleryImage {
+  id: string
+  url: string
+  alt: string
+  storagePath: string  // For deletion
+}
+
+export interface GalleryCardContent {
+  galleryStyle: 'circular' | 'carousel'
+  images: GalleryImage[]
+  // ReactBits Circular Gallery settings (optional overrides)
+  scrollEase?: number       // Default: 0.15
+  scrollSpeed?: number      // Default: 4.6
+  borderRadius?: number     // Default: 0
+  bend?: number            // Default: 10
+}
+
 // Union type for all card content
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | Record<string, unknown>
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
@@ -124,4 +153,12 @@ export function isHorizontalContent(content: unknown): content is HorizontalLink
 
 export function isSquareContent(content: unknown): content is SquareCardContent {
   return typeof content === 'object' && content !== null
+}
+
+export function isVideoContent(content: unknown): content is VideoCardContent {
+  return typeof content === 'object' && content !== null && 'videoType' in content
+}
+
+export function isGalleryContent(content: unknown): content is GalleryCardContent {
+  return typeof content === 'object' && content !== null && 'galleryStyle' in content
 }
