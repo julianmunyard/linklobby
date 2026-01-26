@@ -35,7 +35,6 @@ export function EditorPanel() {
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
   const selectCard = usePageStore((state) => state.selectCard)
-  const hasChanges = usePageStore((state) => state.hasChanges)
   const { saveCards } = useCards()
 
   // Find the selected card
@@ -45,8 +44,10 @@ export function EditorPanel() {
 
   // Close editor and save any pending changes
   // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
+  // Read hasChanges directly from store to avoid stale closure bug
   const handleClose = async () => {
-    if (hasChanges) {
+    const currentHasChanges = usePageStore.getState().hasChanges
+    if (currentHasChanges) {
       await saveCards()
     }
     selectCard(null)
