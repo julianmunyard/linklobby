@@ -201,7 +201,7 @@ Progress: [██████████████░░░░░░░░░
 | 002 | Default preview mode to mobile | Complete | 882e9ac |
 | 003 | Smooth card drag animation | Complete | 7cb089f |
 | 004 | Auto-save on close | Complete | d8d7e65 |
-| 005 | Fix auto-save on close | Complete | pending |
+| 005 | Fix auto-save on close | Complete | 34e660c |
 
 ## Session Continuity
 
