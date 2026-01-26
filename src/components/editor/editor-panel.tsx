@@ -5,6 +5,7 @@ import { Link2, Palette } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { CardsTab } from "./cards-tab"
+import { DesignTab } from "./design-tab"
 import { CardPropertyEditor } from "./card-property-editor"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
@@ -90,15 +91,11 @@ export function EditorPanel() {
           <TabsContent
             value="design"
             className={cn(
-              "h-full overflow-auto",
+              "flex-1 overflow-hidden",
               "data-[state=inactive]:hidden"
             )}
           >
-            <EmptyState
-              icon={<Palette className="h-8 w-8 text-muted-foreground" />}
-              title="Customize your design"
-              description="Choose colors, fonts, and backgrounds to match your brand and style."
-            />
+            <DesignTab />
           </TabsContent>
 
         </Tabs>
