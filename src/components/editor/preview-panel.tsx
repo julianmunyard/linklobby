@@ -18,13 +18,14 @@ export function PreviewPanel() {
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
-  const hasChanges = usePageStore((state) => state.hasChanges)
   const { saveCards } = useCards()
 
   // Deselect card and save any pending changes
   // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
+  // Read hasChanges directly from store to avoid stale closure bug
   const handleDeselect = async () => {
-    if (hasChanges) {
+    const currentHasChanges = usePageStore.getState().hasChanges
+    if (currentHasChanges) {
       await saveCards()
     }
     selectCard(null)
