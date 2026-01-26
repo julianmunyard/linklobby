@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 4.5 of 18 - Editor Polish (Mobile) (IN PROGRESS)
-Plan: 1 of 4 complete
+Plan: 2 of 4 complete
 Status: **In Progress**
-Last activity: 2026-01-27 - Completed 04.5-01-PLAN.md (Foundation utilities)
+Last activity: 2026-01-27 - Completed 04.5-02-PLAN.md (Mobile editor layout)
 
 Progress: [█████████████████████████░░░] 94%
 
@@ -58,7 +58,7 @@ Progress: [███████████████████████
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Foundation Utilities | Complete |
-| 02 | Mobile Editor Layout | - |
+| 02 | Mobile Editor Layout | Complete |
 | 03 | Image Upload Polish | - |
 | 04 | Error Handling | - |
 
@@ -250,6 +250,11 @@ Progress: [███████████████████████
 | GIF preservation in compression | 04.5-01 | Animated GIFs bypass compression, other formats compressed to 1MB/1920px |
 | Auto-fix URLs with https:// | 04.5-01 | Add https:// if protocol missing, allow empty for optional fields |
 | browser-image-compression for uploads | 04.5-01 | Client-side compression before upload with web worker |
+| Vaul Drawer for mobile bottom sheet | 04.5-02 | Built on Radix Dialog, handles swipe physics and iOS Safari quirks |
+| 85vh height for bottom sheet | 04.5-02 | Leaves 15% of preview visible (dimmed) for context |
+| Auto-open sheet on card selection | 04.5-02 | Mobile users tap card expecting immediate editing |
+| 44px minimum touch targets | 04.5-02 | h-11 for all interactive buttons (Apple HIG / Material Design guideline) |
+| touch-pan-y on scrollable areas | 04.5-02 | Prevents gesture conflicts between scroll and drawer swipe-to-dismiss |
 
 ## Quick Tasks
 
@@ -273,30 +278,23 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 04.5-01-PLAN.md (Foundation utilities)
+Stopped at: Completed 04.5-02-PLAN.md (Mobile editor layout)
 Resume file: None
 
-**This session's work:**
-- Increased logo scale max to 300%
-- Fixed logo transparency (img tag instead of Next.js Image)
-- Independent title/logo toggles (removed either/or titleStyle)
-- Added bio text field
-- Collapsible sections in header editor (shadcn Collapsible)
-- Wrapped entire Header under collapsible title
-- Social icons now a draggable card type (positioned in flow)
-- Auto-create social-icons card when adding first icon
-- New "Link" card type - simple text, no image, transparent
-- Text alignment (left/center/right) for all cards
-- Vertical alignment (top/middle/bottom) for all cards
+**This session's work (04.5-02):**
+- Mobile-responsive editor with bottom sheet pattern
+- Vaul Drawer wrapper component (swipe-to-dismiss, 85vh height)
+- Floating action button (FAB) for mobile navigation
+- Conditional layout rendering (mobile vs desktop)
+- Auto-open bottom sheet when card selected
+- Touch-optimized UI (44px minimum touch targets)
+- touch-pan-y on scrollable areas to prevent gesture conflicts
+- Orientation-aware: landscape → desktop, portrait → mobile
 
 **Key commits this session:**
-- `b0deb1a` - feat: increase logo scale max to 300%
-- `0273737` - feat: independent title/logo toggles and bio field
-- `c399c52` - feat: collapsible sections in header editor
-- `aa18262` - feat: wrap all header settings under collapsible HEADER title
-- `398271e` - feat: social icons as draggable card
-- `9ac9fbe` - feat: auto-create social icons card when adding first icon
-- `763befb` - feat: add simple Link card type without image
+- `eb47704` - feat(04.5-02): create MobileBottomSheet wrapper component
+- `d036db1` - feat(04.5-02): add mobile responsive layout with FAB
+- `2e55c9b` - feat(04.5-02): add touch targets and touch-pan-y for mobile
 - `3bb2516` - feat: text alignment options for all cards
 
 **Migrations required (run in Supabase SQL editor):**
