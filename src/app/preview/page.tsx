@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { PreviewFlowGrid } from "@/components/canvas/preview-flow-grid"
+import { ProfileHeader } from "@/components/preview/profile-header"
 import type { Card } from "@/types/card"
 
 interface Theme {
@@ -92,6 +93,9 @@ export default function PreviewPage() {
       <div className="fixed bottom-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
         Theme: {state.theme.name}
       </div>
+
+      {/* Profile Header at top */}
+      <ProfileHeader />
 
       {!hasCards ? (
         // Empty state when no cards
