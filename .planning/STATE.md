@@ -203,6 +203,7 @@ Progress: [██████████████░░░░░░░░░
 | 004 | Auto-save on close | Complete | d8d7e65 |
 | 005 | Fix auto-save on close | Complete | 34e660c |
 | 006 | Fix stale closure in auto-save | Complete | 9f399bd |
+| 007 | Fix card type not saving | Complete | b29e077 |
 
 ## Session Continuity
 
@@ -219,4 +220,4 @@ Resume with: 04.4 Profile Editor
 - Header undo/redo buttons with disabled states
 
 ---
-*Updated: 2026-01-26 - Completed quick task 006*
+*Updated: 2026-01-26 - Completed quick task 007*
