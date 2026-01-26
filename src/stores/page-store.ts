@@ -3,7 +3,7 @@ import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { CARD_TYPE_SIZING } from '@/types/card'
-import { generateAppendKey, generateMoveKey, sortCardsBySortKey } from '@/lib/ordering'
+import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey } from '@/lib/ordering'
 
 interface Theme {
   id: string
@@ -30,6 +30,7 @@ interface PageState {
   addCard: (type: CardType, size?: CardSize) => void
   updateCard: (id: string, updates: Partial<Card>) => void
   removeCard: (id: string) => void
+  duplicateCard: (id: string) => void
   reorderCards: (oldIndex: number, newIndex: number) => void
   updateCardPosition: (id: string, position: HorizontalPosition) => void
   selectCard: (id: string | null) => void
@@ -96,6 +97,32 @@ export const usePageStore = create<PageState>()(
     selectedCardId: state.selectedCardId === id ? null : state.selectedCardId,
     hasChanges: true,
   })),
+
+  duplicateCard: (id) => set((state) => {
+    const cardToDuplicate = state.cards.find((c) => c.id === id)
+    if (!cardToDuplicate) return state
+
+    // Find the index of the original card in sorted order
+    const sorted = sortCardsBySortKey(state.cards)
+    const originalIndex = sorted.findIndex((c) => c.id === id)
+
+    // Generate a sort key that positions the duplicate AFTER the original
+    const newSortKey = generateInsertKey(state.cards, originalIndex + 1)
+
+    const newCard: Card = {
+      ...cardToDuplicate,
+      id: crypto.randomUUID(),
+      sortKey: newSortKey,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    return {
+      cards: [...state.cards, newCard],
+      selectedCardId: newCard.id,
+      hasChanges: true,
+    }
+  }),
 
   reorderCards: (oldIndex, newIndex) => set((state) => {
     const sorted = sortCardsBySortKey(state.cards)
