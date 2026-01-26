@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, User, Upload } from "lucide-react"
+import { Camera, User, Upload, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,7 +9,10 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import { Switch } from "@/components/ui/switch"
 import { useProfileStore } from "@/stores/profile-store"
+import { SocialIconsEditor } from "./social-icons-editor"
+import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
 import { uploadProfileImage, type ProfileImageType } from "@/lib/supabase/storage"
 import { createClient } from "@/lib/supabase/client"
@@ -23,6 +26,7 @@ export function HeaderSection() {
   const titleSize = useProfileStore((state) => state.titleSize)
   const logoUrl = useProfileStore((state) => state.logoUrl)
   const profileLayout = useProfileStore((state) => state.profileLayout)
+  const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -31,6 +35,7 @@ export function HeaderSection() {
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
   const setLogoUrl = useProfileStore((state) => state.setLogoUrl)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
+  const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
 
   // Local state for crop dialog
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
@@ -274,6 +279,36 @@ export function HeaderSection() {
           </div>
         </div>
       )}
+
+      {/* Social Icons Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="show-social-icons" className="text-sm font-medium">
+            Social Icons
+          </Label>
+          <Switch
+            id="show-social-icons"
+            checked={showSocialIcons}
+            onCheckedChange={setShowSocialIcons}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Icons appear in your page header
+        </p>
+
+        {showSocialIcons && (
+          <div className="space-y-3">
+            <SocialIconsEditor />
+
+            <SocialIconPicker>
+              <Button variant="outline" size="sm" className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Social Icon
+              </Button>
+            </SocialIconPicker>
+          </div>
+        )}
+      </div>
 
       {/* Image Crop Dialog */}
       {selectedImage && (
