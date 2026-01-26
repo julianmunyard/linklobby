@@ -61,12 +61,12 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
         )}
       >
         {card.title && (
-          <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-3">
+          <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4">
             {card.title}
           </h2>
         )}
         {card.description && (
-          <p className="text-sm opacity-90 mb-4 line-clamp-2 drop-shadow-sm">
+          <p className="text-sm opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm">
             {card.description}
           </p>
         )}
