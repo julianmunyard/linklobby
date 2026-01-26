@@ -10,6 +10,7 @@ import {
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
 import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
 import { useProfileStore } from "@/stores/profile-store"
 import { SocialIconsEditor } from "./social-icons-editor"
 import { SocialIconPicker } from "./social-icon-picker"
@@ -22,18 +23,22 @@ export function HeaderSection() {
   // Profile store state
   const displayName = useProfileStore((state) => state.displayName)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
+  const showAvatar = useProfileStore((state) => state.showAvatar)
   const titleStyle = useProfileStore((state) => state.titleStyle)
   const titleSize = useProfileStore((state) => state.titleSize)
   const logoUrl = useProfileStore((state) => state.logoUrl)
+  const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
+  const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
   const setTitleStyle = useProfileStore((state) => state.setTitleStyle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
   const setLogoUrl = useProfileStore((state) => state.setLogoUrl)
+  const setLogoScale = useProfileStore((state) => state.setLogoScale)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
 
@@ -128,7 +133,14 @@ export function HeaderSection() {
 
       {/* Profile Photo */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Profile Photo</Label>
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">Profile Photo</Label>
+          <Switch
+            id="show-avatar"
+            checked={showAvatar}
+            onCheckedChange={setShowAvatar}
+          />
+        </div>
         <div className="flex items-center gap-4">
           {/* Avatar circle */}
           <div className="relative">
@@ -302,6 +314,24 @@ export function HeaderSection() {
           </div>
           {uploadError && imageType === "logo" && (
             <p className="text-xs text-destructive">{uploadError}</p>
+          )}
+
+          {/* Logo Size Slider */}
+          {logoUrl && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Logo Size</Label>
+                <span className="text-xs text-muted-foreground">{logoScale}%</span>
+              </div>
+              <Slider
+                value={[logoScale]}
+                onValueChange={(value) => setLogoScale(value[0])}
+                min={50}
+                max={150}
+                step={5}
+                className="w-full"
+              />
+            </div>
           )}
         </div>
       )}

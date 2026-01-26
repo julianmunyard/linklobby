@@ -7,9 +7,11 @@
 -- Add new columns for profile customization
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS logo_url TEXT,
+  ADD COLUMN IF NOT EXISTS logo_scale INTEGER NOT NULL DEFAULT 100,
   ADD COLUMN IF NOT EXISTS title_style TEXT NOT NULL DEFAULT 'text',
   ADD COLUMN IF NOT EXISTS title_size TEXT NOT NULL DEFAULT 'large',
   ADD COLUMN IF NOT EXISTS profile_layout TEXT NOT NULL DEFAULT 'classic',
+  ADD COLUMN IF NOT EXISTS show_avatar BOOLEAN NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS show_social_icons BOOLEAN NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS social_icons JSONB NOT NULL DEFAULT '[]'::jsonb;
 

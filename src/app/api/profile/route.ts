@@ -30,7 +30,9 @@ export async function GET() {
   return NextResponse.json({
     displayName: profile.display_name,
     avatarUrl: profile.avatar_url,
+    showAvatar: profile.show_avatar ?? true,
     logoUrl: profile.logo_url,
+    logoScale: profile.logo_scale ?? 100,
     titleStyle: profile.title_style,
     titleSize: profile.title_size,
     profileLayout: profile.profile_layout,
@@ -55,7 +57,9 @@ export async function POST(request: Request) {
     .update({
       display_name: body.displayName,
       avatar_url: body.avatarUrl,
+      show_avatar: body.showAvatar,
       logo_url: body.logoUrl,
+      logo_scale: body.logoScale,
       title_style: body.titleStyle,
       title_size: body.titleSize,
       profile_layout: body.profileLayout,

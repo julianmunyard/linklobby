@@ -14,9 +14,11 @@ import { cn } from "@/lib/utils"
 export function ProfileHeader() {
   const displayName = useProfileStore((state) => state.displayName)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
+  const showAvatar = useProfileStore((state) => state.showAvatar)
   const titleStyle = useProfileStore((state) => state.titleStyle)
   const titleSize = useProfileStore((state) => state.titleSize)
   const logoUrl = useProfileStore((state) => state.logoUrl)
+  const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
   const getSortedSocialIcons = useProfileStore((state) => state.getSortedSocialIcons)
@@ -50,14 +52,17 @@ export function ProfileHeader() {
   // Render title (text or logo)
   const renderTitle = () => {
     if (titleStyle === "logo" && logoUrl) {
+      // Scale logo based on logoScale (50-150%)
+      const scaledWidth = Math.round(192 * (logoScale / 100))
+      const scaledHeight = Math.round(48 * (logoScale / 100))
       return (
-        <div className="relative h-12 w-48">
+        <div className="relative" style={{ width: scaledWidth, height: scaledHeight }}>
           <Image
             src={logoUrl}
             alt=""
             fill
             className="object-contain"
-            sizes="192px"
+            sizes={`${scaledWidth}px`}
           />
         </div>
       )
@@ -83,22 +88,24 @@ export function ProfileHeader() {
   if (profileLayout === "classic") {
     return (
       <div className="flex flex-col items-center gap-4 p-6 transition-opacity duration-200">
-        {/* Avatar - small circle */}
-        <div className="relative w-20 h-20 rounded-full bg-muted overflow-hidden">
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="80px"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <User className="w-10 h-10 text-muted-foreground" />
-            </div>
-          )}
-        </div>
+        {/* Avatar - small circle (only if showAvatar is true) */}
+        {showAvatar && (
+          <div className="relative w-20 h-20 rounded-full bg-muted overflow-hidden">
+            {avatarUrl ? (
+              <Image
+                src={avatarUrl}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="80px"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <User className="w-10 h-10 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Title */}
         {renderTitle()}
@@ -112,22 +119,24 @@ export function ProfileHeader() {
   // Hero layout: larger banner-style avatar, title + icons below
   return (
     <div className="transition-opacity duration-200">
-      {/* Avatar - larger, banner-style */}
-      <div className="relative w-full aspect-[3/1] bg-muted overflow-hidden">
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <User className="w-20 h-20 text-muted-foreground" />
-          </div>
-        )}
-      </div>
+      {/* Avatar - larger, banner-style (only if showAvatar is true) */}
+      {showAvatar && (
+        <div className="relative w-full aspect-[3/1] bg-muted overflow-hidden">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <User className="w-20 h-20 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Title + Social below banner */}
       <div className="flex flex-col items-center gap-4 p-4">

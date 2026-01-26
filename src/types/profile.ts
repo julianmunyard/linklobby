@@ -85,9 +85,11 @@ export type ProfileLayout = 'classic' | 'hero'
 export interface Profile {
   displayName: string | null
   avatarUrl: string | null
+  showAvatar: boolean
   titleStyle: TitleStyle
   titleSize: TitleSize
   logoUrl: string | null
+  logoScale: number  // 50-150 as percentage, default 100
   profileLayout: ProfileLayout
   showSocialIcons: boolean
   socialIcons: SocialIcon[]

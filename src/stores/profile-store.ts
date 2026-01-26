@@ -56,9 +56,11 @@ interface ProfileState extends Profile {
   // Actions
   setDisplayName: (name: string | null) => void
   setAvatarUrl: (url: string | null) => void
+  setShowAvatar: (show: boolean) => void
   setTitleStyle: (style: TitleStyle) => void
   setTitleSize: (size: TitleSize) => void
   setLogoUrl: (url: string | null) => void
+  setLogoScale: (scale: number) => void
   setProfileLayout: (layout: ProfileLayout) => void
   setShowSocialIcons: (show: boolean) => void
   addSocialIcon: (platform: SocialPlatform, url: string) => void
@@ -74,9 +76,11 @@ interface ProfileState extends Profile {
 const defaultProfile: Profile = {
   displayName: null,
   avatarUrl: null,
+  showAvatar: true,
   titleStyle: 'text',
   titleSize: 'large',
   logoUrl: null,
+  logoScale: 100,
   profileLayout: 'classic',
   showSocialIcons: true,
   socialIcons: [],
@@ -92,11 +96,15 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
 
   setAvatarUrl: (url) => set({ avatarUrl: url, hasChanges: true }),
 
+  setShowAvatar: (show) => set({ showAvatar: show, hasChanges: true }),
+
   setTitleStyle: (style) => set({ titleStyle: style, hasChanges: true }),
 
   setTitleSize: (size) => set({ titleSize: size, hasChanges: true }),
 
   setLogoUrl: (url) => set({ logoUrl: url, hasChanges: true }),
+
+  setLogoScale: (scale) => set({ logoScale: scale, hasChanges: true }),
 
   setProfileLayout: (layout) => set({ profileLayout: layout, hasChanges: true }),
 
@@ -161,9 +169,11 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     return {
       displayName: state.displayName,
       avatarUrl: state.avatarUrl,
+      showAvatar: state.showAvatar,
       titleStyle: state.titleStyle,
       titleSize: state.titleSize,
       logoUrl: state.logoUrl,
+      logoScale: state.logoScale,
       profileLayout: state.profileLayout,
       showSocialIcons: state.showSocialIcons,
       socialIcons: sortIconsBySortKey(state.socialIcons),
