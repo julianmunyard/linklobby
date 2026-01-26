@@ -134,6 +134,44 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
     })
   }
 
+  // Social icons card has minimal UI - settings are in Header section
+  if (card.card_type === "social-icons") {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="font-semibold text-sm">Social Icons</h2>
+            <p className="text-xs text-muted-foreground">Widget</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <div className="flex-1 p-4 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Edit social icons in the Header section of the Design tab.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Drag this card to position where social icons appear on your page.
+          </p>
+          <div className="pt-4 border-t">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="w-full"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove from page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}

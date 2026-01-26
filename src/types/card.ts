@@ -8,6 +8,7 @@ export type CardType =
   | 'dropdown'
   | 'game'
   | 'audio'
+  | 'social-icons'
 
 export type CardSize = 'big' | 'small'
 
@@ -51,6 +52,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   dropdown: null, // Always full width
   game: ['big', 'small'],
   audio: null, // Always full width
+  'social-icons': null, // Always full width - singleton widget
 }
 
 // Position mapping for database storage

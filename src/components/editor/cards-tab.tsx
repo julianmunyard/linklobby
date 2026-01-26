@@ -18,13 +18,14 @@ import type { CardType } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
 
-const CARD_TYPES: { type: CardType; label: string }[] = [
+const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "horizontal", label: "Horizontal Link" },
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },
   { type: "video", label: "Video Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "dropdown", label: "Dropdown" },
+  { type: "social-icons", label: "Social Icons", singleton: true },
 ]
 
 export function CardsTab() {
@@ -122,14 +123,19 @@ export function CardsTab() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {CARD_TYPES.map(({ type, label }) => (
-                <DropdownMenuItem
-                  key={type}
-                  onClick={() => handleAddCard(type)}
-                >
-                  {label}
-                </DropdownMenuItem>
-              ))}
+              {CARD_TYPES.map(({ type, label, singleton }) => {
+                const alreadyExists = singleton && cards.some(c => c.card_type === type)
+                return (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleAddCard(type)}
+                    disabled={alreadyExists}
+                  >
+                    {label}
+                    {alreadyExists && " (added)"}
+                  </DropdownMenuItem>
+                )
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

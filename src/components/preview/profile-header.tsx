@@ -3,12 +3,12 @@
 import Image from "next/image"
 import { User } from "lucide-react"
 import { useProfileStore } from "@/stores/profile-store"
-import { PLATFORM_ICONS } from "@/components/editor/social-icon-picker"
 import { cn } from "@/lib/utils"
 
 /**
  * Profile header component for the preview iframe.
- * Renders avatar, title, logo, bio, and social icons based on profile store state.
+ * Renders avatar, title, logo, and bio based on profile store state.
+ * Social icons are now a separate draggable card.
  * Supports Classic (centered circle) and Hero (banner) layouts.
  */
 export function ProfileHeader() {
@@ -22,34 +22,6 @@ export function ProfileHeader() {
   const logoUrl = useProfileStore((state) => state.logoUrl)
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
-  const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
-  const getSortedSocialIcons = useProfileStore((state) => state.getSortedSocialIcons)
-
-  const socialIcons = getSortedSocialIcons()
-
-  // Render social icons row (shared between layouts)
-  const renderSocialIcons = () => {
-    if (!showSocialIcons || socialIcons.length === 0) return null
-
-    return (
-      <div className="flex gap-3 justify-center">
-        {socialIcons.map((icon) => {
-          const Icon = PLATFORM_ICONS[icon.platform]
-          return (
-            <a
-              key={icon.id}
-              href={icon.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Icon className="w-5 h-5" />
-            </a>
-          )
-        })}
-      </div>
-    )
-  }
 
   // Render logo
   const renderLogo = () => {
@@ -133,9 +105,6 @@ export function ProfileHeader() {
 
         {/* Bio */}
         {renderBio()}
-
-        {/* Social Icons */}
-        {renderSocialIcons()}
       </div>
     )
   }
@@ -162,12 +131,11 @@ export function ProfileHeader() {
         </div>
       )}
 
-      {/* Logo, Title, Bio, Social below banner */}
+      {/* Logo, Title, Bio below banner */}
       <div className="flex flex-col items-center gap-4 p-4">
         {renderLogo()}
         {renderTitle()}
         {renderBio()}
-        {renderSocialIcons()}
       </div>
     </div>
   )
