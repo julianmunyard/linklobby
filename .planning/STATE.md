@@ -186,11 +186,12 @@ Progress: [███████████████████████
 | 001 | Add delete button to cards | Complete | 735b927 |
 | 002 | Default preview mode to mobile | Complete | 882e9ac |
 | 003 | Smooth card drag animation | Complete | 7cb089f |
+| 004 | Auto-save on close | Complete | d8d7e65 |
 
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed quick task 003 - Smooth card drag animation
+Stopped at: Completed quick task 004 - Auto-save on close
 Resume with: Next phase (4.3 Card Context Menu & Undo/Redo)
 
 **Phase 4.2 Linktree Import delivered:**
