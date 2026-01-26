@@ -19,9 +19,9 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4: Basic Cards
 - [x] Phase 4.1: Flow Layout
 - [x] Phase 4.2: Linktree Import
+- [x] Phase 4.3: Card Context Menu
 
 ### MVP Milestone (v1.0 Launch)
-- [ ] Phase 4.3: Card Context Menu *(type picker, delete, duplicate, undo/redo)*
 - [ ] Phase 4.4: Profile Editor *(name, bio, photo, social icons)*
 - [ ] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)*
 - [ ] Phase 5: Media Cards
