@@ -248,6 +248,7 @@ Progress: [███████████████████████
 | 005 | Fix auto-save on close | Complete | 34e660c |
 | 006 | Fix stale closure in auto-save | Complete | 9f399bd |
 | 007 | Fix card type not saving | Complete | b29e077 |
+| 008 | Card defaults and type picker fixes | Complete | 45bd6e6 |
 
 ## Session Continuity
 
