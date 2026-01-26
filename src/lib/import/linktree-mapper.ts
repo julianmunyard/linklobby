@@ -6,53 +6,60 @@ import type { CardType, CardSize, HorizontalPosition } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
 
 /**
- * URL patterns to detect social platform links
+ * URL patterns to detect social PROFILE links (not content links)
+ * Only matches profile/channel URLs, not videos/tracks/etc.
  * These get extracted as social icons rather than cards
  */
-const SOCIAL_URL_PATTERNS: { platform: SocialPlatform; patterns: RegExp[] }[] = [
+const SOCIAL_PROFILE_PATTERNS: { platform: SocialPlatform; patterns: RegExp[] }[] = [
   {
     platform: 'instagram',
     patterns: [
-      /instagram\.com/i,
-      /instagr\.am/i,
+      // instagram.com/username (but not /p/ posts, /reel/, /stories/, etc.)
+      /instagram\.com\/(?!p\/|reel\/|stories\/|explore\/)[a-zA-Z0-9_.]+\/?$/i,
+      /instagr\.am\/(?!p\/)[a-zA-Z0-9_.]+\/?$/i,
     ],
   },
   {
     platform: 'tiktok',
     patterns: [
-      /tiktok\.com/i,
-      /vm\.tiktok\.com/i,
+      // tiktok.com/@username (profile, not video)
+      /tiktok\.com\/@[a-zA-Z0-9_.]+\/?$/i,
     ],
   },
   {
     platform: 'youtube',
     patterns: [
-      /youtube\.com/i,
-      /youtu\.be/i,
+      // youtube.com/@channel or /channel/ or /c/ (not /watch, /shorts, /playlist)
+      /youtube\.com\/@[a-zA-Z0-9_-]+\/?$/i,
+      /youtube\.com\/channel\/[a-zA-Z0-9_-]+\/?$/i,
+      /youtube\.com\/c\/[a-zA-Z0-9_-]+\/?$/i,
+      /youtube\.com\/user\/[a-zA-Z0-9_-]+\/?$/i,
     ],
   },
   {
     platform: 'spotify',
     patterns: [
-      /spotify\.com/i,
-      /open\.spotify\.com/i,
+      // open.spotify.com/artist/ (not /track, /album, /playlist)
+      /open\.spotify\.com\/artist\/[a-zA-Z0-9]+/i,
+      /spotify\.com\/artist\/[a-zA-Z0-9]+/i,
     ],
   },
   {
     platform: 'twitter',
     patterns: [
-      /twitter\.com/i,
-      /x\.com/i,
+      // twitter.com/username or x.com/username (not /status/, /i/, etc.)
+      /twitter\.com\/(?!status\/|i\/|search|explore|home)[a-zA-Z0-9_]+\/?$/i,
+      /x\.com\/(?!status\/|i\/|search|explore|home)[a-zA-Z0-9_]+\/?$/i,
     ],
   },
 ]
 
 /**
- * Detect if a URL is a social platform link
+ * Detect if a URL is a social PROFILE link (not a content link)
  * Returns the platform if detected, null otherwise
  */
 function detectSocialPlatform(url: string): SocialPlatform | null {
-  for (const { platform, patterns } of SOCIAL_URL_PATTERNS) {
+  for (const { platform, patterns } of SOCIAL_PROFILE_PATTERNS) {
     if (patterns.some(pattern => pattern.test(url))) {
       return platform
     }
