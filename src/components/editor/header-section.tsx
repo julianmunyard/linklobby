@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, User, Upload, Plus } from "lucide-react"
+import { Camera, User, Upload, Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,6 +42,7 @@ export function HeaderSection() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [imageType, setImageType] = useState<ProfileImageType>("avatar")
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   // File input refs
   const avatarInputRef = useRef<HTMLInputElement>(null)
@@ -52,6 +53,7 @@ export function HeaderSection() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setUploadError(null) // Clear any previous errors
     const reader = new FileReader()
     reader.onload = () => {
       setSelectedImage(reader.result as string)
@@ -69,6 +71,7 @@ export function HeaderSection() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setUploadError(null) // Clear any previous errors
     const reader = new FileReader()
     reader.onload = () => {
       setSelectedImage(reader.result as string)
@@ -84,6 +87,7 @@ export function HeaderSection() {
   // Handle crop completion
   const handleCropComplete = async (croppedBlob: Blob) => {
     setIsUploading(true)
+    setUploadError(null)
 
     try {
       // Get current user ID
@@ -91,7 +95,7 @@ export function HeaderSection() {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        console.error("Not authenticated")
+        setUploadError("Not authenticated. Please sign in again.")
         return
       }
 
@@ -106,6 +110,7 @@ export function HeaderSection() {
       }
     } catch (error) {
       console.error("Failed to upload image:", error)
+      setUploadError("Failed to upload image. Please try again.")
     } finally {
       setIsUploading(false)
       setSelectedImage(null)
@@ -147,7 +152,11 @@ export function HeaderSection() {
               onClick={() => avatarInputRef.current?.click()}
               disabled={isUploading}
             >
-              <Camera className="h-4 w-4" />
+              {isUploading && imageType === "avatar" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
             </Button>
           </div>
           <input
@@ -158,6 +167,9 @@ export function HeaderSection() {
             className="hidden"
           />
         </div>
+        {uploadError && imageType === "avatar" && (
+          <p className="text-xs text-destructive">{uploadError}</p>
+        )}
       </div>
 
       {/* Profile Layout */}
@@ -165,6 +177,7 @@ export function HeaderSection() {
         <Label className="text-sm font-medium">Layout</Label>
         <ToggleGroup
           type="single"
+          variant="outline"
           value={profileLayout}
           onValueChange={(value) => {
             if (value) setProfileLayout(value as ProfileLayout)
@@ -185,6 +198,7 @@ export function HeaderSection() {
         <Label className="text-sm font-medium">Title Style</Label>
         <ToggleGroup
           type="single"
+          variant="outline"
           value={titleStyle}
           onValueChange={(value) => {
             if (value) setTitleStyle(value as TitleStyle)
@@ -221,6 +235,7 @@ export function HeaderSection() {
             <Label className="text-sm font-medium">Title Size</Label>
             <ToggleGroup
               type="single"
+              variant="outline"
               value={titleSize}
               onValueChange={(value) => {
                 if (value) setTitleSize(value as TitleSize)
@@ -256,7 +271,11 @@ export function HeaderSection() {
                   onClick={() => logoInputRef.current?.click()}
                   disabled={isUploading}
                 >
-                  <Camera className="h-3 w-3" />
+                  {isUploading && imageType === "logo" ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Camera className="h-3 w-3" />
+                  )}
                 </Button>
               </div>
             ) : (
@@ -265,7 +284,11 @@ export function HeaderSection() {
                 onClick={() => logoInputRef.current?.click()}
                 disabled={isUploading}
               >
-                <Upload className="h-4 w-4 mr-2" />
+                {isUploading && imageType === "logo" ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
                 Upload Logo
               </Button>
             )}
@@ -277,6 +300,9 @@ export function HeaderSection() {
               className="hidden"
             />
           </div>
+          {uploadError && imageType === "logo" && (
+            <p className="text-xs text-destructive">{uploadError}</p>
+          )}
         </div>
       )}
 
