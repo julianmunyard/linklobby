@@ -327,8 +327,8 @@ export function HeaderSection() {
                 value={[logoScale]}
                 onValueChange={(value) => setLogoScale(value[0])}
                 min={50}
-                max={150}
-                step={5}
+                max={300}
+                step={10}
                 className="w-full"
               />
             </div>

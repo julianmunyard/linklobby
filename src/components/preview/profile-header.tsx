@@ -52,17 +52,20 @@ export function ProfileHeader() {
   // Render title (text or logo)
   const renderTitle = () => {
     if (titleStyle === "logo" && logoUrl) {
-      // Scale logo based on logoScale (50-150%)
+      // Scale logo based on logoScale (50-300%)
       const scaledWidth = Math.round(192 * (logoScale / 100))
       const scaledHeight = Math.round(48 * (logoScale / 100))
       return (
-        <div className="relative" style={{ width: scaledWidth, height: scaledHeight }}>
+        <div
+          className="relative max-w-full"
+          style={{ width: scaledWidth, height: scaledHeight }}
+        >
           <Image
             src={logoUrl}
             alt=""
             fill
             className="object-contain"
-            sizes={`${scaledWidth}px`}
+            sizes={`min(${scaledWidth}px, 100vw)`}
           />
         </div>
       )
