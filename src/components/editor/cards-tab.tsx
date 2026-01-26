@@ -128,18 +128,19 @@ export function CardsTab() {
             size="sm"
             variant="outline"
             onClick={() => setImportDialogOpen(true)}
+            className="h-11" // 44px minimum touch target
           >
             <Download className="h-4 w-4 mr-1" />
             Import
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="h-11">
                 <Plus className="h-4 w-4 mr-1" />
                 Add Card
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="touch-pan-y">
               {CARD_TYPES.map(({ type, label, singleton }) => {
                 const alreadyExists = singleton && cards.some(c => c.card_type === type)
                 return (
@@ -147,6 +148,7 @@ export function CardsTab() {
                     key={type}
                     onClick={() => handleAddCard(type)}
                     disabled={alreadyExists}
+                    className="min-h-11" // 44px minimum touch target
                   >
                     {label}
                     {alreadyExists && " (added)"}
