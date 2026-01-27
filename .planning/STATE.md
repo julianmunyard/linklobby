@@ -57,7 +57,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 
 | Plan | Name | Status |
 |------|------|--------|
-| 01 | Multi-Select Context | - |
+| 01 | Dropdown Types & Store | Complete |
 | 02 | Game Card Foundation | Complete |
 | 03 | Selection UI Hook | - |
 | 04 | Install Box Selection Library | Complete |
@@ -308,6 +308,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Shift-click range selection | 06-03 | Uses orderedIds array to calculate ranges between last selected and current |
 | isSelectMode flag for mobile | 06-03 | Separate mobile checkbox mode from desktop click mode |
 | @air/react-drag-to-select for box selection | 06-04 | useSelectionContainer hook + boxesIntersect helper, 60fps performance, built-in TS types |
+| DropdownCardContent childCardIds array | 06-01 | childCardIds stores child card IDs in order using fractional-indexing |
+| Optional parentDropdownId on Card | 06-01 | null/undefined for main canvas cards, set to dropdown ID when inside dropdown |
+| Bidirectional dropdown updates | 06-01 | moveCardToDropdown updates both card.parentDropdownId and dropdown.content.childCardIds |
+| Type casting after type guard | 06-01 | Use isDropdownContent(content) then cast to DropdownCardContent for safe access |
 
 ## Quick Tasks
 
@@ -331,30 +335,21 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 06-04-PLAN.md
-Resume with: Continue Wave 1 plans in Phase 6
+Stopped at: Completed 06-01-PLAN.md
+Resume with: Continue Phase 6 with next plan
 
 **This session's work:**
 
-1. **Plan 06-04: Install Box Selection Library** (committed in `a4603e5`)
-   - Installed @air/react-drag-to-select@5.0.11 for marquee selection
-   - Verified TypeScript types included
-   - Package ready for multi-select UI implementation
-
-4. **Configuration** (committed in `db178e4`)
-   - Added YouTube (i.ytimg.com), Vimeo, TikTok thumbnail domains to next.config.ts
-
-5. **Layout Investigation** (no changes kept)
-   - Investigated masonry layout for filling vertical gaps when small cards of different heights are side-by-side
-   - Tried react-masonry-css but it broke big/small sizing (uses CSS columns)
-   - **Conclusion:** True masonry (filling gaps) not possible with flexbox. Would require JS-based positioning which conflicts with drag-and-drop. Keeping current flexbox layout.
+1. **Plan 06-01: Dropdown Types & Store** (3 commits in 3 minutes)
+   - Added DropdownCardContent interface with childCardIds array (`42fd2f8`)
+   - Added parentDropdownId field to Card interface (`2fee9ea`)
+   - Implemented moveCardToDropdown, removeCardFromDropdown, addCardToDropdown store actions (`9f6f21c`)
+   - Established container card pattern for dropdown functionality
 
 **Key commits this session:**
-- `db178e4` - feat(05): video/gallery editor polish and improvements
-- `cd41b63` - docs: update STATE.md with session progress
-
-**Known limitation (documented):**
-- When small cards of different heights are side-by-side (e.g., tall gallery + short video), the row height matches the tallest card, leaving empty space below the shorter one. This is a fundamental flexbox limitation. CSS Grid masonry is experimental and JS masonry would break drag-and-drop.
+- `42fd2f8` - feat(06-01): add dropdown card content type
+- `2fee9ea` - feat(06-01): add parentDropdownId field to Card
+- `9f6f21c` - feat(06-01): add dropdown store actions
 
 ---
-*Updated: 2026-01-27 - Video/Gallery polish complete*
+*Updated: 2026-01-27 - Dropdown types and store actions complete*
