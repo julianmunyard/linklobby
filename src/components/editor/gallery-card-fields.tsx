@@ -333,21 +333,6 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
             />
           </div>
 
-          {/* Gallery Height */}
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <Label className="text-sm">Height</Label>
-              <span className="text-xs text-muted-foreground">{content.galleryHeight ?? 300}px</span>
-            </div>
-            <Slider
-              value={[content.galleryHeight ?? 300]}
-              onValueChange={([value]) => onChange({ galleryHeight: value })}
-              min={150}
-              max={500}
-              step={25}
-            />
-          </div>
-
           {/* Show Captions */}
           <div className="flex items-center justify-between">
             <Label className="text-sm">Show Captions</Label>

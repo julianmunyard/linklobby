@@ -53,18 +53,15 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
 
   // Render based on gallery style (default to circular)
   if (content.galleryStyle !== 'carousel') {
-    // Gallery height from content (default 300 for big, 200 for small)
-    const galleryHeight = content.galleryHeight ?? (isSmall ? 200 : 300)
 
-    // Allow overflow so records can extend visually beyond container
+    // For small cards: shorter height, allow overflow with fade edges
     return (
-      <div
-        className="relative w-full"
-        style={{ height: `${galleryHeight}px` }}
-      >
+      <div className={`relative w-full ${isSmall ? 'h-[250px]' : 'h-[400px]'}`}>
         <div
           className="w-full h-full"
-          style={{ overflow: 'visible' }}
+          style={{
+            overflow: isSmall ? 'visible' : 'hidden',
+          }}
         >
           <CircularGallery
             items={items}
@@ -78,11 +75,15 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
             showCaptions={content.showCaptions !== false}
           />
         </div>
-        {/* Fade edges to blend overflow with background */}
-        <div className="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+        {/* Fade edges for small cards */}
+        {isSmall && (
+          <>
+            <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+          </>
+        )}
       </div>
     )
   }
