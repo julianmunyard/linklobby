@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 7 of 17 complete
+Plan: 8 of 17 complete
 Status: **Executing Wave 2**
-Last activity: 2026-01-27 - Completed 06-07-PLAN.md
+Last activity: 2026-01-27 - Completed 06-05-PLAN.md
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13%
 
@@ -61,7 +61,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 02 | Game Card Foundation | Complete |
 | 03 | Selection UI Hook | - |
 | 04 | Install Box Selection Library | Complete |
-| 05 | Multi-Select Store | - |
+| 05 | Dropdown Card UI Component | Complete |
 | 06 | Multi-Select UI | - |
 | 07 | Game Card Wrapper | Complete |
 | 08 | Bulk Delete & Styling | - |
@@ -312,6 +312,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Optional parentDropdownId on Card | 06-01 | null/undefined for main canvas cards, set to dropdown ID when inside dropdown |
 | Bidirectional dropdown updates | 06-01 | moveCardToDropdown updates both card.parentDropdownId and dropdown.content.childCardIds |
 | Type casting after type guard | 06-01 | Use isDropdownContent(content) then cast to DropdownCardContent for safe access |
+| Start dropdown collapsed by default | 06-05 | Cleaner initial state per CONTEXT.md |
+| Radix Collapsible for dropdown | 06-05 | Accessible component with built-in CSS variables for animation |
+| 200ms ease-out dropdown animation | 06-05 | Smooth animation timing that feels responsive |
+| Children slot pattern for dropdown | 06-05 | Accepts children prop for nested cards (flow-grid will pass in later plan) |
 | Fixed retro arcade aesthetic for games | 06-07 | Game cards use black bg, green accents, CRT scanlines - doesn't adapt to theme for retro feel |
 | Three-state game pattern | 06-07 | idle (demo + play button) → playing (game + score) → gameOver (score + replay) |
 | isEditing prop for static preview | 06-07 | Game cards in editor show static preview only, no gameplay to avoid confusion/performance |
@@ -339,21 +343,21 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 06-07-PLAN.md
+Stopped at: Completed 06-05-PLAN.md
 Resume with: Continue Phase 6 with next plan
 
 **This session's work:**
 
-1. **Plan 06-07: Game Card Wrapper** (2 commits in 1 minute)
-   - Created GameCard wrapper component with retro arcade aesthetic (`c989fcc`)
-   - Integrated GameCard into CardRenderer (`1c0fd1f`)
-   - Implemented three-state game management (idle → playing → gameOver)
-   - Added Play button, score display, and Play Again functionality
-   - Established CRT scanline effect overlay pattern
+1. **Plan 06-05: Dropdown Card UI Component** (3 commits in 2 minutes)
+   - Created DropdownCard component with Radix Collapsible (`f4e7b96`)
+   - Added slideDown/slideUp CSS animations (`4570aaf`)
+   - Integrated DropdownCard into CardRenderer (`69d65eb`)
+   - Established children slot pattern for nested card rendering
 
 **Key commits this session:**
-- `c989fcc` - feat(06-07): create GameCard wrapper component
-- `1c0fd1f` - feat(06-07): integrate GameCard into CardRenderer
+- `f4e7b96` - feat(06-05): create DropdownCard component
+- `4570aaf` - feat(06-05): add dropdown animation CSS
+- `69d65eb` - feat(06-05): integrate DropdownCard into CardRenderer
 
 ---
-*Updated: 2026-01-27 - Game Card wrapper complete*
+*Updated: 2026-01-27 - Dropdown Card UI component complete*
