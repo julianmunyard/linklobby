@@ -73,6 +73,8 @@ export const usePageStore = create<PageState>()(
           return { textAlign: 'left', verticalAlign: 'middle' }
         case 'link':
           return { textAlign: 'center', verticalAlign: 'middle' }
+        case 'game':
+          return { gameType: 'snake' }
         default:
           return {}
       }
@@ -321,6 +323,8 @@ export const usePageStore = create<PageState>()(
           return { textAlign: 'left', verticalAlign: 'middle' }
         case 'link':
           return { textAlign: 'center', verticalAlign: 'middle' }
+        case 'game':
+          return { gameType: 'snake' }
         default:
           return {}
       }

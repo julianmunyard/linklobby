@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Loader2, Plus, Download } from "lucide-react"
+import { Loader2, Plus, Download, Gamepad2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -26,6 +26,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "video", label: "Video Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "dropdown", label: "Dropdown" },
+  { type: "game", label: "Game" },
   { type: "social-icons", label: "Social Icons", singleton: true },
 ]
 
@@ -75,6 +76,10 @@ export function CardsTab() {
             return { textAlign: "left", verticalAlign: "middle" }
           case "link":
             return { textAlign: "center", verticalAlign: "middle" }
+          case "dropdown":
+            return { childCardIds: [] }
+          case "game":
+            return { gameType: "snake" }
           default:
             return {}
         }
