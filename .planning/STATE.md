@@ -359,11 +359,12 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 013 | Fix Linktree social icon import | Complete | 93baa8c |
 | 014 | Click card image to open crop/edit dialog | Complete | 596cd78 |
 | 015 | Fix Phase 6 multi-select, dropdown drag-drop, context menu | Complete | 22ab61b |
+| 016 | Fix dropdown card management - remove card | Complete | edadcc1 |
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed quick task 015: Fix Phase 6 multi-select, dropdown drag-drop, context menu
+Last activity: 2026-01-27 - Completed quick task 016: Fix dropdown card management - remove card
 Resume with: Mark Phase 6 complete, begin Phase 7
 
 **This session's work:**
