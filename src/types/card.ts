@@ -129,6 +129,8 @@ export interface GalleryImage {
   url: string
   alt: string
   storagePath: string  // For deletion
+  caption?: string     // Optional label displayed below image
+  link?: string        // Optional URL - makes image clickable
 }
 
 export interface GalleryCardContent {

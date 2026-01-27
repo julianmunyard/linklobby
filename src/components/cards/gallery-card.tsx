@@ -36,10 +36,10 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   // Render based on gallery style (default to circular)
   if (content.galleryStyle !== 'carousel') {
     // Transform images to CircularGallery format: { image, text }
-    // Empty text to hide labels
+    // Use caption if provided
     const items = content.images.map(img => ({
       image: img.url,
-      text: ''
+      text: img.caption || ''
     }))
 
     // For small cards: shorter height, allow overflow with fade edges
