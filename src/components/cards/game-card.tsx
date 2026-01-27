@@ -1,11 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Play, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import type { Card, GameCardContent, GameType } from "@/types/card"
 import { isGameContent, GAME_TYPE_INFO } from "@/types/card"
+import { BreakoutGame } from "./games/breakout-game"
+import { FlappyGame } from "./games/flappy-game"
+import { SnakeGame } from "./games/snake-game"
 
 // Placeholder for game components - will be implemented in subsequent plans
 function GamePlaceholder({ gameType }: { gameType: GameType }) {
@@ -27,6 +30,8 @@ interface GameCardProps {
 export function GameCard({ card, isPreview = false, isEditing = false }: GameCardProps) {
   const [gameState, setGameState] = useState<GameState>("idle")
   const [score, setScore] = useState(0)
+  const [dimensions, setDimensions] = useState({ width: 400, height: 300 })
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const content = isGameContent(card.content)
     ? card.content
@@ -34,6 +39,14 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
 
   const gameType = content.gameType || "snake"
   const gameInfo = GAME_TYPE_INFO[gameType]
+
+  // Measure container dimensions
+  useEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setDimensions({ width: rect.width, height: rect.height })
+    }
+  }, [card.size])
 
   // Reset game state when card changes
   useEffect(() => {
@@ -83,7 +96,7 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
   }
 
   return (
-    <div className={arcadeStyle}>
+    <div ref={containerRef} className={arcadeStyle}>
       {/* Idle state - show demo with play button */}
       {gameState === "idle" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -106,8 +119,18 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
       {/* Playing state - render actual game */}
       {gameState === "playing" && (
         <div className="absolute inset-0">
-          {/* Game components will be conditionally rendered here */}
-          <GamePlaceholder gameType={gameType} />
+          {/* Game components conditionally rendered based on gameType */}
+          {gameType === "breakout" && (
+            <BreakoutGame
+              width={dimensions.width}
+              height={dimensions.height}
+              isPlaying={true}
+              onGameOver={handleGameOver}
+              onScoreChange={setScore}
+            />
+          )}
+          {gameType === "snake" && <GamePlaceholder gameType={gameType} />}
+          {gameType === "flappy" && <GamePlaceholder gameType={gameType} />}
           {/* Score display */}
           <div className="absolute top-2 left-2 text-[#00ff00] font-mono text-xs z-10">
             Score: {score}
