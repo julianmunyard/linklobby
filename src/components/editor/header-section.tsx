@@ -64,6 +64,7 @@ export function HeaderSection() {
   const displayName = useProfileStore((state) => state.displayName)
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
+  const avatarFeather = useProfileStore((state) => state.avatarFeather)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -77,6 +78,7 @@ export function HeaderSection() {
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
   const setBio = useProfileStore((state) => state.setBio)
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
+  const setAvatarFeather = useProfileStore((state) => state.setAvatarFeather)
   const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
   const setShowTitle = useProfileStore((state) => state.setShowTitle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
@@ -228,6 +230,23 @@ export function HeaderSection() {
         </div>
         {uploadError && imageType === "avatar" && (
           <p className="text-xs text-destructive">{uploadError}</p>
+        )}
+
+        {showAvatar && avatarUrl && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Edge Feather</Label>
+              <span className="text-xs text-muted-foreground">{avatarFeather}%</span>
+            </div>
+            <Slider
+              value={[avatarFeather]}
+              onValueChange={(value) => setAvatarFeather(value[0])}
+              min={0}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
         )}
       </CollapsibleSection>
 

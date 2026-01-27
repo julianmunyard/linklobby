@@ -14,6 +14,7 @@ export function ProfileHeader() {
   const displayName = useProfileStore((state) => state.displayName)
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
+  const avatarFeather = useProfileStore((state) => state.avatarFeather)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -73,6 +74,11 @@ export function ProfileHeader() {
     )
   }
 
+  // Calculate feather mask for classic layout avatar (circular)
+  const featherMask = avatarFeather > 0
+    ? `radial-gradient(circle, black ${100 - avatarFeather}%, transparent 100%)`
+    : undefined
+
   // Classic layout: centered circle avatar, title below, social icons row
   if (profileLayout === "classic") {
     return (
@@ -87,6 +93,10 @@ export function ProfileHeader() {
                 src={avatarUrl}
                 alt=""
                 className="w-full h-full object-cover"
+                style={{
+                  WebkitMaskImage: featherMask,
+                  maskImage: featherMask,
+                }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
