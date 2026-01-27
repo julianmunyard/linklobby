@@ -75,8 +75,10 @@ export function ProfileHeader() {
   }
 
   // Calculate feather mask for classic layout avatar (circular)
+  // When feather > 0, the mask handles both shape AND soft edge fade
+  // The gradient goes from solid center to transparent edge with a gradual transition
   const featherMask = avatarFeather > 0
-    ? `radial-gradient(circle, black ${100 - avatarFeather}%, transparent 100%)`
+    ? `radial-gradient(circle, black ${Math.max(0, 70 - avatarFeather * 0.7)}%, transparent ${Math.min(100, 70 + avatarFeather * 0.3)}%)`
     : undefined
 
   // Classic layout: centered circle avatar, title below, social icons row
@@ -84,22 +86,32 @@ export function ProfileHeader() {
     return (
       <div className="flex flex-col items-center gap-4 p-6 transition-opacity duration-200">
         {/* Avatar - small circle (only if showAvatar is true) */}
+        {/* When feather > 0, we remove the hard clip and let mask-image handle the soft edge */}
         {showAvatar && (
-          <div className="relative w-20 h-20 rounded-full bg-muted overflow-hidden">
+          <div
+            className={cn(
+              "relative w-20 h-20",
+              // Only show bg-muted when no feather (for placeholder/fallback circle)
+              avatarFeather === 0 && "bg-muted rounded-full overflow-hidden"
+            )}
+          >
             {avatarUrl ? (
               /* Use img instead of Image to avoid Next.js optimization issues with transparent PNGs */
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={avatarUrl}
                 alt=""
-                className="w-full h-full object-cover"
-                style={{
+                className={cn(
+                  "w-full h-full object-cover",
+                  avatarFeather === 0 && "rounded-full"
+                )}
+                style={featherMask ? {
                   WebkitMaskImage: featherMask,
                   maskImage: featherMask,
-                }}
+                } : undefined}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center rounded-full bg-muted">
                 <User className="w-10 h-10 text-muted-foreground" />
               </div>
             )}
