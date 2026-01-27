@@ -303,43 +303,41 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Video/Gallery polish and improvements
-Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create Gallery Card plan
+Stopped at: Phase 5 polish complete, layout investigation done
+Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create remaining plans
 
 **This session's work:**
 
-1. **Video Card Polish**
+1. **Video Card Polish** (committed in `db178e4`)
    - Added zoom slider (1x-2x) to crop uploaded videos via CSS transform
    - Implemented drag-to-position for panning zoomed videos
    - Added text/vertical alignment support for both upload and embed modes
    - Redesigned video editor with fields at top, cleaner layout
 
-2. **Gallery Card Polish**
+2. **Gallery Card Polish** (committed in `db178e4`)
    - Added customization sliders (bend, radius, scroll speed, ease, spacing)
    - Added fade gradients on edges for small gallery cards
    - Improved CircularGallery with configurable spacing prop
 
-3. **Editor Improvements**
+3. **Editor Improvements** (committed in `db178e4`)
    - Replaced card size dropdown with visual SVG toggle buttons
    - Added edit button and drag handle for interactive cards in preview
    - Fixed image crop dialog closing immediately
 
-4. **Configuration**
+4. **Configuration** (committed in `db178e4`)
    - Added YouTube (i.ytimg.com), Vimeo, TikTok thumbnail domains to next.config.ts
+
+5. **Layout Investigation** (no changes kept)
+   - Investigated masonry layout for filling vertical gaps when small cards of different heights are side-by-side
+   - Tried react-masonry-css but it broke big/small sizing (uses CSS columns)
+   - **Conclusion:** True masonry (filling gaps) not possible with flexbox. Would require JS-based positioning which conflicts with drag-and-drop. Keeping current flexbox layout.
 
 **Key commits this session:**
 - `db178e4` - feat(05): video/gallery editor polish and improvements
+- `cd41b63` - docs: update STATE.md with session progress
 
-**Files modified:**
-- `src/components/cards/video-card.tsx` - Zoom/pan, text align for both modes
-- `src/components/editor/video-card-fields.tsx` - Zoom slider, drag-to-position, redesign
-- `src/components/cards/gallery-card.tsx` - Small card fade gradients
-- `src/components/editor/gallery-card-fields.tsx` - Customization sliders
-- `src/components/CircularGallery.jsx` - Spacing prop support
-- `src/components/editor/card-property-editor.tsx` - SVG size toggle
-- `src/components/canvas/preview-sortable-card.tsx` - Interactive card controls
-- `src/types/card.ts` - Video zoom/position fields
-- `next.config.ts` - Thumbnail domains
+**Known limitation (documented):**
+- When small cards of different heights are side-by-side (e.g., tall gallery + short video), the row height matches the tallest card, leaving empty space below the shorter one. This is a fundamental flexbox limitation. CSS Grid masonry is experimental and JS masonry would break drag-and-drop.
 
 ---
 *Updated: 2026-01-27 - Video/Gallery polish complete*
