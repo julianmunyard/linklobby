@@ -27,7 +27,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "gallery", label: "Photo Gallery" },
   { type: "dropdown", label: "Dropdown" },
   { type: "game", label: "Game" },
-  { type: "social-icons", label: "Social Icons", singleton: true },
+  { type: "social-icons", label: "Social Icons" },
 ]
 
 export function CardsTab() {
