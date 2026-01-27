@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 13 of 16 complete
+Plan: 14 of 16 complete
 Status: **Executing Wave 3**
-Last activity: 2026-01-27 - Completed 06-14-PLAN.md
+Last activity: 2026-01-27 - Completed 06-11-PLAN.md (Dropdown Editor Fields)
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14%
+Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 15%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -69,7 +69,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 10 | Flappy Game | Complete |
 | 11 | Dropdown Editor | Complete |
 | 12 | Game Card Editor | Complete |
-| 13 | Link Card Background Options | - |
+| 13 | Box Selection | Complete |
 | 14 | Selection Toolbar | Complete |
 | 15 | Editor Testing & Polish | - |
 | 16 | Phase Verification | - |
@@ -327,6 +327,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Paddle width as canvas ratio | 06-09 | 20% paddle width scales properly for both aspect-video and aspect-square cards |
 | Refs to avoid stale closures in game loop | 06-09 | paddleXRef.current accessed in onUpdate callback prevents stale closure bugs |
 | Ball angle based on paddle hit position | 06-09 | vx = (hitPos - 0.5) * 8 adds skill element to breakout gameplay |
+| DragSelection as sibling component | 06-13 | DragSelection renders as sibling, not wrapper - per @air/react-drag-to-select API |
+| boxesIntersect for hit detection | 06-13 | Uses boxesIntersect helper to detect cards within selection box |
+| shouldStartSelecting excludes interactives | 06-13 | Prevents box selection from starting on drag handles, buttons, interactive elements |
+| data-selectable-id for box selection | 06-13 | Cards have data-selectable-id attribute for querySelector-based hit detection |
 | Snake grid size 20px | 06-08 | Balance between visibility and playability - too small is hard to see, too large limits movement |
 | Snake game speed 100ms per move | 06-08 | Classic snake speed - fast enough to be challenging but not overwhelming |
 | Direction ref pattern prevents reversing | 06-08 | Prevents 180-degree turns (up→down or left→right) which would cause instant self-collision |
