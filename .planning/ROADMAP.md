@@ -222,9 +222,10 @@ Plans:
 1. Dropdown expand/collapse works reliably on every tap/click
 2. Cards inside dropdown can be dragged to reorder within the dropdown
 3. Dropdown card can be dragged to reorder on main canvas
-4. Cards can be dragged into and out of dropdowns
-5. No "stuck" states or loss of functionality
-6. Works on both desktop and mobile
+4. No "stuck" states or loss of functionality
+5. Works on both desktop and mobile
+
+**Not in scope:** Cross-container drag (moving cards into/out of dropdowns by dragging) - cards are added to dropdowns via editor panel checkboxes
 
 **Technical Approach:**
 - Simplify event handling - clear separation between toggle click and drag
