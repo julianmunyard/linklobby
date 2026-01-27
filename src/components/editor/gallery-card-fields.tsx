@@ -2,15 +2,15 @@
 
 import { useState, useCallback } from 'react'
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { SortableContext, arrayMove, useSortable, rectSortingStrategy } from '@dnd-kit/sortable'
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Circle, Rows3, X, Loader2, ImageIcon, Crop, Pencil, Link as LinkIcon } from 'lucide-react'
+import { Circle, Rows3, X, Loader2, ImageIcon, Crop, GripVertical } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -42,121 +42,61 @@ function SortableImage({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group">
-      {/* Image */}
-      <div className="aspect-square relative">
-        <div {...attributes} {...listeners} className="cursor-move w-full h-full">
-          <Image src={image.url} alt={image.alt} fill className="object-cover rounded" />
+    <div ref={setNodeRef} style={style} className="flex items-start gap-3 p-2 bg-muted/50 rounded-lg relative group">
+      {/* Drag handle and thumbnail */}
+      <div className="flex items-center gap-2">
+        {/* Drag handle */}
+        <div {...attributes} {...listeners} className="cursor-move text-muted-foreground hover:text-foreground">
+          <GripVertical className="h-4 w-4" />
         </div>
 
-        {/* Link indicator - top left */}
-        {image.link && (
-          <div className="absolute top-1 left-1 bg-black/70 text-white rounded p-1">
-            <LinkIcon className="h-3 w-3" />
-          </div>
-        )}
+        {/* Thumbnail with crop button */}
+        <div className="w-12 h-12 relative flex-shrink-0 rounded overflow-hidden">
+          <Image src={image.url} alt={image.alt} fill className="object-cover" />
 
-        {/* Edit button - bottom left */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-              className="absolute bottom-1 left-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              aria-label="Edit caption and link"
-            >
-              <Pencil className="h-3 w-3" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80" side="top">
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor={`caption-${image.id}`} className="text-sm font-medium">
-                  Caption
-                </Label>
-                <Input
-                  id={`caption-${image.id}`}
-                  placeholder="Add caption..."
-                  value={image.caption || ''}
-                  onChange={(e) => onUpdate({ caption: e.target.value })}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`link-${image.id}`} className="text-sm font-medium">
-                  Link URL
-                </Label>
-                <Input
-                  id={`link-${image.id}`}
-                  placeholder="https://..."
-                  value={image.link || ''}
-                  onChange={(e) => onUpdate({ link: e.target.value })}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Crop button - bottom right */}
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onCrop()
-          }}
-          onPointerDown={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}
-          className="absolute bottom-1 right-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Crop image"
-        >
-          <Crop className="h-3 w-3" />
-        </button>
-
-        {/* Remove button - top right */}
-        <button
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onRemove()
-          }}
-          onPointerDown={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }}
-          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Remove image"
-        >
-          <X className="h-3 w-3" />
-        </button>
+          {/* Crop button overlay */}
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onCrop()
+            }}
+            className="absolute inset-0 bg-black/70 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Crop image"
+          >
+            <Crop className="h-4 w-4 text-white" />
+          </button>
+        </div>
       </div>
 
-      {/* Caption preview - truncated */}
-      {image.caption && (
-        <p className="text-xs text-muted-foreground mt-1 truncate">
-          {image.caption}
-        </p>
-      )}
+      {/* Caption and Link inputs */}
+      <div className="flex-1 space-y-2">
+        <Input
+          placeholder="Caption (optional)"
+          value={image.caption || ''}
+          onChange={(e) => onUpdate({ caption: e.target.value })}
+          className="text-sm"
+        />
+        <Input
+          placeholder="Link URL (optional)"
+          value={image.link || ''}
+          onChange={(e) => onUpdate({ link: e.target.value })}
+          className="text-sm"
+        />
+      </div>
+
+      {/* Remove button - top right */}
+      <button
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          onRemove()
+        }}
+        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Remove image"
+      >
+        <X className="h-3 w-3" />
+      </button>
     </div>
   )
 }
@@ -389,10 +329,19 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
               step={0.5}
             />
           </div>
+
+          {/* Show Captions */}
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Show Captions</Label>
+            <Switch
+              checked={content.showCaptions !== false}
+              onCheckedChange={(checked) => onChange({ showCaptions: checked })}
+            />
+          </div>
         </div>
       )}
 
-      {/* Image Grid with dnd-kit */}
+      {/* Image List with dnd-kit */}
       {images.length > 0 && (
         <div className="space-y-2">
           <Label>Images ({images.length}/10)</Label>
@@ -401,8 +350,8 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-4 gap-2">
+            <SortableContext items={images.map(img => img.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
                 {images.map(image => (
                   <SortableImage
                     key={image.id}
