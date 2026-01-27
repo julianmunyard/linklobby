@@ -129,8 +129,24 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
               onScoreChange={setScore}
             />
           )}
-          {gameType === "snake" && <GamePlaceholder gameType={gameType} />}
-          {gameType === "flappy" && <GamePlaceholder gameType={gameType} />}
+          {gameType === "snake" && (
+            <SnakeGame
+              width={dimensions.width}
+              height={dimensions.height}
+              isPlaying={true}
+              onGameOver={handleGameOver}
+              onScoreChange={setScore}
+            />
+          )}
+          {gameType === "flappy" && (
+            <FlappyGame
+              width={dimensions.width}
+              height={dimensions.height}
+              isPlaying={true}
+              onGameOver={handleGameOver}
+              onScoreChange={setScore}
+            />
+          )}
           {/* Score display */}
           <div className="absolute top-2 left-2 text-[#00ff00] font-mono text-xs z-10">
             Score: {score}
