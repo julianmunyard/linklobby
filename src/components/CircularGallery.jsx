@@ -327,7 +327,9 @@ class App {
       scrollEase = 0.05,
       spacing = 1.5,
       onTap = null,
-      showCaptions = true
+      showCaptions = true,
+      initialIndex = 0,
+      onScrollEnd = null
     } = {}
   ) {
     document.documentElement.classList.remove('no-js');
@@ -336,6 +338,8 @@ class App {
     this.spacing = spacing;
     this.onTap = onTap;
     this.showCaptions = showCaptions;
+    this.initialIndex = initialIndex;
+    this.onScrollEnd = onScrollEnd;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck, 200);
     this.createRenderer();
@@ -344,8 +348,18 @@ class App {
     this.onResize();
     this.createGeometry();
     this.createMedias(items, bend, textColor, borderRadius, font);
+    // Set initial scroll position after medias are created
+    this.setInitialScroll();
     this.update();
     this.addEventListeners();
+  }
+  setInitialScroll() {
+    if (this.initialIndex > 0 && this.medias && this.medias[0]) {
+      const width = this.medias[0].width;
+      const initialScroll = width * this.initialIndex;
+      this.scroll.current = initialScroll;
+      this.scroll.target = initialScroll;
+    }
   }
   createRenderer() {
     this.renderer = new Renderer({
@@ -450,6 +464,12 @@ class App {
     const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
     const item = width * itemIndex;
     this.scroll.target = this.scroll.target < 0 ? -item : item;
+    // Report centered index to parent (modulo original items length, not doubled)
+    if (this.onScrollEnd) {
+      const originalLength = this.medias.length / 2;
+      const centeredIndex = itemIndex % originalLength;
+      this.onScrollEnd(centeredIndex);
+    }
   }
   getCenteredMedia() {
     if (!this.medias || this.medias.length === 0) return null;
@@ -532,7 +552,7 @@ export default function CircularGallery({
   bend = 3,
   textColor = '#ffffff',
   borderRadius = 0.05,
-  font = 'bold 30px Figtree',
+  font = 'bold 16px Figtree',
   scrollSpeed = 2,
   scrollEase = 0.05,
   spacing = 1.5,
@@ -540,8 +560,25 @@ export default function CircularGallery({
   showCaptions = true
 }) {
   const containerRef = useRef(null);
+  // Persist scroll position across re-renders
+  const scrollIndexRef = useRef(0);
   useEffect(() => {
-    const app = new App(containerRef.current, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing, onTap, showCaptions });
+    const app = new App(containerRef.current, {
+      items,
+      bend,
+      textColor,
+      borderRadius,
+      font,
+      scrollSpeed,
+      scrollEase,
+      spacing,
+      onTap,
+      showCaptions,
+      initialIndex: scrollIndexRef.current,
+      onScrollEnd: (index) => {
+        scrollIndexRef.current = index;
+      }
+    });
     return () => {
       app.destroy();
     };
