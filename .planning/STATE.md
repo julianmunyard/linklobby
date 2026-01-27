@@ -9,25 +9,24 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 6.1 of 18 - Dropdown Card Fix (COMPLETE)
-Plan: 1 of 1 complete
-Status: **Ready to resume Phase 6**
-Last activity: 2026-01-27 - Completed Phase 6.1 dropdown fixes
+Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
+Plan: 14 of 16 complete
+Status: **Ready for Phase 6 completion**
+Last activity: 2026-01-27 - Removed dropdown card feature
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
-### Phase 6.1 Complete - Dropdown Fixed
+### Dropdown Card Removed
 
-Fixed critical dropdown card issues:
+The dropdown card feature was removed due to persistent issues with:
+- Collapse/expand causing visual position bugs
+- Nested drag-and-drop complexity
+- Event propagation conflicts with dnd-kit
 
-1. **Toggle now reliable** - Controlled component prevents state corruption
-2. **Dropdown draggable** - useSortable with drag handle on right side
-3. **Auto-collapse on drag** - Cleaner UX when dragging dropdown
-4. **Event propagation fixed** - Removed stopPropagation blocking dnd-kit
+**Decision:** Remove feature entirely rather than continue debugging.
+Dropdown functionality may be revisited in a future version with a simpler approach.
 
-**Solution:** Controlled component pattern + drag handle separation
-
-**Next step:** Resume Phase 6 with Plan 15 (Editor Testing & Polish)
+**Next step:** Complete Phase 6 with Plan 15 (Editor Testing & Polish)
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -45,7 +44,7 @@ Fixed critical dropdown card issues:
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
 | 5 | Media Cards | Complete ✓ |
 | 6 | Advanced Cards | In Progress |
-| 6.1 | Dropdown Card Fix | Complete ✓ |
+| ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
 | 7 | Theme System | - |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
@@ -176,8 +175,7 @@ Fixed critical dropdown card issues:
 | Square Card | Small tile |
 | Video Card | Video display |
 | Photo Gallery | Multi-image with ReactBits animations |
-| Dropdown | Expandable link list, custom text |
-| Game Card | Mini-games (Snake, etc.) |
+| Game Card | Mini-games (Snake, Breakout, Flappy) |
 | Social Icons | Draggable widget for social platform links |
 
 **All cards support:** Text align (left/center/right), Vertical align (top/middle/bottom)

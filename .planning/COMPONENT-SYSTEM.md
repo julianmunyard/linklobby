@@ -16,8 +16,7 @@ LinkLobby uses a component-based page builder approach. Artists choose card TYPE
 | **Square Card** | Small tile | Photo, text, app embed |
 | **Video Card** | Video display | Short video loop |
 | **Photo Gallery** | Multi-image carousel | Photos + ReactBits animations (auto-scroll, arrows, fancy effects) |
-| **Dropdown** | Expandable link list | Multiple links inside, custom collapse text |
-| **Game Card** | Interactive mini-game | Snake or similar (1-2 game options) |
+| **Game Card** | Interactive mini-game | Snake, Breakout, Flappy |
 
 ## Layout System
 
