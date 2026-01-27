@@ -65,7 +65,7 @@ interface ProfileState extends Profile {
   setProfileLayout: (layout: ProfileLayout) => void
   setShowSocialIcons: (show: boolean) => void
   addSocialIcon: (platform: SocialPlatform, url: string) => void
-  updateSocialIcon: (id: string, url: string) => void
+  updateSocialIcon: (id: string, updates: Partial<Pick<SocialIcon, 'url' | 'platform'>>) => void
   removeSocialIcon: (id: string) => void
   reorderSocialIcons: (oldIndex: number, newIndex: number) => void
   initializeProfile: (profile: Partial<Profile>) => void
@@ -131,10 +131,10 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       }
     }),
 
-  updateSocialIcon: (id, url) =>
+  updateSocialIcon: (id, updates) =>
     set((state) => ({
       socialIcons: state.socialIcons.map((icon) =>
-        icon.id === id ? { ...icon, url } : icon
+        icon.id === id ? { ...icon, ...updates } : icon
       ),
       hasChanges: true,
     })),

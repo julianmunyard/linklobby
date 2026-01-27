@@ -29,6 +29,7 @@ import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
 import { GameCardFields } from "./game-card-fields"
 import { DropdownCardFields } from "./dropdown-card-fields"
+import { SocialIconsCardFields } from "./social-icons-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
@@ -188,7 +189,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
     })
   }
 
-  // Social icons card has minimal UI - settings are in Header section
+  // Social icons card - shows all icons with editing
   if (card.card_type === "social-icons") {
     return (
       <div className="flex flex-col h-full">
@@ -202,20 +203,23 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             <span className="sr-only">Close</span>
           </Button>
         </div>
-        <div className="flex-1 p-4 space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Edit social icons in the Header section of the Design tab.
-          </p>
-          <p className="text-sm text-muted-foreground">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 touch-pan-y">
+          {/* Social icons editor */}
+          <SocialIconsCardFields />
+
+          {/* Position hint */}
+          <p className="text-xs text-muted-foreground">
             Drag this card to position where social icons appear on your page.
           </p>
+
+          {/* Delete button */}
           <div className="pt-4 border-t">
             <Button
               type="button"
               variant="destructive"
               size="sm"
               onClick={handleDelete}
-              className="w-full h-11" // 44px minimum touch target
+              className="w-full h-11"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Remove from page
