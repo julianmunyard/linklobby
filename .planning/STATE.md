@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 5 of 18 - Media Cards (IN PROGRESS)
-Plan: 1 of ? complete
+Plan: 2 of ? complete
 Status: **Executing plans**
-Last activity: 2026-01-27 - Completed 05-01-PLAN.md
+Last activity: 2026-01-27 - Completed 05-02-PLAN.md
 
 Progress: [████████████████████████████░░] 95%
 
@@ -58,6 +58,7 @@ Progress: [███████████████████████
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Foundation - Media Card Types & Helpers | Complete |
+| 02 | Video Card Component & Editor | Complete |
 
 ## Phase 4.5 Progress (COMPLETE ✓)
 
@@ -275,6 +276,10 @@ Progress: [███████████████████████
 | Embla Carousel for alternative gallery | 05-01 | Lightweight (800K weekly downloads), great touch/swipe support, minimal API vs Swiper |
 | oEmbed with YouTube fallback thumbnail | 05-01 | oEmbed provides title + thumbnail, fallback ensures thumbnails always work even if API fails |
 | TikTok stores full URL as embedUrl | 05-01 | TikTok oEmbed unreliable, requires original URL for official embed code |
+| Optional videoType with 'embed' default | 05-02 | New video cards start empty - videoType defaults in UI, cleaner than forced initialization |
+| Video/gallery hide generic ImageUpload | 05-02 | Custom media via VideoCardFields/GalleryCardFields, not standard image upload |
+| Embed mode: thumbnail + click-to-play | 05-02 | Better performance - heavy iframe only loads when user clicks play button |
+| Upload mode: muted autoplay loop | 05-02 | Instagram-style instant visual impact with autoPlay muted loop playsInline |
 
 ## Quick Tasks
 
@@ -298,51 +303,35 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 05-01-PLAN.md (Foundation - Media Card Types & Helpers)
+Stopped at: Completed 05-02-PLAN.md (Video Card Component & Editor)
 Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create new plans
 
 **This session's work:**
 
-1. **Phase 4.5 Execution** (3 plans)
-   - Foundation utilities: useMediaQuery, useOnline, image compression, URL validation
-   - Mobile editor layout: bottom sheet, FAB, responsive switching
-   - Error handling: compression integration, URL validation, offline banner, retry logic
-
-2. **Post-execution mobile fixes:**
-   - Added TouchSensor to dnd-kit for mobile drag support
-   - Added touch-none to preview-sortable-card (required for touch drag)
-   - Reduced TouchSensor delay from 150ms to 50ms for faster response
-   - Note: Chrome DevTools mobile emulation has drag limitations - works better on real devices
+1. **Phase 5 Media Cards Execution** (2 plans)
+   - Plan 01: Foundation - Media Card Types & Helpers
+     - Installed get-video-id and embla-carousel-react
+     - Created VideoCardContent and GalleryCardContent types with type guards
+     - Built parseVideoUrl for YouTube/Vimeo/TikTok with oEmbed thumbnails
+     - Added uploadCardVideo/deleteCardVideo storage functions
+   - Plan 02: Video Card Component & Editor
+     - Created VideoCard with embed (thumbnail + click-to-play) and upload (muted autoplay) modes
+     - Built VideoCardFields editor with URL validation and file upload
+     - Wired into card renderer and property editor
+     - Made videoType optional with 'embed' default
 
 **Key commits this session:**
-- `b7da2e0` - chore(04.5-01): install dependencies and create media query hooks
-- `7373529` - feat(04.5-01): create online/offline detection hook
-- `5aec9ff` - feat(04.5-01): create image compression and URL validation utilities
-- `eb47704` - feat(04.5-02): create MobileBottomSheet wrapper component
-- `d036db1` - feat(04.5-02): add mobile responsive layout with FAB
-- `beaadaa` - feat(04.5-03): integrate image compression into ImageUpload
-- `3a4e0b2` - feat(04.5-03): add URL validation to card property editor
-- `d646050` - feat(04.5-03): add offline banner and save retry logic
-- `4e98c3c` - fix(dnd): add TouchSensor for mobile drag support
-- `dc20991` - fix(preview): add touch-none for mobile drag support
+- `37fe633` - feat(05-02): create VideoCard component
+- `a3db260` - feat(05-02): create VideoCardFields editor component
+- `5063c5e` - feat(05-02): wire VideoCard into card renderer
+- `44b0aea` - feat(05-02): wire VideoCardFields into property editor
 
-**Migrations required (run in Supabase SQL editor):**
-```sql
--- Migration v2: bio, show_title, show_logo
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS bio TEXT,
-  ADD COLUMN IF NOT EXISTS show_title BOOLEAN NOT NULL DEFAULT true,
-  ADD COLUMN IF NOT EXISTS show_logo BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE public.profiles
-  DROP CONSTRAINT IF EXISTS profiles_title_style_check;
-```
-
-**Files changed:**
-- `src/components/cards/image-upload.tsx` - Image compression, error state, retry button
-- `src/components/editor/card-property-editor.tsx` - URL validation and inline errors
-- `src/components/editor/editor-layout.tsx` - Offline banner display
-- `src/hooks/use-cards.ts` - Save retry with exponential backoff
+**Files created/modified:**
+- `src/components/cards/video-card.tsx` - NEW: VideoCard with embed and upload modes
+- `src/components/editor/video-card-fields.tsx` - NEW: Editor fields with URL validation and upload
+- `src/components/cards/card-renderer.tsx` - Added video case
+- `src/components/editor/card-property-editor.tsx` - Added VideoCardFields
+- `src/types/card.ts` - Made videoType optional, added video/gallery to CARD_TYPES_NO_IMAGE
 
 ---
-*Updated: 2026-01-27 - Image upload polish and error handling*
+*Updated: 2026-01-27 - Video Card implementation complete*
