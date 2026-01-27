@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/context-menu"
 import { SortableFlowCard } from "./sortable-flow-card"
 import { DropdownCard } from "@/components/cards/dropdown-card"
-import { useMultiSelectContext } from "@/contexts/multi-select-context"
+import { useMultiSelectContextOptional } from "@/contexts/multi-select-context"
 import { usePageStore } from "@/stores/page-store"
 import type { Card, CardType } from "@/types/card"
 import { cn } from "@/lib/utils"
@@ -29,7 +29,11 @@ interface DropdownSortableProps {
 }
 
 export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps) {
-  const { selectedIds, selectedCount, clearSelection } = useMultiSelectContext()
+  const multiSelect = useMultiSelectContextOptional()
+  const selectedIds = multiSelect?.selectedIds ?? new Set<string>()
+  const selectedCount = multiSelect?.selectedCount ?? 0
+  const clearSelection = multiSelect?.clearSelection ?? (() => {})
+
   const addCardToDropdown = usePageStore((state) => state.addCardToDropdown)
   const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
   const cards = usePageStore((state) => state.cards)

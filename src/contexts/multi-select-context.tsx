@@ -86,3 +86,11 @@ export function useMultiSelectContext() {
   }
   return context
 }
+
+/**
+ * Optional version that returns null if no provider exists
+ * Use this in components that may render outside MultiSelectProvider (e.g., preview iframe)
+ */
+export function useMultiSelectContextOptional() {
+  return useContext(MultiSelectContext)
+}
