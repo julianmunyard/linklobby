@@ -76,7 +76,7 @@ export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps
             isOver && "ring-2 ring-primary ring-offset-2"
           )}
         >
-          <DropdownCard card={dropdown}>
+          <DropdownCard card={dropdown} onAddCard={handleAddCard}>
             <SortableContext
               items={childCards.map((c) => c.id)}
               strategy={rectSortingStrategy}

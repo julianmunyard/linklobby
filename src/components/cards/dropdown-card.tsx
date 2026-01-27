@@ -1,23 +1,31 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Plus } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { Card, DropdownCardContent } from "@/types/card"
+import type { Card, CardType, DropdownCardContent } from "@/types/card"
 import { isDropdownContent } from "@/types/card"
 
 interface DropdownCardProps {
   card: Card
   isPreview?: boolean
   children?: React.ReactNode  // Child cards rendered by parent
+  onAddCard?: (type: CardType) => void  // Callback to add card inside dropdown
 }
 
-export function DropdownCard({ card, isPreview = false, children }: DropdownCardProps) {
+export function DropdownCard({ card, isPreview = false, children, onAddCard }: DropdownCardProps) {
   // Start collapsed as per CONTEXT.md
   const [isOpen, setIsOpen] = useState(false)
 
@@ -65,7 +73,37 @@ export function DropdownCard({ card, isPreview = false, children }: DropdownCard
         <CollapsibleContent className="dropdown-content overflow-hidden">
           <div className="pt-2 pl-4 space-y-2">
             {children}
-            {!children && childCount === 0 && (
+            {/* Add Card button - visible when expanded and onAddCard provided */}
+            {onAddCard && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full h-11 border-dashed text-muted-foreground hover:text-foreground"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Card
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-40">
+                  <DropdownMenuItem onClick={() => onAddCard("link")}>
+                    Link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onAddCard("horizontal")}>
+                    Horizontal Link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onAddCard("hero")}>
+                    Hero Card
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onAddCard("square")}>
+                    Square Card
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {/* Empty state when no children and no add button */}
+            {!children && childCount === 0 && !onAddCard && (
               <p className="text-sm text-muted-foreground p-4 border border-dashed rounded-lg text-center">
                 Drag cards here or add from editor
               </p>
