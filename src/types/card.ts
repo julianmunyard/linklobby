@@ -26,6 +26,7 @@ export interface Card {
   size: CardSize
   position: HorizontalPosition  // horizontal position for small cards
   sortKey: string  // fractional-indexing key for ordering
+  parentDropdownId?: string | null  // If card is inside a dropdown, this is the dropdown's ID
   is_visible: boolean
   created_at: string
   updated_at: string
