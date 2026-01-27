@@ -1,5 +1,6 @@
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
 import './CircularGallery.css';
 
@@ -545,3 +546,20 @@ export default function CircularGallery({
   }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing, onTap, showCaptions]);
   return <div className="circular-gallery" ref={containerRef} />;
 }
+
+CircularGallery.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.shape({
+    image: PropTypes.string.isRequired,
+    text: PropTypes.string,
+    link: PropTypes.string
+  })).isRequired,
+  bend: PropTypes.number,
+  textColor: PropTypes.string,
+  borderRadius: PropTypes.number,
+  font: PropTypes.string,
+  scrollSpeed: PropTypes.number,
+  scrollEase: PropTypes.number,
+  spacing: PropTypes.number,
+  onTap: PropTypes.func,
+  showCaptions: PropTypes.bool
+};

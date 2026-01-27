@@ -1,16 +1,17 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Circle, Rows3, X, Loader2, ImageIcon, Crop, GripVertical } from 'lucide-react'
+import { Circle, Rows3, X, Loader2, Plus, Crop, GripVertical } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -107,6 +108,8 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
   // Crop dialog state
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<GalleryImage | null>(null)
+  // File input ref for hidden input
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -367,19 +370,59 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
         </div>
       )}
 
-      {/* Add Image button (hidden at 10 images) */}
-      {images.length < 10 && (
-        <div className="space-y-2">
-          <Label htmlFor="addImage">Add Images {images.length > 0 && `(${images.length}/10)`}</Label>
-          <Input
-            id="addImage"
-            type="file"
-            accept="image/*"
-            multiple
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        disabled={isUploading}
+        onChange={handleFileSelect}
+        className="sr-only"
+        aria-label="Upload images"
+      />
+
+      {/* Empty state - large centered plus button */}
+      {images.length === 0 && (
+        <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            onChange={handleFileSelect}
-            className="cursor-pointer"
-          />
+            className="mb-3"
+          >
+            <Plus className="h-5 w-5" />
+            Add Images
+          </Button>
+          <p className="text-xs mt-1">Add up to 10 images</p>
+          {isUploading && (
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-3">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Uploading...
+            </div>
+          )}
+          {error && (
+            <p className="text-sm text-destructive mt-2">{error}</p>
+          )}
+        </div>
+      )}
+
+      {/* Add more state - smaller plus button below image list (hidden at 10 images) */}
+      {images.length > 0 && images.length < 10 && (
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4" />
+            Add More ({images.length}/10)
+          </Button>
           {isUploading && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -389,14 +432,6 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
           {error && (
             <p className="text-sm text-destructive">{error}</p>
           )}
-        </div>
-      )}
-
-      {images.length === 0 && (
-        <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
-          <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p className="text-sm">No images added yet</p>
-          <p className="text-xs mt-1">Add up to 10 images</p>
         </div>
       )}
 
