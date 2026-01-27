@@ -8,9 +8,10 @@ import type { Card } from "@/types/card"
 
 interface SortableFlowCardProps {
   card: Card
+  isInsideDropdown?: boolean
 }
 
-export function SortableFlowCard({ card }: SortableFlowCardProps) {
+export function SortableFlowCard({ card, isInsideDropdown = false }: SortableFlowCardProps) {
   const {
     attributes,
     listeners,
