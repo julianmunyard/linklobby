@@ -11,7 +11,6 @@ interface SnakeGameProps {
   width: number
   height: number
   isPlaying: boolean
-  onGameOver: (score: number) => void
   onScoreChange: (score: number) => void
 }
 
@@ -22,7 +21,6 @@ export function SnakeGame({
   width,
   height,
   isPlaying,
-  onGameOver,
   onScoreChange,
 }: SnakeGameProps) {
   // Calculate grid dimensions based on canvas size
@@ -40,23 +38,35 @@ export function SnakeGame({
   const lastMoveTimeRef = useRef(0)
 
   // Refs for deferred callbacks (avoid setState during render)
-  const pendingGameOverRef = useRef<number | null>(null)
   const pendingScoreRef = useRef<number | null>(null)
+  const pendingRespawnRef = useRef<boolean>(false)
+
+  const spawnFood = useCallback(() => {
+    const newFood: Position = {
+      x: Math.floor(Math.random() * gridWidth),
+      y: Math.floor(Math.random() * gridHeight),
+    }
+    setFood(newFood)
+  }, [gridWidth, gridHeight])
 
   // Process deferred callbacks
-  useEffect(() => {
-    if (pendingGameOverRef.current !== null) {
-      const finalScore = pendingGameOverRef.current
-      pendingGameOverRef.current = null
-      onGameOver(finalScore)
-    }
-  })
-
   useEffect(() => {
     if (pendingScoreRef.current !== null) {
       const newScore = pendingScoreRef.current
       pendingScoreRef.current = null
       onScoreChange(newScore)
+    }
+  })
+
+  // Handle respawn after collision
+  useEffect(() => {
+    if (pendingRespawnRef.current) {
+      pendingRespawnRef.current = false
+      const startX = Math.floor(gridWidth / 4)
+      const startY = Math.floor(gridHeight / 2)
+      setSnake([{ x: startX, y: startY }])
+      setDirection("right")
+      spawnFood()
     }
   })
 
@@ -76,15 +86,7 @@ export function SnakeGame({
       spawnFood()
       lastMoveTimeRef.current = 0
     }
-  }, [isPlaying, gridWidth, gridHeight])
-
-  const spawnFood = useCallback(() => {
-    const newFood: Position = {
-      x: Math.floor(Math.random() * gridWidth),
-      y: Math.floor(Math.random() * gridHeight),
-    }
-    setFood(newFood)
-  }, [gridWidth, gridHeight])
+  }, [isPlaying, gridWidth, gridHeight, spawnFood])
 
   // Game update logic
   const onUpdate = useCallback(
@@ -107,20 +109,20 @@ export function SnakeGame({
           case "right": newHead.x += 1; break
         }
 
-        // Check wall collision
+        // Check wall collision - respawn snake
         if (
           newHead.x < 0 ||
           newHead.x >= gridWidth ||
           newHead.y < 0 ||
           newHead.y >= gridHeight
         ) {
-          pendingGameOverRef.current = score
+          pendingRespawnRef.current = true
           return prevSnake
         }
 
-        // Check self collision
+        // Check self collision - respawn snake
         if (prevSnake.some((seg) => seg.x === newHead.x && seg.y === newHead.y)) {
-          pendingGameOverRef.current = score
+          pendingRespawnRef.current = true
           return prevSnake
         }
 

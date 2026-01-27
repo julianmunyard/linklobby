@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Play, RotateCcw } from "lucide-react"
+import { Play } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import type { Card, GameCardContent, GameType } from "@/types/card"
+import type { Card, GameType } from "@/types/card"
 import { isGameContent, GAME_TYPE_INFO } from "@/types/card"
 import { BreakoutGame } from "./games/breakout-game"
 import { FlappyGame } from "./games/flappy-game"
@@ -19,7 +19,7 @@ function GamePlaceholder({ gameType }: { gameType: GameType }) {
   )
 }
 
-type GameState = "idle" | "playing" | "gameOver"
+type GameState = "idle" | "playing"
 
 interface GameCardProps {
   card: Card
@@ -56,16 +56,6 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
 
   const handleStartGame = () => {
     if (isEditing) return // Don't allow gameplay in editor
-    setGameState("playing")
-    setScore(0)
-  }
-
-  const handleGameOver = (finalScore: number) => {
-    setScore(finalScore)
-    setGameState("gameOver")
-  }
-
-  const handlePlayAgain = () => {
     setGameState("playing")
     setScore(0)
   }
@@ -125,7 +115,6 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
               width={dimensions.width}
               height={dimensions.height}
               isPlaying={true}
-              onGameOver={handleGameOver}
               onScoreChange={setScore}
             />
           )}
@@ -134,7 +123,6 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
               width={dimensions.width}
               height={dimensions.height}
               isPlaying={true}
-              onGameOver={handleGameOver}
               onScoreChange={setScore}
             />
           )}
@@ -143,35 +131,12 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
               width={dimensions.width}
               height={dimensions.height}
               isPlaying={true}
-              onGameOver={handleGameOver}
               onScoreChange={setScore}
             />
           )}
           {/* Score display */}
           <div className="absolute top-2 left-2 text-[#00ff00] font-mono text-xs z-10">
             Score: {score}
-          </div>
-        </div>
-      )}
-
-      {/* Game over state */}
-      {gameState === "gameOver" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
-          <div className="text-center">
-            <p className="text-[#ff0000] font-mono text-xl font-bold">
-              GAME OVER
-            </p>
-            <p className="text-[#00ff00] font-mono text-lg mt-2">
-              Score: {score}
-            </p>
-            <Button
-              onClick={handlePlayAgain}
-              className="mt-4 bg-[#00ff00]/20 hover:bg-[#00ff00]/40 text-[#00ff00] border border-[#00ff00]/50"
-              size="sm"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Play Again
-            </Button>
           </div>
         </div>
       )}

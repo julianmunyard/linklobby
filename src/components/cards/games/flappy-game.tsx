@@ -13,7 +13,6 @@ interface FlappyGameProps {
   width: number
   height: number
   isPlaying: boolean
-  onGameOver: (score: number) => void
   onScoreChange: (score: number) => void
 }
 
@@ -29,7 +28,6 @@ export function FlappyGame({
   width,
   height,
   isPlaying,
-  onGameOver,
   onScoreChange,
 }: FlappyGameProps) {
   // Game state
@@ -45,8 +43,8 @@ export function FlappyGame({
   const distanceRef = useRef(distanceTraveled)
 
   // Refs for deferred callbacks (avoid setState during render)
-  const pendingGameOverRef = useRef<number | null>(null)
   const pendingScoreRef = useRef<number | null>(null)
+  const pendingRespawnRef = useRef<boolean>(false)
 
   useEffect(() => { birdYRef.current = birdY }, [birdY])
   useEffect(() => { birdVelocityRef.current = birdVelocity }, [birdVelocity])
@@ -54,18 +52,19 @@ export function FlappyGame({
 
   // Process deferred callbacks
   useEffect(() => {
-    if (pendingGameOverRef.current !== null) {
-      const finalScore = pendingGameOverRef.current
-      pendingGameOverRef.current = null
-      onGameOver(finalScore)
-    }
-  })
-
-  useEffect(() => {
     if (pendingScoreRef.current !== null) {
       const newScore = pendingScoreRef.current
       pendingScoreRef.current = null
       onScoreChange(newScore)
+    }
+  })
+
+  // Handle respawn after collision
+  useEffect(() => {
+    if (pendingRespawnRef.current) {
+      pendingRespawnRef.current = false
+      setBirdY(height / 2)
+      setBirdVelocity(0)
     }
   })
 
@@ -99,9 +98,9 @@ export function FlappyGame({
       setBirdY((y) => {
         const newY = y + birdVelocityRef.current * speedMultiplier
 
-        // Ground collision
+        // Ground collision - respawn bird
         if (newY + BIRD_SIZE / 2 >= height) {
-          pendingGameOverRef.current = score
+          pendingRespawnRef.current = true
           return y
         }
 
@@ -178,7 +177,7 @@ export function FlappyGame({
         })
 
         if (gameOver) {
-          pendingGameOverRef.current = score
+          pendingRespawnRef.current = true
         }
 
         return newPipes

@@ -30,6 +30,7 @@ interface SelectableFlowGridProps {
   cards: Card[]
   selectedCardId?: string | null
   onReorder: (oldIndex: number, newIndex: number) => void
+  onReorderMultiple?: (cardIds: string[], targetIndex: number) => void
   onCardClick?: (cardId: string) => void
 }
 
@@ -40,8 +41,9 @@ interface SelectableFlowGridProps {
  * - Shift+click for individual selection
  * - Detects intersecting cards via boxesIntersect
  */
-export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onCardClick }: SelectableFlowGridProps) {
+export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorderMultiple, onCardClick }: SelectableFlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
+  const [draggedCardIds, setDraggedCardIds] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
   const isDraggingRef = useRef(false)
 
@@ -125,11 +127,25 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onCardCli
     isDraggingRef.current = true
     const card = cards.find((c) => c.id === event.active.id)
     setActiveCard(card || null)
+
+    // Check if dragging a selected card - if so, drag all selected cards
+    const activeId = event.active.id as string
+    if (multiSelect.isSelected(activeId) && multiSelect.selectedCount > 1) {
+      // Get all selected card IDs in their current order
+      const selectedInOrder = cards
+        .filter(c => multiSelect.isSelected(c.id))
+        .map(c => c.id)
+      setDraggedCardIds(selectedInOrder)
+    } else {
+      setDraggedCardIds([activeId])
+    }
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveCard(null)
+    const cardIdsToDrag = [...draggedCardIds]
+    setDraggedCardIds([])
 
     // Small delay to prevent click firing after drag
     setTimeout(() => {
@@ -140,10 +156,20 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onCardCli
 
     // Reorder drop
     if (active.id !== over.id) {
-      const oldIndex = cards.findIndex((c) => c.id === active.id)
       const newIndex = cards.findIndex((c) => c.id === over.id)
-      if (oldIndex !== -1 && newIndex !== -1) {
-        onReorder(oldIndex, newIndex)
+
+      if (newIndex !== -1) {
+        // Multi-drag: move all selected cards
+        if (cardIdsToDrag.length > 1 && onReorderMultiple) {
+          onReorderMultiple(cardIdsToDrag, newIndex)
+          multiSelect.clearSelection()
+        } else {
+          // Single drag
+          const oldIndex = cards.findIndex((c) => c.id === active.id)
+          if (oldIndex !== -1) {
+            onReorder(oldIndex, newIndex)
+          }
+        }
       }
     }
   }
@@ -219,11 +245,19 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onCardCli
       {/* Drag overlay - visual feedback following cursor */}
       <DragOverlay dropAnimation={null}>
         {activeCard && (
-          <div className={cn(
-            "shadow-xl pointer-events-none",
-            activeCard.size === "big" ? "w-80" : "w-40",
-          )}>
-            <CardRenderer card={activeCard} isPreview />
+          <div className="relative">
+            <div className={cn(
+              "shadow-xl pointer-events-none",
+              activeCard.size === "big" ? "w-80" : "w-40",
+            )}>
+              <CardRenderer card={activeCard} isPreview />
+            </div>
+            {/* Badge showing count when multi-dragging */}
+            {draggedCardIds.length > 1 && (
+              <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg">
+                {draggedCardIds.length}
+              </div>
+            )}
           </div>
         )}
       </DragOverlay>

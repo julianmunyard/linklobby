@@ -16,7 +16,6 @@ interface BreakoutGameProps {
   width: number
   height: number
   isPlaying: boolean
-  onGameOver: (score: number) => void
   onScoreChange: (score: number) => void
 }
 
@@ -33,7 +32,6 @@ export function BreakoutGame({
   width,
   height,
   isPlaying,
-  onGameOver,
   onScoreChange,
 }: BreakoutGameProps) {
   const paddleWidth = width * PADDLE_WIDTH_RATIO
@@ -49,21 +47,12 @@ export function BreakoutGame({
   const ballRef = useRef(ball)
 
   // Refs for deferred callbacks (avoid setState during render)
-  const pendingGameOverRef = useRef<number | null>(null)
   const pendingScoreRef = useRef<number | null>(null)
 
   useEffect(() => { paddleXRef.current = paddleX }, [paddleX])
   useEffect(() => { ballRef.current = ball }, [ball])
 
   // Process deferred callbacks
-  useEffect(() => {
-    if (pendingGameOverRef.current !== null) {
-      const finalScore = pendingGameOverRef.current
-      pendingGameOverRef.current = null
-      onGameOver(finalScore)
-    }
-  })
-
   useEffect(() => {
     if (pendingScoreRef.current !== null) {
       const newScore = pendingScoreRef.current
@@ -133,10 +122,14 @@ export function BreakoutGame({
           y = BALL_RADIUS
         }
 
-        // Bottom - game over
+        // Bottom - respawn ball at top
         if (y + BALL_RADIUS >= height) {
-          pendingGameOverRef.current = score
-          return prev
+          return {
+            x: width / 2,
+            y: 50,
+            vx: (Math.random() > 0.5 ? 1 : -1) * 3,
+            vy: 4,
+          }
         }
 
         // Paddle collision

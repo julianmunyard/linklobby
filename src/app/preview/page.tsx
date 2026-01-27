@@ -143,6 +143,15 @@ export default function PreviewPage() {
                 )
               }
             }}
+            onReorderMultiple={(cardIds, targetIndex) => {
+              // Send multi-reorder message to parent editor
+              if (window.parent !== window) {
+                window.parent.postMessage(
+                  { type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } },
+                  window.location.origin
+                )
+              }
+            }}
             onCardClick={handleCardClick}
           />
         )}

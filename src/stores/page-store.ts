@@ -32,6 +32,7 @@ interface PageState {
   removeCard: (id: string) => void
   duplicateCard: (id: string) => void
   reorderCards: (oldIndex: number, newIndex: number) => void
+  reorderMultipleCards: (cardIds: string[], targetIndex: number) => void
   updateCardPosition: (id: string, position: HorizontalPosition) => void
   selectCard: (id: string | null) => void
   setTheme: (theme: Theme) => void
@@ -167,6 +168,54 @@ export const usePageStore = create<PageState>()(
           ? { ...c, sortKey: newSortKey, updated_at: new Date().toISOString() }
           : c
       ),
+      hasChanges: true,
+    }
+  }),
+
+  reorderMultipleCards: (cardIds, targetIndex) => set((state) => {
+    if (cardIds.length === 0) return state
+
+    const sorted = sortCardsBySortKey(state.cards)
+    const cardIdSet = new Set(cardIds)
+
+    // Filter out the cards being moved
+    const remainingCards = sorted.filter(c => !cardIdSet.has(c.id))
+
+    // Get the moved cards in their current order
+    const movedCards = sorted.filter(c => cardIdSet.has(c.id))
+
+    // Calculate target position (clamped to valid range)
+    const clampedTarget = Math.max(0, Math.min(targetIndex, remainingCards.length))
+
+    // Insert moved cards at target position
+    const reordered = [
+      ...remainingCards.slice(0, clampedTarget),
+      ...movedCards,
+      ...remainingCards.slice(clampedTarget),
+    ]
+
+    // Generate new sort keys for all cards
+    const now = new Date().toISOString()
+    const updatedCards = state.cards.map(card => {
+      const newIndex = reordered.findIndex(c => c.id === card.id)
+      if (newIndex === -1) return card
+
+      // Generate sort key based on position
+      const newSortKey = generateMoveKey(
+        reordered.map((c, i) => ({ ...c, sortKey: String(i).padStart(10, '0') })),
+        card.id,
+        newIndex
+      )
+
+      return {
+        ...card,
+        sortKey: newSortKey,
+        updated_at: now,
+      }
+    })
+
+    return {
+      cards: updatedCards,
       hasChanges: true,
     }
   }),
