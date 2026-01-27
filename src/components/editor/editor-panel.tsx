@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { CardsTab } from "./cards-tab"
 import { DesignTab } from "./design-tab"
 import { CardPropertyEditor } from "./card-property-editor"
+import { SelectionToolbar } from "./selection-toolbar"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
 
@@ -100,6 +101,9 @@ export function EditorPanel() {
 
         </Tabs>
       )}
+
+      {/* Selection toolbar - auto-hides when no selection */}
+      <SelectionToolbar />
     </div>
   )
 }
