@@ -363,6 +363,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Auto-collapse dropdown on drag | 06.1-01 | isDragging effect sets isOpen false for cleaner drag UX |
 | CSS mask-image for avatar feather | quick-018 | Radial gradient mask softens avatar edges - pure CSS performs better than canvas manipulation |
 | Feather classic layout only | quick-018 | Circular avatars benefit from feathering, rectangular hero banners do not |
+| Gallery image captions and links | quick-019 | Optional caption and link fields per GalleryImage, edited via popover UI |
+| Popover editor for gallery images | quick-019 | Pencil icon opens popover with caption and link fields - cleaner than inline inputs |
+| Circular gallery captions only | quick-019 | WebGL rendering supports captions via text prop but not clickable links |
+| Carousel supports links | quick-019 | Standard DOM allows anchor wrapping for clickable images in carousel mode |
 
 ## Quick Tasks
 
@@ -386,12 +390,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 016 | Fix dropdown card management - remove card | Complete | edadcc1 |
 | 017 | Fix dropdown CardRenderer import + visual stability | Complete | a6697fa |
 | 018 | Add feather effect slider to profile photo | Complete | c09109b |
+| 019 | Gallery image links and captions | Complete | 4432753 |
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed Quick Task 018 (avatar feather effect)
-Stopped at: Completed quick-018
+Last activity: 2026-01-27 - Completed Quick Task 019 (gallery image links and captions)
+Stopped at: Completed quick-019
 Resume file: None
 
 **Phase 6 UNBLOCKED:** Dropdown card now works correctly. Ready to resume with Plan 15 (Editor Testing & Polish).
