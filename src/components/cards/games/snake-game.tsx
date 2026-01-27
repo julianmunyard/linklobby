@@ -39,6 +39,27 @@ export function SnakeGame({
   const directionRef = useRef(direction)
   const lastMoveTimeRef = useRef(0)
 
+  // Refs for deferred callbacks (avoid setState during render)
+  const pendingGameOverRef = useRef<number | null>(null)
+  const pendingScoreRef = useRef<number | null>(null)
+
+  // Process deferred callbacks
+  useEffect(() => {
+    if (pendingGameOverRef.current !== null) {
+      const finalScore = pendingGameOverRef.current
+      pendingGameOverRef.current = null
+      onGameOver(finalScore)
+    }
+  })
+
+  useEffect(() => {
+    if (pendingScoreRef.current !== null) {
+      const newScore = pendingScoreRef.current
+      pendingScoreRef.current = null
+      onScoreChange(newScore)
+    }
+  })
+
   // Update ref when direction changes
   useEffect(() => {
     directionRef.current = direction
@@ -93,13 +114,13 @@ export function SnakeGame({
           newHead.y < 0 ||
           newHead.y >= gridHeight
         ) {
-          onGameOver(score)
+          pendingGameOverRef.current = score
           return prevSnake
         }
 
         // Check self collision
         if (prevSnake.some((seg) => seg.x === newHead.x && seg.y === newHead.y)) {
-          onGameOver(score)
+          pendingGameOverRef.current = score
           return prevSnake
         }
 
@@ -109,7 +130,7 @@ export function SnakeGame({
           // Grow snake (don't remove tail)
           const newScore = score + 10
           setScore(newScore)
-          onScoreChange(newScore)
+          pendingScoreRef.current = newScore
           spawnFood()
         } else {
           // Remove tail
@@ -119,7 +140,7 @@ export function SnakeGame({
         return newSnake
       })
     },
-    [food, score, gridWidth, gridHeight, onGameOver, onScoreChange, spawnFood]
+    [food, score, gridWidth, gridHeight, spawnFood]
   )
 
   // Render game

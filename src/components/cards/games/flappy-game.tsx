@@ -44,9 +44,30 @@ export function FlappyGame({
   const birdVelocityRef = useRef(birdVelocity)
   const distanceRef = useRef(distanceTraveled)
 
+  // Refs for deferred callbacks (avoid setState during render)
+  const pendingGameOverRef = useRef<number | null>(null)
+  const pendingScoreRef = useRef<number | null>(null)
+
   useEffect(() => { birdYRef.current = birdY }, [birdY])
   useEffect(() => { birdVelocityRef.current = birdVelocity }, [birdVelocity])
   useEffect(() => { distanceRef.current = distanceTraveled }, [distanceTraveled])
+
+  // Process deferred callbacks
+  useEffect(() => {
+    if (pendingGameOverRef.current !== null) {
+      const finalScore = pendingGameOverRef.current
+      pendingGameOverRef.current = null
+      onGameOver(finalScore)
+    }
+  })
+
+  useEffect(() => {
+    if (pendingScoreRef.current !== null) {
+      const newScore = pendingScoreRef.current
+      pendingScoreRef.current = null
+      onScoreChange(newScore)
+    }
+  })
 
   // Reset game
   useEffect(() => {
@@ -80,7 +101,7 @@ export function FlappyGame({
 
         // Ground collision
         if (newY + BIRD_SIZE / 2 >= height) {
-          onGameOver(score)
+          pendingGameOverRef.current = score
           return y
         }
 
@@ -133,7 +154,7 @@ export function FlappyGame({
           if (!pipe.passed && pipe.x + PIPE_WIDTH < birdX) {
             const newScore = score + 1
             setScore(newScore)
-            onScoreChange(newScore)
+            pendingScoreRef.current = newScore
             return { ...pipe, passed: true }
           }
 
@@ -157,13 +178,13 @@ export function FlappyGame({
         })
 
         if (gameOver) {
-          onGameOver(score)
+          pendingGameOverRef.current = score
         }
 
         return newPipes
       })
     },
-    [width, height, score, onGameOver, onScoreChange]
+    [width, height, score]
   )
 
   // Render

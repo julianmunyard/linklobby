@@ -48,8 +48,29 @@ export function BreakoutGame({
   const paddleXRef = useRef(paddleX)
   const ballRef = useRef(ball)
 
+  // Refs for deferred callbacks (avoid setState during render)
+  const pendingGameOverRef = useRef<number | null>(null)
+  const pendingScoreRef = useRef<number | null>(null)
+
   useEffect(() => { paddleXRef.current = paddleX }, [paddleX])
   useEffect(() => { ballRef.current = ball }, [ball])
+
+  // Process deferred callbacks
+  useEffect(() => {
+    if (pendingGameOverRef.current !== null) {
+      const finalScore = pendingGameOverRef.current
+      pendingGameOverRef.current = null
+      onGameOver(finalScore)
+    }
+  })
+
+  useEffect(() => {
+    if (pendingScoreRef.current !== null) {
+      const newScore = pendingScoreRef.current
+      pendingScoreRef.current = null
+      onScoreChange(newScore)
+    }
+  })
 
   // Initialize bricks
   const initBricks = useCallback(() => {
@@ -114,7 +135,7 @@ export function BreakoutGame({
 
         // Bottom - game over
         if (y + BALL_RADIUS >= height) {
-          onGameOver(score)
+          pendingGameOverRef.current = score
           return prev
         }
 
@@ -149,7 +170,7 @@ export function BreakoutGame({
                 vy = -vy
                 const newScore = score + 10
                 setScore(newScore)
-                onScoreChange(newScore)
+                pendingScoreRef.current = newScore
               }
               return { ...brick, alive: false }
             }
@@ -161,7 +182,7 @@ export function BreakoutGame({
         return { x, y, vx, vy }
       })
     },
-    [width, height, paddleWidth, score, onGameOver, onScoreChange]
+    [width, height, paddleWidth, score]
   )
 
   // Render
