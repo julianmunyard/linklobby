@@ -8,9 +8,10 @@ import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Circle, Rows3, X, Loader2, ImageIcon } from 'lucide-react'
+import { Circle, Rows3, X, Loader2, ImageIcon, Crop } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
+import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
 import type { GalleryCardContent, GalleryImage } from '@/types/card'
 
 interface GalleryCardFieldsProps {
@@ -21,10 +22,12 @@ interface GalleryCardFieldsProps {
 
 function SortableImage({
   image,
-  onRemove
+  onRemove,
+  onCrop
 }: {
   image: GalleryImage
   onRemove: () => void
+  onCrop: () => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
 
@@ -39,8 +42,23 @@ function SortableImage({
       <div {...attributes} {...listeners} className="cursor-move w-full h-full">
         <Image src={image.url} alt={image.alt} fill className="object-cover rounded" />
       </div>
+      {/* Crop button - bottom right */}
       <button
-        onClick={onRemove}
+        onClick={(e) => {
+          e.stopPropagation()
+          onCrop()
+        }}
+        className="absolute bottom-1 right-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Crop image"
+      >
+        <Crop className="h-3 w-3" />
+      </button>
+      {/* Remove button - top right */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove()
+        }}
         className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
         aria-label="Remove image"
       >
@@ -53,6 +71,9 @@ function SortableImage({
 export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFieldsProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Crop dialog state
+  const [cropDialogOpen, setCropDialogOpen] = useState(false)
+  const [imageToCrop, setImageToCrop] = useState<GalleryImage | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -130,6 +151,43 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
     onChange({ images: newImages })
   }, [images, onChange])
 
+  // Open crop dialog for an image
+  const handleOpenCrop = useCallback((image: GalleryImage) => {
+    setImageToCrop(image)
+    setCropDialogOpen(true)
+  }, [])
+
+  // Handle crop completion - re-upload and replace image
+  const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
+    if (!imageToCrop) return
+
+    setIsUploading(true)
+    setError(null)
+    try {
+      // Convert Blob to File for compression
+      const croppedFile = new File([croppedBlob], 'cropped.jpg', { type: 'image/jpeg' })
+
+      // Compress the cropped image
+      const compressed = await compressImageForUpload(croppedFile)
+
+      // Upload to Supabase
+      const result = await uploadCardImage(compressed as File, cardId)
+
+      // Update the image in the array with new URL
+      const updatedImages = images.map(img =>
+        img.id === imageToCrop.id
+          ? { ...img, url: result.url, storagePath: result.path }
+          : img
+      )
+      onChange({ images: updatedImages })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Crop upload failed')
+    } finally {
+      setIsUploading(false)
+      setImageToCrop(null)
+    }
+  }, [imageToCrop, images, onChange, cardId])
+
   return (
     <div className="space-y-4">
       {/* Gallery Style Toggle */}
@@ -168,6 +226,7 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
                     key={image.id}
                     image={image}
                     onRemove={() => handleRemoveImage(image.id)}
+                    onCrop={() => handleOpenCrop(image)}
                   />
                 ))}
               </div>
@@ -207,6 +266,20 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
           <p className="text-sm">No images added yet</p>
           <p className="text-xs mt-1">Add up to 10 images</p>
         </div>
+      )}
+
+      {/* Crop Dialog */}
+      {imageToCrop && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onOpenChange={(open) => {
+            setCropDialogOpen(open)
+            if (!open) setImageToCrop(null)
+          }}
+          imageSrc={imageToCrop.url}
+          onCropComplete={handleCropComplete}
+          initialAspect={1} // Default to square for gallery images
+        />
       )}
     </div>
   )
