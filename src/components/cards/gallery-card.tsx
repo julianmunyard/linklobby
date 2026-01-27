@@ -35,16 +35,17 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   // Render based on gallery style
   if (content.galleryStyle === 'circular') {
     // Transform images to CircularGallery format: { image, text }
+    // Empty text to hide labels
     const items = content.images.map(img => ({
       image: img.url,
-      text: img.alt || ''
+      text: ''
     }))
 
     return (
       <div className="w-full h-[400px]">
         <CircularGallery
           items={items}
-          bend={content.bend ?? 2}
+          bend={content.bend ?? 1}
           borderRadius={content.borderRadius ?? 0.25}
           scrollSpeed={content.scrollSpeed ?? 0.5}
           scrollEase={content.scrollEase ?? 0.14}

@@ -78,29 +78,44 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
   }, [images, onChange])
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    // Calculate how many we can add (max 10 total)
+    const remainingSlots = 10 - images.length
+    const filesToUpload = Array.from(files).slice(0, remainingSlots)
+
+    if (filesToUpload.length === 0) {
+      setError('Gallery is full (max 10 images)')
+      e.target.value = ''
+      return
+    }
 
     setIsUploading(true)
     setError(null)
+
     try {
-      // Compress before upload
-      const compressed = await compressImageForUpload(file)
+      const newImages: GalleryImage[] = []
 
-      // Upload to Supabase
-      const result = await uploadCardImage(compressed as File, cardId)
+      // Upload all files
+      for (const file of filesToUpload) {
+        // Compress before upload
+        const compressed = await compressImageForUpload(file)
 
-      // Create new image entry
-      const newImage: GalleryImage = {
-        id: crypto.randomUUID(),
-        url: result.url,
-        alt: file.name.replace(/\.[^/.]+$/, ''), // filename without extension
-        storagePath: result.path,
+        // Upload to Supabase
+        const result = await uploadCardImage(compressed as File, cardId)
+
+        // Create new image entry
+        newImages.push({
+          id: crypto.randomUUID(),
+          url: result.url,
+          alt: file.name.replace(/\.[^/.]+$/, ''), // filename without extension
+          storagePath: result.path,
+        })
       }
 
-      // Add to images array
-      const newImages = [...images, newImage]
-      onChange({ images: newImages })
+      // Add all to images array
+      onChange({ images: [...images, ...newImages] })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -164,11 +179,12 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
       {/* Add Image button (hidden at 10 images) */}
       {images.length < 10 && (
         <div className="space-y-2">
-          <Label htmlFor="addImage">Add Image {images.length > 0 && `(${images.length}/10)`}</Label>
+          <Label htmlFor="addImage">Add Images {images.length > 0 && `(${images.length}/10)`}</Label>
           <Input
             id="addImage"
             type="file"
             accept="image/*"
+            multiple
             disabled={isUploading}
             onChange={handleFileSelect}
             className="cursor-pointer"
