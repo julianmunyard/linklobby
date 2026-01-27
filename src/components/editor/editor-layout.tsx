@@ -12,6 +12,7 @@ import { EditorPanel } from "./editor-panel"
 import { PreviewPanel } from "./preview-panel"
 import { MobileBottomSheet } from "./mobile-bottom-sheet"
 import { MobileFAB } from "./mobile-fab"
+import { MobileSelectToggle, MobileSelectionBar } from "./mobile-select-mode"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
@@ -70,6 +71,14 @@ export function EditorLayout() {
             You&rsquo;re offline - changes won&rsquo;t be saved
           </div>
         )}
+
+        {/* Mobile toolbar with Select toggle */}
+        <div className="bg-background border-b p-2 flex items-center justify-end gap-2">
+          <MobileSelectToggle />
+        </div>
+
+        {/* Mobile selection bar (shows when in select mode with selected cards) */}
+        <MobileSelectionBar />
 
         {/* Full-width preview */}
         <div className="flex-1 bg-muted/30">
