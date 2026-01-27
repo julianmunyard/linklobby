@@ -36,9 +36,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     transition: transition ?? 'transform 200ms ease',
   }
 
-  // Small video cards are full-width but with max-width constraint (so they stack vertically)
-  const isSmallVideo = card.size === "small" && card.card_type === "video"
-  const widthClass = card.size === "big" || isSmallVideo
+  const widthClass = card.size === "big"
     ? "w-full"
     : "w-[calc(50%-0.5rem)]"
 

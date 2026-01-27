@@ -29,9 +29,7 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
   // Width classes based on size
   // Big = full width, Small = half width (minus gap)
   // Cards flow left-to-right based on order - two small cards fill a row, then wrap
-  // Exception: Small video cards are full-width but with max-width constraint (so they stack vertically)
-  const isSmallVideo = card.size === "small" && card.card_type === "video"
-  const widthClass = card.size === "big" || isSmallVideo
+  const widthClass = card.size === "big"
     ? "w-full"
     : "w-[calc(50%-0.5rem)]"
 
