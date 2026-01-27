@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Masonry from "react-masonry-css"
 import {
   DndContext,
   DragOverlay,
@@ -22,6 +23,12 @@ import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
 import type { Card } from "@/types/card"
+
+// Masonry breakpoints - 2 columns on wider screens, 1 on narrow
+const masonryBreakpoints = {
+  default: 2,
+  640: 1, // 1 column below 640px
+}
 
 interface PreviewFlowGridProps {
   cards: Card[]
@@ -132,8 +139,12 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
         items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
-        {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-        <div className="flex flex-wrap gap-4">
+        {/* Masonry layout - small cards fill gaps, big cards span full width */}
+        <Masonry
+          breakpointCols={masonryBreakpoints}
+          className="flex gap-4 -ml-4"
+          columnClassName="pl-4 bg-clip-padding space-y-4"
+        >
           {cards.map((card) => (
             <PreviewSortableCard
               key={card.id}
@@ -142,7 +153,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
               onClick={() => handleCardClick(card.id)}
             />
           ))}
-        </div>
+        </Masonry>
       </SortableContext>
 
       {/* Drag overlay - visual feedback following cursor */}

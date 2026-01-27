@@ -26,19 +26,19 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
     transition: transition ?? 'transform 200ms ease',
   }
 
-  // Width classes based on size
-  // Big = full width, Small = half width (minus gap)
-  // Cards flow left-to-right based on order - two small cards fill a row, then wrap
-  const widthClass = card.size === "big"
-    ? "w-full"
-    : "w-[calc(50%-0.5rem)]"
-
+  // With masonry layout, cards fill their column width
+  // Big cards use column-span to span both columns (when supported)
+  // break-inside-avoid prevents cards from breaking across columns
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        // Big cards span all columns
+        ...(card.size === "big" ? { columnSpan: "all" } : {}),
+      }}
       className={cn(
-        widthClass,
+        "w-full break-inside-avoid",
         // Hide original card during drag - only DragOverlay should be visible
         isDragging && "opacity-0",
         "cursor-grab active:cursor-grabbing"

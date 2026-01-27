@@ -31,14 +31,14 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     isDragging,
   } = useSortable({ id: card.id })
 
+  // With masonry layout, cards fill their column width
+  // Big cards use column-span to span both columns (when supported)
   const style = {
     transform: CSS.Translate.toString(transform),
     transition: transition ?? 'transform 200ms ease',
+    // Big cards span all columns
+    ...(card.size === "big" ? { columnSpan: "all" as const } : {}),
   }
-
-  const widthClass = card.size === "big"
-    ? "w-full"
-    : "w-[calc(50%-0.5rem)]"
 
   // Interactive cards (gallery, video, game) need full pointer/touch events
   const isInteractive = INTERACTIVE_CARD_TYPES.includes(card.card_type)
@@ -61,7 +61,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
       ref={setNodeRef}
       style={style}
       className={cn(
-        widthClass,
+        "w-full break-inside-avoid",
         isDragging && "opacity-0",
         "cursor-pointer",
         // Only use touch-none for non-interactive cards (needed for dnd-kit drag)
