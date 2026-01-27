@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 5 Media Cards
+**Current focus:** Phase 6 Advanced Cards
 
 ## Current Position
 
-Phase: 5 of 18 - Media Cards (IN PROGRESS)
-Plan: 2 of ? complete
-Status: **Executing plans**
-Last activity: 2026-01-27 - Completed 05-02-PLAN.md
+Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
+Plan: 4 of 16 complete
+Status: **Executing Wave 1**
+Last activity: 2026-01-27 - Completed 06-04-PLAN.md
 
-Progress: [████████████████████████████░░] 95%
+Progress: [███░░░░░░░░░░░░░░░░░░░░░░░░░░░] 11%
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -30,8 +30,8 @@ Progress: [███████████████████████
 | 4.3 | Card Context Menu & Undo/Redo | Complete |
 | 4.4 | Profile Editor | Complete ✓ |
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
-| 5 | Media Cards | In Progress |
-| 6 | Advanced Cards | - |
+| 5 | Media Cards | Complete ✓ |
+| 6 | Advanced Cards | In Progress |
 | 7 | Theme System | - |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
@@ -53,12 +53,35 @@ Progress: [███████████████████████
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 5 Progress (IN PROGRESS)
+## Phase 6 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Multi-Select Context | - |
+| 02 | Game Card Foundation | - |
+| 03 | Selection UI Hook | - |
+| 04 | Install Box Selection Library | Complete |
+| 05 | Multi-Select Store | - |
+| 06 | Multi-Select UI | - |
+| 07 | Bulk Actions Infrastructure | - |
+| 08 | Bulk Delete & Styling | - |
+| 09 | Dropdown Card Component | - |
+| 10 | Dropdown Editor | - |
+| 11 | Game Card Infrastructure | - |
+| 12 | Snake Game | - |
+| 13 | Game Card Editor | - |
+| 14 | Link Card Background Options | - |
+| 15 | Card Animation Presets | - |
+| 16 | Editor Testing & Polish | - |
+| 17 | Phase Verification | - |
+
+## Phase 5 Progress (COMPLETE ✓)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Foundation - Media Card Types & Helpers | Complete |
 | 02 | Video Card Component & Editor | Complete |
+| 03 | Gallery Card Component | Complete |
 
 ## Phase 4.5 Progress (COMPLETE ✓)
 
@@ -78,6 +101,7 @@ Progress: [███████████████████████
 | 04 | Header Section UI | Complete |
 | 05 | Social Icons Editor | Complete |
 | 06 | Social Icons Integration | Complete |
+| 07 | Profile-Preview Sync | Complete |
 | 07 | Profile-Preview Sync | Complete |
 | 08 | API & Persistence | Complete |
 
@@ -280,6 +304,10 @@ Progress: [███████████████████████
 | Video/gallery hide generic ImageUpload | 05-02 | Custom media via VideoCardFields/GalleryCardFields, not standard image upload |
 | Embed mode: thumbnail + click-to-play | 05-02 | Better performance - heavy iframe only loads when user clicks play button |
 | Upload mode: muted autoplay loop | 05-02 | Instagram-style instant visual impact with autoPlay muted loop playsInline |
+| Set for multi-select IDs | 06-03 | O(1) lookup performance using Set data structure |
+| Shift-click range selection | 06-03 | Uses orderedIds array to calculate ranges between last selected and current |
+| isSelectMode flag for mobile | 06-03 | Separate mobile checkbox mode from desktop click mode |
+| @air/react-drag-to-select for box selection | 06-04 | useSelectionContainer hook + boxesIntersect helper, 60fps performance, built-in TS types |
 
 ## Quick Tasks
 
@@ -303,26 +331,15 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Phase 5 polish complete, layout investigation done
-Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create remaining plans
+Stopped at: Completed 06-04-PLAN.md
+Resume with: Continue Wave 1 plans in Phase 6
 
 **This session's work:**
 
-1. **Video Card Polish** (committed in `db178e4`)
-   - Added zoom slider (1x-2x) to crop uploaded videos via CSS transform
-   - Implemented drag-to-position for panning zoomed videos
-   - Added text/vertical alignment support for both upload and embed modes
-   - Redesigned video editor with fields at top, cleaner layout
-
-2. **Gallery Card Polish** (committed in `db178e4`)
-   - Added customization sliders (bend, radius, scroll speed, ease, spacing)
-   - Added fade gradients on edges for small gallery cards
-   - Improved CircularGallery with configurable spacing prop
-
-3. **Editor Improvements** (committed in `db178e4`)
-   - Replaced card size dropdown with visual SVG toggle buttons
-   - Added edit button and drag handle for interactive cards in preview
-   - Fixed image crop dialog closing immediately
+1. **Plan 06-04: Install Box Selection Library** (committed in `a4603e5`)
+   - Installed @air/react-drag-to-select@5.0.11 for marquee selection
+   - Verified TypeScript types included
+   - Package ready for multi-select UI implementation
 
 4. **Configuration** (committed in `db178e4`)
    - Added YouTube (i.ytimg.com), Vimeo, TikTok thumbnail domains to next.config.ts
