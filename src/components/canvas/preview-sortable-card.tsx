@@ -45,13 +45,8 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
   // Interactive cards (gallery, video, game) need full pointer/touch events
   const isInteractive = INTERACTIVE_CARD_TYPES.includes(card.card_type)
 
-  // Handle click - intercept link clicks and call onClick instead
+  // Handle click - select the card
   function handleClick(e: React.MouseEvent) {
-    // For interactive cards, only handle clicks on the card border/selection ring
-    // Let internal interactions pass through
-    if (isInteractive && e.target !== e.currentTarget) {
-      return
-    }
     // Prevent default link navigation
     e.preventDefault()
     e.stopPropagation()
@@ -82,6 +77,16 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
           {/* Mobile select checkbox overlay */}
           <MobileSelectCheckbox cardId={card.id} />
           <CardRenderer card={card} isPreview />
+          {/* Transparent click overlay for selection - only shows when NOT selected */}
+          {!isSelected && (
+            <div
+              className="absolute inset-0 z-[5] cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation()
+                onClick?.(e)
+              }}
+            />
+          )}
           {/* Control buttons for interactive cards - appear on hover */}
           <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover/interactive:opacity-100 transition-opacity">
             {/* Drag handle */}
