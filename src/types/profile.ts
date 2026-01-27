@@ -81,6 +81,7 @@ export interface Profile {
   displayName: string | null
   bio: string | null
   avatarUrl: string | null
+  avatarFeather: number  // 0-100, edge feathering amount (0 = no feather, 100 = max feather)
   showAvatar: boolean
   showTitle: boolean
   titleSize: TitleSize

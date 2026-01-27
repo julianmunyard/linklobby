@@ -56,6 +56,7 @@ interface ProfileState extends Profile {
   setDisplayName: (name: string | null) => void
   setBio: (bio: string | null) => void
   setAvatarUrl: (url: string | null) => void
+  setAvatarFeather: (feather: number) => void
   setShowAvatar: (show: boolean) => void
   setShowTitle: (show: boolean) => void
   setTitleSize: (size: TitleSize) => void
@@ -78,6 +79,7 @@ const defaultProfile: Profile = {
   displayName: null,
   bio: null,
   avatarUrl: null,
+  avatarFeather: 0,
   showAvatar: true,
   showTitle: true,
   titleSize: 'large',
@@ -100,6 +102,8 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
   setBio: (bio) => set({ bio: bio, hasChanges: true }),
 
   setAvatarUrl: (url) => set({ avatarUrl: url, hasChanges: true }),
+
+  setAvatarFeather: (feather) => set({ avatarFeather: feather, hasChanges: true }),
 
   setShowAvatar: (show) => set({ showAvatar: show, hasChanges: true }),
 
@@ -177,6 +181,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       displayName: state.displayName,
       bio: state.bio,
       avatarUrl: state.avatarUrl,
+      avatarFeather: state.avatarFeather,
       showAvatar: state.showAvatar,
       showTitle: state.showTitle,
       titleSize: state.titleSize,
