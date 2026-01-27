@@ -361,6 +361,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Remove stopPropagation from dropdown | 06.1-01 | Allow dnd-kit events to propagate for drag functionality |
 | Drag handle on dropdown right side | 06.1-01 | setActivatorNodeRef pattern separates toggle from drag interactions |
 | Auto-collapse dropdown on drag | 06.1-01 | isDragging effect sets isOpen false for cleaner drag UX |
+| CSS mask-image for avatar feather | quick-018 | Radial gradient mask softens avatar edges - pure CSS performs better than canvas manipulation |
+| Feather classic layout only | quick-018 | Circular avatars benefit from feathering, rectangular hero banners do not |
 
 ## Quick Tasks
 
@@ -383,12 +385,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 015 | Fix Phase 6 multi-select, dropdown drag-drop, context menu | Complete | 22ab61b |
 | 016 | Fix dropdown card management - remove card | Complete | edadcc1 |
 | 017 | Fix dropdown CardRenderer import + visual stability | Complete | a6697fa |
+| 018 | Add feather effect slider to profile photo | Complete | c09109b |
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed Phase 6.1 dropdown fixes
-Stopped at: Completed 06.1-01-PLAN.md
+Last activity: 2026-01-27 - Completed Quick Task 018 (avatar feather effect)
+Stopped at: Completed quick-018
 Resume file: None
 
 **Phase 6 UNBLOCKED:** Dropdown card now works correctly. Ready to resume with Plan 15 (Editor Testing & Polish).
