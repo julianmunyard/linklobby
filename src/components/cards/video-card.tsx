@@ -13,10 +13,21 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ card, isPreview = false }: VideoCardProps) {
+  const isSmall = card.size === 'small'
+
+  // Wrapper for small videos - constrains width and centers
+  const SmallWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="w-full flex justify-center">
+      <div className="w-[60%] min-w-[280px]">
+        {children}
+      </div>
+    </div>
+  )
+
   // Use type guard to safely cast content
   if (!isVideoContent(card.content)) {
     // Fallback for cards with invalid content
-    return (
+    const fallback = (
       <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <Video className="h-12 w-12 mx-auto mb-2" />
@@ -24,6 +35,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         </div>
       </div>
     )
+    return isSmall ? <SmallWrapper>{fallback}</SmallWrapper> : fallback
   }
 
   const content = card.content
@@ -31,7 +43,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
   // Route to appropriate component based on video type
   // Check for uploaded video first (handles both explicit 'upload' type and uploaded videos with undefined type)
   if (content.uploadedVideoUrl && (content.videoType === 'upload' || !content.videoType)) {
-    return (
+    const video = (
       <VideoCardUpload
         videoUrl={content.uploadedVideoUrl as string}
         title={card.title}
@@ -42,10 +54,11 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
       />
     )
+    return isSmall ? <SmallWrapper>{video}</SmallWrapper> : video
   }
 
   if (content.embedUrl && (content.videoType === 'embed' || !content.videoType)) {
-    return (
+    const embed = (
       <VideoCardEmbed
         embedUrl={content.embedUrl as string}
         embedService={content.embedService as 'youtube' | 'vimeo' | 'tiktok' | undefined}
@@ -56,10 +69,11 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
       />
     )
+    return isSmall ? <SmallWrapper>{embed}</SmallWrapper> : embed
   }
 
   // Placeholder when no video configured
-  return (
+  const placeholder = (
     <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <Video className="h-12 w-12 mx-auto mb-2" />
@@ -67,6 +81,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
       </div>
     </div>
   )
+  return isSmall ? <SmallWrapper>{placeholder}</SmallWrapper> : placeholder
 }
 
 // ============================================

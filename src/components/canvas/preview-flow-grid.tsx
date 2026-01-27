@@ -150,7 +150,10 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
         {activeCard && (
           <div className={cn(
             "shadow-xl pointer-events-none",
-            activeCard.size === "big" ? "w-80" : "w-40",
+            // Small video cards are full-width (they stack), so use big width for overlay
+            activeCard.size === "big" || (activeCard.size === "small" && activeCard.card_type === "video")
+              ? "w-80"
+              : "w-40",
           )}>
             <CardRenderer card={activeCard} isPreview />
           </div>
