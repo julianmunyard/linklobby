@@ -24,6 +24,9 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
     transform: CSS.Translate.toString(transform),
     // Use dnd-kit transition or fallback to smooth CSS transition
     transition: transition ?? 'transform 200ms ease',
+    // Prevent sub-pixel rendering artifacts (white lines)
+    backfaceVisibility: 'hidden' as const,
+    WebkitBackfaceVisibility: 'hidden' as const,
   }
 
   const widthClass = card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"

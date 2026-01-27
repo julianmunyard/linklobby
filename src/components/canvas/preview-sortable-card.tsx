@@ -36,6 +36,9 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
   const style = {
     transform: CSS.Translate.toString(transform),
     transition: transition ?? 'transform 200ms ease',
+    // Prevent sub-pixel rendering artifacts (white lines)
+    backfaceVisibility: 'hidden' as const,
+    WebkitBackfaceVisibility: 'hidden' as const,
   }
 
   const widthClass = card.size === "big"
