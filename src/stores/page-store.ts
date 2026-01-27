@@ -3,6 +3,7 @@ import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
 import type { Card, CardType, CardSize, HorizontalPosition, DropdownCardContent } from '@/types/card'
 import { CARD_TYPE_SIZING, isDropdownContent } from '@/types/card'
+import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey } from '@/lib/ordering'
 
 interface Theme {
@@ -187,25 +188,26 @@ export const usePageStore = create<PageState>()(
     // Calculate target position (clamped to valid range)
     const clampedTarget = Math.max(0, Math.min(targetIndex, remainingCards.length))
 
-    // Insert moved cards at target position
-    const reordered = [
-      ...remainingCards.slice(0, clampedTarget),
-      ...movedCards,
-      ...remainingCards.slice(clampedTarget),
-    ]
+    // Find bounds at target position
+    const aboveKey = clampedTarget > 0 ? remainingCards[clampedTarget - 1]?.sortKey ?? null : null
+    const belowKey = remainingCards[clampedTarget]?.sortKey ?? null
 
-    // Generate new sort keys for all cards
+    // Generate consecutive sort keys for all moved cards
     const now = new Date().toISOString()
-    const updatedCards = state.cards.map(card => {
-      const newIndex = reordered.findIndex(c => c.id === card.id)
-      if (newIndex === -1) return card
+    const newSortKeys = new Map<string, string>()
 
-      // Generate sort key based on position
-      const newSortKey = generateMoveKey(
-        reordered.map((c, i) => ({ ...c, sortKey: String(i).padStart(10, '0') })),
-        card.id,
-        newIndex
-      )
+    // Generate keys one by one, each between the previous and the below key
+    let prevKey = aboveKey
+    for (const card of movedCards) {
+      const newKey = generateKeyBetween(prevKey, belowKey)
+      newSortKeys.set(card.id, newKey)
+      prevKey = newKey
+    }
+
+    // Update only the moved cards with their new sort keys
+    const updatedCards = state.cards.map(card => {
+      const newSortKey = newSortKeys.get(card.id)
+      if (!newSortKey) return card
 
       return {
         ...card,
