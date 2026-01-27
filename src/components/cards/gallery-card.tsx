@@ -1,9 +1,15 @@
 'use client'
 
-import { CircularGallery } from '@/components/ui/circular-gallery'
+import dynamic from 'next/dynamic'
 import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { ImageIcon } from 'lucide-react'
 import type { Card, GalleryCardContent } from '@/types/card'
+
+// Dynamic import for CircularGallery (uses WebGL - must be client-only)
+const CircularGallery = dynamic(
+  () => import('@/components/CircularGallery'),
+  { ssr: false }
+)
 
 interface GalleryCardProps {
   card: Card
@@ -28,14 +34,21 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
 
   // Render based on gallery style
   if (content.galleryStyle === 'circular') {
+    // Transform images to CircularGallery format: { image, text }
+    const items = content.images.map(img => ({
+      image: img.url,
+      text: img.alt || ''
+    }))
+
     return (
-      <div className="w-full aspect-video rounded-xl overflow-hidden">
+      <div className="w-full h-[400px]">
         <CircularGallery
-          images={content.images.map(img => img.url)}
-          scrollEase={content.scrollEase}
-          scrollSpeed={content.scrollSpeed}
-          borderRadius={content.borderRadius}
-          bend={content.bend}
+          items={items}
+          bend={content.bend ?? 10}
+          borderRadius={content.borderRadius ?? 0.25}
+          scrollSpeed={content.scrollSpeed ?? 0.5}
+          scrollEase={content.scrollEase ?? 0.14}
+          textColor="#ffffff"
         />
       </div>
     )

@@ -133,10 +133,10 @@ export interface GalleryCardContent {
   galleryStyle: 'circular' | 'carousel'
   images: GalleryImage[]
   // ReactBits Circular Gallery settings (optional overrides)
-  scrollEase?: number       // Default: 0.15
-  scrollSpeed?: number      // Default: 4.6
-  borderRadius?: number     // Default: 0
-  bend?: number            // Default: 10
+  scrollEase?: number       // Default: 0.14
+  scrollSpeed?: number      // Default: 0.5
+  borderRadius?: number     // Default: 0.25
+  bend?: number             // Default: 10
 }
 
 // Union type for all card content
