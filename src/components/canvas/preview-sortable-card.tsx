@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { GripVertical, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
+import { MobileSelectCheckbox } from "@/components/editor/mobile-select-mode"
 import type { Card } from "@/types/card"
 
 interface PreviewSortableCardProps {
@@ -76,6 +77,8 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
       {/* Wrapper that intercepts all link clicks for non-interactive cards */}
       {isInteractive ? (
         <div className="relative group/interactive">
+          {/* Mobile select checkbox overlay */}
+          <MobileSelectCheckbox cardId={card.id} />
           <CardRenderer card={card} isPreview />
           {/* Control buttons for interactive cards - appear on hover */}
           <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover/interactive:opacity-100 transition-opacity">
@@ -103,7 +106,9 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
           </div>
         </div>
       ) : (
-        <div className="pointer-events-none">
+        <div className="relative pointer-events-none">
+          {/* Mobile select checkbox overlay */}
+          <MobileSelectCheckbox cardId={card.id} />
           <div className="pointer-events-auto [&_a]:pointer-events-none">
             <CardRenderer card={card} isPreview />
           </div>

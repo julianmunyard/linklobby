@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
+import { useMultiSelectContext } from "@/contexts/multi-select-context"
 import type { Card } from "@/types/card"
 
 interface PreviewFlowGridProps {
@@ -38,6 +39,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mounted, setMounted] = useState(false)
   const isDraggingRef = useRef(false)
+  const { isSelectMode, toggleSelect } = useMultiSelectContext()
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -92,7 +94,13 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
   function handleCardClick(cardId: string) {
     // Don't trigger click if we just finished dragging
     if (isDraggingRef.current) return
-    onCardClick?.(cardId)
+
+    // In select mode, toggle selection instead of opening editor
+    if (isSelectMode) {
+      toggleSelect(cardId)
+    } else {
+      onCardClick?.(cardId)
+    }
   }
 
   // Show loading placeholder during SSR
