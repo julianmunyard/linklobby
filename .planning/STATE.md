@@ -434,3 +434,17 @@ Resume with: Continue Phase 6 with next plan
 
 ---
 *Updated: 2026-01-27 - Selection toolbar complete*
+
+7. **Plan 06-15: Mobile Checkbox Selection Mode** (3 commits in 3 minutes)
+   - Created mobile-select-mode.tsx with MobileSelectToggle, MobileSelectCheckbox, MobileSelectionBar (`0f57281`)
+   - Added Select toggle to mobile toolbar (`4271b00`)
+   - Added checkbox overlay to preview cards (`4e20ace`)
+   - Mobile checkbox mode for touch-friendly multi-select
+
+**Key commits this session:**
+- `0f57281` - feat(06-15): create mobile select mode components
+- `4271b00` - feat(06-15): add select toggle to mobile toolbar
+- `4e20ace` - feat(06-15): add checkbox overlay to preview cards
+
+---
+*Updated: 2026-01-27 - Mobile checkbox selection mode complete*
