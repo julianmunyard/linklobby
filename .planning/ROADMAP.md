@@ -29,6 +29,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)* ✓
 - [x] Phase 5: Media Cards ✓
 - [ ] Phase 6: Advanced Cards *(Dropdown + Game Card)*
+- [ ] Phase 6.1: Dropdown Card Fix *(collapse, drag, reorder)*
 - [ ] Phase 7: Theme System *(core differentiator)*
 - [ ] Phase 8: Public Page *(includes page states, SEO, draft sharing)*
 - [ ] Phase 9: Platform Integrations
@@ -203,6 +204,35 @@ Plans:
 - [ ] 06-14-PLAN.md — Selection toolbar and bulk actions
 - [ ] 06-15-PLAN.md — Mobile checkbox select mode
 - [ ] 06-16-PLAN.md — Human verification checkpoint
+
+---
+
+#### Phase 6.1: Dropdown Card Fix
+**Goal:** Fix all dropdown card issues discovered during Phase 6 implementation
+**Context:** Phase 6 dropdown implementation has critical bugs that need dedicated attention
+
+**Known Issues:**
+1. **Collapse/Expand broken** - Dropdown toggle is inconsistent, sometimes stops working entirely
+2. **Cards inside dropdown not draggable** - Child cards should reorder within dropdown like main canvas
+3. **Dropdown not draggable** - Dropdown card itself can't be reordered on the main canvas
+4. **State corruption** - Dropdown gets "stuck" and loses functionality after certain interactions
+5. **Event conflicts** - dnd-kit, Radix, and click handlers fighting for events
+
+**Success Criteria:**
+1. Dropdown expand/collapse works reliably on every tap/click
+2. Cards inside dropdown can be dragged to reorder within the dropdown
+3. Dropdown card can be dragged to reorder on main canvas
+4. Cards can be dragged into and out of dropdowns
+5. No "stuck" states or loss of functionality
+6. Works on both desktop and mobile
+
+**Technical Approach:**
+- Simplify event handling - clear separation between toggle click and drag
+- Use dedicated drag handle for dropdown reordering
+- Proper nested SortableContext with correct drag handlers
+- State isolation to prevent corruption
+
+**Plans:** TBD (research needed)
 
 ---
 

@@ -9,12 +9,30 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
+Phase: 6 of 18 - Advanced Cards (BLOCKED - Dropdown broken)
 Plan: 14 of 16 complete
-Status: **Executing Wave 3**
-Last activity: 2026-01-27 - Completed 06-11-PLAN.md (Dropdown Editor Fields)
+Status: **BLOCKED** - Dropdown card has critical bugs requiring Phase 6.1
+Last activity: 2026-01-27 - Attempted dropdown fixes, issues persist
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 15%
+
+### BLOCKER: Dropdown Card Issues
+
+Phase 6.1 will be created to fix these critical issues:
+
+1. **Collapse/Expand broken** - Toggle inconsistent, sometimes stops working
+2. **Child cards not draggable** - Cards inside dropdown can't reorder
+3. **Dropdown not draggable** - Can't reorder dropdown on main canvas
+4. **State corruption** - Dropdown gets "stuck" after interactions
+5. **Event conflicts** - dnd-kit, click handlers, and Radix fighting
+
+**Root cause:** Complex interaction between:
+- dnd-kit sortable/droppable contexts
+- Radix Collapsible (removed, but manual state still problematic)
+- stopPropagation preventing necessary event bubbling
+- Nested SortableContext not properly integrated with parent DndContext
+
+**Next step:** Run `/gsd:plan-phase 6.1` to properly research and plan the fix
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -31,7 +49,8 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 | 4.4 | Profile Editor | Complete ✓ |
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
 | 5 | Media Cards | Complete ✓ |
-| 6 | Advanced Cards | In Progress |
+| 6 | Advanced Cards | Blocked |
+| 6.1 | Dropdown Card Fix | Pending |
 | 7 | Theme System | - |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
@@ -364,8 +383,10 @@ Progress: [█████░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed quick task 016: Fix dropdown card management - remove card
-Resume with: Mark Phase 6 complete, begin Phase 7
+Last activity: 2026-01-27 - Dropdown card fixes attempted but issues persist
+Resume with: Plan and execute Phase 6.1 to properly fix dropdown card
+
+**IMPORTANT:** Phase 6 is BLOCKED. Do not proceed to Phase 7 until Phase 6.1 completes.
 
 **This session's work:**
 
