@@ -9,30 +9,25 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 6 of 18 - Advanced Cards (BLOCKED - Dropdown broken)
-Plan: 14 of 16 complete
-Status: **BLOCKED** - Dropdown card has critical bugs requiring Phase 6.1
-Last activity: 2026-01-27 - Attempted dropdown fixes, issues persist
+Phase: 6.1 of 18 - Dropdown Card Fix (COMPLETE)
+Plan: 1 of 1 complete
+Status: **Ready to resume Phase 6**
+Last activity: 2026-01-27 - Completed Phase 6.1 dropdown fixes
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 15%
+Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
-### BLOCKER: Dropdown Card Issues
+### Phase 6.1 Complete - Dropdown Fixed
 
-Phase 6.1 will be created to fix these critical issues:
+Fixed critical dropdown card issues:
 
-1. **Collapse/Expand broken** - Toggle inconsistent, sometimes stops working
-2. **Child cards not draggable** - Cards inside dropdown can't reorder
-3. **Dropdown not draggable** - Can't reorder dropdown on main canvas
-4. **State corruption** - Dropdown gets "stuck" after interactions
-5. **Event conflicts** - dnd-kit, click handlers, and Radix fighting
+1. **Toggle now reliable** - Controlled component prevents state corruption
+2. **Dropdown draggable** - useSortable with drag handle on right side
+3. **Auto-collapse on drag** - Cleaner UX when dragging dropdown
+4. **Event propagation fixed** - Removed stopPropagation blocking dnd-kit
 
-**Root cause:** Complex interaction between:
-- dnd-kit sortable/droppable contexts
-- Radix Collapsible (removed, but manual state still problematic)
-- stopPropagation preventing necessary event bubbling
-- Nested SortableContext not properly integrated with parent DndContext
+**Solution:** Controlled component pattern + drag handle separation
 
-**Next step:** Run `/gsd:plan-phase 6.1` to properly research and plan the fix
+**Next step:** Resume Phase 6 with Plan 15 (Editor Testing & Polish)
 
 ## Roadmap Summary (18 Phases across 3 Milestones)
 
@@ -49,8 +44,8 @@ Phase 6.1 will be created to fix these critical issues:
 | 4.4 | Profile Editor | Complete ✓ |
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
 | 5 | Media Cards | Complete ✓ |
-| 6 | Advanced Cards | Blocked |
-| 6.1 | Dropdown Card Fix | Pending |
+| 6 | Advanced Cards | In Progress |
+| 6.1 | Dropdown Card Fix | Complete ✓ |
 | 7 | Theme System | - |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
@@ -72,7 +67,13 @@ Phase 6.1 will be created to fix these critical issues:
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 6 Progress (IN PROGRESS)
+## Phase 6.1 Progress (COMPLETE ✓)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Dropdown Card Fix | Complete |
+
+## Phase 6 Progress (IN PROGRESS - Unblocked)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -358,6 +359,10 @@ Phase 6.1 will be created to fix these critical issues:
 | Auto-hide on empty selection | 06-14 | Toolbar only shows when selectedCount > 0, cleaner UI |
 | Group creates new dropdown | 06-14 | Single action creates dropdown and moves all selected cards - fast workflow |
 | Delete requires confirmation | 06-14 | Destructive bulk action needs explicit AlertDialog confirmation |
+| Controlled dropdown component | 06.1-01 | Lift isOpen state to parent prevents corruption during drag transforms |
+| Remove stopPropagation from dropdown | 06.1-01 | Allow dnd-kit events to propagate for drag functionality |
+| Drag handle on dropdown right side | 06.1-01 | setActivatorNodeRef pattern separates toggle from drag interactions |
+| Auto-collapse dropdown on drag | 06.1-01 | isDragging effect sets isOpen false for cleaner drag UX |
 
 ## Quick Tasks
 
@@ -383,12 +388,29 @@ Phase 6.1 will be created to fix these critical issues:
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Dropdown card fixes attempted but issues persist
-Resume with: Plan and execute Phase 6.1 to properly fix dropdown card
+Last activity: 2026-01-27 - Completed Phase 6.1 dropdown fixes
+Stopped at: Completed 06.1-01-PLAN.md
+Resume file: None
 
-**IMPORTANT:** Phase 6 is BLOCKED. Do not proceed to Phase 7 until Phase 6.1 completes.
+**Phase 6 UNBLOCKED:** Dropdown card now works correctly. Ready to resume with Plan 15 (Editor Testing & Polish).
 
 **This session's work:**
+
+1. **Plan 06.1-01: Dropdown Card Fix** (3 commits in 2 minutes)
+   - Converted DropdownCard to controlled component (`57d60ee`)
+   - Added useSortable with drag handle to DropdownSortable (`b5ebd2e`)
+   - Added dropdown rendering to DragOverlay (`df14209`)
+   - Fixed toggle reliability and drag functionality
+
+**Key commits this session:**
+- `57d60ee` - refactor(06.1-01): convert DropdownCard to controlled component
+- `b5ebd2e` - feat(06.1-01): add useSortable with drag handle to DropdownSortable
+- `df14209` - feat(06.1-01): add dropdown rendering to DragOverlay
+
+---
+*Updated: 2026-01-27 - Phase 6.1 complete, Phase 6 unblocked*
+
+**Previous session's work:**
 
 1. **Plan 06-05: Dropdown Card UI Component** (3 commits in 2 minutes)
    - Created DropdownCard component with Radix Collapsible (`f4e7b96`)
