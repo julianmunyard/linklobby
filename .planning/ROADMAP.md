@@ -22,11 +22,12 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4.3: Card Context Menu
 - [x] Phase 4.4: Profile Editor
 - [x] Phase 4.5: Editor Polish
+- [x] Phase 5: Media Cards
 
 ### MVP Milestone (v1.0 Launch)
 - [x] Phase 4.4: Profile Editor *(name, photo, social icons)* ✓
 - [x] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)* ✓
-- [ ] Phase 5: Media Cards
+- [x] Phase 5: Media Cards ✓
 - [ ] Phase 6: Advanced Cards *(Dropdown + Game Card)*
 - [ ] Phase 7: Theme System *(core differentiator)*
 - [ ] Phase 8: Public Page *(includes page states, SEO, draft sharing)*
@@ -164,9 +165,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Types, dependencies, and video infrastructure
-- [ ] 05-02-PLAN.md — Video Card component and editor
-- [ ] 05-03-PLAN.md — Photo Gallery Card with Circular Gallery and Carousel styles
+- [x] 05-01-PLAN.md — Types, dependencies, and video infrastructure
+- [x] 05-02-PLAN.md — Video Card component and editor
+- [x] 05-03-PLAN.md — Photo Gallery Card with Circular Gallery and Carousel styles
 
 ---
 
@@ -175,14 +176,33 @@ Plans:
 **Competitive context:** Differentiation through interactivity and delight
 
 **Success Criteria:**
-1. **Dropdown Card:** Expandable list containing multiple links
+1. **Dropdown Card:** Expandable container holding multiple cards
 2. Dropdown supports custom collapse/expand text
-3. **Game Card:** Playable Snake game embedded in card
-4. Game Card tracks high score (local storage or DB)
+3. **Game Card:** Playable games (Snake, Breakout, Flappy) embedded in card
+4. Games use fixed retro arcade aesthetic (no high scores for v1)
 5. Both cards render correctly within theme system
-6. **Multi-select to Dropdown:** Shift+click to select multiple cards, right-click → "Group into Dropdown"
+6. **Multi-select:** Box selection (desktop) and checkbox mode (mobile)
+7. **Bulk actions:** Group into Dropdown, Move to Dropdown, Delete All
 
-**Plans:** 2-3 plans
+**Plans:** 16 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — Dropdown types and store actions
+- [ ] 06-02-PLAN.md — Game types and game loop/swipe hooks
+- [ ] 06-03-PLAN.md — Multi-select context and state management
+- [ ] 06-04-PLAN.md — Install @air/react-drag-to-select
+- [ ] 06-05-PLAN.md — Dropdown Card UI component
+- [ ] 06-06-PLAN.md — Nested dnd-kit container structure
+- [ ] 06-07-PLAN.md — Game Card wrapper component
+- [ ] 06-08-PLAN.md — Snake game implementation
+- [ ] 06-09-PLAN.md — Breakout game implementation
+- [ ] 06-10-PLAN.md — Flappy Bird game implementation
+- [ ] 06-11-PLAN.md — Dropdown editor fields and card picker
+- [ ] 06-12-PLAN.md — Game card editor fields
+- [ ] 06-13-PLAN.md — Multi-select box selection (desktop)
+- [ ] 06-14-PLAN.md — Selection toolbar and bulk actions
+- [ ] 06-15-PLAN.md — Mobile checkbox select mode
+- [ ] 06-16-PLAN.md — Human verification checkpoint
 
 ---
 
