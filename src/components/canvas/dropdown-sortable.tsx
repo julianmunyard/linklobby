@@ -1,27 +1,22 @@
 "use client"
 
-import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable"
+import { useState, useEffect } from "react"
+import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable"
 import { useDroppable } from "@dnd-kit/core"
-import { Plus, MoveRight } from "lucide-react"
+import { CSS } from "@dnd-kit/utilities"
+import { MoveRight, GripVertical } from "lucide-react"
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { SortableFlowCard } from "./sortable-flow-card"
 import { DropdownCard } from "@/components/cards/dropdown-card"
 import { useMultiSelectContextOptional } from "@/contexts/multi-select-context"
 import { usePageStore } from "@/stores/page-store"
-import type { Card, CardType } from "@/types/card"
+import type { Card } from "@/types/card"
 import { cn } from "@/lib/utils"
-
-// Card types that can be added to dropdowns (exclude dropdown itself, game, gallery, video)
-const DROPDOWN_ALLOWED_TYPES: CardType[] = ["link", "horizontal", "hero", "square"]
 
 interface DropdownSortableProps {
   dropdown: Card
@@ -29,17 +24,29 @@ interface DropdownSortableProps {
 }
 
 export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
   const multiSelect = useMultiSelectContextOptional()
   const selectedIds = multiSelect?.selectedIds ?? new Set<string>()
   const selectedCount = multiSelect?.selectedCount ?? 0
   const clearSelection = multiSelect?.clearSelection ?? (() => {})
 
-  const addCardToDropdown = usePageStore((state) => state.addCardToDropdown)
   const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
   const cards = usePageStore((state) => state.cards)
 
-  // Make the dropdown a droppable area for receiving cards
-  const { setNodeRef, isOver } = useDroppable({
+  // Sortable for drag-to-reorder on main canvas
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    setActivatorNodeRef,  // KEY: For drag handle
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: dropdown.id })
+
+  // Droppable for receiving cards (keep existing)
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
     id: dropdown.id,
     data: {
       type: "dropdown",
@@ -47,9 +54,22 @@ export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps
     },
   })
 
-  // Handle "Add Card" submenu
-  const handleAddCard = (type: CardType) => {
-    addCardToDropdown(dropdown.id, type)
+  // Combine refs
+  const setNodeRef = (node: HTMLDivElement | null) => {
+    setSortableRef(node)
+    setDroppableRef(node)
+  }
+
+  // Auto-collapse when drag starts (per CONTEXT.md)
+  useEffect(() => {
+    if (isDragging && isOpen) {
+      setIsOpen(false)
+    }
+  }, [isDragging, isOpen])
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition: transition ?? 'transform 200ms ease',
   }
 
   // Handle "Move Selected Here"
@@ -71,63 +91,62 @@ export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
+          style={style}
           className={cn(
-            "w-full transition-colors",
+            "w-full",
+            isDragging && "opacity-50",
             isOver && "ring-2 ring-primary ring-offset-2"
           )}
         >
-          <DropdownCard card={dropdown} onAddCard={handleAddCard}>
-            <SortableContext
-              items={childCards.map((c) => c.id)}
-              strategy={rectSortingStrategy}
+          {/* Wrapper with drag handle on the right */}
+          <div className="flex items-start">
+            {/* DropdownCard takes most of the space */}
+            <div className="flex-1">
+              <DropdownCard
+                card={dropdown}
+                isOpen={isOpen}
+                onOpenChange={setIsOpen}
+              >
+                {/* Nested SortableContext for children */}
+                <SortableContext
+                  items={childCards.map((c) => c.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {childCards.map((card) => (
+                      <SortableFlowCard
+                        key={card.id}
+                        card={card}
+                        isInsideDropdown
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DropdownCard>
+            </div>
+
+            {/* Drag handle - ONLY this receives drag listeners */}
+            <div
+              ref={setActivatorNodeRef}
+              {...attributes}
+              {...listeners}
+              className="p-3 cursor-grab active:cursor-grabbing touch-none hover:bg-accent/30 rounded-r-lg self-stretch flex items-center"
+              aria-label="Drag to reorder dropdown"
             >
-              <div className="space-y-2">
-                {childCards.map((card) => (
-                  <SortableFlowCard
-                    key={card.id}
-                    card={card}
-                    isInsideDropdown
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DropdownCard>
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
-        {/* Add Card submenu */}
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Card
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-40">
-            <ContextMenuItem onClick={() => handleAddCard("link")}>
-              Link
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => handleAddCard("horizontal")}>
-              Horizontal Link
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => handleAddCard("hero")}>
-              Hero Card
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => handleAddCard("square")}>
-              Square Card
-            </ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-
-        {/* Move Selected Here - only show if there are selected cards */}
-        {selectedCount > 0 && (
-          <>
-            <ContextMenuSeparator />
-            <ContextMenuItem onClick={handleMoveSelectedHere}>
-              <MoveRight className="mr-2 h-4 w-4" />
-              Move {selectedCount} card{selectedCount > 1 ? "s" : ""} here
-            </ContextMenuItem>
-          </>
-        )}
-      </ContextMenuContent>
+      {/* Only show context menu if there are selected cards to move */}
+      {selectedCount > 0 && (
+        <ContextMenuContent className="w-48">
+          <ContextMenuItem onClick={handleMoveSelectedHere}>
+            <MoveRight className="mr-2 h-4 w-4" />
+            Move {selectedCount} card{selectedCount > 1 ? "s" : ""} here
+          </ContextMenuItem>
+        </ContextMenuContent>
+      )}
     </ContextMenu>
   )
 }
