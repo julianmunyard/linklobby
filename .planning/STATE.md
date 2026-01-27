@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 1 of 17 complete
-Status: **Executing Wave 1**
-Last activity: 2026-01-27 - Completed 06-01-PLAN.md
+Plan: 7 of 17 complete
+Status: **Executing Wave 2**
+Last activity: 2026-01-27 - Completed 06-07-PLAN.md
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13%
 
@@ -63,7 +63,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 04 | Install Box Selection Library | Complete |
 | 05 | Multi-Select Store | - |
 | 06 | Multi-Select UI | - |
-| 07 | Bulk Actions Infrastructure | - |
+| 07 | Game Card Wrapper | Complete |
 | 08 | Bulk Delete & Styling | - |
 | 09 | Dropdown Card Component | - |
 | 10 | Dropdown Editor | - |
@@ -312,6 +312,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Optional parentDropdownId on Card | 06-01 | null/undefined for main canvas cards, set to dropdown ID when inside dropdown |
 | Bidirectional dropdown updates | 06-01 | moveCardToDropdown updates both card.parentDropdownId and dropdown.content.childCardIds |
 | Type casting after type guard | 06-01 | Use isDropdownContent(content) then cast to DropdownCardContent for safe access |
+| Fixed retro arcade aesthetic for games | 06-07 | Game cards use black bg, green accents, CRT scanlines - doesn't adapt to theme for retro feel |
+| Three-state game pattern | 06-07 | idle (demo + play button) → playing (game + score) → gameOver (score + replay) |
+| isEditing prop for static preview | 06-07 | Game cards in editor show static preview only, no gameplay to avoid confusion/performance |
+| Game aspect ratio adapts to card size | 06-07 | Small cards = square (1:1), big cards = video (16:9) for optimal layout |
 
 ## Quick Tasks
 
@@ -335,21 +339,21 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 06-01-PLAN.md
+Stopped at: Completed 06-07-PLAN.md
 Resume with: Continue Phase 6 with next plan
 
 **This session's work:**
 
-1. **Plan 06-01: Dropdown Types & Store** (3 commits in 3 minutes)
-   - Added DropdownCardContent interface with childCardIds array (`42fd2f8`)
-   - Added parentDropdownId field to Card interface (`2fee9ea`)
-   - Implemented moveCardToDropdown, removeCardFromDropdown, addCardToDropdown store actions (`9f6f21c`)
-   - Established container card pattern for dropdown functionality
+1. **Plan 06-07: Game Card Wrapper** (2 commits in 1 minute)
+   - Created GameCard wrapper component with retro arcade aesthetic (`c989fcc`)
+   - Integrated GameCard into CardRenderer (`1c0fd1f`)
+   - Implemented three-state game management (idle → playing → gameOver)
+   - Added Play button, score display, and Play Again functionality
+   - Established CRT scanline effect overlay pattern
 
 **Key commits this session:**
-- `42fd2f8` - feat(06-01): add dropdown card content type
-- `2fee9ea` - feat(06-01): add parentDropdownId field to Card
-- `9f6f21c` - feat(06-01): add dropdown store actions
+- `c989fcc` - feat(06-07): create GameCard wrapper component
+- `1c0fd1f` - feat(06-07): integrate GameCard into CardRenderer
 
 ---
-*Updated: 2026-01-27 - Dropdown types and store actions complete*
+*Updated: 2026-01-27 - Game Card wrapper complete*
