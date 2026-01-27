@@ -413,9 +413,11 @@ class App {
   onTouchDown(e) {
     this.isDown = true;
     this.hasDragged = false;
+    // Check if tap started inside the gallery container
+    const target = e.target;
+    this.startedInGallery = this.container.contains(target);
     this.scroll.position = this.scroll.current;
     this.start = e.touches ? e.touches[0].clientX : e.clientX;
-    this.startY = e.touches ? e.touches[0].clientY : e.clientY;
   }
   onTouchMove(e) {
     if (!this.isDown) return;
@@ -426,14 +428,15 @@ class App {
     this.scroll.target = this.scroll.position + distance;
   }
   onTouchUp() {
-    // If no drag occurred and onTap callback provided, fire it with centered image's link
-    if (!this.hasDragged && this.onTap) {
+    // Only fire tap if: started in gallery, no drag, and onTap callback provided
+    if (this.startedInGallery && !this.hasDragged && this.onTap) {
       const centeredMedia = this.getCenteredMedia();
       if (centeredMedia && centeredMedia.link) {
         this.onTap(centeredMedia.link);
       }
     }
     this.isDown = false;
+    this.startedInGallery = false;
     this.onCheck();
   }
   onWheel(e) {
