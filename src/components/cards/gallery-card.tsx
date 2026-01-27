@@ -35,12 +35,19 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
 
   // Render based on gallery style (default to circular)
   if (content.galleryStyle !== 'carousel') {
-    // Transform images to CircularGallery format: { image, text }
-    // Use caption if provided
+    // Transform images to CircularGallery format: { image, text, link }
     const items = content.images.map(img => ({
       image: img.url,
-      text: img.caption || ''
+      text: img.caption || '',
+      link: img.link || null
     }))
+
+    // Handler for tap - opens centered image's link in new tab
+    const handleTap = (link: string | null) => {
+      if (link) {
+        window.open(link, '_blank', 'noopener,noreferrer')
+      }
+    }
 
     // For small cards: shorter height, allow overflow with fade edges
     return (
@@ -59,6 +66,8 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
             scrollEase={content.scrollEase ?? 0.03}
             spacing={isSmall ? (content.spacing ?? 2.5) * 0.7 : (content.spacing ?? 2.5)}
             textColor="#ffffff"
+            onTap={handleTap}
+            showCaptions={content.showCaptions !== false}
           />
         </div>
         {/* Fade edges for small cards */}

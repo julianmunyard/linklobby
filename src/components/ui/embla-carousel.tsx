@@ -50,43 +50,19 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
       {/* Carousel viewport */}
       <div className="overflow-hidden rounded-xl" ref={emblaRef}>
         <div className="flex touch-pan-y touch-pinch-zoom">
-          {images.map((image) => {
-            const slideContent = (
-              <div className="relative">
-                <div className="relative aspect-square">
-                  <Image
-                    src={image.url}
-                    alt={image.alt}
-                    fill
-                    className="object-cover rounded-lg"
-                    sizes="(max-width: 768px) 100vw, 600px"
-                  />
-                </div>
-                {image.caption && (
-                  <p className="text-sm text-center mt-2 text-foreground/80 px-2">
-                    {image.caption}
-                  </p>
-                )}
+          {images.map((image) => (
+            <div key={image.id} className="flex-[0_0_100%] min-w-0 px-2">
+              <div className="relative aspect-square">
+                <Image
+                  src={image.url}
+                  alt={image.alt}
+                  fill
+                  className="object-cover rounded-lg"
+                  sizes="(max-width: 768px) 100vw, 600px"
+                />
               </div>
-            )
-
-            return (
-              <div key={image.id} className="flex-[0_0_100%] min-w-0 px-2">
-                {image.link ? (
-                  <a
-                    href={image.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    {slideContent}
-                  </a>
-                ) : (
-                  slideContent
-                )}
-              </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
 
