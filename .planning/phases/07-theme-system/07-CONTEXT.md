@@ -18,11 +18,30 @@ Artists can select themes that skin all cards consistently — visual identity t
 - **Presets with deep tweaking** — no blank slate custom themes, but extensive customization of each preset
 - **Instagram Reels aesthetic** — awaiting visual reference from user (justified/spread text style mentioned)
 
+### Theme Selection UI
+- **Sidebar theme panel** — Dedicated section in Design tab with theme cards
+- **Tabbed interface:** Presets | Colors | Fonts | Style
+- **Abstract swatches** — Theme thumbnails show color palette + font sample, not mock pages
+- **Instant apply** — Tap theme to apply immediately, no confirmation needed. User can tap another to switch.
+
 ### Color Customization
-- **Full palette (6-8 colors)** — primary, secondary, background, text, accent, borders, etc.
-- **2-3 preset palettes per theme** — quick start options, then tweak
-- **Backgrounds:** Solid + gradients + image + video
-- **Video backgrounds:** Autoplay muted loop
+- **Moderate palette (5-6 colors)** — Background, card bg, text, accent, border, link
+- **2-3 preset palettes per theme** — Quick start options, then tweak
+- **Palettes + free picker** — Start from preset palette, unlock free color picker for each field if wanted
+- **Backgrounds:** Solid color + image + video (autoplay muted loop)
+
+### Font Controls
+- **Heading + body fonts** — Two separate font pickers (titles vs descriptions)
+- **Curated font list (15-20)** — Hand-picked fonts that work for artists
+- **Theme default fonts** — Each theme comes with default fonts that users can change
+- **Separate heading/body size controls** — Independent sliders for headings and body text
+- **Advanced font settings:** Blur effect, bold/regular weight options
+
+### Border & Card Styling
+- **Global default + per-card override** — Set global border style, allow individual cards to differ
+- **Border controls:** Radius + color (theme defines aesthetic like Mac OS shaded borders)
+- **Shadow toggle:** On/off control for card shadows (theme defines shadow style)
+- **Glass/blur intensity slider** — User controls blur amount for themes that support glass effects
 
 ### Theme Application
 - **Themes are skins** — borders, colors, fonts, shadows, hover animations, transitions, entrance/exit animations
@@ -43,6 +62,7 @@ Artists can select themes that skin all cards consistently — visual identity t
 - Specific animation timing and easing curves
 - How to handle theme transitions (smooth fade vs instant)
 - Video background performance optimization
+- Curated font list selection
 
 </decisions>
 
@@ -52,6 +72,7 @@ Artists can select themes that skin all cards consistently — visual identity t
 - **Instagram Reels aesthetic** — user will send visual reference showing "spread out" justified text style commonly seen on Instagram
 - Core differentiator: themes that feel like album art, not marketing pages
 - Artists want visual identity that matches their vibe
+- Clean, easy UX for theme customization — don't overwhelm users
 
 </specifics>
 
