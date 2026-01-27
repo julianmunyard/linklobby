@@ -45,7 +45,7 @@ function createTextTexture(gl, text, font = 'bold 30px monospace', color = 'blac
 }
 
 class Title {
-  constructor({ gl, plane, renderer, text, textColor = '#545050', font = '30px sans-serif' }) {
+  constructor({ gl, plane, renderer, text, textColor = '#545050', font = '30px sans-serif', showCaptions = true }) {
     autoBind(this);
     this.gl = gl;
     this.plane = plane;
@@ -53,9 +53,14 @@ class Title {
     this.text = text;
     this.textColor = textColor;
     this.font = font;
+    this.showCaptions = showCaptions;
     this.createMesh();
   }
   createMesh() {
+    // Skip creating mesh if showCaptions is false or text is empty
+    if (!this.showCaptions || !this.text) {
+      return;
+    }
     const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
     const geometry = new Plane(this.gl);
     const program = new Program(this.gl, {
@@ -109,7 +114,9 @@ class Media {
     textColor,
     borderRadius = 0,
     font,
-    spacing = 1.5
+    spacing = 1.5,
+    link = null,
+    showCaptions = true
   }) {
     this.extra = 0;
     this.geometry = geometry;
@@ -127,6 +134,8 @@ class Media {
     this.borderRadius = borderRadius;
     this.font = font;
     this.spacing = spacing;
+    this.link = link;
+    this.showCaptions = showCaptions;
     this.createShader();
     this.createMesh();
     this.createTitle();
@@ -223,7 +232,8 @@ class Media {
       renderer: this.renderer,
       text: this.text,
       textColor: this.textColor,
-      fontFamily: this.font
+      fontFamily: this.font,
+      showCaptions: this.showCaptions
     });
   }
   update(scroll, direction) {
@@ -314,13 +324,17 @@ class App {
       font = 'bold 30px Figtree',
       scrollSpeed = 2,
       scrollEase = 0.05,
-      spacing = 1.5
+      spacing = 1.5,
+      onTap = null,
+      showCaptions = true
     } = {}
   ) {
     document.documentElement.classList.remove('no-js');
     this.container = container;
     this.scrollSpeed = scrollSpeed;
     this.spacing = spacing;
+    this.onTap = onTap;
+    this.showCaptions = showCaptions;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck, 200);
     this.createRenderer();
@@ -389,12 +403,15 @@ class App {
         textColor,
         borderRadius,
         font,
-        spacing: this.spacing
+        spacing: this.spacing,
+        link: data.link || null,
+        showCaptions: this.showCaptions
       });
     });
   }
   onTouchDown(e) {
     this.isDown = true;
+    this.hasDragged = false;
     this.scroll.position = this.scroll.current;
     this.start = e.touches ? e.touches[0].clientX : e.clientX;
   }
@@ -403,8 +420,19 @@ class App {
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
+    // Track if user has dragged
+    if (Math.abs(distance) > 0.1) {
+      this.hasDragged = true;
+    }
   }
   onTouchUp() {
+    // If no drag occurred and onTap callback provided, fire it with centered image's link
+    if (!this.hasDragged && this.onTap) {
+      const centeredMedia = this.getCenteredMedia();
+      if (centeredMedia && centeredMedia.link) {
+        this.onTap(centeredMedia.link);
+      }
+    }
     this.isDown = false;
     this.onCheck();
   }
@@ -419,6 +447,22 @@ class App {
     const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
     const item = width * itemIndex;
     this.scroll.target = this.scroll.target < 0 ? -item : item;
+  }
+  getCenteredMedia() {
+    if (!this.medias || this.medias.length === 0) return null;
+    // Find the media closest to center (position.x closest to 0)
+    let closestMedia = this.medias[0];
+    let minDistance = Math.abs(closestMedia.plane.position.x);
+
+    for (const media of this.medias) {
+      const distance = Math.abs(media.plane.position.x);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestMedia = media;
+      }
+    }
+
+    return closestMedia;
   }
   onResize() {
     this.screen = {
@@ -488,14 +532,16 @@ export default function CircularGallery({
   font = 'bold 30px Figtree',
   scrollSpeed = 2,
   scrollEase = 0.05,
-  spacing = 1.5
+  spacing = 1.5,
+  onTap = null,
+  showCaptions = true
 }) {
   const containerRef = useRef(null);
   useEffect(() => {
-    const app = new App(containerRef.current, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing });
+    const app = new App(containerRef.current, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing, onTap, showCaptions });
     return () => {
       app.destroy();
     };
-  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing]);
+  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing, onTap, showCaptions]);
   return <div className="circular-gallery" ref={containerRef} />;
 }
