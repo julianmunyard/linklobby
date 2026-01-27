@@ -12,6 +12,7 @@ import {
   useSensors,
   DragStartEvent,
   DragEndEvent,
+  DragOverEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
@@ -22,6 +23,8 @@ import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
 import { useMultiSelect } from "@/hooks/use-multi-select"
+import { usePageStore } from "@/stores/page-store"
+import { canDropInContainer } from "@/lib/dnd-utils"
 import type { Card } from "@/types/card"
 
 interface SelectableFlowGridProps {
@@ -48,6 +51,10 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   // Multi-select state
   const orderedIds = cards.map(c => c.id)
   const multiSelect = useMultiSelect({ orderedIds })
+
+  // Store actions for cross-container drag
+  const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
+  const removeCardFromDropdown = usePageStore((state) => state.removeCardFromDropdown)
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -89,6 +96,14 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     }
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event
+    if (!over) return
+
+    // Visual feedback for hovering over dropdown is handled by dropdown-sortable's isOver state
+    // No additional logic needed here
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveCard(null)
@@ -102,9 +117,45 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
 
     if (!over) return
 
+    const activeId = active.id as string
+    const activeCard = cards.find((c) => c.id === activeId)
+    if (!activeCard) return
+
+    // Check if dropping on a dropdown
+    const overDropdown = over.data.current?.type === "dropdown"
+    const overId = over.id as string
+
+    if (overDropdown) {
+      // Move card(s) into dropdown
+      if (!canDropInContainer(activeId, overId, cards)) return
+
+      // Move all dragged cards to the dropdown
+      cardIdsToDrag.forEach((cardId) => {
+        const card = cards.find((c) => c.id === cardId)
+        if (card && card.card_type !== "dropdown") {
+          moveCardToDropdown(cardId, overId)
+        }
+      })
+      multiSelect.clearSelection()
+      return
+    }
+
+    // Check if card is being moved OUT of a dropdown to main canvas
+    if (activeCard.parentDropdownId && !overDropdown) {
+      // Remove from dropdown first
+      cardIdsToDrag.forEach((cardId) => {
+        removeCardFromDropdown(cardId)
+      })
+      multiSelect.clearSelection()
+      // Continue with reorder on main canvas
+    }
+
+    // Main canvas cards (filter out cards inside dropdowns)
+    const mainCanvasCards = cards.filter(c => !c.parentDropdownId)
+
     // Reorder drop
     if (active.id !== over.id) {
-      const newIndex = cards.findIndex((c) => c.id === over.id)
+      const newIndex = mainCanvasCards.findIndex((c) => c.id === over.id)
 
       if (newIndex !== -1) {
         // Multi-drag: move all selected cards
@@ -113,7 +164,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           multiSelect.clearSelection()
         } else {
           // Single drag
-          const oldIndex = cards.findIndex((c) => c.id === active.id)
+          const oldIndex = mainCanvasCards.findIndex((c) => c.id === active.id)
           if (oldIndex !== -1) {
             onReorder(oldIndex, newIndex)
           }
@@ -168,10 +219,11 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={cards.map((c) => c.id)}
+        items={cards.filter(c => !c.parentDropdownId).map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
