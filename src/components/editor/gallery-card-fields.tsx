@@ -1,0 +1,197 @@
+'use client'
+
+import { useState, useCallback } from 'react'
+import { DndContext, closestCenter, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, arrayMove, useSortable, rectSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import Image from 'next/image'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Circle, Rows3, X, Loader2, ImageIcon } from 'lucide-react'
+import { uploadCardImage } from '@/lib/supabase/storage'
+import { compressImageForUpload } from '@/lib/image-compression'
+import type { GalleryCardContent, GalleryImage } from '@/types/card'
+
+interface GalleryCardFieldsProps {
+  content: Partial<GalleryCardContent>
+  onChange: (updates: Record<string, unknown>) => void
+  cardId: string
+}
+
+function SortableImage({
+  image,
+  onRemove
+}: {
+  image: GalleryImage
+  onRemove: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group aspect-square">
+      <div {...attributes} {...listeners} className="cursor-move w-full h-full">
+        <Image src={image.url} alt={image.alt} fill className="object-cover rounded" />
+      </div>
+      <button
+        onClick={onRemove}
+        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Remove image"
+      >
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  )
+}
+
+export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFieldsProps) {
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 50,
+        tolerance: 5,
+      },
+    })
+  )
+
+  const images = content.images || []
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = images.findIndex(img => img.id === active.id)
+    const newIndex = images.findIndex(img => img.id === over.id)
+
+    const reordered = arrayMove(images, oldIndex, newIndex)
+    onChange({ images: reordered })
+  }, [images, onChange])
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    setError(null)
+    try {
+      // Compress before upload
+      const compressed = await compressImageForUpload(file)
+
+      // Upload to Supabase
+      const result = await uploadCardImage(compressed as File, cardId)
+
+      // Create new image entry
+      const newImage: GalleryImage = {
+        id: crypto.randomUUID(),
+        url: result.url,
+        alt: file.name.replace(/\.[^/.]+$/, ''), // filename without extension
+        storagePath: result.path,
+      }
+
+      // Add to images array
+      const newImages = [...images, newImage]
+      onChange({ images: newImages })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setIsUploading(false)
+      // Reset input
+      e.target.value = ''
+    }
+  }, [images, onChange, cardId])
+
+  const handleRemoveImage = useCallback((id: string) => {
+    const newImages = images.filter(img => img.id !== id)
+    onChange({ images: newImages })
+  }, [images, onChange])
+
+  return (
+    <div className="space-y-4">
+      {/* Gallery Style Toggle */}
+      <div className="space-y-2">
+        <Label>Gallery Style</Label>
+        <ToggleGroup
+          type="single"
+          value={content.galleryStyle || 'carousel'}
+          onValueChange={(value) => {
+            if (value) onChange({ galleryStyle: value })
+          }}
+          className="justify-start"
+        >
+          <ToggleGroupItem value="circular" aria-label="Circular gallery">
+            <Circle className="h-4 w-4 mr-2" /> Circular
+          </ToggleGroupItem>
+          <ToggleGroupItem value="carousel" aria-label="Carousel">
+            <Rows3 className="h-4 w-4 mr-2" /> Carousel
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {/* Image Grid with dnd-kit */}
+      {images.length > 0 && (
+        <div className="space-y-2">
+          <Label>Images ({images.length}/10)</Label>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={images.map(img => img.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-4 gap-2">
+                {images.map(image => (
+                  <SortableImage
+                    key={image.id}
+                    image={image}
+                    onRemove={() => handleRemoveImage(image.id)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+
+      {/* Add Image button (hidden at 10 images) */}
+      {images.length < 10 && (
+        <div className="space-y-2">
+          <Label htmlFor="addImage">Add Image {images.length > 0 && `(${images.length}/10)`}</Label>
+          <Input
+            id="addImage"
+            type="file"
+            accept="image/*"
+            disabled={isUploading}
+            onChange={handleFileSelect}
+            className="cursor-pointer"
+          />
+          {isUploading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Uploading...
+            </div>
+          )}
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
+        </div>
+      )}
+
+      {images.length === 0 && (
+        <div className="text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+          <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">No images added yet</p>
+          <p className="text-xs mt-1">Add up to 10 images</p>
+        </div>
+      )}
+    </div>
+  )
+}
