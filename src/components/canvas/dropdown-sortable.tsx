@@ -71,6 +71,7 @@ export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps
   const style = {
     transform: CSS.Translate.toString(transform),
     transition: transition ?? 'transform 200ms ease',
+    willChange: 'transform' as const,
   }
 
   // Handle "Move Selected Here"
