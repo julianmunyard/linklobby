@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Masonry from "react-masonry-css"
 import {
   DndContext,
   DragOverlay,
@@ -23,12 +22,6 @@ import { CardRenderer } from "@/components/cards/card-renderer"
 import { SortableFlowCard } from "./sortable-flow-card"
 import { useHistory } from "@/hooks/use-history"
 import type { Card } from "@/types/card"
-
-// Masonry breakpoints - 2 columns on wider screens, 1 on narrow
-const masonryBreakpoints = {
-  default: 2,
-  640: 1, // 1 column below 640px
-}
 
 interface FlowGridProps {
   cards: Card[]
@@ -123,19 +116,15 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
         items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
-        {/* Masonry layout - small cards fill gaps, big cards span full width */}
-        <Masonry
-          breakpointCols={masonryBreakpoints}
-          className="flex gap-4 -ml-4"
-          columnClassName="pl-4 bg-clip-padding space-y-4"
-        >
+        {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
+        <div className="flex flex-wrap gap-4">
           {cards.map((card) => (
             <SortableFlowCard
               key={card.id}
               card={card}
             />
           ))}
-        </Masonry>
+        </div>
       </SortableContext>
 
       {/* Drag overlay - visual feedback following cursor */}
