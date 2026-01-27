@@ -41,7 +41,6 @@ export function SnakeGame({
 
   // Refs for deferred callbacks (avoid setState during render)
   const pendingScoreRef = useRef<number | null>(null)
-  const pendingRespawnRef = useRef<boolean>(false)
 
   const spawnFood = useCallback(() => {
     const newFood: Position = {
@@ -57,18 +56,6 @@ export function SnakeGame({
       const newScore = pendingScoreRef.current
       pendingScoreRef.current = null
       onScoreChange(newScore)
-    }
-  })
-
-  // Handle respawn after collision
-  useEffect(() => {
-    if (pendingRespawnRef.current) {
-      pendingRespawnRef.current = false
-      const startX = Math.floor(gridWidth / 4)
-      const startY = Math.floor(gridHeight / 2)
-      setSnake([{ x: startX, y: startY }])
-      setDirection("right")
-      spawnFood()
     }
   })
 
@@ -102,8 +89,8 @@ export function SnakeGame({
         const head = prevSnake[0]
         const dir = directionRef.current
 
-        // Calculate new head position
-        const newHead: Position = { ...head }
+        // Calculate new head position with wrap-around (no walls)
+        let newHead: Position = { ...head }
         switch (dir) {
           case "up": newHead.y -= 1; break
           case "down": newHead.y += 1; break
@@ -111,22 +98,13 @@ export function SnakeGame({
           case "right": newHead.x += 1; break
         }
 
-        // Check wall collision - respawn snake
-        if (
-          newHead.x < 0 ||
-          newHead.x >= gridWidth ||
-          newHead.y < 0 ||
-          newHead.y >= gridHeight
-        ) {
-          pendingRespawnRef.current = true
-          return prevSnake
-        }
+        // Wrap around edges (no collision - just fun)
+        if (newHead.x < 0) newHead.x = gridWidth - 1
+        if (newHead.x >= gridWidth) newHead.x = 0
+        if (newHead.y < 0) newHead.y = gridHeight - 1
+        if (newHead.y >= gridHeight) newHead.y = 0
 
-        // Check self collision - respawn snake
-        if (prevSnake.some((seg) => seg.x === newHead.x && seg.y === newHead.y)) {
-          pendingRespawnRef.current = true
-          return prevSnake
-        }
+        // No self collision - snake can pass through itself
 
         // Check food collision
         const newSnake = [newHead, ...prevSnake]
