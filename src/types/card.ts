@@ -193,3 +193,7 @@ export function isGalleryContent(content: unknown): content is GalleryCardConten
 export function isGameContent(content: unknown): content is GameCardContent {
   return typeof content === 'object' && content !== null && 'gameType' in content
 }
+
+export function isDropdownContent(content: unknown): content is DropdownCardContent {
+  return typeof content === 'object' && content !== null && 'childCardIds' in content
+}
