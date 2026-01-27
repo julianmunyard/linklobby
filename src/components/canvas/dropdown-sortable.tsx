@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/context-menu"
 import { SortableFlowCard } from "./sortable-flow-card"
 import { DropdownCard } from "@/components/cards/dropdown-card"
+import { CardRenderer } from "@/components/cards/card-renderer"
 import { useMultiSelectContextOptional } from "@/contexts/multi-select-context"
 import { usePageStore } from "@/stores/page-store"
 import type { Card } from "@/types/card"
@@ -107,21 +108,14 @@ export function DropdownSortable({ dropdown, childCards }: DropdownSortableProps
                 isOpen={isOpen}
                 onOpenChange={setIsOpen}
               >
-                {/* Nested SortableContext for children */}
-                <SortableContext
-                  items={childCards.map((c) => c.id)}
-                  strategy={rectSortingStrategy}
-                >
-                  <div className="space-y-2">
-                    {childCards.map((card) => (
-                      <SortableFlowCard
-                        key={card.id}
-                        card={card}
-                        isInsideDropdown
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
+                {/* Simple render without nested SortableContext - testing collapse */}
+                <div className="space-y-2">
+                  {childCards.map((card) => (
+                    <div key={card.id} className="w-full">
+                      <CardRenderer card={card} isPreview />
+                    </div>
+                  ))}
+                </div>
               </DropdownCard>
             </div>
 
