@@ -384,6 +384,7 @@ Fixed critical dropdown card issues:
 | 014 | Click card image to open crop/edit dialog | Complete | 596cd78 |
 | 015 | Fix Phase 6 multi-select, dropdown drag-drop, context menu | Complete | 22ab61b |
 | 016 | Fix dropdown card management - remove card | Complete | edadcc1 |
+| 017 | Fix dropdown CardRenderer import + visual stability | Complete | a6697fa |
 
 ## Session Continuity
 
