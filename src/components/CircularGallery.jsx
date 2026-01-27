@@ -415,14 +415,17 @@ class App {
     this.hasDragged = false;
     this.scroll.position = this.scroll.current;
     this.start = e.touches ? e.touches[0].clientX : e.clientX;
+    this.startY = e.touches ? e.touches[0].clientY : e.clientY;
   }
   onTouchMove(e) {
     if (!this.isDown) return;
     const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
-    // Track if user has dragged
-    if (Math.abs(distance) > 0.1) {
+    // Track if user has dragged (10px threshold in any direction)
+    const pixelsMoved = Math.sqrt(Math.pow(x - this.start, 2) + Math.pow(y - this.startY, 2));
+    if (pixelsMoved > 10) {
       this.hasDragged = true;
     }
   }
