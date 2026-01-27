@@ -303,35 +303,43 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 05-02-PLAN.md (Video Card Component & Editor)
-Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create new plans
+Stopped at: Video/Gallery polish and improvements
+Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create Gallery Card plan
 
 **This session's work:**
 
-1. **Phase 5 Media Cards Execution** (2 plans)
-   - Plan 01: Foundation - Media Card Types & Helpers
-     - Installed get-video-id and embla-carousel-react
-     - Created VideoCardContent and GalleryCardContent types with type guards
-     - Built parseVideoUrl for YouTube/Vimeo/TikTok with oEmbed thumbnails
-     - Added uploadCardVideo/deleteCardVideo storage functions
-   - Plan 02: Video Card Component & Editor
-     - Created VideoCard with embed (thumbnail + click-to-play) and upload (muted autoplay) modes
-     - Built VideoCardFields editor with URL validation and file upload
-     - Wired into card renderer and property editor
-     - Made videoType optional with 'embed' default
+1. **Video Card Polish**
+   - Added zoom slider (1x-2x) to crop uploaded videos via CSS transform
+   - Implemented drag-to-position for panning zoomed videos
+   - Added text/vertical alignment support for both upload and embed modes
+   - Redesigned video editor with fields at top, cleaner layout
+
+2. **Gallery Card Polish**
+   - Added customization sliders (bend, radius, scroll speed, ease, spacing)
+   - Added fade gradients on edges for small gallery cards
+   - Improved CircularGallery with configurable spacing prop
+
+3. **Editor Improvements**
+   - Replaced card size dropdown with visual SVG toggle buttons
+   - Added edit button and drag handle for interactive cards in preview
+   - Fixed image crop dialog closing immediately
+
+4. **Configuration**
+   - Added YouTube (i.ytimg.com), Vimeo, TikTok thumbnail domains to next.config.ts
 
 **Key commits this session:**
-- `37fe633` - feat(05-02): create VideoCard component
-- `a3db260` - feat(05-02): create VideoCardFields editor component
-- `5063c5e` - feat(05-02): wire VideoCard into card renderer
-- `44b0aea` - feat(05-02): wire VideoCardFields into property editor
+- `db178e4` - feat(05): video/gallery editor polish and improvements
 
-**Files created/modified:**
-- `src/components/cards/video-card.tsx` - NEW: VideoCard with embed and upload modes
-- `src/components/editor/video-card-fields.tsx` - NEW: Editor fields with URL validation and upload
-- `src/components/cards/card-renderer.tsx` - Added video case
-- `src/components/editor/card-property-editor.tsx` - Added VideoCardFields
-- `src/types/card.ts` - Made videoType optional, added video/gallery to CARD_TYPES_NO_IMAGE
+**Files modified:**
+- `src/components/cards/video-card.tsx` - Zoom/pan, text align for both modes
+- `src/components/editor/video-card-fields.tsx` - Zoom slider, drag-to-position, redesign
+- `src/components/cards/gallery-card.tsx` - Small card fade gradients
+- `src/components/editor/gallery-card-fields.tsx` - Customization sliders
+- `src/components/CircularGallery.jsx` - Spacing prop support
+- `src/components/editor/card-property-editor.tsx` - SVG size toggle
+- `src/components/canvas/preview-sortable-card.tsx` - Interactive card controls
+- `src/types/card.ts` - Video zoom/position fields
+- `next.config.ts` - Thumbnail domains
 
 ---
-*Updated: 2026-01-27 - Video Card implementation complete*
+*Updated: 2026-01-27 - Video/Gallery polish complete*
