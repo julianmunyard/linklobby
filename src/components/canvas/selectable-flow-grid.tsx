@@ -26,6 +26,7 @@ import { DropdownSortable } from "./dropdown-sortable"
 import { useMultiSelect } from "@/hooks/use-multi-select"
 import { usePageStore } from "@/stores/page-store"
 import { canDropInContainer } from "@/lib/dnd-utils"
+import { ChevronDown } from "lucide-react"
 import type { Card } from "@/types/card"
 
 interface SelectableFlowGridProps {
@@ -56,6 +57,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   // Store actions for cross-container drag
   const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
   const removeCardFromDropdown = usePageStore((state) => state.removeCardFromDropdown)
+  const reorderCardsInDropdown = usePageStore((state) => state.reorderCardsInDropdown)
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -125,7 +127,24 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     // Check if dropping on a dropdown
     const overDropdown = over.data.current?.type === "dropdown"
     const overId = over.id as string
+    const overCard = cards.find((c) => c.id === overId)
 
+    // Case 1: Reordering WITHIN the same dropdown
+    if (activeCard.parentDropdownId && overCard?.parentDropdownId === activeCard.parentDropdownId) {
+      const dropdownId = activeCard.parentDropdownId
+      const dropdown = cards.find((c) => c.id === dropdownId)
+      if (dropdown && dropdown.content && 'childCardIds' in dropdown.content) {
+        const childCardIds = dropdown.content.childCardIds as string[]
+        const oldIndex = childCardIds.indexOf(activeId)
+        const newIndex = childCardIds.indexOf(overId)
+        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+          reorderCardsInDropdown(dropdownId, oldIndex, newIndex)
+        }
+      }
+      return
+    }
+
+    // Case 2: Dropping onto a dropdown container
     if (overDropdown) {
       // Move card(s) into dropdown
       if (!canDropInContainer(activeId, overId, cards)) return
@@ -141,7 +160,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
       return
     }
 
-    // Check if card is being moved OUT of a dropdown to main canvas
+    // Case 3: Moving OUT of a dropdown to main canvas
     if (activeCard.parentDropdownId && !overDropdown) {
       // Remove from dropdown first
       cardIdsToDrag.forEach((cardId) => {
@@ -151,10 +170,9 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
       // Continue with reorder on main canvas
     }
 
-    // Main canvas cards (filter out cards inside dropdowns)
+    // Case 4: Reordering on main canvas
     const mainCanvasCards = cards.filter(c => !c.parentDropdownId)
 
-    // Reorder drop
     if (active.id !== over.id) {
       const newIndex = mainCanvasCards.findIndex((c) => c.id === over.id)
 
@@ -263,9 +281,23 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           <div className="relative">
             <div className={cn(
               "shadow-xl pointer-events-none",
-              activeCard.size === "big" ? "w-80" : "w-40",
+              activeCard.card_type === "dropdown"
+                ? "w-80"  // Fixed width for dropdown overlay
+                : activeCard.size === "big" ? "w-80" : "w-40",
             )}>
-              <CardRenderer card={activeCard} isPreview />
+              {activeCard.card_type === "dropdown" ? (
+                // Simplified dropdown preview during drag (collapsed)
+                <div className="bg-card/50 border border-border/50 rounded-lg px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      {activeCard.title || "Dropdown"}
+                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground/70" />
+                  </div>
+                </div>
+              ) : (
+                <CardRenderer card={activeCard} isPreview />
+              )}
             </div>
             {/* Badge showing count when multi-dragging */}
             {draggedCardIds.length > 1 && (
