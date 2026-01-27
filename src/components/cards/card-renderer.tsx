@@ -6,6 +6,7 @@ import { SocialIconsCard } from "./social-icons-card"
 import { LinkCard } from "./link-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
+import { GameCard } from "./game-card"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -29,8 +30,10 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       return <VideoCard card={card} isPreview={isPreview} />
     case "gallery":
       return <GalleryCard card={card} isPreview={isPreview} />
+    case "game":
+      return <GameCard card={card} isPreview={isPreview} />
     default:
-      // Fallback for unimplemented card types (gallery, dropdown, game, audio)
+      // Fallback for unimplemented card types (dropdown, audio)
       return (
         <div className="w-full p-4 rounded-lg border bg-card">
           <p className="font-medium">{card.title || "Untitled"}</p>
