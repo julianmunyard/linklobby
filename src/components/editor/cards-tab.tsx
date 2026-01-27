@@ -25,7 +25,6 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "square", label: "Square Card" },
   { type: "video", label: "Video Card" },
   { type: "gallery", label: "Photo Gallery" },
-  { type: "dropdown", label: "Dropdown" },
   { type: "game", label: "Game" },
   { type: "social-icons", label: "Social Icons" },
 ]
@@ -66,7 +65,7 @@ export function CardsTab() {
       const sortKey = type === "social-icons"
         ? generatePrependKey(cards)
         : generateAppendKey(cards)
-      // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
+      // Card types with null sizing (horizontal, audio) always use 'big'
       const size = CARD_TYPE_SIZING[type] === null ? "big" : "big"
 
       // Type-specific default content (text and vertical alignment)
@@ -79,8 +78,6 @@ export function CardsTab() {
             return { textAlign: "left", verticalAlign: "middle" }
           case "link":
             return { textAlign: "center", verticalAlign: "middle" }
-          case "dropdown":
-            return { childCardIds: [] }
           case "game":
             return { gameType: "snake" }
           default:

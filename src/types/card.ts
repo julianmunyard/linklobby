@@ -5,7 +5,6 @@ export type CardType =
   | 'square'
   | 'video'
   | 'gallery'
-  | 'dropdown'
   | 'game'
   | 'audio'
   | 'social-icons'
@@ -26,7 +25,6 @@ export interface Card {
   size: CardSize
   position: HorizontalPosition  // horizontal position for small cards
   sortKey: string  // fractional-indexing key for ordering
-  parentDropdownId?: string | null  // If card is inside a dropdown, this is the dropdown's ID
   is_visible: boolean
   created_at: string
   updated_at: string
@@ -51,7 +49,6 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   horizontal: null, // Always full width - no sizing option
   video: ['big', 'small'],
   gallery: ['big', 'small'],
-  dropdown: null, // Always full width
   game: ['big', 'small'],
   audio: null, // Always full width
   'social-icons': null, // Always full width - singleton widget
@@ -59,7 +56,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio', 'video', 'gallery', 'game']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'audio', 'video', 'gallery', 'game']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -159,15 +156,8 @@ export const GAME_TYPE_INFO: Record<GameType, { label: string; description: stri
   flappy: { label: 'Flappy', description: 'Tap to fly' },
 }
 
-export interface DropdownCardContent {
-  headerText?: string        // Custom header (fallback to card.title)
-  expandText?: string        // "Show more" text (optional)
-  collapseText?: string      // "Show less" text (optional)
-  childCardIds: string[]     // IDs of cards inside this dropdown (ordering)
-}
-
 // Union type for all card content
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | DropdownCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | Record<string, unknown>
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
@@ -194,8 +184,4 @@ export function isGalleryContent(content: unknown): content is GalleryCardConten
 
 export function isGameContent(content: unknown): content is GameCardContent {
   return typeof content === 'object' && content !== null && 'gameType' in content
-}
-
-export function isDropdownContent(content: unknown): content is DropdownCardContent {
-  return typeof content === 'object' && content !== null && 'childCardIds' in content
 }

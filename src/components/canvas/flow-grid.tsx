@@ -11,7 +11,6 @@ import {
   useSensors,
   DragStartEvent,
   DragEndEvent,
-  DragOverEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
@@ -21,10 +20,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { SortableFlowCard } from "./sortable-flow-card"
-import { DropdownSortable } from "./dropdown-sortable"
 import { useHistory } from "@/hooks/use-history"
-import { usePageStore } from "@/stores/page-store"
-import { findContainer, getContainerCards, canDropInContainer } from "@/lib/dnd-utils"
 import type { Card } from "@/types/card"
 
 interface FlowGridProps {
@@ -36,8 +32,6 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mounted, setMounted] = useState(false)
   const { pause, resume } = useHistory()
-  const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
-  const removeCardFromDropdown = usePageStore((state) => state.removeCardFromDropdown)
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -62,27 +56,6 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
     setActiveCard(card || null)
   }
 
-  function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event
-    if (!over) return
-
-    const activeCard = cards.find((c) => c.id === active.id)
-    if (!activeCard) return
-
-    const activeContainer = findContainer(active.id as string, cards)
-    const overContainer = over.data.current?.type === "dropdown"
-      ? over.id as string
-      : findContainer(over.id as string, cards)
-
-    // If moving to different container, update parentDropdownId
-    if (activeContainer !== overContainer) {
-      if (!canDropInContainer(active.id as string, overContainer, cards)) {
-        return // Can't drop dropdown into dropdown
-      }
-      // Update will happen in onDragEnd
-    }
-  }
-
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveCard(null)
@@ -93,38 +66,12 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
       return
     }
 
-    const activeCard = cards.find((c) => c.id === active.id)
-    if (!activeCard) {
-      resume()
-      return
-    }
-
-    const activeContainer = findContainer(active.id as string, cards)
-    const overContainer = over.data.current?.type === "dropdown"
-      ? over.id as string
-      : findContainer(over.id as string, cards)
-
-    // Cross-container move
-    if (activeContainer !== overContainer) {
-      if (!canDropInContainer(active.id as string, overContainer, cards)) {
-        resume()
-        return
-      }
-
-      if (overContainer === "canvas") {
-        removeCardFromDropdown(active.id as string)
-      } else {
-        moveCardToDropdown(active.id as string, overContainer)
-      }
-    } else {
-      // Same container reorder (existing logic)
-      if (active.id !== over.id) {
-        const containerCards = getContainerCards(activeContainer, cards)
-        const oldIndex = containerCards.findIndex((c) => c.id === active.id)
-        const newIndex = containerCards.findIndex((c) => c.id === over.id)
-        if (oldIndex !== -1 && newIndex !== -1) {
-          onReorder(oldIndex, newIndex)
-        }
+    // Reorder cards
+    if (active.id !== over.id) {
+      const oldIndex = cards.findIndex((c) => c.id === active.id)
+      const newIndex = cards.findIndex((c) => c.id === over.id)
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onReorder(oldIndex, newIndex)
       }
     }
 
@@ -158,36 +105,24 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
     )
   }
 
-  // Split cards into main canvas and dropdown children
-  const mainCanvasCards = cards.filter((c) => !c.parentDropdownId)
-
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={mainCanvasCards.map((c) => c.id)}
+        items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
         <div className="flex flex-wrap gap-4">
-          {mainCanvasCards.map((card) => (
-            card.card_type === "dropdown" ? (
-              <DropdownSortable
-                key={card.id}
-                dropdown={card}
-                childCards={cards.filter((c) => c.parentDropdownId === card.id)}
-              />
-            ) : (
-              <SortableFlowCard
-                key={card.id}
-                card={card}
-              />
-            )
+          {cards.map((card) => (
+            <SortableFlowCard
+              key={card.id}
+              card={card}
+            />
           ))}
         </div>
       </SortableContext>

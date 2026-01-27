@@ -28,15 +28,14 @@ import { SquareCardFields } from "./square-card-fields"
 import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
 import { GameCardFields } from "./game-card-fields"
-import { DropdownCardFields } from "./dropdown-card-fields"
 import { SocialIconsCardFields } from "./social-icons-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, DropdownCardContent, TextAlign, VerticalAlign } from "@/types/card"
-import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE, isDropdownContent } from "@/types/card"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -283,14 +282,6 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {card.card_type === "game" && (
               <GameCardFields
                 content={currentContent as Partial<GameCardContent>}
-                onChange={handleContentChange}
-              />
-            )}
-
-            {/* Dropdown-specific fields at top for dropdown cards */}
-            {card.card_type === "dropdown" && (
-              <DropdownCardFields
-                content={isDropdownContent(currentContent) ? currentContent : { childCardIds: [] }}
                 onChange={handleContentChange}
               />
             )}

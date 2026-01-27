@@ -7,7 +7,6 @@ import { LinkCard } from "./link-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
-import { DropdownCard } from "./dropdown-card"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -33,9 +32,6 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       return <GalleryCard card={card} isPreview={isPreview} />
     case "game":
       return <GameCard card={card} isPreview={isPreview} />
-    case "dropdown":
-      // Dropdown in CardRenderer is for DragOverlay preview - always collapsed, non-interactive
-      return <DropdownCard card={card} isPreview={isPreview} isOpen={false} onOpenChange={() => {}} />
     default:
       // Fallback for unimplemented card types (audio)
       return (

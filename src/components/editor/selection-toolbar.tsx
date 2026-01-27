@@ -1,14 +1,8 @@
 "use client"
 
-import { X, FolderInput, MoveRight, Trash2 } from "lucide-react"
+import { X, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,14 +16,9 @@ import {
 import { useMultiSelectContext } from "@/contexts/multi-select-context"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
-import { isDropdownContent } from "@/types/card"
-import type { DropdownCardContent } from "@/types/card"
 
 export function SelectionToolbar() {
   const { selectedIds, selectedCount, clearSelection } = useMultiSelectContext()
-  const cards = usePageStore((state) => state.cards)
-  const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
-  const addCard = usePageStore((state) => state.addCard)
   const removeCardFromStore = usePageStore((state) => state.removeCard)
   const { removeCard: removeCardFromDb } = useCards()
 
@@ -38,43 +27,6 @@ export function SelectionToolbar() {
   // Hide toolbar when no selection
   if (selectedCount === 0) {
     return null
-  }
-
-  // Get existing dropdown cards
-  const dropdowns = cards.filter((card) =>
-    card.card_type === "dropdown" && !card.parentDropdownId
-  )
-
-  // Handle "Group into Dropdown"
-  const handleGroupIntoDropdown = () => {
-    // Create new dropdown card
-    addCard("dropdown")
-
-    // Get the newly created dropdown (last card added)
-    const newDropdown = usePageStore.getState().cards.find(
-      (card) => card.card_type === "dropdown" && !card.parentDropdownId
-    )
-
-    if (!newDropdown) return
-
-    // Move all selected cards into the new dropdown
-    selectedIds.forEach((cardId) => {
-      moveCardToDropdown(cardId, newDropdown.id)
-    })
-
-    // Clear selection
-    clearSelection()
-  }
-
-  // Handle "Move to Dropdown"
-  const handleMoveToDropdown = (dropdownId: string) => {
-    // Move all selected cards to the specified dropdown
-    selectedIds.forEach((cardId) => {
-      moveCardToDropdown(cardId, dropdownId)
-    })
-
-    // Clear selection
-    clearSelection()
   }
 
   // Handle "Delete All"
@@ -108,54 +60,6 @@ export function SelectionToolbar() {
 
         {/* Divider */}
         <div className="h-6 w-px bg-border" />
-
-        {/* Group into Dropdown */}
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={handleGroupIntoDropdown}
-          className="gap-2"
-        >
-          <FolderInput className="h-4 w-4" />
-          <span className="hidden sm:inline">Group into Dropdown</span>
-        </Button>
-
-        {/* Move to Dropdown */}
-        {dropdowns.length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="ghost" className="gap-2">
-                <MoveRight className="h-4 w-4" />
-                <span className="hidden sm:inline">Move to Dropdown</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="max-h-60 overflow-y-auto">
-              {dropdowns.map((dropdown) => {
-                // Type guard check before casting
-                if (!isDropdownContent(dropdown.content)) {
-                  return null
-                }
-
-                const content = dropdown.content
-                const dropdownTitle = dropdown.title || "Untitled Dropdown"
-
-                return (
-                  <DropdownMenuItem
-                    key={dropdown.id}
-                    onClick={() => handleMoveToDropdown(dropdown.id)}
-                  >
-                    {dropdownTitle}
-                    {content.childCardIds && content.childCardIds.length > 0 && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        ({content.childCardIds.length})
-                      </span>
-                    )}
-                  </DropdownMenuItem>
-                )
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
 
         {/* Delete All */}
         <Button

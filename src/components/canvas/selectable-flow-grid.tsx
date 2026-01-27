@@ -12,7 +12,6 @@ import {
   useSensors,
   DragStartEvent,
   DragEndEvent,
-  DragOverEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
@@ -22,11 +21,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
-import { DropdownSortable } from "./dropdown-sortable"
 import { useMultiSelect } from "@/hooks/use-multi-select"
-import { usePageStore } from "@/stores/page-store"
-import { canDropInContainer } from "@/lib/dnd-utils"
-import { ChevronDown } from "lucide-react"
 import type { Card } from "@/types/card"
 
 interface SelectableFlowGridProps {
@@ -53,11 +48,6 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   // Multi-select state
   const orderedIds = cards.map(c => c.id)
   const multiSelect = useMultiSelect({ orderedIds })
-
-  // Store actions for cross-container drag
-  const moveCardToDropdown = usePageStore((state) => state.moveCardToDropdown)
-  const removeCardFromDropdown = usePageStore((state) => state.removeCardFromDropdown)
-  const reorderCardsInDropdown = usePageStore((state) => state.reorderCardsInDropdown)
 
   // Hydration guard: dnd-kit generates different IDs on server vs client
   useEffect(() => {
@@ -99,14 +89,6 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     }
   }
 
-  function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event
-    if (!over) return
-
-    // Visual feedback for hovering over dropdown is handled by dropdown-sortable's isOver state
-    // No additional logic needed here
-  }
-
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveCard(null)
@@ -120,66 +102,12 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
 
     if (!over) return
 
-    const activeId = active.id as string
-    const activeCard = cards.find((c) => c.id === activeId)
-    if (!activeCard) return
-
     // Early exit: if same position (no actual movement), do nothing
     if (active.id === over.id) return
 
-    // Check if dropping on a dropdown
-    const overDropdown = over.data.current?.type === "dropdown"
-    const overId = over.id as string
-    const overCard = cards.find((c) => c.id === overId)
-
-    // Case 1: Reordering WITHIN the same dropdown
-    if (activeCard.parentDropdownId && overCard?.parentDropdownId === activeCard.parentDropdownId) {
-      const dropdownId = activeCard.parentDropdownId
-      const dropdown = cards.find((c) => c.id === dropdownId)
-      if (dropdown && dropdown.content && 'childCardIds' in dropdown.content) {
-        const childCardIds = dropdown.content.childCardIds as string[]
-        const oldIndex = childCardIds.indexOf(activeId)
-        const newIndex = childCardIds.indexOf(overId)
-        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-          reorderCardsInDropdown(dropdownId, oldIndex, newIndex)
-        }
-      }
-      return
-    }
-
-    // Case 2: Dropping onto a dropdown container
-    if (overDropdown) {
-      // Move card(s) into dropdown
-      if (!canDropInContainer(activeId, overId, cards)) return
-
-      // Move all dragged cards to the dropdown
-      cardIdsToDrag.forEach((cardId) => {
-        const card = cards.find((c) => c.id === cardId)
-        if (card && card.card_type !== "dropdown") {
-          moveCardToDropdown(cardId, overId)
-        }
-      })
-      multiSelect.clearSelection()
-      return
-    }
-
-    // Case 3: Moving OUT of a dropdown to main canvas
-    // Only trigger if EXPLICITLY dropping on a main canvas card (not same position, not dropdown)
-    const isMainCanvasCard = overCard && !overCard.parentDropdownId && overCard.card_type !== "dropdown"
-    if (activeCard.parentDropdownId && !overDropdown && isMainCanvasCard && active.id !== over.id) {
-      // Remove from dropdown first
-      cardIdsToDrag.forEach((cardId) => {
-        removeCardFromDropdown(cardId)
-      })
-      multiSelect.clearSelection()
-      // Continue with reorder on main canvas
-    }
-
-    // Case 4: Reordering on main canvas
-    const mainCanvasCards = cards.filter(c => !c.parentDropdownId)
-
+    // Reordering on main canvas
     if (active.id !== over.id) {
-      const newIndex = mainCanvasCards.findIndex((c) => c.id === over.id)
+      const newIndex = cards.findIndex((c) => c.id === over.id)
 
       if (newIndex !== -1) {
         // Multi-drag: move all selected cards
@@ -188,7 +116,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           multiSelect.clearSelection()
         } else {
           // Single drag
-          const oldIndex = mainCanvasCards.findIndex((c) => c.id === active.id)
+          const oldIndex = cards.findIndex((c) => c.id === active.id)
           if (oldIndex !== -1) {
             onReorder(oldIndex, newIndex)
           }
@@ -243,11 +171,10 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={cards.filter(c => !c.parentDropdownId).map((c) => c.id)}
+        items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
@@ -261,21 +188,13 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
             }
           }}
         >
-          {cards.filter(c => !c.parentDropdownId).map((card) => (
-            card.card_type === "dropdown" ? (
-              <DropdownSortable
-                key={card.id}
-                dropdown={card}
-                childCards={cards.filter((c) => c.parentDropdownId === card.id)}
-              />
-            ) : (
-              <PreviewSortableCard
-                key={card.id}
-                card={card}
-                isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
-                onClick={(e) => handleCardClick(card.id, e)}
-              />
-            )
+          {cards.map((card) => (
+            <PreviewSortableCard
+              key={card.id}
+              card={card}
+              isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
+              onClick={(e) => handleCardClick(card.id, e)}
+            />
           ))}
         </div>
       </SortableContext>
@@ -286,23 +205,9 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           <div className="relative">
             <div className={cn(
               "shadow-xl pointer-events-none",
-              activeCard.card_type === "dropdown"
-                ? "w-80"  // Fixed width for dropdown overlay
-                : activeCard.size === "big" ? "w-80" : "w-40",
+              activeCard.size === "big" ? "w-80" : "w-40",
             )}>
-              {activeCard.card_type === "dropdown" ? (
-                // Simplified dropdown preview during drag (collapsed)
-                <div className="bg-card/50 border border-border/50 rounded-lg px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">
-                      {activeCard.title || "Dropdown"}
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground/70" />
-                  </div>
-                </div>
-              ) : (
-                <CardRenderer card={activeCard} isPreview />
-              )}
+              <CardRenderer card={activeCard} isPreview />
             </div>
             {/* Badge showing count when multi-dragging */}
             {draggedCardIds.length > 1 && (
