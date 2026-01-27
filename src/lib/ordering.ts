@@ -24,6 +24,18 @@ export function generateAppendKey(cards: Card[]): string {
 }
 
 /**
+ * Generate a sort key for a new card at the beginning of the list
+ */
+export function generatePrependKey(cards: Card[]): string {
+  if (cards.length === 0) {
+    return generateKeyBetween(null, null)
+  }
+  const sorted = sortCardsBySortKey(cards)
+  const firstKey = sorted[0].sortKey
+  return generateKeyBetween(null, firstKey)
+}
+
+/**
  * Generate a sort key for inserting at a specific index
  */
 export function generateInsertKey(cards: Card[], targetIndex: number): string {

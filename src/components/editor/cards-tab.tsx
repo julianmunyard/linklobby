@@ -13,7 +13,7 @@ import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
 import { useCards } from "@/hooks/use-cards"
-import { generateAppendKey, sortCardsBySortKey } from "@/lib/ordering"
+import { generateAppendKey, generatePrependKey, sortCardsBySortKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
@@ -62,7 +62,10 @@ export function CardsTab() {
   // Create card in DB first, then add to store with DB-generated id
   const handleAddCard = async (type: CardType) => {
     try {
-      const sortKey = generateAppendKey(cards)
+      // Social icons go to top by default, others to bottom
+      const sortKey = type === "social-icons"
+        ? generatePrependKey(cards)
+        : generateAppendKey(cards)
       // Card types with null sizing (horizontal, dropdown, audio) always use 'big'
       const size = CARD_TYPE_SIZING[type] === null ? "big" : "big"
 
