@@ -12,6 +12,7 @@ interface SnakeGameProps {
   height: number
   isPlaying: boolean
   onScoreChange: (score: number) => void
+  accentColor?: string  // Used for grid lines and snake color
 }
 
 const GRID_SIZE = 20  // Size of each cell
@@ -22,6 +23,7 @@ export function SnakeGame({
   height,
   isPlaying,
   onScoreChange,
+  accentColor = "#ffffff",
 }: SnakeGameProps) {
   // Calculate grid dimensions based on canvas size
   const gridWidth = Math.floor(width / GRID_SIZE)
@@ -152,8 +154,8 @@ export function SnakeGame({
       ctx.fillStyle = "#000000"
       ctx.fillRect(0, 0, width, height)
 
-      // Draw grid (subtle)
-      ctx.strokeStyle = "rgba(0, 255, 0, 0.1)"
+      // Draw grid (subtle) - uses accent color at low opacity
+      ctx.strokeStyle = `${accentColor}1A`  // ~10% opacity
       ctx.lineWidth = 1
       for (let x = 0; x <= width; x += GRID_SIZE) {
         ctx.beginPath()
@@ -168,9 +170,9 @@ export function SnakeGame({
         ctx.stroke()
       }
 
-      // Draw snake
+      // Draw snake - head uses full accent color, body is slightly darker
       snake.forEach((segment, i) => {
-        ctx.fillStyle = i === 0 ? "#00ff00" : "#00cc00"
+        ctx.fillStyle = i === 0 ? accentColor : `${accentColor}CC`  // Body is ~80% opacity
         ctx.fillRect(
           segment.x * GRID_SIZE + 1,
           segment.y * GRID_SIZE + 1,
@@ -191,7 +193,7 @@ export function SnakeGame({
       )
       ctx.fill()
     },
-    [snake, food, width, height]
+    [snake, food, width, height, accentColor]
   )
 
   // Use game loop hook

@@ -38,6 +38,7 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
     : { gameType: "snake" as GameType }
 
   const gameType = content.gameType || "snake"
+  const accentColor = content.accentColor || "#ffffff"
   const gameInfo = GAME_TYPE_INFO[gameType]
 
   // Measure container dimensions
@@ -61,9 +62,10 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
   }
 
   // Fixed retro arcade aesthetic (doesn't adapt to theme)
+  // Border color is configurable via accentColor
   const arcadeStyle = cn(
     "relative w-full overflow-hidden rounded-lg",
-    "bg-black border-2 border-[#00ff00]/30",
+    "bg-black border-2",
     // Aspect ratio based on card size
     card.size === "small" ? "aspect-square" : "aspect-video"
   )
@@ -71,22 +73,25 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
   // In editor: always show static preview
   if (isEditing) {
     return (
-      <div className={arcadeStyle}>
+      <div className={arcadeStyle} style={{ borderColor: `${accentColor}4D` }}>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {/* Animated demo preview - placeholder for now */}
-          <div className="text-[#00ff00] font-mono text-center">
+          <div className="font-mono text-center" style={{ color: accentColor }}>
             <p className="text-lg font-bold">{gameInfo?.label}</p>
-            <p className="text-xs text-[#00ff00]/60 mt-1">Preview Mode</p>
+            <p className="text-xs opacity-60 mt-1">Preview Mode</p>
           </div>
           {/* Scanline effect */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-[#00ff00]/5 to-transparent animate-pulse" />
+          <div
+            className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-transparent animate-pulse"
+            style={{ background: `linear-gradient(to bottom, transparent, ${accentColor}0D, transparent)` }}
+          />
         </div>
       </div>
     )
   }
 
   return (
-    <div ref={containerRef} className={arcadeStyle}>
+    <div ref={containerRef} className={arcadeStyle} style={{ borderColor: `${accentColor}4D` }}>
       {/* Idle state - show demo with play button */}
       {gameState === "idle" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -97,7 +102,12 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
           {/* Play button overlay */}
           <Button
             onClick={handleStartGame}
-            className="z-10 bg-[#00ff00]/20 hover:bg-[#00ff00]/40 text-[#00ff00] border border-[#00ff00]/50"
+            className="z-10 border"
+            style={{
+              backgroundColor: `${accentColor}33`,
+              color: accentColor,
+              borderColor: `${accentColor}80`,
+            }}
             size={card.size === "small" ? "sm" : "default"}
           >
             <Play className="h-4 w-4 mr-2" />
@@ -124,6 +134,7 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
               height={dimensions.height}
               isPlaying={true}
               onScoreChange={setScore}
+              accentColor={accentColor}
             />
           )}
           {gameType === "flappy" && (
@@ -135,7 +146,7 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
             />
           )}
           {/* Score display */}
-          <div className="absolute top-2 left-2 text-[#00ff00] font-mono text-xs z-10">
+          <div className="absolute top-2 left-2 font-mono text-xs z-10" style={{ color: accentColor }}>
             Score: {score}
           </div>
         </div>

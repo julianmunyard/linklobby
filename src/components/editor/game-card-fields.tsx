@@ -2,9 +2,20 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { GameCardContent, GameType } from "@/types/card"
 import { GAME_TYPE_INFO } from "@/types/card"
+
+// Preset colors for quick selection
+const ACCENT_PRESETS = [
+  { color: "#ffffff", label: "White" },
+  { color: "#00ff00", label: "Green" },
+  { color: "#00ffff", label: "Cyan" },
+  { color: "#ff00ff", label: "Magenta" },
+  { color: "#ffff00", label: "Yellow" },
+  { color: "#ff6b00", label: "Orange" },
+]
 
 interface GameCardFieldsProps {
   content: Partial<GameCardContent>
@@ -13,6 +24,7 @@ interface GameCardFieldsProps {
 
 export function GameCardFields({ content, onChange }: GameCardFieldsProps) {
   const gameType = content.gameType || "snake"
+  const accentColor = content.accentColor || "#ffffff"
   const gameInfo = GAME_TYPE_INFO[gameType]
 
   return (
@@ -55,6 +67,40 @@ export function GameCardFields({ content, onChange }: GameCardFieldsProps) {
         </ToggleGroup>
       </div>
 
+      {/* Accent Color */}
+      <div className="space-y-2">
+        <Label>Accent Color</Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Border color and {gameType === "snake" ? "snake/grid color" : "UI accents"}
+        </p>
+        <div className="flex items-center gap-2">
+          {/* Color presets */}
+          <div className="flex gap-1">
+            {ACCENT_PRESETS.map(({ color, label }) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => onChange({ accentColor: color })}
+                className={`w-7 h-7 rounded border-2 transition-all ${
+                  accentColor.toLowerCase() === color.toLowerCase()
+                    ? "border-foreground scale-110"
+                    : "border-muted hover:border-muted-foreground"
+                }`}
+                style={{ backgroundColor: color }}
+                title={label}
+              />
+            ))}
+          </div>
+          {/* Custom color input */}
+          <Input
+            type="color"
+            value={accentColor}
+            onChange={(e) => onChange({ accentColor: e.target.value })}
+            className="w-10 h-7 p-0 border-0 cursor-pointer"
+          />
+        </div>
+      </div>
+
       {/* Game Description */}
       <div className="space-y-2">
         <Label>About This Game</Label>
@@ -92,9 +138,9 @@ export function GameCardFields({ content, onChange }: GameCardFieldsProps) {
       </div>
 
       {/* Aesthetic Note */}
-      <div className="rounded-lg border border-[#00ff00]/20 bg-black/5 p-3">
+      <div className="rounded-lg border bg-muted/30 p-3" style={{ borderColor: `${accentColor}33` }}>
         <p className="text-xs text-muted-foreground">
-          <strong className="text-[#00ff00]">Retro Arcade Style:</strong> Game cards use a fixed retro aesthetic with green CRT scanlines and black background, regardless of your theme settings.
+          <strong style={{ color: accentColor }}>Retro Arcade Style:</strong> Game cards use a black background with your chosen accent color for borders and game elements.
         </p>
       </div>
     </div>

@@ -149,6 +149,7 @@ export type GameType = 'snake' | 'breakout' | 'flappy'
 
 export interface GameCardContent {
   gameType: GameType
+  accentColor?: string  // Default: "#ffffff" - used for border and game elements
 }
 
 // Game type info for UI display
