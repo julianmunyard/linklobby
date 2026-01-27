@@ -208,7 +208,7 @@ Plans:
 ---
 
 #### Phase 6.1: Dropdown Card Fix
-**Goal:** Fix all dropdown card issues discovered during Phase 6 implementation
+**Goal:** Fix all dropdown card interaction bugs - toggle, drag, child reorder
 **Context:** Phase 6 dropdown implementation has critical bugs that need dedicated attention
 
 **Known Issues:**
@@ -232,7 +232,11 @@ Plans:
 - Proper nested SortableContext with correct drag handlers
 - State isolation to prevent corruption
 
-**Plans:** TBD (research needed)
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06.1-01-PLAN.md — Refactor DropdownSortable and DropdownCard (toggle + drag fix)
+- [ ] 06.1-02-PLAN.md — Child card drag handles and human verification
 
 ---
 
