@@ -248,13 +248,25 @@ Plans:
 **Success Criteria:**
 1. Mac OS theme: Shadows, traffic light icons, window-like depth
 2. Sleek Modern theme: Transparent, glass texture, flat aesthetic
-3. Dark mode default (artists/DJs aesthetic preference)
-4. Theme selection instantly updates all cards
-5. Color customization: background, text, border, accent
-6. Preset color palettes per theme
-7. Gradient and solid background options
+3. Instagram Reels theme: Bold, high contrast styling
+4. Dark mode default (artists/DJs aesthetic preference)
+5. Theme selection instantly updates all cards
+6. Color customization: background, text, border, accent, card bg, link
+7. Preset color palettes per theme (2-3 each)
+8. Font selection: curated list of 15 fonts, separate heading/body
+9. Style controls: border radius, shadows, blur intensity
+10. Background options: solid color, image, video
 
-**Plans:** 3-4 plans
+**Plans:** 7 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Theme infrastructure (types, store, configs, applicator)
+- [ ] 07-02-PLAN.md — Theme CSS variables and font loading
+- [ ] 07-03-PLAN.md — Theme presets tab and theme panel UI
+- [ ] 07-04-PLAN.md — Color customization with react-colorful
+- [ ] 07-05-PLAN.md — Font picker and style controls
+- [ ] 07-06-PLAN.md — Theme-aware card wrappers (Mac OS, Glass)
+- [ ] 07-07-PLAN.md — Background controls and verification
 
 ---
 
@@ -586,5 +598,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-01-27*
+*Last updated: 2026-01-28*
 *Based on: COMPETITORS.md competitive analysis*
