@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { EditorLayout } from "@/components/editor/editor-layout"
 import { UnsavedChangesDialog } from "@/components/dashboard/unsaved-changes-dialog"
 import { HistoryHotkeys } from "@/components/editor/history-hotkeys"
+import { MultiSelectProvider } from "@/contexts/multi-select-context"
 import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { usePageStore } from "@/stores/page-store"
@@ -77,27 +78,29 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
   }
 
   return (
-    <TooltipProvider>
-      {/* Register undo/redo keyboard shortcuts */}
-      <HistoryHotkeys />
+    <MultiSelectProvider>
+      <TooltipProvider>
+        {/* Register undo/redo keyboard shortcuts */}
+        <HistoryHotkeys />
 
-      <div className="flex flex-col h-[calc(100vh-3.5rem)]">
-        {/* Editor header */}
-        <DashboardHeader username={username} />
+        <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+          {/* Editor header */}
+          <DashboardHeader username={username} />
 
-        {/* Split-screen editor */}
-        <div className="flex-1 overflow-hidden">
-          <EditorLayout />
+          {/* Split-screen editor */}
+          <div className="flex-1 overflow-hidden">
+            <EditorLayout />
+          </div>
         </div>
-      </div>
 
-      {/* Unsaved changes dialog */}
-      <UnsavedChangesDialog
-        open={showDialog}
-        onSave={handleSave}
-        onDiscard={handleDiscard}
-        onCancel={cancelNavigation}
-      />
-    </TooltipProvider>
+        {/* Unsaved changes dialog */}
+        <UnsavedChangesDialog
+          open={showDialog}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+          onCancel={cancelNavigation}
+        />
+      </TooltipProvider>
+    </MultiSelectProvider>
   )
 }
