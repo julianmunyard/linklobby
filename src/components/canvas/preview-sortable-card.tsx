@@ -11,7 +11,7 @@ import type { Card } from "@/types/card"
 interface PreviewSortableCardProps {
   card: Card
   isSelected?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }
 
 // Card types that need full interactivity (touch/mouse events pass through)
@@ -21,6 +21,7 @@ const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game']
  * Preview-specific sortable card that intercepts link clicks and calls onClick instead.
  * Used in the preview iframe to enable click-to-select functionality.
  * Shows a white border highlight when selected.
+ * Includes data-selectable-id for box selection integration.
  */
 export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortableCardProps) {
   const {
@@ -54,13 +55,14 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     // Prevent default link navigation
     e.preventDefault()
     e.stopPropagation()
-    onClick?.()
+    onClick?.(e)
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
+      data-selectable-id={card.id}
       className={cn(
         widthClass,
         isDragging && "opacity-0",
@@ -96,7 +98,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
-                onClick?.()
+                onClick?.(e)
               }}
               className="bg-black/70 hover:bg-black/90 text-white rounded-full p-2"
               aria-label="Edit card"
