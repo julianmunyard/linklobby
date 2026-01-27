@@ -144,8 +144,28 @@ export interface GalleryCardContent {
   spacing?: number          // Default: 2.5, range: 0.5 to 4
 }
 
+export type GameType = 'snake' | 'breakout' | 'flappy'
+
+export interface GameCardContent {
+  gameType: GameType
+}
+
+// Game type info for UI display
+export const GAME_TYPE_INFO: Record<GameType, { label: string; description: string }> = {
+  snake: { label: 'Snake', description: 'Classic snake game' },
+  breakout: { label: 'Breakout', description: 'Break the bricks' },
+  flappy: { label: 'Flappy', description: 'Tap to fly' },
+}
+
+export interface DropdownCardContent {
+  headerText?: string        // Custom header (fallback to card.title)
+  expandText?: string        // "Show more" text (optional)
+  collapseText?: string      // "Show less" text (optional)
+  childCardIds: string[]     // IDs of cards inside this dropdown (ordering)
+}
+
 // Union type for all card content
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | DropdownCardContent | Record<string, unknown>
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
@@ -168,4 +188,8 @@ export function isVideoContent(content: unknown): content is VideoCardContent {
 
 export function isGalleryContent(content: unknown): content is GalleryCardContent {
   return typeof content === 'object' && content !== null && 'galleryStyle' in content
+}
+
+export function isGameContent(content: unknown): content is GameCardContent {
+  return typeof content === 'object' && content !== null && 'gameType' in content
 }
