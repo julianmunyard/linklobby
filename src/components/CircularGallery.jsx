@@ -25,7 +25,7 @@ function autoBind(instance) {
   });
 }
 
-function createTextTexture(gl, text, font = 'bold 30px monospace', color = 'black') {
+function createTextTexture(gl, text, font = 'bold 16px monospace', color = 'black') {
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
   context.font = font;
@@ -46,7 +46,7 @@ function createTextTexture(gl, text, font = 'bold 30px monospace', color = 'blac
 }
 
 class Title {
-  constructor({ gl, plane, renderer, text, textColor = '#545050', font = '30px sans-serif', showCaptions = true }) {
+  constructor({ gl, plane, renderer, text, textColor = '#545050', font = '16px sans-serif', showCaptions = true }) {
     autoBind(this);
     this.gl = gl;
     this.plane = plane;
@@ -322,7 +322,7 @@ class App {
       bend,
       textColor = '#ffffff',
       borderRadius = 0,
-      font = 'bold 30px Figtree',
+      font = 'bold 16px Figtree',
       scrollSpeed = 2,
       scrollEase = 0.05,
       spacing = 1.5,
