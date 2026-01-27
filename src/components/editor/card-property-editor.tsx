@@ -277,7 +277,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {/* Game-specific fields at top for game cards */}
             {card.card_type === "game" && (
               <GameCardFields
-                content={currentContent as GameCardContent}
+                content={currentContent as Partial<GameCardContent>}
                 onChange={handleContentChange}
               />
             )}

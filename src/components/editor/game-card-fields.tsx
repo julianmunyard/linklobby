@@ -7,7 +7,7 @@ import type { GameCardContent, GameType } from "@/types/card"
 import { GAME_TYPE_INFO } from "@/types/card"
 
 interface GameCardFieldsProps {
-  content: GameCardContent
+  content: Partial<GameCardContent>
   onChange: (updates: Record<string, unknown>) => void
 }
 
