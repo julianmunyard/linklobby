@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
 Plan: 14 of 16 complete
 Status: **Ready for Phase 6 completion**
-Last activity: 2026-01-27 - Completed quick task 018: Add feather effect slider to profile photo
+Last activity: 2026-01-27 - Completed quick task 019: Gallery image links and captions
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
