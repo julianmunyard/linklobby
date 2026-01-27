@@ -419,15 +419,11 @@ class App {
   }
   onTouchMove(e) {
     if (!this.isDown) return;
+    // Any movement while holding = a drag (prevents accidental link opens)
+    this.hasDragged = true;
     const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
     const distance = (this.start - x) * (this.scrollSpeed * 0.025);
     this.scroll.target = this.scroll.position + distance;
-    // Track if user has dragged (10px threshold in any direction)
-    const pixelsMoved = Math.sqrt(Math.pow(x - this.start, 2) + Math.pow(y - this.startY, 2));
-    if (pixelsMoved > 10) {
-      this.hasDragged = true;
-    }
   }
   onTouchUp() {
     // If no drag occurred and onTap callback provided, fire it with centered image's link
