@@ -4,6 +4,7 @@ import { HorizontalLink } from "./horizontal-link"
 import { SquareCard } from "./square-card"
 import { SocialIconsCard } from "./social-icons-card"
 import { LinkCard } from "./link-card"
+import { VideoCard } from "./video-card"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -23,8 +24,10 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       return <SocialIconsCard card={card} isPreview={isPreview} />
     case "link":
       return <LinkCard card={card} isPreview={isPreview} />
+    case "video":
+      return <VideoCard card={card} isPreview={isPreview} />
     default:
-      // Fallback for unimplemented card types (video, gallery, dropdown, game, audio)
+      // Fallback for unimplemented card types (gallery, dropdown, game, audio)
       return (
         <div className="w-full p-4 rounded-lg border bg-card">
           <p className="font-medium">{card.title || "Untitled"}</p>
