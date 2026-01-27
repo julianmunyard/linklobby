@@ -200,20 +200,20 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onCardCli
         items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
-        {/* Box selection wrapper */}
-        <DragSelection>
-          {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-          <div className="flex flex-wrap gap-4">
-            {cards.map((card) => (
-              <PreviewSortableCard
-                key={card.id}
-                card={card}
-                isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
-                onClick={(e) => handleCardClick(card.id, e)}
-              />
-            ))}
-          </div>
-        </DragSelection>
+        {/* Box selection component - rendered as sibling */}
+        <DragSelection />
+
+        {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
+        <div className="flex flex-wrap gap-4">
+          {cards.map((card) => (
+            <PreviewSortableCard
+              key={card.id}
+              card={card}
+              isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
+              onClick={(e) => handleCardClick(card.id, e)}
+            />
+          ))}
+        </div>
       </SortableContext>
 
       {/* Drag overlay - visual feedback following cursor */}
