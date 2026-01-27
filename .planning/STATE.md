@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 12 of 16 complete
+Plan: 13 of 16 complete
 Status: **Executing Wave 3**
-Last activity: 2026-01-27 - Completed 06-12-PLAN.md
+Last activity: 2026-01-27 - Completed 06-14-PLAN.md
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 14%
 
@@ -70,7 +70,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 11 | Dropdown Editor | Complete |
 | 12 | Game Card Editor | Complete |
 | 13 | Link Card Background Options | - |
-| 14 | Card Animation Presets | - |
+| 14 | Selection Toolbar | Complete |
 | 15 | Editor Testing & Polish | - |
 | 16 | Phase Verification | - |
 
@@ -331,6 +331,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Snake game speed 100ms per move | 06-08 | Classic snake speed - fast enough to be challenging but not overwhelming |
 | Direction ref pattern prevents reversing | 06-08 | Prevents 180-degree turns (up→down or left→right) which would cause instant self-collision |
 | 30px min swipe for snake controls | 06-08 | More responsive than default 50px, better for quick direction changes in game |
+| Floating bottom-center toolbar | 06-14 | Non-intrusive position for selection toolbar, visible regardless of scroll |
+| Auto-hide on empty selection | 06-14 | Toolbar only shows when selectedCount > 0, cleaner UI |
+| Group creates new dropdown | 06-14 | Single action creates dropdown and moves all selected cards - fast workflow |
+| Delete requires confirmation | 06-14 | Destructive bulk action needs explicit AlertDialog confirmation |
 
 ## Quick Tasks
 
@@ -354,7 +358,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 06-12-PLAN.md
+Stopped at: Completed 06-14-PLAN.md
 Resume with: Continue Phase 6 with next plan
 
 **This session's work:**
@@ -417,3 +421,16 @@ Resume with: Continue Phase 6 with next plan
 
 ---
 *Updated: 2026-01-27 - Game card editor complete*
+
+6. **Plan 06-14: Selection Toolbar with Bulk Actions** (2 commits in 4 minutes)
+   - Created SelectionToolbar component with bulk actions (`4c6a5f0`)
+   - Integrated SelectionToolbar into editor panel (`7045936`)
+   - Floating toolbar with Group into Dropdown, Move to Dropdown, Delete All
+   - Auto-hides when no selection
+
+**Key commits this session:**
+- `4c6a5f0` - feat(06-14): create SelectionToolbar component
+- `7045936` - feat(06-14): integrate SelectionToolbar into editor
+
+---
+*Updated: 2026-01-27 - Selection toolbar complete*
