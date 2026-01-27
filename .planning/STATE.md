@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
 Plan: 14 of 16 complete
 Status: **Ready for Phase 6 completion**
-Last activity: 2026-01-27 - Completed quick task 019: Gallery image links and captions
+Last activity: 2026-01-27 - Completed quick task 020: Gallery circular links editor redesign
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
@@ -367,6 +367,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Popover editor for gallery images | quick-019 | Pencil icon opens popover with caption and link fields - cleaner than inline inputs |
 | Circular gallery captions only | quick-019 | WebGL rendering supports captions via text prop but not clickable links |
 | Carousel supports links | quick-019 | Standard DOM allows anchor wrapping for clickable images in carousel mode |
+| Circular gallery tap-to-open-link pattern | quick-020 | WebGL canvas prevents per-image clicks - tap anywhere opens centered image's link |
+| Vertical list editor for gallery images | quick-020 | Hidden popover approach poor discoverability - visible inputs make caption/link editing obvious |
+| Carousel mode images-only | quick-020 | Simplify carousel to focus on images - circular mode handles captions/links |
 
 ## Quick Tasks
 
@@ -391,12 +394,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 017 | Fix dropdown CardRenderer import + visual stability | Complete | a6697fa |
 | 018 | Add feather effect slider to profile photo | Complete | c09109b |
 | 019 | Gallery image links and captions | Complete | 4432753 |
+| 020 | Gallery circular links editor redesign | Complete | 3ecff1b |
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed Quick Task 019 (gallery image links and captions)
-Stopped at: Completed quick-019
+Last activity: 2026-01-27 - Completed Quick Task 020 (gallery circular links editor redesign)
+Stopped at: Completed quick-020
 Resume file: None
 
 **Phase 6 UNBLOCKED:** Dropdown card now works correctly. Ready to resume with Plan 15 (Editor Testing & Polish).
