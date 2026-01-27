@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Circle, Rows3, X, Loader2, ImageIcon, Crop } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Circle, Rows3, X, Loader2, ImageIcon, Crop, Pencil, Link as LinkIcon } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -24,11 +25,13 @@ interface GalleryCardFieldsProps {
 function SortableImage({
   image,
   onRemove,
-  onCrop
+  onCrop,
+  onUpdate
 }: {
   image: GalleryImage
   onRemove: () => void
   onCrop: () => void
+  onUpdate: (updates: Partial<GalleryImage>) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
 
@@ -39,50 +42,121 @@ function SortableImage({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group aspect-square">
-      <div {...attributes} {...listeners} className="cursor-move w-full h-full">
-        <Image src={image.url} alt={image.alt} fill className="object-cover rounded" />
+    <div ref={setNodeRef} style={style} className="relative group">
+      {/* Image */}
+      <div className="aspect-square relative">
+        <div {...attributes} {...listeners} className="cursor-move w-full h-full">
+          <Image src={image.url} alt={image.alt} fill className="object-cover rounded" />
+        </div>
+
+        {/* Link indicator - top left */}
+        {image.link && (
+          <div className="absolute top-1 left-1 bg-black/70 text-white rounded p-1">
+            <LinkIcon className="h-3 w-3" />
+          </div>
+        )}
+
+        {/* Edit button - bottom left */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+              className="absolute bottom-1 left-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Edit caption and link"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" side="top">
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor={`caption-${image.id}`} className="text-sm font-medium">
+                  Caption
+                </Label>
+                <Input
+                  id={`caption-${image.id}`}
+                  placeholder="Add caption..."
+                  value={image.caption || ''}
+                  onChange={(e) => onUpdate({ caption: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`link-${image.id}`} className="text-sm font-medium">
+                  Link URL
+                </Label>
+                <Input
+                  id={`link-${image.id}`}
+                  placeholder="https://..."
+                  value={image.link || ''}
+                  onChange={(e) => onUpdate({ link: e.target.value })}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Crop button - bottom right */}
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onCrop()
+          }}
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          className="absolute bottom-1 right-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Crop image"
+        >
+          <Crop className="h-3 w-3" />
+        </button>
+
+        {/* Remove button - top right */}
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onRemove()
+          }}
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Remove image"
+        >
+          <X className="h-3 w-3" />
+        </button>
       </div>
-      {/* Crop button - bottom right */}
-      <button
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          onCrop()
-        }}
-        onPointerDown={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
-        onMouseDown={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
-        className="absolute bottom-1 right-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        aria-label="Crop image"
-      >
-        <Crop className="h-3 w-3" />
-      </button>
-      {/* Remove button - top right */}
-      <button
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          onRemove()
-        }}
-        onPointerDown={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
-        onMouseDown={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        }}
-        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        aria-label="Remove image"
-      >
-        <X className="h-3 w-3" />
-      </button>
+
+      {/* Caption preview - truncated */}
+      {image.caption && (
+        <p className="text-xs text-muted-foreground mt-1 truncate">
+          {image.caption}
+        </p>
+      )}
     </div>
   )
 }
@@ -168,6 +242,13 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
   const handleRemoveImage = useCallback((id: string) => {
     const newImages = images.filter(img => img.id !== id)
     onChange({ images: newImages })
+  }, [images, onChange])
+
+  const handleUpdateImage = useCallback((id: string, updates: Partial<GalleryImage>) => {
+    const updatedImages = images.map(img =>
+      img.id === id ? { ...img, ...updates } : img
+    )
+    onChange({ images: updatedImages })
   }, [images, onChange])
 
   // Open crop dialog for an image
@@ -328,6 +409,7 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
                     image={image}
                     onRemove={() => handleRemoveImage(image.id)}
                     onCrop={() => handleOpenCrop(image)}
+                    onUpdate={(updates) => handleUpdateImage(image.id, updates)}
                   />
                 ))}
               </div>
