@@ -59,7 +59,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio', 'video', 'gallery']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio', 'video', 'gallery', 'game']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'

@@ -27,12 +27,13 @@ import { HorizontalLinkFields } from "./horizontal-link-fields"
 import { SquareCardFields } from "./square-card-fields"
 import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
+import { GameCardFields } from "./game-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
@@ -270,6 +271,14 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 content={currentContent as Partial<GalleryCardContent>}
                 onChange={handleContentChange}
                 cardId={card.id}
+              />
+            )}
+
+            {/* Game-specific fields at top for game cards */}
+            {card.card_type === "game" && (
+              <GameCardFields
+                content={currentContent as GameCardContent}
+                onChange={handleContentChange}
               />
             )}
 
