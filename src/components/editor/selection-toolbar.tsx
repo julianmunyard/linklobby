@@ -136,7 +136,7 @@ export function SelectionToolbar() {
                   return null
                 }
 
-                const content = dropdown.content as DropdownCardContent
+                const content = dropdown.content
                 const dropdownTitle = dropdown.title || "Untitled Dropdown"
 
                 return (
