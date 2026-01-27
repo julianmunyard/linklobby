@@ -44,7 +44,7 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
       <div className="w-full h-[400px]">
         <CircularGallery
           items={items}
-          bend={content.bend ?? 10}
+          bend={content.bend ?? 2}
           borderRadius={content.borderRadius ?? 0.25}
           scrollSpeed={content.scrollSpeed ?? 0.5}
           scrollEase={content.scrollEase ?? 0.14}

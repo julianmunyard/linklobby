@@ -136,7 +136,7 @@ export interface GalleryCardContent {
   scrollEase?: number       // Default: 0.14
   scrollSpeed?: number      // Default: 0.5
   borderRadius?: number     // Default: 0.25
-  bend?: number             // Default: 10
+  bend?: number             // Default: 2
 }
 
 // Union type for all card content
