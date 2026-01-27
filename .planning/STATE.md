@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 8 of 17 complete
+Plan: 9 of 17 complete
 Status: **Executing Wave 2**
-Last activity: 2026-01-27 - Completed 06-05-PLAN.md
+Last activity: 2026-01-27 - Completed 06-08-PLAN.md
 
 Progress: [████░░░░░░░░░░░░░░░░░░░░░░░░░░] 13%
 
@@ -62,13 +62,13 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | 03 | Selection UI Hook | - |
 | 04 | Install Box Selection Library | Complete |
 | 05 | Dropdown Card UI Component | Complete |
-| 06 | Multi-Select UI | - |
+| 06 | Nested Drag-and-Drop | Complete |
 | 07 | Game Card Wrapper | Complete |
-| 08 | Bulk Delete & Styling | - |
-| 09 | Dropdown Card Component | - |
+| 08 | Snake Game Implementation | Complete |
+| 09 | Breakout Game | Complete |
 | 10 | Dropdown Editor | - |
 | 11 | Game Card Infrastructure | - |
-| 12 | Snake Game | - |
+| 12 | Breakout Game | - |
 | 13 | Game Card Editor | - |
 | 14 | Link Card Background Options | - |
 | 15 | Card Animation Presets | - |
@@ -320,6 +320,18 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | Three-state game pattern | 06-07 | idle (demo + play button) → playing (game + score) → gameOver (score + replay) |
 | isEditing prop for static preview | 06-07 | Game cards in editor show static preview only, no gameplay to avoid confusion/performance |
 | Game aspect ratio adapts to card size | 06-07 | Small cards = square (1:1), big cards = video (16:9) for optimal layout |
+| Nested SortableContext for dropdowns | 06-06 | Each dropdown has its own SortableContext for child cards, separate from main canvas |
+| Dropdowns cannot be nested | 06-06 | canDropInContainer enforces no nested dropdowns - prevents infinite nesting complexity |
+| Main canvas filters out parentDropdownId cards | 06-06 | Main SortableContext only contains cards without parentDropdownId, dropdowns render their own children |
+| Cross-container moves update bidirectionally | 06-06 | Moving card updates both card.parentDropdownId and container's content.childCardIds |
+| Pointer events for game controls | 06-09 | onPointerMove unifies mouse and touch control, simpler than separate handlers |
+| Paddle width as canvas ratio | 06-09 | 20% paddle width scales properly for both aspect-video and aspect-square cards |
+| Refs to avoid stale closures in game loop | 06-09 | paddleXRef.current accessed in onUpdate callback prevents stale closure bugs |
+| Ball angle based on paddle hit position | 06-09 | vx = (hitPos - 0.5) * 8 adds skill element to breakout gameplay |
+| Snake grid size 20px | 06-08 | Balance between visibility and playability - too small is hard to see, too large limits movement |
+| Snake game speed 100ms per move | 06-08 | Classic snake speed - fast enough to be challenging but not overwhelming |
+| Direction ref pattern prevents reversing | 06-08 | Prevents 180-degree turns (up→down or left→right) which would cause instant self-collision |
+| 30px min swipe for snake controls | 06-08 | More responsive than default 50px, better for quick direction changes in game |
 
 ## Quick Tasks
 
@@ -343,7 +355,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 06-05-PLAN.md
+Stopped at: Completed 06-08-PLAN.md
 Resume with: Continue Phase 6 with next plan
 
 **This session's work:**
@@ -361,3 +373,8 @@ Resume with: Continue Phase 6 with next plan
 
 ---
 *Updated: 2026-01-27 - Dropdown Card UI component complete*
+
+2. **Plan 06-09: Breakout Game** (2 commits in 2.4 minutes)
+   - Implemented BreakoutGame component with ball/paddle/brick physics (`de7de19`)
+   - Integrated BreakoutGame into GameCard with pointer controls (`003324d`)
+   - Established pointer events pattern for cross-platform control
