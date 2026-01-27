@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
-import { MultiSelectProvider } from "@/contexts/multi-select-context"
+import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
 import { useProfileStore } from "@/stores/profile-store"
 import type { Card } from "@/types/card"
@@ -34,8 +34,17 @@ const defaultState: PageState = {
 }
 
 export default function PreviewPage() {
+  return (
+    <MultiSelectProvider>
+      <PreviewContent />
+    </MultiSelectProvider>
+  )
+}
+
+function PreviewContent() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
+  const { clearSelection } = useMultiSelectContext()
 
   // Send SELECT_CARD message to parent editor
   const handleCardClick = useCallback((cardId: string) => {
@@ -48,17 +57,17 @@ export default function PreviewPage() {
   }, [])
 
   // Deselect when clicking empty space in preview
-  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
-    // Only trigger if clicking directly on the background, not on cards
-    if (e.target === e.currentTarget) {
-      if (window.parent !== window) {
-        window.parent.postMessage(
-          { type: "SELECT_CARD", payload: { cardId: null } },
-          window.location.origin
-        )
-      }
+  const handleBackgroundClick = useCallback(() => {
+    // Clear multi-select
+    clearSelection()
+    // Also deselect in editor
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: "SELECT_CARD", payload: { cardId: null } },
+        window.location.origin
+      )
     }
-  }, [])
+  }, [clearSelection])
 
   useEffect(() => {
     // Handle incoming messages from parent editor
@@ -96,7 +105,6 @@ export default function PreviewPage() {
   const hasCards = state.cards.length > 0
 
   return (
-    <MultiSelectProvider>
       <div className="min-h-screen bg-background p-4" onClick={handleBackgroundClick}>
         {/* Debug info - theme name */}
         <div className="fixed bottom-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
@@ -156,6 +164,5 @@ export default function PreviewPage() {
           />
         )}
       </div>
-    </MultiSelectProvider>
   )
 }
