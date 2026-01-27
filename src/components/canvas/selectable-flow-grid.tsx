@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
+import { DropdownSortable } from "./dropdown-sortable"
 import { useMultiSelect } from "@/hooks/use-multi-select"
 import { usePageStore } from "@/stores/page-store"
 import { canDropInContainer } from "@/lib/dnd-utils"
@@ -237,13 +238,21 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
             }
           }}
         >
-          {cards.map((card) => (
-            <PreviewSortableCard
-              key={card.id}
-              card={card}
-              isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
-              onClick={(e) => handleCardClick(card.id, e)}
-            />
+          {cards.filter(c => !c.parentDropdownId).map((card) => (
+            card.card_type === "dropdown" ? (
+              <DropdownSortable
+                key={card.id}
+                dropdown={card}
+                childCards={cards.filter((c) => c.parentDropdownId === card.id)}
+              />
+            ) : (
+              <PreviewSortableCard
+                key={card.id}
+                card={card}
+                isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
+                onClick={(e) => handleCardClick(card.id, e)}
+              />
+            )
           ))}
         </div>
       </SortableContext>
