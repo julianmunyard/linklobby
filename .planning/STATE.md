@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 5 of 18 - Media Cards (NOT STARTED)
-Plan: 0 of ? complete
-Status: **Ready to plan**
-Last activity: 2026-01-27 - Completed Phase 4.5 Editor Polish
+Phase: 5 of 18 - Media Cards (IN PROGRESS)
+Plan: 1 of ? complete
+Status: **Executing plans**
+Last activity: 2026-01-27 - Completed 05-01-PLAN.md
 
 Progress: [████████████████████████████░░] 95%
 
@@ -30,7 +30,7 @@ Progress: [███████████████████████
 | 4.3 | Card Context Menu & Undo/Redo | Complete |
 | 4.4 | Profile Editor | Complete ✓ |
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
-| 5 | Media Cards | - |
+| 5 | Media Cards | In Progress |
 | 6 | Advanced Cards | - |
 | 7 | Theme System | - |
 | 8 | Public Page | - |
@@ -52,6 +52,12 @@ Progress: [███████████████████████
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 5 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Foundation - Media Card Types & Helpers | Complete |
 
 ## Phase 4.5 Progress (COMPLETE ✓)
 
@@ -264,6 +270,11 @@ Progress: [███████████████████████
 | TouchSensor for dnd-kit | 04.5-fix | PointerSensor alone doesn't work in Chrome DevTools mobile emulation |
 | touch-none on preview cards | 04.5-fix | Required for touch-based drag to work on preview sortable cards |
 | 50ms TouchSensor delay | 04.5-fix | Short delay prevents accidental drags while allowing responsive touch drag |
+| get-video-id for URL parsing | 05-01 | Handles YouTube/Vimeo/TikTok edge cases, simpler API than js-video-url-parser |
+| 100MB video upload limit | 05-01 | Balance between quality and storage/performance, user can compress with HandBrake if needed |
+| Embla Carousel for alternative gallery | 05-01 | Lightweight (800K weekly downloads), great touch/swipe support, minimal API vs Swiper |
+| oEmbed with YouTube fallback thumbnail | 05-01 | oEmbed provides title + thumbnail, fallback ensures thumbnails always work even if API fails |
+| TikTok stores full URL as embedUrl | 05-01 | TikTok oEmbed unreliable, requires original URL for official embed code |
 
 ## Quick Tasks
 
@@ -287,8 +298,8 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Phase 4.5 complete + post-execution mobile drag fixes
-Resume with: `/gsd:plan-phase 5` for Media Cards
+Stopped at: Completed 05-01-PLAN.md (Foundation - Media Card Types & Helpers)
+Resume with: Next plan in Phase 5 or `/gsd:plan-phase 5` to create new plans
 
 **This session's work:**
 
