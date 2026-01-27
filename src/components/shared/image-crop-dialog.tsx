@@ -14,13 +14,15 @@ import { Button } from '@/components/ui/button'
 import { getCroppedImg } from './crop-utils'
 
 /**
- * Aspect ratio presets matching Linktree reference
+ * Aspect ratio presets
  * - FREE: no constraint (undefined aspect)
+ * - PORTRAIT: 7:9 for gallery images (matches CircularGallery display)
  * - RECTANGLE: 16:9 for landscape images
  * - SQUARE: 1:1 for profile photos
  */
 const ASPECT_PRESETS = [
   { label: 'FREE', aspect: undefined },
+  { label: 'PORTRAIT', aspect: 7 / 9 },
   { label: 'RECTANGLE', aspect: 16 / 9 },
   { label: 'SQUARE', aspect: 1 },
 ] as const

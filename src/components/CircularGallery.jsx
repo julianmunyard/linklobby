@@ -108,7 +108,8 @@ class Media {
     bend,
     textColor,
     borderRadius = 0,
-    font
+    font,
+    spacing = 1.5
   }) {
     this.extra = 0;
     this.geometry = geometry;
@@ -125,6 +126,7 @@ class Media {
     this.textColor = textColor;
     this.borderRadius = borderRadius;
     this.font = font;
+    this.spacing = spacing;
     this.createShader();
     this.createMesh();
     this.createTitle();
@@ -202,6 +204,9 @@ class Media {
     img.onload = () => {
       texture.image = img;
       this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
+      // Store image aspect ratio and update plane to match
+      this.imageAspect = img.naturalWidth / img.naturalHeight;
+      this.updatePlaneScale();
     };
   }
   createMesh() {
@@ -270,12 +275,29 @@ class Media {
         this.plane.program.uniforms.uViewportSizes.value = [this.viewport.width, this.viewport.height];
       }
     }
+    this.updatePlaneScale();
+  }
+
+  updatePlaneScale() {
+    if (!this.screen || !this.viewport) return;
+
     this.scale = this.screen.height / 1500;
-    this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
-    this.plane.scale.x = (this.viewport.width * (700 * this.scale)) / this.screen.width;
+    // Base height for all images
+    const baseHeight = (this.viewport.height * (900 * this.scale)) / this.screen.height;
+
+    // Use image's actual aspect ratio if loaded, otherwise default to portrait (7:9)
+    const aspect = this.imageAspect || (7 / 9);
+
+    this.plane.scale.y = baseHeight;
+    this.plane.scale.x = baseHeight * aspect;
+
     this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
-    this.padding = 2;
-    this.width = this.plane.scale.x + this.padding;
+
+    // Use original 7:9 portrait slot width for spacing (keeps photos close together)
+    // Images render at their actual aspect ratio but are spaced based on portrait slot
+    const slotWidth = baseHeight * (7 / 9);
+    this.padding = this.spacing;
+    this.width = slotWidth + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
   }
@@ -291,12 +313,14 @@ class App {
       borderRadius = 0,
       font = 'bold 30px Figtree',
       scrollSpeed = 2,
-      scrollEase = 0.05
+      scrollEase = 0.05,
+      spacing = 1.5
     } = {}
   ) {
     document.documentElement.classList.remove('no-js');
     this.container = container;
     this.scrollSpeed = scrollSpeed;
+    this.spacing = spacing;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck, 200);
     this.createRenderer();
@@ -364,7 +388,8 @@ class App {
         bend,
         textColor,
         borderRadius,
-        font
+        font,
+        spacing: this.spacing
       });
     });
   }
@@ -462,14 +487,15 @@ export default function CircularGallery({
   borderRadius = 0.05,
   font = 'bold 30px Figtree',
   scrollSpeed = 2,
-  scrollEase = 0.05
+  scrollEase = 0.05,
+  spacing = 1.5
 }) {
   const containerRef = useRef(null);
   useEffect(() => {
-    const app = new App(containerRef.current, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase });
+    const app = new App(containerRef.current, { items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing });
     return () => {
       app.destroy();
     };
-  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase]);
+  }, [items, bend, textColor, borderRadius, font, scrollSpeed, scrollEase, spacing]);
   return <div className="circular-gallery" ref={containerRef} />;
 }

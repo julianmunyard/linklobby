@@ -18,6 +18,7 @@ interface GalleryCardProps {
 
 export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   const content = card.content as Partial<GalleryCardContent>
+  const isSmall = card.size === 'small'
 
   // No images yet - show empty state
   if (!content.images || content.images.length === 0) {
@@ -32,8 +33,8 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
     )
   }
 
-  // Render based on gallery style
-  if (content.galleryStyle === 'circular') {
+  // Render based on gallery style (default to circular)
+  if (content.galleryStyle !== 'carousel') {
     // Transform images to CircularGallery format: { image, text }
     // Empty text to hide labels
     const items = content.images.map(img => ({
@@ -41,16 +42,34 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
       text: ''
     }))
 
+    // For small cards: shorter height, allow overflow with fade edges
     return (
-      <div className="w-full h-[400px]">
-        <CircularGallery
-          items={items}
-          bend={content.bend ?? 1}
-          borderRadius={content.borderRadius ?? 0.25}
-          scrollSpeed={content.scrollSpeed ?? 0.5}
-          scrollEase={content.scrollEase ?? 0.14}
-          textColor="#ffffff"
-        />
+      <div className={`relative w-full ${isSmall ? 'h-[250px]' : 'h-[400px]'}`}>
+        <div
+          className="w-full h-full"
+          style={{
+            overflow: isSmall ? 'visible' : 'hidden',
+          }}
+        >
+          <CircularGallery
+            items={items}
+            bend={content.bend ?? 1.5}
+            borderRadius={content.borderRadius ?? 0.05}
+            scrollSpeed={content.scrollSpeed ?? 1.5}
+            scrollEase={content.scrollEase ?? 0.03}
+            spacing={isSmall ? (content.spacing ?? 2.5) * 0.7 : (content.spacing ?? 2.5)}
+            textColor="#ffffff"
+          />
+        </div>
+        {/* Fade edges for small cards */}
+        {isSmall && (
+          <>
+            <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
+            <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+          </>
+        )}
       </div>
     )
   }

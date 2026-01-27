@@ -8,6 +8,18 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.vimeocdn.com",
+      },
+      {
+        protocol: "https",
+        hostname: "p16-sign-sg.tiktokcdn.com",
+      },
     ],
   },
 };

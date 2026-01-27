@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { GripVertical, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import type { Card } from "@/types/card"
@@ -74,7 +75,33 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     >
       {/* Wrapper that intercepts all link clicks for non-interactive cards */}
       {isInteractive ? (
-        <CardRenderer card={card} isPreview />
+        <div className="relative group/interactive">
+          <CardRenderer card={card} isPreview />
+          {/* Control buttons for interactive cards - appear on hover */}
+          <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover/interactive:opacity-100 transition-opacity">
+            {/* Drag handle */}
+            <div
+              {...attributes}
+              {...listeners}
+              className="bg-black/70 hover:bg-black/90 text-white rounded-full p-2 cursor-grab active:cursor-grabbing touch-none"
+              aria-label="Drag to reorder"
+            >
+              <GripVertical className="h-4 w-4" />
+            </div>
+            {/* Edit button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onClick?.()
+              }}
+              className="bg-black/70 hover:bg-black/90 text-white rounded-full p-2"
+              aria-label="Edit card"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="pointer-events-none">
           <div className="pointer-events-auto [&_a]:pointer-events-none">

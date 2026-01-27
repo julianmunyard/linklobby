@@ -20,13 +20,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
@@ -40,7 +33,7 @@ import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
 import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, TextAlign, VerticalAlign } from "@/types/card"
-import { CARD_SIZES, CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
+import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -262,6 +255,24 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
+            {/* Video-specific fields at top for video cards */}
+            {card.card_type === "video" && (
+              <VideoCardFields
+                content={currentContent as VideoCardContent}
+                onChange={handleContentChange}
+                cardId={card.id}
+              />
+            )}
+
+            {/* Gallery-specific fields at top for gallery cards */}
+            {card.card_type === "gallery" && (
+              <GalleryCardFields
+                content={currentContent as Partial<GalleryCardContent>}
+                onChange={handleContentChange}
+                cardId={card.id}
+              />
+            )}
+
             {/* Image upload - hidden for card types that don't support images */}
             {!CARD_TYPES_NO_IMAGE.includes(card.card_type) && (
               <div className="space-y-2">
@@ -275,25 +286,33 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Card Size - only show if card type supports sizing */}
+            {/* Card Size - visual toggle with SVG icons */}
             {CARD_TYPE_SIZING[card.card_type] && (
               <div className="space-y-2">
-                <Label htmlFor="cardSize">Card Size</Label>
-                <Select
+                <Label>Card Size</Label>
+                <ToggleGroup
+                  type="single"
                   value={card.size}
-                  onValueChange={(value) => updateCard(card.id, { size: value as CardSize })}
+                  onValueChange={(value) => {
+                    if (value) updateCard(card.id, { size: value as CardSize })
+                  }}
+                  className="justify-start"
                 >
-                  <SelectTrigger id="cardSize">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CARD_TYPE_SIZING[card.card_type]!.map((size) => (
-                      <SelectItem key={size} value={size}>
-                        {CARD_SIZES[size].label} - {CARD_SIZES[size].description}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <ToggleGroupItem value="big" aria-label="Full width" className="flex-col gap-1 h-auto py-2 px-4">
+                    {/* Full width rectangle SVG */}
+                    <svg width="48" height="24" viewBox="0 0 48 24" className="text-current">
+                      <rect x="2" y="4" width="44" height="16" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                    <span className="text-xs">Big</span>
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="small" aria-label="Half width" className="flex-col gap-1 h-auto py-2 px-4">
+                    {/* Half width rectangle SVG */}
+                    <svg width="48" height="24" viewBox="0 0 48 24" className="text-current">
+                      <rect x="10" y="4" width="28" height="16" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                    <span className="text-xs">Small</span>
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
             )}
 
@@ -427,21 +446,6 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 onChange={handleContentChange}
               />
             )}
-            {card.card_type === "video" && (
-              <VideoCardFields
-                content={currentContent as VideoCardContent}
-                onChange={handleContentChange}
-                cardId={card.id}
-              />
-            )}
-            {card.card_type === "gallery" && (
-              <GalleryCardFields
-                content={currentContent as Partial<GalleryCardContent>}
-                onChange={handleContentChange}
-                cardId={card.id}
-              />
-            )}
-
             {/* Action buttons */}
             <div className="flex gap-2 pt-4 border-t">
               <Button

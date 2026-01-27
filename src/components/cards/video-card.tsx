@@ -29,11 +29,22 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
   const content = card.content
 
   // Route to appropriate component based on video type
-  if (content.videoType === 'upload' && content.uploadedVideoUrl) {
-    return <VideoCardUpload videoUrl={content.uploadedVideoUrl as string} title={card.title} />
+  // Check for uploaded video first (handles both explicit 'upload' type and uploaded videos with undefined type)
+  if (content.uploadedVideoUrl && (content.videoType === 'upload' || !content.videoType)) {
+    return (
+      <VideoCardUpload
+        videoUrl={content.uploadedVideoUrl as string}
+        title={card.title}
+        zoom={content.videoZoom as number | undefined}
+        positionX={content.videoPositionX as number | undefined}
+        positionY={content.videoPositionY as number | undefined}
+        textAlign={(content.textAlign as 'left' | 'center' | 'right') ?? 'center'}
+        verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
+      />
+    )
   }
 
-  if (content.videoType === 'embed' && content.embedUrl) {
+  if (content.embedUrl && (content.videoType === 'embed' || !content.videoType)) {
     return (
       <VideoCardEmbed
         embedUrl={content.embedUrl as string}
@@ -41,6 +52,8 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         embedVideoId={content.embedVideoId as string | undefined}
         thumbnailUrl={content.embedThumbnailUrl as string | undefined}
         title={card.title}
+        textAlign={(content.textAlign as 'left' | 'center' | 'right') ?? 'center'}
+        verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
       />
     )
   }
@@ -63,9 +76,36 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
 interface VideoCardUploadProps {
   videoUrl: string
   title: string | null
+  zoom?: number
+  positionX?: number
+  positionY?: number
+  textAlign?: 'left' | 'center' | 'right'
+  verticalAlign?: 'top' | 'middle' | 'bottom'
 }
 
-function VideoCardUpload({ videoUrl, title }: VideoCardUploadProps) {
+function VideoCardUpload({
+  videoUrl,
+  title,
+  zoom = 1,
+  positionX = 50,
+  positionY = 50,
+  textAlign = 'center',
+  verticalAlign = 'bottom',
+}: VideoCardUploadProps) {
+  // Text alignment classes
+  const textAlignClass = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  }[textAlign]
+
+  // Vertical position classes for the title overlay
+  const verticalPositionClass = {
+    top: 'top-0 bg-gradient-to-b',
+    middle: 'top-1/2 -translate-y-1/2',
+    bottom: 'bottom-0 bg-gradient-to-t',
+  }[verticalAlign]
+
   return (
     <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
       <video
@@ -74,12 +114,17 @@ function VideoCardUpload({ videoUrl, title }: VideoCardUploadProps) {
         muted
         loop
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full pointer-events-none"
+        style={{
+          transform: `scale(${zoom})`,
+          objectFit: 'cover',
+          objectPosition: `${positionX}% ${positionY}%`,
+        }}
         aria-label={title || 'Video'}
       />
       {title && (
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4">
-          <p className="text-white font-medium drop-shadow-sm line-clamp-2">{title}</p>
+        <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
+          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}>{title}</p>
         </div>
       )}
     </div>
@@ -96,6 +141,8 @@ interface VideoCardEmbedProps {
   embedVideoId?: string
   thumbnailUrl?: string
   title: string | null
+  textAlign?: 'left' | 'center' | 'right'
+  verticalAlign?: 'top' | 'middle' | 'bottom'
 }
 
 function VideoCardEmbed({
@@ -104,8 +151,24 @@ function VideoCardEmbed({
   embedVideoId,
   thumbnailUrl,
   title,
+  textAlign = 'center',
+  verticalAlign = 'bottom',
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // Text alignment classes
+  const textAlignClass = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  }[textAlign]
+
+  // Vertical position classes for the title overlay
+  const verticalPositionClass = {
+    top: 'top-0 bg-gradient-to-b',
+    middle: 'top-1/2 -translate-y-1/2',
+    bottom: 'bottom-0 bg-gradient-to-t',
+  }[verticalAlign]
 
   // Convert watch URLs to embed URLs if needed
   const getEmbedUrl = () => {
@@ -154,15 +217,15 @@ function VideoCardEmbed({
 
       {/* Play button overlay */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg">
-          <Play className="h-8 w-8 text-black ml-1" fill="currentColor" />
+        <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform group-hover:scale-110 border border-white/20">
+          <Play className="h-5 w-5 text-white ml-0.5" fill="currentColor" />
         </div>
       </div>
 
       {/* Title overlay (optional) */}
       {title && (
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4">
-          <p className="text-white font-medium drop-shadow-sm line-clamp-2">{title}</p>
+        <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
+          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}>{title}</p>
         </div>
       )}
     </button>

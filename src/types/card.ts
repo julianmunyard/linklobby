@@ -120,6 +120,10 @@ export interface VideoCardContent {
   // For uploads
   uploadedVideoUrl?: string
   uploadedVideoPath?: string  // Supabase Storage path for deletion
+  // Zoom/crop settings (for uploads)
+  videoZoom?: number          // Default: 1.0, range: 1.0 to 2.0
+  videoPositionX?: number     // Default: 50 (center), range: 0-100
+  videoPositionY?: number     // Default: 50 (center), range: 0-100
 }
 
 export interface GalleryImage {
@@ -130,13 +134,14 @@ export interface GalleryImage {
 }
 
 export interface GalleryCardContent {
-  galleryStyle: 'circular' | 'carousel'
+  galleryStyle: 'circular' | 'carousel'  // Default: 'circular'
   images: GalleryImage[]
   // ReactBits Circular Gallery settings (optional overrides)
-  scrollEase?: number       // Default: 0.14
-  scrollSpeed?: number      // Default: 0.5
-  borderRadius?: number     // Default: 0.25
-  bend?: number             // Default: 1
+  bend?: number             // Default: 1.5, range: -3 to 3
+  borderRadius?: number     // Default: 0.05, range: 0 to 0.5
+  scrollSpeed?: number      // Default: 1.5, range: 0.5 to 5
+  scrollEase?: number       // Default: 0.03, range: 0.01 to 0.2
+  spacing?: number          // Default: 2.5, range: 0.5 to 4
 }
 
 // Union type for all card content

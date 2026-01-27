@@ -7,6 +7,7 @@ import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Circle, Rows3, X, Loader2, ImageIcon, Crop } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
@@ -45,8 +46,17 @@ function SortableImage({
       {/* Crop button - bottom right */}
       <button
         onClick={(e) => {
+          e.preventDefault()
           e.stopPropagation()
           onCrop()
+        }}
+        onPointerDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+        onMouseDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
         }}
         className="absolute bottom-1 right-1 bg-black/70 hover:bg-black/90 text-white rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity"
         aria-label="Crop image"
@@ -56,8 +66,17 @@ function SortableImage({
       {/* Remove button - top right */}
       <button
         onClick={(e) => {
+          e.preventDefault()
           e.stopPropagation()
           onRemove()
+        }}
+        onPointerDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        }}
+        onMouseDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
         }}
         className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
         aria-label="Remove image"
@@ -195,7 +214,7 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
         <Label>Gallery Style</Label>
         <ToggleGroup
           type="single"
-          value={content.galleryStyle || 'carousel'}
+          value={content.galleryStyle || 'circular'}
           onValueChange={(value) => {
             if (value) onChange({ galleryStyle: value })
           }}
@@ -209,6 +228,88 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
+
+      {/* Circular Gallery Settings - only show when circular style selected (default) */}
+      {content.galleryStyle !== 'carousel' && (
+        <div className="space-y-4 p-3 bg-muted/50 rounded-lg">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Circular Settings</Label>
+
+          {/* Bend Level */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">Bend</Label>
+              <span className="text-xs text-muted-foreground">{content.bend ?? 1.5}</span>
+            </div>
+            <Slider
+              value={[content.bend ?? 1.5]}
+              onValueChange={([value]) => onChange({ bend: value })}
+              min={-3}
+              max={3}
+              step={0.5}
+            />
+          </div>
+
+          {/* Border Radius */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">Border Radius</Label>
+              <span className="text-xs text-muted-foreground">{(content.borderRadius ?? 0.05).toFixed(2)}</span>
+            </div>
+            <Slider
+              value={[content.borderRadius ?? 0.05]}
+              onValueChange={([value]) => onChange({ borderRadius: value })}
+              min={0}
+              max={0.5}
+              step={0.05}
+            />
+          </div>
+
+          {/* Scroll Speed */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">Scroll Speed</Label>
+              <span className="text-xs text-muted-foreground">{(content.scrollSpeed ?? 1.5).toFixed(1)}</span>
+            </div>
+            <Slider
+              value={[content.scrollSpeed ?? 1.5]}
+              onValueChange={([value]) => onChange({ scrollSpeed: value })}
+              min={0.5}
+              max={5}
+              step={0.5}
+            />
+          </div>
+
+          {/* Scroll Ease */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">Scroll Ease</Label>
+              <span className="text-xs text-muted-foreground">{(content.scrollEase ?? 0.03).toFixed(2)}</span>
+            </div>
+            <Slider
+              value={[content.scrollEase ?? 0.03]}
+              onValueChange={([value]) => onChange({ scrollEase: value })}
+              min={0.01}
+              max={0.2}
+              step={0.01}
+            />
+          </div>
+
+          {/* Spacing */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">Spacing</Label>
+              <span className="text-xs text-muted-foreground">{(content.spacing ?? 2.5).toFixed(1)}</span>
+            </div>
+            <Slider
+              value={[content.spacing ?? 2.5]}
+              onValueChange={([value]) => onChange({ spacing: value })}
+              min={0.5}
+              max={4}
+              step={0.5}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Image Grid with dnd-kit */}
       {images.length > 0 && (
@@ -278,7 +379,7 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
           }}
           imageSrc={imageToCrop.url}
           onCropComplete={handleCropComplete}
-          initialAspect={1} // Default to square for gallery images
+          initialAspect={7 / 9} // Default to portrait (matches CircularGallery display frame)
         />
       )}
     </div>
