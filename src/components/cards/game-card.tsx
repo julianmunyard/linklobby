@@ -1,25 +1,14 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Play } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import type { Card, GameType } from "@/types/card"
 import { isGameContent, GAME_TYPE_INFO } from "@/types/card"
 import { BreakoutGame } from "./games/breakout-game"
 import { FlappyGame } from "./games/flappy-game"
 import { SnakeGame } from "./games/snake-game"
 
-// Placeholder for game components - will be implemented in subsequent plans
-function GamePlaceholder({ gameType }: { gameType: GameType }) {
-  return (
-    <div className="flex items-center justify-center h-full text-white/50">
-      {GAME_TYPE_INFO[gameType]?.label || gameType} (Coming Soon)
-    </div>
-  )
-}
-
-type GameState = "idle" | "playing"
+type GameState = "playing"
 
 interface GameCardProps {
   card: Card
@@ -28,7 +17,7 @@ interface GameCardProps {
 }
 
 export function GameCard({ card, isPreview = false, isEditing = false }: GameCardProps) {
-  const [gameState, setGameState] = useState<GameState>("idle")
+  const [gameState, setGameState] = useState<GameState>("playing")
   const [score, setScore] = useState(0)
   const [dimensions, setDimensions] = useState({ width: 400, height: 300 })
   const containerRef = useRef<HTMLDivElement>(null)
@@ -49,17 +38,11 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
     }
   }, [card.size])
 
-  // Reset game state when card changes
+  // Reset score when card/game type changes (keep playing)
   useEffect(() => {
-    setGameState("idle")
     setScore(0)
   }, [card.id, gameType])
 
-  const handleStartGame = () => {
-    if (isEditing) return // Don't allow gameplay in editor
-    setGameState("playing")
-    setScore(0)
-  }
 
   // Fixed retro arcade aesthetic (doesn't adapt to theme)
   // Border color is configurable via accentColor
@@ -92,31 +75,7 @@ export function GameCard({ card, isPreview = false, isEditing = false }: GameCar
 
   return (
     <div ref={containerRef} className={arcadeStyle} style={{ borderColor: `${accentColor}4D` }}>
-      {/* Idle state - show demo with play button */}
-      {gameState === "idle" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {/* Animated demo preview */}
-          <div className="absolute inset-0 opacity-30">
-            <GamePlaceholder gameType={gameType} />
-          </div>
-          {/* Play button overlay */}
-          <Button
-            onClick={handleStartGame}
-            className="z-10 border"
-            style={{
-              backgroundColor: `${accentColor}33`,
-              color: accentColor,
-              borderColor: `${accentColor}80`,
-            }}
-            size={card.size === "small" ? "sm" : "default"}
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Play {gameInfo?.label}
-          </Button>
-        </div>
-      )}
-
-      {/* Playing state - render actual game */}
+      {/* Game auto-starts - render actual game */}
       {gameState === "playing" && (
         <div className="absolute inset-0">
           {/* Game components conditionally rendered based on gameType */}
