@@ -1,5 +1,6 @@
 'use client'
 
+import { useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { ImageIcon } from 'lucide-react'
@@ -8,7 +9,7 @@ import type { Card, GalleryCardContent } from '@/types/card'
 // Dynamic import for CircularGallery (uses WebGL - must be client-only)
 const CircularGallery = dynamic(
   () => import('@/components/CircularGallery'),
-  { ssr: false }
+  { ssr: false, loading: () => <div className="w-full h-full bg-muted/50 animate-pulse rounded-xl" /> }
 )
 
 interface GalleryCardProps {
@@ -19,6 +20,23 @@ interface GalleryCardProps {
 export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   const content = card.content as Partial<GalleryCardContent>
   const isSmall = card.size === 'small'
+
+  // Memoize items to prevent unnecessary WebGL recreations
+  const items = useMemo(() => {
+    if (!content.images) return []
+    return content.images.map(img => ({
+      image: img.url,
+      text: img.caption || '',
+      link: img.link || null
+    }))
+  }, [content.images])
+
+  // Memoize tap handler to prevent unnecessary WebGL recreations
+  const handleTap = useCallback((link: string | null) => {
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer')
+    }
+  }, [])
 
   // No images yet - show empty state
   if (!content.images || content.images.length === 0) {
@@ -35,19 +53,6 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
 
   // Render based on gallery style (default to circular)
   if (content.galleryStyle !== 'carousel') {
-    // Transform images to CircularGallery format: { image, text, link }
-    const items = content.images.map(img => ({
-      image: img.url,
-      text: img.caption || '',
-      link: img.link || null
-    }))
-
-    // Handler for tap - opens centered image's link in new tab
-    const handleTap = (link: string | null) => {
-      if (link) {
-        window.open(link, '_blank', 'noopener,noreferrer')
-      }
-    }
 
     // For small cards: shorter height, allow overflow with fade edges
     return (
