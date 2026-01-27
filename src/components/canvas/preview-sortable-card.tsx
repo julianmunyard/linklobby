@@ -12,6 +12,9 @@ interface PreviewSortableCardProps {
   onClick?: () => void
 }
 
+// Card types that need full interactivity (touch/mouse events pass through)
+const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game']
+
 /**
  * Preview-specific sortable card that intercepts link clicks and calls onClick instead.
  * Used in the preview iframe to enable click-to-select functionality.
@@ -36,8 +39,16 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     ? "w-full"
     : "w-[calc(50%-0.5rem)]"
 
+  // Interactive cards (gallery, video, game) need full pointer/touch events
+  const isInteractive = INTERACTIVE_CARD_TYPES.includes(card.card_type)
+
   // Handle click - intercept link clicks and call onClick instead
   function handleClick(e: React.MouseEvent) {
+    // For interactive cards, only handle clicks on the card border/selection ring
+    // Let internal interactions pass through
+    if (isInteractive && e.target !== e.currentTarget) {
+      return
+    }
     // Prevent default link navigation
     e.preventDefault()
     e.stopPropagation()
@@ -52,20 +63,25 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
         widthClass,
         isDragging && "opacity-0",
         "cursor-pointer",
-        "touch-none", // Required for touch drag to work
+        // Only use touch-none for non-interactive cards (needed for dnd-kit drag)
+        // Interactive cards need touch events to pass through for their internal controls
+        !isInteractive && "touch-none",
         // Selection highlight - white border with ring
         isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background rounded-xl"
       )}
       onClick={handleClick}
-      {...attributes}
-      {...listeners}
+      {...(isInteractive ? {} : { ...attributes, ...listeners })}
     >
-      {/* Wrapper that intercepts all link clicks */}
-      <div className="pointer-events-none">
-        <div className="pointer-events-auto [&_a]:pointer-events-none">
-          <CardRenderer card={card} isPreview />
+      {/* Wrapper that intercepts all link clicks for non-interactive cards */}
+      {isInteractive ? (
+        <CardRenderer card={card} isPreview />
+      ) : (
+        <div className="pointer-events-none">
+          <div className="pointer-events-auto [&_a]:pointer-events-none">
+            <CardRenderer card={card} isPreview />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
