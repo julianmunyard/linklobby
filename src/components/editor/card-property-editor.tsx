@@ -32,12 +32,13 @@ import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
 import { HorizontalLinkFields } from "./horizontal-link-fields"
 import { SquareCardFields } from "./square-card-fields"
+import { VideoCardFields } from "./video-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_SIZES, CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
@@ -423,6 +424,13 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               <SquareCardFields
                 content={currentContent as SquareCardContent}
                 onChange={handleContentChange}
+              />
+            )}
+            {card.card_type === "video" && (
+              <VideoCardFields
+                content={currentContent as VideoCardContent}
+                onChange={handleContentChange}
+                cardId={card.id}
               />
             )}
 

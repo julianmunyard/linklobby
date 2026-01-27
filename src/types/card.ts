@@ -57,8 +57,8 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   link: null, // Always full width - simple text link
 }
 
-// Card types that don't support images
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio']
+// Card types that don't support images (use custom media handling instead)
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'dropdown', 'audio', 'video', 'gallery']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -111,7 +111,7 @@ export interface SquareCardContent {
 }
 
 export interface VideoCardContent {
-  videoType: 'embed' | 'upload'
+  videoType?: 'embed' | 'upload'  // Defaults to 'embed'
   // For embeds
   embedUrl?: string           // Original URL (YouTube/Vimeo/TikTok)
   embedService?: 'youtube' | 'vimeo' | 'tiktok'
@@ -156,7 +156,9 @@ export function isSquareContent(content: unknown): content is SquareCardContent 
 }
 
 export function isVideoContent(content: unknown): content is VideoCardContent {
-  return typeof content === 'object' && content !== null && 'videoType' in content
+  // VideoCardContent is any object that could have video-related fields
+  // videoType is optional (defaults to 'embed'), so we can't rely on it being present
+  return typeof content === 'object' && content !== null
 }
 
 export function isGalleryContent(content: unknown): content is GalleryCardContent {

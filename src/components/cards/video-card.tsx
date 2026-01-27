@@ -30,16 +30,16 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
 
   // Route to appropriate component based on video type
   if (content.videoType === 'upload' && content.uploadedVideoUrl) {
-    return <VideoCardUpload videoUrl={content.uploadedVideoUrl} title={card.title} />
+    return <VideoCardUpload videoUrl={content.uploadedVideoUrl as string} title={card.title} />
   }
 
   if (content.videoType === 'embed' && content.embedUrl) {
     return (
       <VideoCardEmbed
-        embedUrl={content.embedUrl}
-        embedService={content.embedService}
-        embedVideoId={content.embedVideoId}
-        thumbnailUrl={content.embedThumbnailUrl}
+        embedUrl={content.embedUrl as string}
+        embedService={content.embedService as 'youtube' | 'vimeo' | 'tiktok' | undefined}
+        embedVideoId={content.embedVideoId as string | undefined}
+        thumbnailUrl={content.embedThumbnailUrl as string | undefined}
         title={card.title}
       />
     )
