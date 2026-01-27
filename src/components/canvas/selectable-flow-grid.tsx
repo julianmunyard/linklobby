@@ -18,12 +18,10 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable"
-import { useSelectionContainer } from "@air/react-drag-to-select"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { PreviewSortableCard } from "./preview-sortable-card"
 import { useMultiSelect } from "@/hooks/use-multi-select"
-import { boxesIntersect } from "@air/react-drag-to-select"
 import type { Card } from "@/types/card"
 
 interface SelectableFlowGridProps {
@@ -35,11 +33,11 @@ interface SelectableFlowGridProps {
 }
 
 /**
- * SelectableFlowGrid adds box selection to PreviewFlowGrid.
+ * SelectableFlowGrid with multi-select support.
  * Features:
- * - Drag to draw selection box
  * - Shift+click for individual selection
- * - Detects intersecting cards via boxesIntersect
+ * - Multi-drag: drag one selected card to move all selected
+ * - Click empty space to clear selection
  */
 export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorderMultiple, onCardClick }: SelectableFlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
@@ -55,56 +53,6 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  // Box selection container
-  const { DragSelection } = useSelectionContainer({
-    shouldStartSelecting: (target) => {
-      // Don't start box selection on drag handles, buttons, or interactive elements
-      if (target instanceof HTMLElement) {
-        // Exclude dnd-kit drag handles
-        if (target.closest('[data-dnd-kit-drag-handle]')) return false
-        // Exclude buttons and links
-        if (target.closest('button') || target.closest('a')) return false
-        // Exclude interactive cards' internal controls
-        if (target.closest('[data-interactive-card]')) return false
-      }
-      return true
-    },
-    onSelectionChange: (box) => {
-      // Find all cards that intersect with selection box
-      const selectedElements = document.querySelectorAll('[data-selectable-id]')
-      const newSelection = new Set<string>()
-
-      selectedElements.forEach((element) => {
-        const id = element.getAttribute('data-selectable-id')
-        if (!id) return
-
-        const rect = element.getBoundingClientRect()
-        const elementBox = {
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height,
-        }
-
-        if (boxesIntersect(box, elementBox)) {
-          newSelection.add(id)
-        }
-      })
-
-      multiSelect.setSelected(newSelection)
-    },
-    onSelectionEnd: () => {
-      // Selection box finished
-    },
-    selectionProps: {
-      style: {
-        border: '2px solid rgb(59, 130, 246)',
-        background: 'rgba(59, 130, 246, 0.1)',
-        borderRadius: '4px',
-      },
-    },
-  })
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -226,11 +174,17 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
         items={cards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
-        {/* Box selection component - rendered as sibling */}
-        <DragSelection />
-
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-        <div className="flex flex-wrap gap-4">
+        {/* Click on empty space clears selection */}
+        <div
+          className="flex flex-wrap gap-4 min-h-[100px]"
+          onClick={(e) => {
+            // Only clear if clicking the container itself, not a card
+            if (e.target === e.currentTarget) {
+              multiSelect.clearSelection()
+            }
+          }}
+        >
           {cards.map((card) => (
             <PreviewSortableCard
               key={card.id}
