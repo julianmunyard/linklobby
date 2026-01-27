@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
 Plan: 14 of 16 complete
 Status: **Ready for Phase 6 completion**
-Last activity: 2026-01-27 - Completed quick task 020: Gallery circular links editor redesign
+Last activity: 2026-01-27 - Completed quick task 021: Gallery upload UI polish + caption font fix
 
 Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
@@ -395,11 +395,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 018 | Add feather effect slider to profile photo | Complete | c09109b |
 | 019 | Gallery image links and captions | Complete | 4432753 |
 | 020 | Gallery circular links editor redesign | Complete | 3ecff1b |
+| 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed Quick Task 020 (gallery circular links editor redesign)
+Last activity: 2026-01-27 - Completed Quick Task 021 (gallery upload UI polish)
 Stopped at: Completed quick-020
 Resume file: None
 
