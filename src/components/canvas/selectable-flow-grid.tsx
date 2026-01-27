@@ -124,6 +124,9 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     const activeCard = cards.find((c) => c.id === activeId)
     if (!activeCard) return
 
+    // Early exit: if same position (no actual movement), do nothing
+    if (active.id === over.id) return
+
     // Check if dropping on a dropdown
     const overDropdown = over.data.current?.type === "dropdown"
     const overId = over.id as string
@@ -161,7 +164,9 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     }
 
     // Case 3: Moving OUT of a dropdown to main canvas
-    if (activeCard.parentDropdownId && !overDropdown) {
+    // Only trigger if EXPLICITLY dropping on a main canvas card (not same position, not dropdown)
+    const isMainCanvasCard = overCard && !overCard.parentDropdownId && overCard.card_type !== "dropdown"
+    if (activeCard.parentDropdownId && !overDropdown && isMainCanvasCard && active.id !== over.id) {
       // Remove from dropdown first
       cardIdsToDrag.forEach((cardId) => {
         removeCardFromDropdown(cardId)
