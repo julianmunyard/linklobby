@@ -18,7 +18,9 @@ import { BackgroundControls } from './background-controls'
 import { SocialIconsEditor } from './social-icons-editor'
 import { SocialIconPicker } from './social-icon-picker'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { useProfileStore } from '@/stores/profile-store'
+import { useThemeStore } from '@/stores/theme-store'
 import { uploadProfileImage, type ProfileImageType } from '@/lib/supabase/storage'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -51,6 +53,7 @@ export function DesignPanel() {
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
+  const headerTextColor = useProfileStore((state) => state.headerTextColor)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -65,6 +68,10 @@ export function DesignPanel() {
   const setLogoScale = useProfileStore((state) => state.setLogoScale)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
+  const setHeaderTextColor = useProfileStore((state) => state.setHeaderTextColor)
+
+  // Theme store for default text color
+  const themeTextColor = useThemeStore((state) => state.colors.text)
 
   // Image upload state
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
@@ -266,6 +273,25 @@ export function DesignPanel() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">Bio</Label>
               <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
+            </div>
+
+            {/* Header Text Color */}
+            <div className="space-y-2">
+              <ColorPicker
+                color={headerTextColor || themeTextColor}
+                onChange={setHeaderTextColor}
+                label="Text Color"
+              />
+              {headerTextColor && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setHeaderTextColor(null)}
+                  className="text-xs text-muted-foreground"
+                >
+                  Reset to theme default
+                </Button>
+              )}
             </div>
 
             {/* Social Icons */}

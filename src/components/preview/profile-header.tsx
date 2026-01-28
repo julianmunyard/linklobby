@@ -22,6 +22,7 @@ export function ProfileHeader() {
   const logoUrl = useProfileStore((state) => state.logoUrl)
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
+  const headerTextColor = useProfileStore((state) => state.headerTextColor)
 
   // Render logo
   const renderLogo = () => {
@@ -57,7 +58,10 @@ export function ProfileHeader() {
           "font-bold text-center break-words w-full max-w-xs text-theme-text",
           titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
         )}
-        style={{ fontFamily: 'var(--font-theme-heading)' }}
+        style={{
+          fontFamily: 'var(--font-theme-heading)',
+          ...(headerTextColor && { color: headerTextColor })
+        }}
       >
         {displayName}
       </h1>
@@ -69,7 +73,13 @@ export function ProfileHeader() {
     if (!bio) return null
 
     return (
-      <p className="text-sm text-theme-text/70 text-center max-w-xs" style={{ fontFamily: 'var(--font-theme-body)' }}>
+      <p
+        className="text-sm text-theme-text/70 text-center max-w-xs"
+        style={{
+          fontFamily: 'var(--font-theme-body)',
+          ...(headerTextColor && { color: headerTextColor, opacity: 0.7 })
+        }}
+      >
         {bio}
       </p>
     )

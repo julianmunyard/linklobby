@@ -65,6 +65,7 @@ interface ProfileState extends Profile {
   setLogoScale: (scale: number) => void
   setProfileLayout: (layout: ProfileLayout) => void
   setShowSocialIcons: (show: boolean) => void
+  setHeaderTextColor: (color: string | null) => void
   addSocialIcon: (platform: SocialPlatform, url: string) => void
   updateSocialIcon: (id: string, updates: Partial<Pick<SocialIcon, 'url' | 'platform'>>) => void
   removeSocialIcon: (id: string) => void
@@ -89,6 +90,7 @@ const defaultProfile: Profile = {
   profileLayout: 'classic',
   showSocialIcons: true,
   socialIcons: [],
+  headerTextColor: null,
 }
 
 export const useProfileStore = create<ProfileState>()((set, get) => ({
@@ -120,6 +122,8 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
   setProfileLayout: (layout) => set({ profileLayout: layout, hasChanges: true }),
 
   setShowSocialIcons: (show) => set({ showSocialIcons: show, hasChanges: true }),
+
+  setHeaderTextColor: (color) => set({ headerTextColor: color, hasChanges: true }),
 
   addSocialIcon: (platform, url) =>
     set((state) => {
@@ -191,6 +195,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       profileLayout: state.profileLayout,
       showSocialIcons: state.showSocialIcons,
       socialIcons: sortIconsBySortKey(state.socialIcons),
+      headerTextColor: state.headerTextColor,
     }
   },
 
