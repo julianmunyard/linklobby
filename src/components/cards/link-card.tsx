@@ -1,6 +1,9 @@
 // src/components/cards/link-card.tsx
+"use client"
+
 import type { Card, LinkCardContent } from "@/types/card"
 import { cn } from "@/lib/utils"
+import { useThemeStore } from "@/stores/theme-store"
 
 interface LinkCardProps {
   card: Card
@@ -12,6 +15,7 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
   const textAlign = content.textAlign || "center"
   const verticalAlign = content.verticalAlign || "middle"
   const textColor = content.textColor
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.link)
 
   const Wrapper = card.url && isPreview ? "a" : "div"
   const wrapperProps = card.url && isPreview
@@ -33,14 +37,14 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
     >
       <p
         className={cn("font-medium break-words w-full line-clamp-2", !textColor && "text-theme-text")}
-        style={{ fontFamily: 'var(--font-theme-heading)', ...(textColor && { color: textColor }) }}
+        style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
       >
         {card.title || "Untitled Link"}
       </p>
       {card.description && (
         <p
-          className={cn("text-sm break-words w-full line-clamp-3", !textColor && "text-theme-text/70")}
-          style={{ fontFamily: 'var(--font-theme-body)', ...(textColor && { color: textColor, opacity: 0.7 }) }}
+          className={cn("break-words w-full line-clamp-3", !textColor && "text-theme-text/70")}
+          style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
         >
           {card.description}
         </p>

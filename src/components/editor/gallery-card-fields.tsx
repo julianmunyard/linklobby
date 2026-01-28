@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ColorPicker } from '@/components/ui/color-picker'
+import { useThemeStore } from '@/stores/theme-store'
 import { Circle, Rows3, X, Loader2, Plus, Crop, GripVertical } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
@@ -21,6 +23,28 @@ interface GalleryCardFieldsProps {
   content: Partial<GalleryCardContent>
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
+}
+
+// Separate component to avoid hooks in conditional
+function GalleryFontSize() {
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.gallery)
+  const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm">
+        <Label>Font Size (all gallery cards)</Label>
+        <span className="text-muted-foreground">{Math.round(fontSize * 100)}%</span>
+      </div>
+      <Slider
+        value={[fontSize]}
+        onValueChange={(v) => setCardTypeFontSize('gallery', v[0])}
+        min={0.5}
+        max={2}
+        step={0.1}
+      />
+    </div>
+  )
 }
 
 function SortableImage({
@@ -341,6 +365,18 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
               onCheckedChange={(checked) => onChange({ showCaptions: checked })}
             />
           </div>
+
+          {/* Caption Color - only when captions are shown */}
+          {content.showCaptions !== false && (
+            <ColorPicker
+              label="Caption Color"
+              color={content.captionColor || "#ffffff"}
+              onChange={(color) => onChange({ captionColor: color })}
+            />
+          )}
+
+          {/* Font Size */}
+          <GalleryFontSize />
         </div>
       )}
 

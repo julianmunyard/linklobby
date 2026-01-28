@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ExternalLink } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useThemeStore } from "@/stores/theme-store"
 import type { Card, HeroCardContent } from "@/types/card"
 
 interface HeroCardProps {
@@ -28,6 +29,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
   const verticalAlign = content.verticalAlign || "bottom"
   const showButton = content.showButton !== false  // Default to true
   const textColor = content.textColor || "#ffffff"
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.hero)
 
   return (
     <div className="relative w-full h-64">
@@ -63,12 +65,18 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
         style={{ color: textColor }}
       >
         {card.title && (
-          <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4" style={{ fontFamily: 'var(--font-theme-heading)' }}>
+          <h2
+            className="font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4"
+            style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1.5 * fontSize}rem` }}
+          >
             {card.title}
           </h2>
         )}
         {card.description && (
-          <p className="text-sm opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm" style={{ fontFamily: 'var(--font-theme-body)' }}>
+          <p
+            className="opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm"
+            style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem` }}
+          >
             {card.description}
           </p>
         )}

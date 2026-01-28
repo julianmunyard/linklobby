@@ -150,6 +150,7 @@ export interface GalleryCardContent {
   scrollEase?: number       // Default: 0.03, range: 0.01 to 0.2
   spacing?: number          // Default: 2.5, range: 0.5 to 4
   showCaptions?: boolean    // Default: true - show captions in circular mode
+  captionColor?: string     // Caption text color (default: #ffffff)
 }
 
 export type GameType = 'snake' | 'breakout' | 'flappy'

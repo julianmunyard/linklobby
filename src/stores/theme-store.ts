@@ -7,8 +7,10 @@ import type {
   FontConfig,
   StyleConfig,
   BackgroundConfig,
+  CardTypeFontSizes,
   ThemeState
 } from '@/types/theme'
+import type { CardType } from '@/types/card'
 import { getTheme, getThemeDefaults } from '@/lib/themes'
 
 interface ThemeStore extends ThemeState {
@@ -19,6 +21,7 @@ interface ThemeStore extends ThemeState {
   setFont: (key: keyof FontConfig, value: string | number) => void
   setStyle: (key: keyof StyleConfig, value: number | boolean) => void
   setBackground: (background: BackgroundConfig) => void
+  setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
   resetToThemeDefaults: () => void
 }
 
@@ -51,6 +54,13 @@ const initialState: ThemeState = {
   background: {
     type: 'solid',
     value: 'oklch(0.15 0 0)', // Dark background by default
+  },
+  cardTypeFontSizes: {
+    hero: 1,
+    square: 1,
+    horizontal: 1,
+    link: 1,
+    gallery: 1,
   },
 }
 
@@ -119,6 +129,15 @@ export const useThemeStore = create<ThemeStore>()(
 
       setBackground: (background: BackgroundConfig) => {
         set({ background })
+      },
+
+      setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => {
+        set((state) => ({
+          cardTypeFontSizes: {
+            ...state.cardTypeFontSizes,
+            [cardType]: size,
+          },
+        }))
       },
 
       resetToThemeDefaults: () => {

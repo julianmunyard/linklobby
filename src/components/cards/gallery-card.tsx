@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { ImageIcon } from 'lucide-react'
+import { useThemeStore } from '@/stores/theme-store'
 import type { Card, GalleryCardContent } from '@/types/card'
 
 // Dynamic import for CircularGallery (uses WebGL - must be client-only)
@@ -20,6 +21,22 @@ interface GalleryCardProps {
 export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   const content = card.content as Partial<GalleryCardContent>
   const isSmall = card.size === 'small'
+  const themeFont = useThemeStore((state) => state.fonts.body)
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.gallery)
+
+  // Resolve CSS variable to actual font family for WebGL
+  const [resolvedFont, setResolvedFont] = useState('sans-serif')
+  useEffect(() => {
+    if (typeof document !== 'undefined' && themeFont.startsWith('var(')) {
+      const match = themeFont.match(/var\((--[^)]+)\)/)
+      if (match) {
+        const computed = getComputedStyle(document.body).getPropertyValue(match[1]).trim()
+        if (computed) setResolvedFont(computed)
+      }
+    } else if (themeFont) {
+      setResolvedFont(themeFont)
+    }
+  }, [themeFont])
 
   // Memoize items to prevent unnecessary WebGL recreations
   const items = useMemo(() => {
@@ -70,7 +87,8 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
             scrollSpeed={content.scrollSpeed ?? 1.5}
             scrollEase={content.scrollEase ?? 0.03}
             spacing={isSmall ? (content.spacing ?? 2.5) * 0.7 : (content.spacing ?? 2.5)}
-            textColor="#ffffff"
+            textColor={content.captionColor || "#ffffff"}
+            font={resolvedFont}
             onTap={handleTap}
             showCaptions={content.showCaptions !== false}
           />

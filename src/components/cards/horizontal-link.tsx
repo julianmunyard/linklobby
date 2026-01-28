@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ChevronRight, Link2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useThemeStore } from "@/stores/theme-store"
 import type { Card, HorizontalLinkContent } from "@/types/card"
 
 interface HorizontalLinkProps {
@@ -27,6 +28,7 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "middle"
   const textColor = content.textColor
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.horizontal)
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -79,14 +81,14 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
       >
         <h3
           className={cn("font-medium break-words line-clamp-2", !textColor && "text-theme-text")}
-          style={{ fontFamily: 'var(--font-theme-heading)', ...(textColor && { color: textColor }) }}
+          style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
         >
           {card.title || "Untitled Link"}
         </h3>
         {card.description && (
           <p
-            className={cn("text-sm break-words line-clamp-2", !textColor && "text-theme-text/70")}
-            style={{ fontFamily: 'var(--font-theme-body)', ...(textColor && { color: textColor, opacity: 0.7 }) }}
+            className={cn("break-words line-clamp-2", !textColor && "text-theme-text/70")}
+            style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
           >
             {card.description}
           </p>

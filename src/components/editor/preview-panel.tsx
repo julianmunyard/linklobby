@@ -43,8 +43,8 @@ export function PreviewPanel() {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
       // Get theme state snapshot (exclude actions)
-      const { themeId, paletteId, colors, fonts, style, background } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin

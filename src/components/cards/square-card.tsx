@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ImageIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useThemeStore } from "@/stores/theme-store"
 import type { Card, SquareCardContent } from "@/types/card"
 
 interface SquareCardProps {
@@ -28,6 +29,7 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "bottom"
   const textColor = content.textColor || "#ffffff"
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.square)
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -81,11 +83,11 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
           >
             <h3
               className={cn(
-                "text-sm font-medium drop-shadow-sm break-words w-full line-clamp-4",
+                "font-medium drop-shadow-sm break-words w-full line-clamp-4",
                 textAlign === "center" && "text-center",
                 textAlign === "right" && "text-right"
               )}
-              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor }}
+              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${0.875 * fontSize}rem` }}
             >
               {card.title}
             </h3>

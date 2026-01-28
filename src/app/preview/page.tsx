@@ -98,6 +98,7 @@ function PreviewContent() {
             fonts: ts.fonts,
             style: ts.style,
             background: ts.background,
+            cardTypeFontSizes: ts.cardTypeFontSizes,
           })
         }
       }

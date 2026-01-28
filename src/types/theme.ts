@@ -30,6 +30,15 @@ export interface BackgroundConfig {
   value: string           // color hex, image URL, or video URL
 }
 
+// Font sizes for each card type (rem multiplier, 1 = base)
+export interface CardTypeFontSizes {
+  hero: number
+  square: number
+  horizontal: number
+  link: number
+  gallery: number
+}
+
 export interface ThemeConfig {
   id: ThemeId
   name: string
@@ -51,4 +60,5 @@ export interface ThemeState {
   fonts: FontConfig
   style: StyleConfig
   background: BackgroundConfig
+  cardTypeFontSizes: CardTypeFontSizes
 }
