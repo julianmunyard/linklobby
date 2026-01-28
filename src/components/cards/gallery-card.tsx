@@ -88,7 +88,7 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
             scrollEase={content.scrollEase ?? 0.03}
             spacing={isSmall ? (content.spacing ?? 2.5) * 0.7 : (content.spacing ?? 2.5)}
             textColor={content.captionColor || "#ffffff"}
-            font={resolvedFont}
+            font={`bold 16px ${resolvedFont}`}
             onTap={handleTap}
             showCaptions={content.showCaptions !== false}
           />
