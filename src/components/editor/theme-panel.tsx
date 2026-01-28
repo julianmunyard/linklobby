@@ -2,6 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ThemePresets } from './theme-presets'
+import { ColorCustomizer } from './color-customizer'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown, Palette } from 'lucide-react'
 import { useState } from 'react'
@@ -34,8 +35,7 @@ export function ThemePanel() {
           </TabsContent>
 
           <TabsContent value="colors" className="mt-3">
-            {/* ColorCustomizer - placeholder for Plan 04 */}
-            <p className="text-sm text-muted-foreground">Color customization coming soon...</p>
+            <ColorCustomizer />
           </TabsContent>
 
           <TabsContent value="fonts" className="mt-3">
