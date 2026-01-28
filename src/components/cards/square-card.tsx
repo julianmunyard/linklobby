@@ -27,6 +27,7 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "bottom"
+  const textColor = content.textColor || "#ffffff"
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -80,11 +81,11 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
           >
             <h3
               className={cn(
-                "text-sm font-medium text-white drop-shadow-sm break-words w-full line-clamp-4",
+                "text-sm font-medium drop-shadow-sm break-words w-full line-clamp-4",
                 textAlign === "center" && "text-center",
                 textAlign === "right" && "text-right"
               )}
-              style={{ fontFamily: 'var(--font-theme-heading)' }}
+              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor }}
             >
               {card.title}
             </h3>

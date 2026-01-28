@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ColorPicker } from "@/components/ui/color-picker"
 import type { HeroCardContent } from "@/types/card"
 
 interface HeroCardFieldsProps {
@@ -23,6 +24,13 @@ export function HeroCardFields({ content, onChange }: HeroCardFieldsProps) {
 
   return (
     <div className="space-y-4">
+      {/* Text Color */}
+      <ColorPicker
+        label="Text Color"
+        color={content.textColor || "#ffffff"}
+        onChange={(color) => onChange({ textColor: color })}
+      />
+
       <div className="flex items-center justify-between">
         <Label htmlFor="showButton">Show Button</Label>
         <Switch

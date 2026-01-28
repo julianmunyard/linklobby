@@ -27,6 +27,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "bottom"
   const showButton = content.showButton !== false  // Default to true
+  const textColor = content.textColor || "#ffffff"
 
   return (
     <div className="relative w-full h-64">
@@ -51,7 +52,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
       {/* Content with alignment */}
       <div
         className={cn(
-          "absolute inset-0 p-6 text-white flex flex-col",
+          "absolute inset-0 p-6 flex flex-col",
           textAlign === "left" && "items-start text-left",
           textAlign === "center" && "items-center text-center",
           textAlign === "right" && "items-end text-right",
@@ -59,6 +60,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
           verticalAlign === "middle" && "justify-center",
           verticalAlign === "bottom" && "justify-end"
         )}
+        style={{ color: textColor }}
       >
         {card.title && (
           <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4" style={{ fontFamily: 'var(--font-theme-heading)' }}>

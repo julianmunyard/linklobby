@@ -94,6 +94,7 @@ export interface HeroCardContent {
   showButton?: boolean  // Whether to show the CTA button (default true)
   buttonText?: string
   buttonStyle?: "primary" | "secondary" | "outline"
+  textColor?: string    // Override text color (default white)
 }
 
 export interface HorizontalLinkContent {
@@ -106,6 +107,7 @@ export interface SquareCardContent {
   imageUrl?: string
   imageAlt?: string
   showTitle?: boolean  // Whether to show title overlay (default true)
+  textColor?: string   // Override text color (default white)
 }
 
 export interface VideoCardContent {

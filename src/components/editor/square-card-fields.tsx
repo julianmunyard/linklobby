@@ -3,6 +3,7 @@
 
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { ColorPicker } from "@/components/ui/color-picker"
 import type { SquareCardContent } from "@/types/card"
 
 interface SquareCardFieldsProps {
@@ -21,6 +22,15 @@ export function SquareCardFields({ content, onChange }: SquareCardFieldsProps) {
           onCheckedChange={(checked) => onChange({ showTitle: checked })}
         />
       </div>
+
+      {/* Text Color - only shown when title overlay is enabled */}
+      {content.showTitle !== false && (
+        <ColorPicker
+          label="Text Color"
+          color={content.textColor || "#ffffff"}
+          onChange={(color) => onChange({ textColor: color })}
+        />
+      )}
     </div>
   )
 }
