@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { ChevronDown, Camera, User, Upload, Plus, Loader2 } from 'lucide-react'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Camera, User, Upload, Plus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { ThemePresets } from './theme-presets'
 import { ColorCustomizer } from './color-customizer'
 import { FontPicker } from './font-picker'
@@ -24,35 +24,20 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { TitleSize, ProfileLayout } from '@/types/profile'
 
-interface SectionProps {
-  title: string
-  defaultOpen?: boolean
-  children: React.ReactNode
-  toggle?: React.ReactNode
-}
+const TABS = [
+  { id: 'presets', label: 'Presets' },
+  { id: 'colors', label: 'Colors' },
+  { id: 'fonts', label: 'Fonts' },
+  { id: 'background', label: 'Background' },
+  { id: 'style', label: 'Style' },
+  { id: 'header', label: 'Header' },
+] as const
 
-function Section({ title, defaultOpen = false, children, toggle }: SectionProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
-
-  return (
-    <div className="border-b border-border pb-4">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <div className="flex items-center justify-between">
-          <CollapsibleTrigger className="flex items-center gap-2 py-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors">
-            <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
-            {title}
-          </CollapsibleTrigger>
-          {toggle}
-        </div>
-        <CollapsibleContent className="pt-3 space-y-4">
-          {children}
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
-  )
-}
+type TabId = typeof TABS[number]['id']
 
 export function DesignPanel() {
+  const [activeTab, setActiveTab] = useState<TabId>('presets')
+
   // Profile store state
   const displayName = useProfileStore((state) => state.displayName)
   const bio = useProfileStore((state) => state.bio)
@@ -145,157 +130,167 @@ export function DesignPanel() {
 
   return (
     <div className="space-y-4">
-      {/* PRESETS */}
-      <Section title="Presets" defaultOpen={true}>
-        <ThemePresets />
-      </Section>
+      {/* Horizontal scrollable tabs */}
+      <ScrollArea className="w-full">
+        <div className="flex gap-2 pb-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                activeTab === tab.id
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
-      {/* COLORS */}
-      <Section title="Colors" defaultOpen={false}>
-        <ColorCustomizer />
-      </Section>
+      {/* Tab content */}
+      <div className="space-y-4">
+        {activeTab === 'presets' && <ThemePresets />}
 
-      {/* FONTS */}
-      <Section title="Fonts" defaultOpen={false}>
-        <FontPicker />
-      </Section>
+        {activeTab === 'colors' && <ColorCustomizer />}
 
-      {/* BACKGROUND */}
-      <Section title="Background" defaultOpen={false}>
-        <BackgroundControls />
-      </Section>
+        {activeTab === 'fonts' && <FontPicker />}
 
-      {/* STYLE */}
-      <Section title="Style" defaultOpen={false}>
-        <StyleControls />
-      </Section>
+        {activeTab === 'background' && <BackgroundControls />}
 
-      {/* HEADER */}
-      <Section title="Header" defaultOpen={false}>
-        {/* Profile Photo */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium">Profile Photo</Label>
-            <Switch checked={showAvatar} onCheckedChange={setShowAvatar} />
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="h-6 w-6 text-muted-foreground" />
-                )}
+        {activeTab === 'style' && <StyleControls />}
+
+        {activeTab === 'header' && (
+          <div className="space-y-6">
+            {/* Profile Photo */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Profile Photo</Label>
+                <Switch checked={showAvatar} onCheckedChange={setShowAvatar} />
               </div>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading && imageType === 'avatar' ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Camera className="h-3 w-3" />
-                )}
-              </Button>
-            </div>
-            <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarFileSelect} className="hidden" />
-          </div>
-          {showAvatar && avatarUrl && (
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Edge Feather</span>
-                <span>{avatarFeather}%</span>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-6 w-6 text-muted-foreground" />
+                    )}
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading && imageType === 'avatar' ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Camera className="h-3 w-3" />
+                    )}
+                  </Button>
+                </div>
+                <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarFileSelect} className="hidden" />
               </div>
-              <Slider value={[avatarFeather]} onValueChange={(v) => setAvatarFeather(v[0])} min={0} max={100} step={5} />
+              {showAvatar && avatarUrl && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Edge Feather</span>
+                    <span>{avatarFeather}%</span>
+                  </div>
+                  <Slider value={[avatarFeather]} onValueChange={(v) => setAvatarFeather(v[0])} min={0} max={100} step={5} />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Layout */}
-        <div className="space-y-2">
-          <Label className="text-xs font-medium">Layout</Label>
-          <ToggleGroup type="single" variant="outline" value={profileLayout} onValueChange={(v) => v && setProfileLayout(v as ProfileLayout)} className="justify-start">
-            <ToggleGroupItem value="classic">Classic</ToggleGroupItem>
-            <ToggleGroupItem value="hero">Hero</ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        {/* Display Name */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium">Display Name</Label>
-            <Switch checked={showTitle} onCheckedChange={setShowTitle} />
-          </div>
-          <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
-          {showTitle && (
-            <ToggleGroup type="single" variant="outline" value={titleSize} onValueChange={(v) => v && setTitleSize(v as TitleSize)} className="justify-start">
-              <ToggleGroupItem value="small">Small</ToggleGroupItem>
-              <ToggleGroupItem value="large">Large</ToggleGroupItem>
-            </ToggleGroup>
-          )}
-        </div>
-
-        {/* Logo */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium">Logo</Label>
-            <Switch checked={showLogo} onCheckedChange={setShowLogo} />
-          </div>
-          {logoUrl ? (
-            <div className="relative inline-block">
-              <img src={logoUrl} alt="Logo" className="h-12 max-w-[150px] object-contain" />
-              <Button size="icon" variant="secondary" className="absolute -top-1 -right-1 h-6 w-6 rounded-full" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
-                {isUploading && imageType === 'logo' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
-              </Button>
-            </div>
-          ) : (
-            <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
-              {isUploading && imageType === 'logo' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-              Upload Logo
-            </Button>
-          )}
-          <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoFileSelect} className="hidden" />
-          {logoUrl && (
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Logo Size</span>
-                <span>{logoScale}%</span>
-              </div>
-              <Slider value={[logoScale]} onValueChange={(v) => setLogoScale(v[0])} min={50} max={300} step={10} />
-            </div>
-          )}
-        </div>
-
-        {/* Bio */}
-        <div className="space-y-2">
-          <Label className="text-xs font-medium">Bio</Label>
-          <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
-        </div>
-
-        {/* Social Icons */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium">Social Icons</Label>
-            <Switch checked={showSocialIcons} onCheckedChange={setShowSocialIcons} />
-          </div>
-          {showSocialIcons && (
+            {/* Layout */}
             <div className="space-y-2">
-              <SocialIconsEditor />
-              <SocialIconPicker>
-                <Button variant="outline" size="sm" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Icon
-                </Button>
-              </SocialIconPicker>
+              <Label className="text-sm font-medium">Layout</Label>
+              <ToggleGroup type="single" variant="outline" value={profileLayout} onValueChange={(v) => v && setProfileLayout(v as ProfileLayout)} className="justify-start">
+                <ToggleGroupItem value="classic">Classic</ToggleGroupItem>
+                <ToggleGroupItem value="hero">Hero</ToggleGroupItem>
+              </ToggleGroup>
             </div>
-          )}
-        </div>
 
-        {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
-      </Section>
+            {/* Display Name */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Display Name</Label>
+                <Switch checked={showTitle} onCheckedChange={setShowTitle} />
+              </div>
+              <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              {showTitle && (
+                <ToggleGroup type="single" variant="outline" value={titleSize} onValueChange={(v) => v && setTitleSize(v as TitleSize)} className="justify-start">
+                  <ToggleGroupItem value="small">Small</ToggleGroupItem>
+                  <ToggleGroupItem value="large">Large</ToggleGroupItem>
+                </ToggleGroup>
+              )}
+            </div>
+
+            {/* Logo */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Logo</Label>
+                <Switch checked={showLogo} onCheckedChange={setShowLogo} />
+              </div>
+              {logoUrl ? (
+                <div className="relative inline-block">
+                  <img src={logoUrl} alt="Logo" className="h-12 max-w-[150px] object-contain" />
+                  <Button size="icon" variant="secondary" className="absolute -top-1 -right-1 h-6 w-6 rounded-full" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                    {isUploading && imageType === 'logo' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                  {isUploading && imageType === 'logo' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                  Upload Logo
+                </Button>
+              )}
+              <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoFileSelect} className="hidden" />
+              {logoUrl && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Logo Size</span>
+                    <span>{logoScale}%</span>
+                  </div>
+                  <Slider value={[logoScale]} onValueChange={(v) => setLogoScale(v[0])} min={50} max={300} step={10} />
+                </div>
+              )}
+            </div>
+
+            {/* Bio */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Bio</Label>
+              <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
+            </div>
+
+            {/* Social Icons */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Social Icons</Label>
+                <Switch checked={showSocialIcons} onCheckedChange={setShowSocialIcons} />
+              </div>
+              {showSocialIcons && (
+                <div className="space-y-2">
+                  <SocialIconsEditor />
+                  <SocialIconPicker>
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Icon
+                    </Button>
+                  </SocialIconPicker>
+                </div>
+              )}
+            </div>
+
+            {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+          </div>
+        )}
+      </div>
 
       {/* Image Crop Dialog */}
       {selectedImage && (
