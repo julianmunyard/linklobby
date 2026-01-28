@@ -29,7 +29,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
   const showButton = content.showButton !== false  // Default to true
 
   return (
-    <div className="relative w-full h-64 rounded-xl overflow-hidden bg-card border">
+    <div className="relative w-full h-64">
       {/* Background image or gradient placeholder */}
       {hasValidImage ? (
         <Image
@@ -61,12 +61,12 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
         )}
       >
         {card.title && (
-          <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4">
+          <h2 className="text-2xl font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4" style={{ fontFamily: 'var(--font-theme-heading)' }}>
             {card.title}
           </h2>
         )}
         {card.description && (
-          <p className="text-sm opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm">
+          <p className="text-sm opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm" style={{ fontFamily: 'var(--font-theme-body)' }}>
             {card.description}
           </p>
         )}

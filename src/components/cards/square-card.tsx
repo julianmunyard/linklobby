@@ -41,9 +41,9 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "relative block aspect-square w-full rounded-lg border bg-card overflow-hidden",
+        "relative block aspect-square w-full",
         "transition-colors duration-150",
-        hasLink && "hover:border-accent-foreground/20 cursor-pointer",
+        hasLink && "hover:opacity-90 cursor-pointer",
         !hasLink && "cursor-default"
       )}
     >
@@ -84,6 +84,7 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
                 textAlign === "center" && "text-center",
                 textAlign === "right" && "text-right"
               )}
+              style={{ fontFamily: 'var(--font-theme-heading)' }}
             >
               {card.title}
             </h3>

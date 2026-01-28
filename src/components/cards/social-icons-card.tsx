@@ -41,7 +41,7 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
             href={isPreview ? icon.url : undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-theme-text/70 hover:text-theme-link transition-colors"
             onClick={isPreview ? undefined : (e) => e.preventDefault()}
           >
             <Icon className="w-6 h-6" />

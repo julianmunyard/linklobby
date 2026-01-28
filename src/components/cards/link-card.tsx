@@ -21,7 +21,7 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "w-full flex flex-col gap-1 px-4 py-3 rounded-lg transition-colors hover:bg-accent/30 border border-white/20",
+        "w-full flex flex-col gap-1 px-4 py-3 transition-colors hover:opacity-80",
         textAlign === "left" && "text-left items-start",
         textAlign === "center" && "text-center items-center",
         textAlign === "right" && "text-right items-end",
@@ -30,11 +30,11 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
         verticalAlign === "bottom" && "justify-end"
       )}
     >
-      <p className="font-medium break-words w-full line-clamp-2">
+      <p className="font-medium break-words w-full line-clamp-2 text-theme-text" style={{ fontFamily: 'var(--font-theme-heading)' }}>
         {card.title || "Untitled Link"}
       </p>
       {card.description && (
-        <p className="text-sm text-muted-foreground break-words w-full line-clamp-3">
+        <p className="text-sm text-theme-text/70 break-words w-full line-clamp-3" style={{ fontFamily: 'var(--font-theme-body)' }}>
           {card.description}
         </p>
       )}

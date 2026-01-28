@@ -40,9 +40,9 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "relative flex gap-4 w-full p-4 rounded-lg border bg-card",
+        "relative flex gap-4 w-full p-4",
         "transition-colors duration-150",
-        hasLink && "hover:bg-accent hover:border-accent-foreground/20 cursor-pointer",
+        hasLink && "hover:opacity-80 cursor-pointer",
         !hasLink && "cursor-default",
         verticalAlign === "top" && "items-start",
         verticalAlign === "middle" && "items-center",
@@ -76,11 +76,11 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
           textAlign === "right" && "text-right"
         )}
       >
-        <h3 className="font-medium break-words line-clamp-2">
+        <h3 className="font-medium break-words line-clamp-2 text-theme-text" style={{ fontFamily: 'var(--font-theme-heading)' }}>
           {card.title || "Untitled Link"}
         </h3>
         {card.description && (
-          <p className="text-sm text-muted-foreground break-words line-clamp-2">
+          <p className="text-sm text-theme-text/70 break-words line-clamp-2" style={{ fontFamily: 'var(--font-theme-body)' }}>
             {card.description}
           </p>
         )}

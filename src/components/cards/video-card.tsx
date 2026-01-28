@@ -107,7 +107,7 @@ function VideoCardUpload({
   }[verticalAlign]
 
   return (
-    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+    <div className="relative w-full aspect-video overflow-hidden bg-black">
       <video
         src={videoUrl}
         autoPlay
@@ -124,7 +124,7 @@ function VideoCardUpload({
       />
       {title && (
         <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
-          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}>{title}</p>
+          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`} style={{ fontFamily: 'var(--font-theme-heading)' }}>{title}</p>
         </div>
       )}
     </div>
@@ -181,7 +181,7 @@ function VideoCardEmbed({
 
   if (isPlaying) {
     return (
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+      <div className="relative w-full aspect-video overflow-hidden bg-black">
         <iframe
           src={getEmbedUrl()}
           className="w-full h-full"
@@ -197,7 +197,7 @@ function VideoCardEmbed({
   return (
     <button
       onClick={() => setIsPlaying(true)}
-      className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted group cursor-pointer block"
+      className="relative w-full aspect-video overflow-hidden bg-muted group cursor-pointer block"
       aria-label={`Play ${title || 'video'}`}
     >
       {/* Thumbnail image or placeholder */}
@@ -225,7 +225,7 @@ function VideoCardEmbed({
       {/* Title overlay (optional) */}
       {title && (
         <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
-          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}>{title}</p>
+          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`} style={{ fontFamily: 'var(--font-theme-heading)' }}>{title}</p>
         </div>
       )}
     </button>
