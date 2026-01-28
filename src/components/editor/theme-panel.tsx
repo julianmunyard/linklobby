@@ -3,6 +3,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ThemePresets } from './theme-presets'
 import { ColorCustomizer } from './color-customizer'
+import { FontPicker } from './font-picker'
+import { StyleControls } from './style-controls'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown, Palette } from 'lucide-react'
 import { useState } from 'react'
@@ -39,13 +41,11 @@ export function ThemePanel() {
           </TabsContent>
 
           <TabsContent value="fonts" className="mt-3">
-            {/* FontPicker - placeholder for Plan 05 */}
-            <p className="text-sm text-muted-foreground">Font selection coming soon...</p>
+            <FontPicker />
           </TabsContent>
 
           <TabsContent value="style" className="mt-3">
-            {/* StyleControls - placeholder for Plan 05 */}
-            <p className="text-sm text-muted-foreground">Style controls coming soon...</p>
+            <StyleControls />
           </TabsContent>
         </Tabs>
       </CollapsibleContent>
