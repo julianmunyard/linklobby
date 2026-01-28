@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useEffect, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { ImageIcon } from 'lucide-react'
@@ -25,17 +25,19 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.gallery)
 
   // Resolve CSS variable to actual font family for WebGL
-  const [resolvedFont, setResolvedFont] = useState('sans-serif')
-  useEffect(() => {
-    if (typeof document !== 'undefined' && themeFont.startsWith('var(')) {
-      const match = themeFont.match(/var\((--[^)]+)\)/)
-      if (match) {
-        const computed = getComputedStyle(document.body).getPropertyValue(match[1]).trim()
-        if (computed) setResolvedFont(computed)
-      }
-    } else if (themeFont) {
-      setResolvedFont(themeFont)
+  // We need to map the theme font variable to a usable font name
+  const resolvedFont = useMemo(() => {
+    // Map common theme font variables to their font names
+    // These are the fonts defined in the theme system
+    const fontMap: Record<string, string> = {
+      'var(--font-inter)': 'Inter',
+      'var(--font-dm-sans)': 'DM Sans',
+      'var(--font-space-grotesk)': 'Space Grotesk',
+      'var(--font-outfit)': 'Outfit',
+      'var(--font-plus-jakarta)': 'Plus Jakarta Sans',
+      'var(--font-geist-sans)': 'Geist Sans',
     }
+    return fontMap[themeFont] || 'sans-serif'
   }, [themeFont])
 
   // Memoize items to prevent unnecessary WebGL recreations
@@ -88,7 +90,7 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
             scrollEase={content.scrollEase ?? 0.03}
             spacing={isSmall ? (content.spacing ?? 2.5) * 0.7 : (content.spacing ?? 2.5)}
             textColor={content.captionColor || "#ffffff"}
-            font={`bold 16px ${resolvedFont}`}
+            font={`16px ${resolvedFont}, sans-serif`}
             onTap={handleTap}
             showCaptions={content.showCaptions !== false}
           />
