@@ -44,6 +44,22 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Theme token bridge - makes theme variables available as Tailwind utilities */
+  --color-theme-background: var(--theme-background);
+  --color-theme-card-bg: var(--theme-card-bg);
+  --color-theme-text: var(--theme-text);
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-border: var(--theme-border);
+  --color-theme-link: var(--theme-link);
+
+  /* Font tokens */
+  --font-theme-heading: var(--theme-font-heading, var(--font-geist-sans));
+  --font-theme-body: var(--theme-font-body, var(--font-geist-sans));
+
+  /* Style tokens */
+  --radius-theme-card: var(--theme-border-radius, 0.75rem);
+  --shadow-theme-card: var(--theme-shadow);
 }
 
 :root {
@@ -79,6 +95,20 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Theme defaults (dark by default per CONTEXT.md) */
+  --theme-background: oklch(0.145 0 0);
+  --theme-card-bg: oklch(0.205 0 0);
+  --theme-text: oklch(0.985 0 0);
+  --theme-accent: oklch(0.7 0.15 250);
+  --theme-border: oklch(1 0 0 / 10%);
+  --theme-link: oklch(0.7 0.2 250);
+  --theme-font-heading: var(--font-geist-sans);
+  --theme-font-body: var(--font-geist-sans);
+  --theme-border-radius: 12px;
+  --theme-blur-intensity: 16px;
+  --theme-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --theme-shadow-enabled: 1;
 }
 
 .dark {
@@ -121,6 +151,38 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Mac OS Theme Variants */
+[data-theme="mac-os"] {
+  --theme-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.3), 0 4px 6px -2px rgb(0 0 0 / 0.2);
+}
+
+/* Sleek Modern Theme Variants */
+[data-theme="sleek-modern"] {
+  --theme-shadow: none;
+}
+
+/* Instagram Reels Theme Variants */
+[data-theme="instagram-reels"] {
+  --theme-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+}
+
+/* Shadow utility that respects theme */
+.shadow-theme-card {
+  box-shadow: var(--theme-shadow);
+}
+
+/* Glassmorphism support for Sleek Modern */
+[data-theme="sleek-modern"] .glass-card {
+  backdrop-filter: blur(var(--theme-blur-intensity));
+  -webkit-backdrop-filter: blur(var(--theme-blur-intensity));
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  [data-theme="sleek-modern"] .glass-card {
+    background: oklch(0.15 0 0 / 90%);
   }
 }
 
