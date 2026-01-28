@@ -54,9 +54,10 @@ export function ProfileHeader() {
     return (
       <h1
         className={cn(
-          "font-bold text-center break-words w-full max-w-xs",
+          "font-bold text-center break-words w-full max-w-xs text-theme-text",
           titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
         )}
+        style={{ fontFamily: 'var(--font-theme-heading)' }}
       >
         {displayName}
       </h1>
@@ -68,7 +69,7 @@ export function ProfileHeader() {
     if (!bio) return null
 
     return (
-      <p className="text-sm text-muted-foreground text-center max-w-xs">
+      <p className="text-sm text-theme-text/70 text-center max-w-xs" style={{ fontFamily: 'var(--font-theme-body)' }}>
         {bio}
       </p>
     )

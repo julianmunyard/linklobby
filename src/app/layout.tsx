@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeApplicator } from '@/components/theme-applicator'
 import { fontVariables } from './fonts'
 import './globals.css'
 
@@ -25,7 +26,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ThemeApplicator>
+            {children}
+          </ThemeApplicator>
         </ThemeProvider>
       </body>
     </html>
