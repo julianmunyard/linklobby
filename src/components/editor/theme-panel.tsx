@@ -5,6 +5,7 @@ import { ThemePresets } from './theme-presets'
 import { ColorCustomizer } from './color-customizer'
 import { FontPicker } from './font-picker'
 import { StyleControls } from './style-controls'
+import { BackgroundControls } from './background-controls'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown, Palette } from 'lucide-react'
 import { useState } from 'react'
@@ -48,6 +49,11 @@ export function ThemePanel() {
             <StyleControls />
           </TabsContent>
         </Tabs>
+
+        <div className="mt-4 pt-4 border-t border-border">
+          <h5 className="text-xs font-medium text-muted-foreground mb-3">Page Background</h5>
+          <BackgroundControls />
+        </div>
       </CollapsibleContent>
     </Collapsible>
   )
