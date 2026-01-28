@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 6 Advanced Cards
+**Current focus:** Phase 7 Theme System
 
 ## Current Position
 
-Phase: 6 of 18 - Advanced Cards (IN PROGRESS)
-Plan: 14 of 16 complete
-Status: **Ready for Phase 6 completion**
-Last activity: 2026-01-27 - Completed quick task 021: Gallery upload UI polish + caption font fix
+Phase: 7 of 18 - Theme System (IN PROGRESS)
+Plan: 2 of 5 complete
+Status: **Building theme CSS infrastructure**
+Last activity: 2026-01-28 - Completed 07-02-PLAN.md (Theme CSS Infrastructure)
 
-Progress: [█████░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
+Progress: [██████░░░░░░░░░░░░░░░░░░░░░░░░] 20%
 
 ### Dropdown Card Removed
 
@@ -43,9 +43,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 4.4 | Profile Editor | Complete ✓ |
 | 4.5 | Editor Polish (Mobile) | Complete ✓ |
 | 5 | Media Cards | Complete ✓ |
-| 6 | Advanced Cards | In Progress |
+| 6 | Advanced Cards | Complete ✓ |
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
-| 7 | Theme System | - |
+| 7 | Theme System | In Progress (2/5) |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
 | 9.5 | Onboarding | - |
@@ -89,9 +89,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 11 | Dropdown Editor | Complete |
 | 12 | Game Card Editor | Complete |
 | 13 | Box Selection | Complete |
-| 14 | Selection Toolbar | Complete |
-| 15 | Editor Testing & Polish | - |
-| 16 | Phase Verification | - |
+| 14 | Selection Toolbar | Removed |
+| 15 | Editor Testing & Polish | Skipped |
+| 16 | Phase Verification | Complete ✓ |
 
 ## Phase 5 Progress (COMPLETE ✓)
 
@@ -370,6 +370,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Circular gallery tap-to-open-link pattern | quick-020 | WebGL canvas prevents per-image clicks - tap anywhere opens centered image's link |
 | Vertical list editor for gallery images | quick-020 | Hidden popover approach poor discoverability - visible inputs make caption/link editing obvious |
 | Carousel mode images-only | quick-020 | Simplify carousel to focus on images - circular mode handles captions/links |
+| @theme inline for theme token bridge | 07-02 | Makes theme CSS variables available as Tailwind utilities (bg-theme-background, text-theme-text) |
+| 15 curated Google Fonts | 07-02 | Hand-picked fonts covering sans, serif, display categories - loaded via next/font/google |
+| display: swap for fonts | 07-02 | Prevents FOUT/FOIT - fonts swap smoothly without blocking render |
+| Dark theme as default | 07-02 | Per CONTEXT.md - "Dark by default for artist aesthetic" |
+| Glassmorphism support | 07-02 | backdrop-filter blur effects for sleek-modern theme with @supports fallback |
+| On-demand font loading | 07-02 | next/font only downloads fonts actually rendered - no 15-font bundle penalty |
 
 ## Quick Tasks
 
@@ -399,12 +405,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-01-27
-Last activity: 2026-01-27 - Completed Quick Task 021 (gallery upload UI polish)
-Stopped at: Completed quick-020
+Last session: 2026-01-28
+Last activity: 2026-01-28 - Completed 07-02-PLAN.md (Theme CSS Infrastructure)
+Stopped at: Phase 7, Plan 2 complete - Theme CSS variables and fonts set up
 Resume file: None
 
-**Phase 6 UNBLOCKED:** Dropdown card now works correctly. Ready to resume with Plan 15 (Editor Testing & Polish).
+**Phase 6 COMPLETE:** Game cards (Snake, Breakout, Flappy) verified. Dropdown and multi-select features removed from scope.
 
 **This session's work:**
 
