@@ -3,6 +3,23 @@
 import { useEffect } from 'react'
 import { useThemeStore } from '@/stores/theme-store'
 
+// Helper to resolve a CSS variable reference to its computed value
+function resolveFontVariable(varRef: string): string {
+  if (!varRef.startsWith('var(')) {
+    return varRef // Already a plain value
+  }
+
+  // Extract variable name from var(--font-xyz)
+  const match = varRef.match(/var\((--[^)]+)\)/)
+  if (!match) return varRef
+
+  const varName = match[1]
+
+  // Get computed value from body (where font classes are applied)
+  const computed = getComputedStyle(document.body).getPropertyValue(varName).trim()
+  return computed || varRef // Fallback to original if not found
+}
+
 export function ThemeApplicator({ children }: { children: React.ReactNode }) {
   const { themeId, colors, fonts, style, background } = useThemeStore()
 
@@ -20,13 +37,15 @@ export function ThemeApplicator({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--theme-border', colors.border)
     root.style.setProperty('--theme-link', colors.link)
 
-    // Apply font overrides - set both the theme variable and the direct font-family
-    // The fonts.heading value is like 'var(--font-inter)', but we need to set the actual font
-    root.style.setProperty('--theme-font-heading', fonts.heading)
-    root.style.setProperty('--theme-font-body', fonts.body)
-    // Also set the Tailwind-bridged variables directly for components using inline styles
-    root.style.setProperty('--font-theme-heading', fonts.heading)
-    root.style.setProperty('--font-theme-body', fonts.body)
+    // Apply font overrides - resolve var() references to actual font-family values
+    // fonts.heading is like 'var(--font-inter)', we need the actual font family
+    const resolvedHeading = resolveFontVariable(fonts.heading)
+    const resolvedBody = resolveFontVariable(fonts.body)
+
+    root.style.setProperty('--theme-font-heading', resolvedHeading)
+    root.style.setProperty('--theme-font-body', resolvedBody)
+    root.style.setProperty('--font-theme-heading', resolvedHeading)
+    root.style.setProperty('--font-theme-body', resolvedBody)
     root.style.setProperty('--theme-heading-size', `${fonts.headingSize}rem`)
     root.style.setProperty('--theme-body-size', `${fonts.bodySize}rem`)
     root.style.setProperty('--theme-heading-weight', fonts.headingWeight === 'bold' ? '700' : '400')
