@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { PreviewToggle, type PreviewMode } from "./preview-toggle"
 import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 import { cn } from "@/lib/utils"
 
@@ -21,6 +22,7 @@ export function PreviewPanel() {
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
+  const themeState = useThemeStore()
   const { saveCards } = useCards()
 
   // Deselect card and save any pending changes
@@ -40,8 +42,11 @@ export function PreviewPanel() {
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
+      // Get theme state snapshot (exclude actions)
+      const { themeId, paletteId, colors, fonts, style, background } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background }
       iframe.contentWindow.postMessage(
-        { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot } },
+        { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
       )
     }
@@ -87,9 +92,13 @@ export function PreviewPanel() {
     const unsubscribeProfile = useProfileStore.subscribe(() => {
       sendToPreview()
     })
+    const unsubscribeTheme = useThemeStore.subscribe(() => {
+      sendToPreview()
+    })
     return () => {
       unsubscribePage()
       unsubscribeProfile()
+      unsubscribeTheme()
     }
   }, [previewReady])
 

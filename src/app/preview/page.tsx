@@ -4,9 +4,12 @@ import { useEffect, useState, useCallback } from "react"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
+import { PageBackground } from "@/components/preview/page-background"
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
 import type { Profile } from "@/types/profile"
+import type { ThemeState } from "@/types/theme"
 
 interface Theme {
   id: string
@@ -18,6 +21,7 @@ interface PageState {
   theme: Theme
   selectedCardId: string | null
   profile?: Profile
+  themeState?: ThemeState
 }
 
 interface StateUpdateMessage {
@@ -83,6 +87,19 @@ function PreviewContent() {
         if (event.data.payload.profile) {
           useProfileStore.getState().initializeProfile(event.data.payload.profile)
         }
+        // Sync theme state for ThemeApplicator
+        if (event.data.payload.themeState) {
+          const ts = event.data.payload.themeState
+          // Update theme store with received state
+          useThemeStore.setState({
+            themeId: ts.themeId,
+            paletteId: ts.paletteId,
+            colors: ts.colors,
+            fonts: ts.fonts,
+            style: ts.style,
+            background: ts.background,
+          })
+        }
       }
     }
 
@@ -105,11 +122,9 @@ function PreviewContent() {
   const hasCards = state.cards.length > 0
 
   return (
-      <div className="min-h-screen bg-background p-4" onClick={handleBackgroundClick}>
-        {/* Debug info - theme name */}
-        <div className="fixed bottom-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-          Theme: {state.theme.name}
-        </div>
+      <div className="min-h-screen p-4 text-theme-text" onClick={handleBackgroundClick}>
+        {/* Page background (solid, image, or video) */}
+        <PageBackground />
 
         {/* Profile Header at top */}
         <ProfileHeader />
