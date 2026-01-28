@@ -1,15 +1,13 @@
 "use client"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { HeaderSection } from "./header-section"
-import { ThemePanel } from "./theme-panel"
+import { DesignPanel } from "./design-panel"
 
 export function DesignTab() {
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-6">
-        <HeaderSection />
-        <ThemePanel />
+      <div className="p-4">
+        <DesignPanel />
       </div>
     </ScrollArea>
   )
