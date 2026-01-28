@@ -1,16 +1,16 @@
-// src/components/editor/horizontal-link-fields.tsx
+// src/components/editor/link-card-fields.tsx
 "use client"
 
 import { ColorPicker } from "@/components/ui/color-picker"
 import { useThemeStore } from "@/stores/theme-store"
-import type { HorizontalLinkContent } from "@/types/card"
+import type { LinkCardContent } from "@/types/card"
 
-interface HorizontalLinkFieldsProps {
-  content: HorizontalLinkContent
+interface LinkCardFieldsProps {
+  content: LinkCardContent
   onChange: (updates: Record<string, unknown>) => void
 }
 
-export function HorizontalLinkFields({ content, onChange }: HorizontalLinkFieldsProps) {
+export function LinkCardFields({ content, onChange }: LinkCardFieldsProps) {
   const themeTextColor = useThemeStore((state) => state.colors.text)
 
   return (

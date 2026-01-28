@@ -1,5 +1,5 @@
 // src/components/cards/link-card.tsx
-import type { Card } from "@/types/card"
+import type { Card, LinkCardContent } from "@/types/card"
 import { cn } from "@/lib/utils"
 
 interface LinkCardProps {
@@ -8,9 +8,10 @@ interface LinkCardProps {
 }
 
 export function LinkCard({ card, isPreview = false }: LinkCardProps) {
-  const content = card.content as { textAlign?: string; verticalAlign?: string }
+  const content = card.content as LinkCardContent & { textAlign?: string; verticalAlign?: string }
   const textAlign = content.textAlign || "center"
   const verticalAlign = content.verticalAlign || "middle"
+  const textColor = content.textColor
 
   const Wrapper = card.url && isPreview ? "a" : "div"
   const wrapperProps = card.url && isPreview
@@ -30,11 +31,17 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
         verticalAlign === "bottom" && "justify-end"
       )}
     >
-      <p className="font-medium break-words w-full line-clamp-2 text-theme-text" style={{ fontFamily: 'var(--font-theme-heading)' }}>
+      <p
+        className={cn("font-medium break-words w-full line-clamp-2", !textColor && "text-theme-text")}
+        style={{ fontFamily: 'var(--font-theme-heading)', ...(textColor && { color: textColor }) }}
+      >
         {card.title || "Untitled Link"}
       </p>
       {card.description && (
-        <p className="text-sm text-theme-text/70 break-words w-full line-clamp-3" style={{ fontFamily: 'var(--font-theme-body)' }}>
+        <p
+          className={cn("text-sm break-words w-full line-clamp-3", !textColor && "text-theme-text/70")}
+          style={{ fontFamily: 'var(--font-theme-body)', ...(textColor && { color: textColor, opacity: 0.7 }) }}
+        >
           {card.description}
         </p>
       )}

@@ -26,6 +26,7 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "middle"
+  const textColor = content.textColor
 
   const Wrapper = hasLink ? "a" : "div"
   const wrapperProps = hasLink
@@ -76,11 +77,17 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
           textAlign === "right" && "text-right"
         )}
       >
-        <h3 className="font-medium break-words line-clamp-2 text-theme-text" style={{ fontFamily: 'var(--font-theme-heading)' }}>
+        <h3
+          className={cn("font-medium break-words line-clamp-2", !textColor && "text-theme-text")}
+          style={{ fontFamily: 'var(--font-theme-heading)', ...(textColor && { color: textColor }) }}
+        >
           {card.title || "Untitled Link"}
         </h3>
         {card.description && (
-          <p className="text-sm text-theme-text/70 break-words line-clamp-2" style={{ fontFamily: 'var(--font-theme-body)' }}>
+          <p
+            className={cn("text-sm break-words line-clamp-2", !textColor && "text-theme-text/70")}
+            style={{ fontFamily: 'var(--font-theme-body)', ...(textColor && { color: textColor, opacity: 0.7 }) }}
+          >
             {card.description}
           </p>
         )}

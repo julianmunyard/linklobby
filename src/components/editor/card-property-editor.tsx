@@ -29,14 +29,13 @@ import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
 import { GameCardFields } from "./game-card-fields"
 import { SocialIconsCardFields } from "./social-icons-card-fields"
+import { LinkCardFields } from "./link-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
-import { useThemeStore } from "@/stores/theme-store"
 import { useHistory } from "@/hooks/use-history"
-import { ColorPicker } from "@/components/ui/color-picker"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, LinkCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Common form schema
@@ -57,7 +56,6 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const updateCard = usePageStore((state) => state.updateCard)
   const duplicateCard = usePageStore((state) => state.duplicateCard)
   const removeCard = usePageStore((state) => state.removeCard)
-  const { colors, setColor } = useThemeStore()
   const { undo } = useHistory()
   const [urlError, setUrlError] = useState<string | null>(null)
 
@@ -380,21 +378,6 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </ToggleGroup>
             </div>
 
-            {/* Theme Colors - quick access to card bg and text colors */}
-            <div className="space-y-3 pt-2 border-t">
-              <Label className="text-xs font-medium text-muted-foreground">Theme Colors</Label>
-              <ColorPicker
-                label="Card"
-                color={colors.cardBg}
-                onChange={(color) => setColor('cardBg', color)}
-              />
-              <ColorPicker
-                label="Text"
-                color={colors.text}
-                onChange={(color) => setColor('text', color)}
-              />
-            </div>
-
             {/* Title */}
             <FormField
               control={form.control}
@@ -474,6 +457,12 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {card.card_type === "square" && (
               <SquareCardFields
                 content={currentContent as SquareCardContent}
+                onChange={handleContentChange}
+              />
+            )}
+            {card.card_type === "link" && (
+              <LinkCardFields
+                content={currentContent as LinkCardContent}
                 onChange={handleContentChange}
               />
             )}

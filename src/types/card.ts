@@ -101,6 +101,11 @@ export interface HorizontalLinkContent {
   imageUrl?: string
   imageAlt?: string
   iconName?: string  // Lucide icon name as alternative to image
+  textColor?: string // Override text color
+}
+
+export interface LinkCardContent {
+  textColor?: string // Override text color
 }
 
 export interface SquareCardContent {
