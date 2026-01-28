@@ -20,9 +20,13 @@ export function ThemeApplicator({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--theme-border', colors.border)
     root.style.setProperty('--theme-link', colors.link)
 
-    // Apply font overrides
+    // Apply font overrides - set both the theme variable and the direct font-family
+    // The fonts.heading value is like 'var(--font-inter)', but we need to set the actual font
     root.style.setProperty('--theme-font-heading', fonts.heading)
     root.style.setProperty('--theme-font-body', fonts.body)
+    // Also set the Tailwind-bridged variables directly for components using inline styles
+    root.style.setProperty('--font-theme-heading', fonts.heading)
+    root.style.setProperty('--font-theme-body', fonts.body)
     root.style.setProperty('--theme-heading-size', `${fonts.headingSize}rem`)
     root.style.setProperty('--theme-body-size', `${fonts.bodySize}rem`)
     root.style.setProperty('--theme-heading-weight', fonts.headingWeight === 'bold' ? '700' : '400')
