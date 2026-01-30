@@ -8,24 +8,24 @@ export const systemSettingsTheme: ThemeConfig = {
   hasWindowChrome: true,
 
   defaultColors: {
-    background: 'oklch(0.82 0.06 15)',        // Muted pink page background
-    cardBg: 'oklch(0.94 0.02 75)',            // Warm cream card background
+    background: 'oklch(0.89 0.04 10)',        // #F6D5D5 light pink page background
+    cardBg: 'oklch(0.95 0.02 70)',            // #F9F0E9 warm cream card background
     text: 'oklch(0.20 0 0)',                  // Near-black text
-    accent: 'oklch(0.82 0.06 15)',            // Pink accent (matches frame)
-    border: 'oklch(0.60 0.02 75)',            // Warm gray border
+    accent: 'oklch(1 0 0)',                   // White inner box
+    border: 'oklch(0.20 0 0)',                // Dark border
     link: 'oklch(0.35 0.12 250)',             // Classic Mac dark blue links
   },
 
   defaultFonts: {
-    heading: 'var(--font-chikarego)',         // Poolsuite pixel font
+    heading: 'var(--font-ishmeria)',          // Ishmeria font
     body: 'var(--font-dm-sans)',              // Clean readable body text
     headingSize: 1,
     bodySize: 1,
-    headingWeight: 'normal',                  // Pixel fonts don't need bold
+    headingWeight: 'normal',
   },
 
   defaultStyle: {
-    borderRadius: 6,                          // Subtle rounded corners
+    borderRadius: 24,                         // Rounded corners
     shadowEnabled: false,                     // No drop shadows
     blurIntensity: 0,                         // No blur effects
   },
@@ -35,11 +35,11 @@ export const systemSettingsTheme: ThemeConfig = {
       id: 'poolsuite-pink',
       name: 'Poolsuite Pink',
       colors: {
-        background: 'oklch(0.82 0.06 15)',    // Muted pink
-        cardBg: 'oklch(0.94 0.02 75)',        // Warm cream
+        background: 'oklch(0.89 0.04 10)',    // #F6D5D5 light pink
+        cardBg: 'oklch(0.95 0.02 70)',        // #F9F0E9 warm cream
         text: 'oklch(0.20 0 0)',
-        accent: 'oklch(0.82 0.06 15)',
-        border: 'oklch(0.60 0.02 75)',
+        accent: 'oklch(1 0 0)',               // White inner box
+        border: 'oklch(0.20 0 0)',
         link: 'oklch(0.35 0.12 250)',
       },
     },
@@ -47,11 +47,11 @@ export const systemSettingsTheme: ThemeConfig = {
       id: 'classic-cream',
       name: 'Classic Cream',
       colors: {
-        background: 'oklch(0.88 0.03 80)',    // Warmer cream background
-        cardBg: 'oklch(0.95 0.02 80)',        // Bright cream
+        background: 'oklch(0.92 0.02 70)',    // Warm cream background
+        cardBg: 'oklch(0.96 0.01 70)',        // Lighter cream card
         text: 'oklch(0.15 0 0)',
-        accent: 'oklch(0.70 0.02 80)',
-        border: 'oklch(0.55 0.02 80)',
+        accent: 'oklch(1 0 0)',               // White inner box
+        border: 'oklch(0.20 0 0)',
         link: 'oklch(0.35 0.15 250)',
       },
     },
@@ -59,11 +59,11 @@ export const systemSettingsTheme: ThemeConfig = {
       id: 'platinum',
       name: 'Platinum',
       colors: {
-        background: 'oklch(0.80 0 0)',        // System 7 Platinum gray
+        background: 'oklch(0.85 0 0)',        // System 7 Platinum gray
         cardBg: 'oklch(0.92 0 0)',
         text: 'oklch(0.10 0 0)',
-        accent: 'oklch(0.65 0 0)',
-        border: 'oklch(0.50 0 0)',
+        accent: 'oklch(1 0 0)',               // White inner box
+        border: 'oklch(0.20 0 0)',
         link: 'oklch(0.35 0.15 250)',
       },
     },
@@ -74,9 +74,9 @@ export const systemSettingsTheme: ThemeConfig = {
         background: 'oklch(0.75 0.12 200)',   // Teal/cyan
         cardBg: 'oklch(0.92 0.04 180)',       // Light teal tint
         text: 'oklch(0.15 0 0)',
-        accent: 'oklch(0.75 0.15 330)',       // Pink accent
-        border: 'oklch(0.50 0.08 200)',
-        link: 'oklch(0.55 0.20 330)',         // Hot pink links
+        accent: 'oklch(0.95 0.02 180)',       // Light cyan inner box
+        border: 'oklch(0.20 0.05 200)',
+        link: 'oklch(0.55 0.20 330)',
       },
     },
   ],

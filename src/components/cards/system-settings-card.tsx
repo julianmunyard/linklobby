@@ -18,7 +18,7 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
         "border border-theme-text", // Thin 1px solid border
         className
       )}
-      style={{ borderRadius: '6px' }}
+      style={{ borderRadius: 'var(--theme-border-radius, 24px)' }}
     >
       {/* System 7 Title Bar */}
       <div className="flex items-center justify-between px-2 py-1.5">
@@ -45,7 +45,7 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
       <div className="p-2">
         <div
           className="bg-theme-accent border border-theme-text/40 overflow-hidden"
-          style={{ borderRadius: '3px' }}
+          style={{ borderRadius: 'calc(var(--theme-border-radius, 24px) - 8px)' }}
         >
           {children}
         </div>
