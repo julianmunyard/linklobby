@@ -12,29 +12,29 @@ import { isVideoContent, type VideoCardContent } from '@/types/card'
 function RetroVideoControlBar({ title }: { title?: string | null }) {
   return (
     <div
-      className="flex items-center gap-0 bg-[#c0c0c0] border-t border-theme-text"
-      style={{ fontFamily: 'var(--font-chikarego), var(--font-pix-chicago), monospace' }}
+      className="flex items-center gap-0 bg-theme-text border-t border-theme-card-bg/30"
+      style={{ fontFamily: 'var(--font-pixolde), var(--font-pix-chicago), monospace' }}
     >
       {/* Play/Pause buttons */}
-      <button className="px-1.5 py-0.5 border-r border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
         ◀▮
       </button>
-      <button className="px-1.5 py-0.5 border-r border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
         ▶
       </button>
 
       {/* Filename */}
-      <div className="flex-1 px-2 py-0.5 text-[10px] text-theme-text truncate">
+      <div className="flex-1 px-2 py-0.5 text-[10px] text-theme-card-bg truncate">
         {title || 'video.mp4'}
       </div>
 
       {/* Dimensions placeholder */}
-      <div className="px-2 py-0.5 text-[10px] text-theme-text/70 border-l border-theme-text/50">
+      <div className="px-2 py-0.5 text-[10px] text-theme-card-bg/70 border-l border-theme-card-bg/30">
         16:9
       </div>
 
       {/* Expand icon */}
-      <button className="px-1.5 py-0.5 border-l border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+      <button className="px-1.5 py-0.5 border-l border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
         ⤢
       </button>
     </div>
