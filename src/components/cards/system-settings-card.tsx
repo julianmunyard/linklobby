@@ -10,53 +10,44 @@ interface SystemSettingsCardProps {
 
 export function SystemSettingsCard({ children, className, title }: SystemSettingsCardProps) {
   return (
-    // Outer frame - pink/salmon border with rounded corners
+    // Outer container with thin 1px border
     <div
       className={cn(
         "overflow-hidden",
-        "bg-[var(--system7-frame,oklch(0.82_0.06_15))]", // Pink/salmon outer frame
-        "p-[3px]", // Frame thickness
+        "bg-theme-card-bg",
+        "border border-theme-text/80", // Thin 1px border
         className
       )}
-      style={{ borderRadius: '14px' }}
+      style={{ borderRadius: '6px' }}
     >
-      {/* Inner cream container */}
-      <div
-        className="bg-theme-card-bg overflow-hidden"
-        style={{ borderRadius: '11px' }}
-      >
-        {/* System 7 Title Bar */}
-        <div className="flex items-center justify-between px-3 py-2">
-          {/* Close box - left side */}
-          <button
-            className="w-5 h-5 flex items-center justify-center border border-theme-text/40 hover:bg-theme-text/10 transition-colors"
-            style={{ borderRadius: '2px' }}
-          >
-            <span className="text-xs leading-none text-theme-text/60">×</span>
-          </button>
+      {/* System 7 Title Bar */}
+      <div className="flex items-center justify-between px-2 py-1.5 border-b border-theme-text/30">
+        {/* Close box - left side */}
+        <button
+          className="w-4 h-4 flex items-center justify-center border border-theme-text/60 hover:bg-theme-text/10 transition-colors"
+          style={{ borderRadius: '1px' }}
+        >
+          <span className="text-[10px] leading-none text-theme-text/80">×</span>
+        </button>
 
-          {/* Title - right side */}
-          {title && (
-            <div
-              className="text-sm tracking-wider text-theme-text uppercase"
-              style={{ fontFamily: 'var(--font-chikarego), var(--font-pix-chicago), monospace' }}
-            >
-              {title}
-            </div>
-          )}
-        </div>
-
-        {/* Content area with inset styling */}
-        <div className="px-3 pb-3">
+        {/* Title - right side */}
+        {title && (
           <div
-            className="bg-theme-card-bg overflow-hidden"
-            style={{
-              borderRadius: '8px',
-              boxShadow: 'inset 1px 1px 3px oklch(0 0 0 / 0.1), inset -1px -1px 1px oklch(1 0 0 / 0.5)'
-            }}
+            className="text-xs tracking-wider text-theme-text uppercase"
+            style={{ fontFamily: 'var(--font-chikarego), var(--font-pix-chicago), monospace' }}
           >
-            {children}
+            {title}
           </div>
+        )}
+      </div>
+
+      {/* Content area */}
+      <div className="p-2">
+        <div
+          className="border border-theme-text/30 overflow-hidden"
+          style={{ borderRadius: '3px' }}
+        >
+          {children}
         </div>
       </div>
     </div>
@@ -72,27 +63,12 @@ interface SystemSettingsImageFrameProps {
 export function SystemSettingsImageFrame({ children, className }: SystemSettingsImageFrameProps) {
   return (
     <div className={cn("relative", className)}>
-      {/* Outer beveled frame */}
+      {/* Simple 1px border frame */}
       <div
-        className="p-[2px] bg-gradient-to-br from-[oklch(0.85_0.02_80)] to-[oklch(0.65_0.02_80)]"
-        style={{ borderRadius: '6px' }}
+        className="border border-theme-text/40 overflow-hidden"
+        style={{ borderRadius: '2px' }}
       >
-        {/* Middle cream frame */}
-        <div
-          className="p-[3px] bg-theme-card-bg"
-          style={{ borderRadius: '4px' }}
-        >
-          {/* Inner border */}
-          <div
-            className="border border-theme-text/20 overflow-hidden"
-            style={{
-              borderRadius: '3px',
-              boxShadow: 'inset 1px 1px 2px oklch(0 0 0 / 0.15)'
-            }}
-          >
-            {children}
-          </div>
-        </div>
+        {children}
       </div>
     </div>
   )
