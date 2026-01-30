@@ -4,8 +4,42 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Play, Video } from 'lucide-react'
+import { useThemeStore } from '@/stores/theme-store'
 import type { Card } from '@/types/card'
 import { isVideoContent, type VideoCardContent } from '@/types/card'
+
+// Retro Mac-style video control bar for System Settings theme
+function RetroVideoControlBar({ title }: { title?: string | null }) {
+  return (
+    <div
+      className="flex items-center gap-0 bg-[#c0c0c0] border-t border-theme-text"
+      style={{ fontFamily: 'var(--font-chikarego), var(--font-pix-chicago), monospace' }}
+    >
+      {/* Play/Pause buttons */}
+      <button className="px-1.5 py-0.5 border-r border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+        ◀▮
+      </button>
+      <button className="px-1.5 py-0.5 border-r border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+        ▶
+      </button>
+
+      {/* Filename */}
+      <div className="flex-1 px-2 py-0.5 text-[10px] text-theme-text truncate">
+        {title || 'video.mp4'}
+      </div>
+
+      {/* Dimensions placeholder */}
+      <div className="px-2 py-0.5 text-[10px] text-theme-text/70 border-l border-theme-text/50">
+        16:9
+      </div>
+
+      {/* Expand icon */}
+      <button className="px-1.5 py-0.5 border-l border-theme-text/50 hover:bg-[#a0a0a0] text-[10px]">
+        ⤢
+      </button>
+    </div>
+  )
+}
 
 interface VideoCardProps {
   card: Card
@@ -13,6 +47,10 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ card, isPreview = false }: VideoCardProps) {
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.video)
+  const themeId = useThemeStore((state) => state.themeId)
+  const isSystemSettings = themeId === 'system-settings'
+
   // Use type guard to safely cast content
   if (!isVideoContent(card.content)) {
     // Fallback for cards with invalid content
@@ -27,6 +65,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
   }
 
   const content = card.content
+  const textColor = (content.textColor as string) || '#ffffff'
 
   // Route to appropriate component based on video type
   // Check for uploaded video first (handles both explicit 'upload' type and uploaded videos with undefined type)
@@ -40,6 +79,9 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         positionY={content.videoPositionY as number | undefined}
         textAlign={(content.textAlign as 'left' | 'center' | 'right') ?? 'center'}
         verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
+        textColor={textColor}
+        fontSize={fontSize}
+        showRetroControls={isSystemSettings}
       />
     )
   }
@@ -54,6 +96,9 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         title={card.title}
         textAlign={(content.textAlign as 'left' | 'center' | 'right') ?? 'center'}
         verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
+        textColor={textColor}
+        fontSize={fontSize}
+        showRetroControls={isSystemSettings}
       />
     )
   }
@@ -81,6 +126,9 @@ interface VideoCardUploadProps {
   positionY?: number
   textAlign?: 'left' | 'center' | 'right'
   verticalAlign?: 'top' | 'middle' | 'bottom'
+  textColor?: string
+  fontSize?: number
+  showRetroControls?: boolean
 }
 
 function VideoCardUpload({
@@ -91,6 +139,9 @@ function VideoCardUpload({
   positionY = 50,
   textAlign = 'center',
   verticalAlign = 'bottom',
+  textColor = '#ffffff',
+  fontSize = 1,
+  showRetroControls = false,
 }: VideoCardUploadProps) {
   // Text alignment classes
   const textAlignClass = {
@@ -107,26 +158,34 @@ function VideoCardUpload({
   }[verticalAlign]
 
   return (
-    <div className="relative w-full aspect-video overflow-hidden bg-black">
-      <video
-        src={videoUrl}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="w-full h-full pointer-events-none"
-        style={{
-          transform: `scale(${zoom})`,
-          objectFit: 'cover',
-          objectPosition: `${positionX}% ${positionY}%`,
-        }}
-        aria-label={title || 'Video'}
-      />
-      {title && (
-        <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
-          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`} style={{ fontFamily: 'var(--font-theme-heading)' }}>{title}</p>
-        </div>
-      )}
+    <div className="relative w-full flex flex-col">
+      <div className="relative w-full aspect-video overflow-hidden bg-black">
+        <video
+          src={videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full pointer-events-none"
+          style={{
+            transform: `scale(${zoom})`,
+            objectFit: 'cover',
+            objectPosition: `${positionX}% ${positionY}%`,
+          }}
+          aria-label={title || 'Video'}
+        />
+        {title && !showRetroControls && (
+          <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
+            <p
+              className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
+              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
+            >
+              {title}
+            </p>
+          </div>
+        )}
+      </div>
+      {showRetroControls && <RetroVideoControlBar title={title} />}
     </div>
   )
 }
@@ -143,6 +202,9 @@ interface VideoCardEmbedProps {
   title: string | null
   textAlign?: 'left' | 'center' | 'right'
   verticalAlign?: 'top' | 'middle' | 'bottom'
+  textColor?: string
+  fontSize?: number
+  showRetroControls?: boolean
 }
 
 function VideoCardEmbed({
@@ -153,6 +215,9 @@ function VideoCardEmbed({
   title,
   textAlign = 'center',
   verticalAlign = 'bottom',
+  textColor = '#ffffff',
+  fontSize = 1,
+  showRetroControls = false,
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -181,53 +246,64 @@ function VideoCardEmbed({
 
   if (isPlaying) {
     return (
-      <div className="relative w-full aspect-video overflow-hidden bg-black">
-        <iframe
-          src={getEmbedUrl()}
-          className="w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          title={title || 'Video'}
-        />
+      <div className="relative w-full flex flex-col">
+        <div className="relative w-full aspect-video overflow-hidden bg-black">
+          <iframe
+            src={getEmbedUrl()}
+            className="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={title || 'Video'}
+          />
+        </div>
+        {showRetroControls && <RetroVideoControlBar title={title} />}
       </div>
     )
   }
 
   // Thumbnail view with play button
   return (
-    <button
-      onClick={() => setIsPlaying(true)}
-      className="relative w-full aspect-video overflow-hidden bg-muted group cursor-pointer block"
-      aria-label={`Play ${title || 'video'}`}
-    >
-      {/* Thumbnail image or placeholder */}
-      {thumbnailUrl ? (
-        <Image
-          src={thumbnailUrl}
-          alt={title || 'Video thumbnail'}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 600px"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-          <Play className="h-16 w-16 text-muted-foreground" />
-        </div>
-      )}
+    <div className="relative w-full flex flex-col">
+      <button
+        onClick={() => setIsPlaying(true)}
+        className="relative w-full aspect-video overflow-hidden bg-muted group cursor-pointer block"
+        aria-label={`Play ${title || 'video'}`}
+      >
+        {/* Thumbnail image or placeholder */}
+        {thumbnailUrl ? (
+          <Image
+            src={thumbnailUrl}
+            alt={title || 'Video thumbnail'}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 600px"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <Play className="h-16 w-16 text-muted-foreground" />
+          </div>
+        )}
 
-      {/* Play button overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform group-hover:scale-110 border border-white/20">
-          <Play className="h-5 w-5 text-white ml-0.5" fill="currentColor" />
+        {/* Play button overlay */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform group-hover:scale-110 border border-white/20">
+            <Play className="h-5 w-5 text-white ml-0.5" fill="currentColor" />
+          </div>
         </div>
-      </div>
 
-      {/* Title overlay (optional) */}
-      {title && (
-        <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
-          <p className={`text-white font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`} style={{ fontFamily: 'var(--font-theme-heading)' }}>{title}</p>
-        </div>
-      )}
-    </button>
+        {/* Title overlay (optional) - hide when retro controls shown */}
+        {title && !showRetroControls && (
+          <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
+            <p
+              className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
+              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
+            >
+              {title}
+            </p>
+          </div>
+        )}
+      </button>
+      {showRetroControls && <RetroVideoControlBar title={title} />}
+    </div>
   )
 }
