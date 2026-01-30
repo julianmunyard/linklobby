@@ -12,14 +12,14 @@ import { isVideoContent, type VideoCardContent } from '@/types/card'
 function RetroVideoControlBar({ title }: { title?: string | null }) {
   return (
     <div
-      className="flex items-center gap-0 bg-theme-text border-t border-theme-card-bg/30"
+      className="flex items-center gap-0 bg-theme-text"
       style={{ fontFamily: 'var(--font-pixolde), var(--font-pix-chicago), monospace' }}
     >
       {/* Play/Pause buttons */}
-      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
+      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg">
         ◀▮
       </button>
-      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
+      <button className="px-1.5 py-0.5 border-r border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg">
         ▶
       </button>
 
@@ -34,7 +34,7 @@ function RetroVideoControlBar({ title }: { title?: string | null }) {
       </div>
 
       {/* Expand icon */}
-      <button className="px-1.5 py-0.5 border-l border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg bg-theme-card-bg/20">
+      <button className="px-1.5 py-0.5 border-l border-theme-card-bg/30 hover:opacity-70 text-[10px] text-theme-card-bg">
         ⤢
       </button>
     </div>
