@@ -31,6 +31,9 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
 
   const widthClass = card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"
 
+  // Gallery cards need overflow visible for full-bleed effect
+  const allowOverflow = card.card_type === 'gallery'
+
   return (
     <div
       ref={setNodeRef}
@@ -39,7 +42,8 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
         widthClass,
         // Hide original card during drag - only DragOverlay should be visible
         isDragging && "opacity-0",
-        "cursor-grab active:cursor-grabbing"
+        "cursor-grab active:cursor-grabbing",
+        allowOverflow && "overflow-visible"
       )}
       {...attributes}
       {...listeners}

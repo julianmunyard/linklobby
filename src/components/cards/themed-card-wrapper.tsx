@@ -19,10 +19,12 @@ const EXEMPT_CARD_TYPES: CardType[] = ['game', 'gallery']
 export function ThemedCardWrapper({ children, cardType, className }: ThemedCardWrapperProps) {
   const { themeId, style } = useThemeStore()
 
-  // Exempt cards get standard wrapper
+  // Exempt cards get minimal wrapper
   if (EXEMPT_CARD_TYPES.includes(cardType)) {
+    // Gallery needs overflow visible for full-bleed effect
+    const allowOverflow = cardType === 'gallery'
     return (
-      <div className={cn("overflow-hidden", className)}>
+      <div className={cn(allowOverflow ? "overflow-visible" : "overflow-hidden", className)}>
         {children}
       </div>
     )

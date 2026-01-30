@@ -68,6 +68,8 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
         // Only use touch-none for non-interactive cards (needed for dnd-kit drag)
         // Interactive cards need touch events to pass through for their internal controls
         !isInteractive && "touch-none",
+        // Gallery needs overflow visible for full-bleed effect
+        card.card_type === 'gallery' && "overflow-visible",
         // Selection highlight - white border with ring
         isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background rounded-xl"
       )}
