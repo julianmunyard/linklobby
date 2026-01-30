@@ -430,6 +430,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Warm cream System 7 palette | quick-022 | oklch(0.95 0.02 80) creates nostalgic beige feel over pure gray |
 | Pixel font for headings only | quick-022 | Pix Chicago for retro feel, DM Sans body for readability |
 | System 7 beveled CSS utilities | quick-022 | .system7-inset uses box-shadow for authentic 3D button effects |
+| Poolsuite fonts (ChiKareGo, Ishmeria, Pixolde) | quick-023 | Custom retro fonts for System Settings theme |
+| Card-type conditional rendering in SystemSettingsCard | quick-023 | Link/horizontal get slim frame, hero/square/video get full window chrome |
+| Inner box uses theme accent color | quick-023 | White inner box customizable via accent color picker |
+| Gallery overflow-visible for full-bleed | quick-023 | Allows circular gallery to extend to viewport edges |
+| Retro video control bar | quick-023 | Mac-style control bar at bottom of video cards (System Settings only) |
+| Video bar uses Pixolde font | quick-023 | Retro pixel font for authentic Mac look |
+| Video bar colors follow theme | quick-023 | Bar bg = text color, text = card-bg color (inverted) |
 
 ## Quick Tasks
 
@@ -457,11 +464,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 020 | Gallery circular links editor redesign | Complete | 3ecff1b |
 | 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
 | 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
+| 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
 
 ## Session Continuity
 
-Last session: 2026-01-30
-Last activity: 2026-01-30 - Added System Settings theme (Classic Mac System 7)
+Last session: 2026-01-31
+Last activity: 2026-01-31 - Refined System Settings theme with Poolsuite aesthetic
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
@@ -469,7 +477,67 @@ Resume file: None
 
 **Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
-**This session's work (2026-01-29):**
+**This session's work (2026-01-31):**
+
+### System Settings Theme Refinements (Quick Task 023)
+
+Refined the System Settings theme to match Poolsuite FM aesthetic:
+
+**1. New Fonts Added**
+- ChiKareGo (Poolsuite pixel font)
+- Ishmeria (default heading font for theme)
+- Pixolde (used for retro video control bar)
+
+**2. Card Styling Updates**
+- Multi-layer framing: cream outer box with white inner box
+- Thin 1px borders (reduced from 2px)
+- Subtle rounded corners (6px outer, 4px inner)
+- Close button (×) without border box
+- Card-type specific rendering:
+  - Hero/square/video: Full window chrome with title bar
+  - Link/horizontal: Slim frame, no title bar
+
+**3. Default Theme Colors**
+- Background: #F6D5D5 (light pink)
+- Card background: #F9F0E9 (warm cream)
+- Inner box: white (customizable via accent picker)
+- Text: pure black
+
+**4. Gallery Full-Bleed Fix**
+- Added overflow-visible to ThemedCardWrapper for gallery
+- Added overflow-visible to SortableFlowCard for gallery
+- Added overflow-visible to PreviewSortableCard for gallery
+- Circular gallery now extends to viewport edges
+
+**5. Retro Video Control Bar**
+- Mac-style control bar at bottom of video cards
+- Only appears on System Settings theme
+- Play/pause buttons, filename, aspect ratio, expand icon
+- Uses Pixolde font
+- Bar color = theme text color (black)
+- Text color = theme card-bg color (cream/white)
+- Colors update when theme colors change
+
+**Commits (13 total):**
+- `9221625` - Add Poolsuite fonts and multi-layer framing
+- `ff9732a` - Thin 1px borders
+- `53a9ee2` - Remove title bar line, customizable inner box
+- `89d1be2` - Same border thickness inner/outer
+- `e079e74` - Same black border color inner/outer
+- `97e3679` - Spacing and border adjustments
+- `7d390c2` - Default colors (#F6D5D5, #F9F0E9, white)
+- `c170e81` - Card-type variations (slim for link/horizontal)
+- `786f69a` - 1px borders (final)
+- `719e9bf` - Black text default
+- `114bec9` - Gallery full-bleed overflow fix
+- `98fe336` - Lighter borders (reverted)
+- `67eb29a` - Retro video control bar
+- `2765fee` - Pixolde font and theme colors for bar
+- `c967d8e` - All-black bar styling
+
+---
+
+**Previous session's work (2026-01-29):**
 
 ### Bug Fixes & Improvements
 
