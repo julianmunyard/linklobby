@@ -25,7 +25,7 @@ export const systemSettingsTheme: ThemeConfig = {
   },
 
   defaultStyle: {
-    borderRadius: 24,                         // Rounded corners
+    borderRadius: 12,                         // Subtle rounded corners
     shadowEnabled: false,                     // No drop shadows
     blurIntensity: 0,                         // No blur effects
   },

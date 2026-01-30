@@ -15,13 +15,13 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
       className={cn(
         "overflow-hidden",
         "bg-theme-card-bg",
-        "border border-theme-text", // Thin 1px solid border
+        "border-2 border-theme-text", // Thicker 2px border
         className
       )}
-      style={{ borderRadius: 'var(--theme-border-radius, 24px)' }}
+      style={{ borderRadius: '12px' }}
     >
       {/* System 7 Title Bar */}
-      <div className="flex items-center justify-between px-2 py-1.5">
+      <div className="flex items-center justify-between px-1.5 py-1">
         {/* Close box - left side */}
         <button
           className="w-4 h-4 flex items-center justify-center border border-theme-text/60 hover:bg-theme-text/10 transition-colors"
@@ -34,7 +34,7 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
         {title && (
           <div
             className="text-xs tracking-wider text-theme-text uppercase"
-            style={{ fontFamily: 'var(--font-chikarego), var(--font-pix-chicago), monospace' }}
+            style={{ fontFamily: 'var(--font-ishmeria), var(--font-chikarego), monospace' }}
           >
             {title}
           </div>
@@ -42,10 +42,10 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
       </div>
 
       {/* Content area - inner box uses accent color */}
-      <div className="p-2">
+      <div className="px-1.5 pb-1.5">
         <div
-          className="bg-theme-accent border border-theme-text/40 overflow-hidden"
-          style={{ borderRadius: 'calc(var(--theme-border-radius, 24px) - 8px)' }}
+          className="bg-theme-accent border border-theme-text/40 overflow-hidden p-3"
+          style={{ borderRadius: '8px' }}
         >
           {children}
         </div>
