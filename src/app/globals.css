@@ -186,3 +186,24 @@
   }
 }
 
+/* System 7 / Classic Mac utilities */
+@layer utilities {
+  .system7-border {
+    border: 1px solid oklch(0 0 0);
+  }
+
+  .system7-inset {
+    box-shadow: inset 1px 1px 0 oklch(1 0 0 / 0.8), inset -1px -1px 0 oklch(0 0 0 / 0.2);
+  }
+
+  .system7-inset-pressed {
+    box-shadow: inset -1px -1px 0 oklch(1 0 0 / 0.8), inset 1px 1px 0 oklch(0 0 0 / 0.2);
+  }
+
+  /* Optional: halftone/dotted pattern for texture accents */
+  .system7-halftone {
+    background-image: radial-gradient(oklch(0 0 0 / 0.1) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
