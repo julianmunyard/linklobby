@@ -55,6 +55,9 @@ export function ThemeApplicator({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--theme-shadow-enabled', style.shadowEnabled ? '1' : '0')
     root.style.setProperty('--theme-blur-intensity', `${style.blurIntensity}px`)
 
+    // System 7 frame color (uses accent for the outer frame)
+    root.style.setProperty('--system7-frame', colors.accent)
+
     // Apply background
     root.style.setProperty('--theme-bg-type', background.type)
     if (background.type === 'solid') {
