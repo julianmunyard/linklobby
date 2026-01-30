@@ -15,13 +15,13 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
       className={cn(
         "overflow-hidden",
         "bg-theme-card-bg",
-        "border border-theme-text/80", // Thin 1px border
+        "border border-theme-text", // Thin 1px solid border
         className
       )}
       style={{ borderRadius: '6px' }}
     >
       {/* System 7 Title Bar */}
-      <div className="flex items-center justify-between px-2 py-1.5 border-b border-theme-text/30">
+      <div className="flex items-center justify-between px-2 py-1.5">
         {/* Close box - left side */}
         <button
           className="w-4 h-4 flex items-center justify-center border border-theme-text/60 hover:bg-theme-text/10 transition-colors"
@@ -41,10 +41,10 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
         )}
       </div>
 
-      {/* Content area */}
+      {/* Content area - inner box uses accent color */}
       <div className="p-2">
         <div
-          className="border border-theme-text/30 overflow-hidden"
+          className="bg-theme-accent border border-theme-text/40 overflow-hidden"
           style={{ borderRadius: '3px' }}
         >
           {children}
