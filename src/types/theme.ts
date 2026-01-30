@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'sleek-modern' | 'instagram-reels'
+export type ThemeId = 'mac-os' | 'sleek-modern' | 'instagram-reels' | 'system-settings'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -28,6 +28,23 @@ export interface StyleConfig {
 export interface BackgroundConfig {
   type: 'solid' | 'image' | 'video'
   value: string           // color hex, image URL, or video URL
+  // Video zoom/position settings
+  videoZoom?: number      // Default: 1.0, range: 1.0 to 2.0
+  videoPositionX?: number // Default: 50 (center), range: 0-100
+  videoPositionY?: number // Default: 50 (center), range: 0-100
+  // Top bar fade settings (for notch/Dynamic Island handling)
+  fadeToTopBar?: boolean  // Whether to fade into top bar color
+  topBarColor?: string    // Color to fade into at top (default: #000000)
+  // Frame overlay settings
+  frameOverlay?: string      // Frame PNG path (e.g., '/frames/awge-tv.png')
+  frameZoom?: number         // Frame zoom level (default: 1, range: 0.5 to 2)
+  framePositionX?: number    // Frame X position offset (default: 0, range: -50 to 50)
+  framePositionY?: number    // Frame Y position offset (default: 0, range: -50 to 50)
+  frameFitContent?: boolean  // Keep content inside frame when zoomed/positioned
+  // Content position within frame (fine-tuning)
+  contentOffsetX?: number    // Content X offset (default: 0, range: -20 to 20)
+  contentOffsetY?: number    // Content Y offset (default: 0, range: -20 to 20)
+  contentZoom?: number       // Content zoom (default: 1, range: 0.8 to 1.2)
 }
 
 // Font sizes for each card type (rem multiplier, 1 = base)
@@ -37,6 +54,7 @@ export interface CardTypeFontSizes {
   horizontal: number
   link: number
   gallery: number
+  video: number
 }
 
 export interface ThemeConfig {
@@ -51,6 +69,7 @@ export interface ThemeConfig {
   hasTrafficLights?: boolean   // Mac OS only
   hasGlassEffect?: boolean     // Sleek Modern only
   hasSpreadText?: boolean      // Instagram Reels only
+  hasWindowChrome?: boolean    // System Settings only
 }
 
 export interface ThemeState {
