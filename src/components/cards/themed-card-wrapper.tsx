@@ -3,6 +3,7 @@
 import { useThemeStore } from '@/stores/theme-store'
 import { MacOSCard } from './mac-os-card'
 import { GlassCard } from './glass-card'
+import { SystemSettingsCard } from './system-settings-card'
 import { cn } from '@/lib/utils'
 import type { CardType } from '@/types/card'
 
@@ -41,6 +42,13 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
         <GlassCard className={className}>
           {children}
         </GlassCard>
+      )
+
+    case 'system-settings':
+      return (
+        <SystemSettingsCard className={className}>
+          {children}
+        </SystemSettingsCard>
       )
 
     case 'instagram-reels':
