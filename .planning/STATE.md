@@ -9,12 +9,23 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 7 of 18 - Theme System (IN PROGRESS)
-Plan: 6 of 7 complete
-Status: **Theme-aware cards and profile header integrated**
-Last activity: 2026-01-28 - Completed 07-06-PLAN.md (Card Theme Integration)
+Phase: 7 of 18 - Theme System (COMPLETE)
+Plan: 7 of 7 - Complete
+Status: **Phase 7 complete, ready for Phase 8**
+Last activity: 2026-01-29 - Bug fixes, font upgrade
 
-Progress: [███████████████████████████░░░] 93%
+Progress: [██████████████████████████████] 100%
+
+### NEXT UP: Phase 8 - Public Page
+
+The public profile page at `linklobby.com/username` is next. This includes:
+- Dynamic route `src/app/[username]/page.tsx`
+- Server-side data fetching for cards + profile
+- Theme application for visitors
+- SEO (Open Graph, Twitter Cards, sitemap)
+- Page states (Published, Coming Soon, 404)
+
+**To start:** Run `/gsd:plan-phase 8`
 
 ### Dropdown Card Removed
 
@@ -45,7 +56,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 5 | Media Cards | Complete ✓ |
 | 6 | Advanced Cards | Complete ✓ |
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
-| 7 | Theme System | In Progress (5/7) |
+| 7 | Theme System | Complete ✓ |
 | 8 | Public Page | - |
 | 9 | Platform Integrations | - |
 | 9.5 | Onboarding | - |
@@ -66,7 +77,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 7 Progress (IN PROGRESS)
+## Phase 7 Progress (COMPLETE ✓)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -76,7 +87,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 04 | Color Customization | Complete |
 | 05 | Font & Style Controls | Complete |
 | 06 | Card Theme Integration | Complete |
-| 07 | Background Controls & Verification | - |
+| 07 | Background Controls & Verification | Complete |
+
+**Post-phase fixes (2026-01-29):**
+- HEIC conversion dynamic import fix
+- Profile auto-save fix
+- 15 boutique fonts replacing basic ones
 
 ## Phase 6.1 Progress (COMPLETE ✓)
 
@@ -397,6 +413,23 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Debounce store updates by 100ms | 07-04 | Local state + debounced store updates prevents UI lag while dragging color picker |
 | Palette presets as mini swatches | 07-04 | Visual recognition faster than text labels, matches abstract swatch pattern |
 | Custom color label when paletteId null | 07-04 | Clear indicator when user has modified colors beyond presets |
+| Font dropdowns grouped by category | 07-05 | Sans, serif, display categories for easier font discovery |
+| Separate heading/body size sliders | 07-05 | Independent control (heading 75-200%, body 75-150%) |
+| Conditional blur slider | 07-05 | Only shows for themes with hasGlassEffect: true |
+| Game/gallery cards exempt from theming | 07-06 | Fixed arcade aesthetic for games, WebGL for gallery - no theme override |
+| Mac OS traffic lights in title bar | 07-06 | Visual signature element for Mac OS theme |
+| ThemedCardWrapper routing | 07-06 | Single wrapper selects MacOSCard, GlassCard, or standard based on themeId |
+| ThemeApplicator inside ThemeProvider | 07-06 | Custom theme CSS vars coexist with next-themes light/dark mode |
+| Background type toggle | 07-07 | Solid/image/video selection via ToggleGroup |
+| Video background autoplay muted | 07-07 | Instagram-style background video with muted loop playsInline |
+| IntersectionObserver for video | 07-07 | Pause video when not visible for performance |
+| Dynamic import for heic2any | 07-fix | Prevents "window is not defined" SSR error - import only when needed client-side |
+| sendBeacon for beforeunload save | 07-fix | Best-effort save on page close without blocking dialog |
+| 15 boutique fonts | 07-fix | Replaced basic fonts with curated selection: Jakarta, Sora, Playfair, Bebas Neue, etc. |
+| hasWindowChrome flag for themes | quick-022 | Distinguishes themes with custom window chrome (System Settings, Mac OS) from standard wrappers |
+| Warm cream System 7 palette | quick-022 | oklch(0.95 0.02 80) creates nostalgic beige feel over pure gray |
+| Pixel font for headings only | quick-022 | Pix Chicago for retro feel, DM Sans body for readability |
+| System 7 beveled CSS utilities | quick-022 | .system7-inset uses box-shadow for authentic 3D button effects |
 
 ## Quick Tasks
 
@@ -423,28 +456,97 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 019 | Gallery image links and captions | Complete | 4432753 |
 | 020 | Gallery circular links editor redesign | Complete | 3ecff1b |
 | 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
+| 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
 
 ## Session Continuity
 
-Last session: 2026-01-28
-Last activity: 2026-01-28 - Completed 07-06-PLAN.md (Card Theme Integration)
-Stopped at: Phase 7, Plan 6 complete - Theme-aware cards with Mac OS traffic lights and Glass blur
+Last session: 2026-01-30
+Last activity: 2026-01-30 - Added System Settings theme (Classic Mac System 7)
+Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
-**Phase 7 Progress:** Theme system nearly complete - card integration done, only background controls remain.
+**Phase 7 Progress:** Complete. Theme system fully functional.
 
-**This session's work:**
+**Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
-1. **Plan 06.1-01: Dropdown Card Fix** (3 commits in 2 minutes)
-   - Converted DropdownCard to controlled component (`57d60ee`)
-   - Added useSortable with drag handle to DropdownSortable (`b5ebd2e`)
-   - Added dropdown rendering to DragOverlay (`df14209`)
-   - Fixed toggle reliability and drag functionality
+**This session's work (2026-01-29):**
 
-**Key commits this session:**
-- `57d60ee` - refactor(06.1-01): convert DropdownCard to controlled component
-- `b5ebd2e` - feat(06.1-01): add useSortable with drag handle to DropdownSortable
-- `df14209` - feat(06.1-01): add dropdown rendering to DragOverlay
+### Bug Fixes & Improvements
+
+1. **HEIC Image Conversion Fix**
+   - Problem: "window is not defined" SSR error when importing heic2any
+   - Solution: Changed to dynamic import in 3 files:
+     - `src/components/editor/design-panel.tsx`
+     - `src/components/editor/header-section.tsx`
+     - `src/components/cards/image-upload.tsx`
+   - Pattern: `const heic2anyModule = await import('heic2any')`
+
+2. **Profile Auto-Save Fix**
+   - Problem: Profile changes (including photos) not persisting after refresh
+   - Solution: Added immediate save after photo upload in design-panel.tsx
+   - Also reduced debounce from 1000ms to 500ms for snappier saves
+
+3. **Database Schema Fixes** (user ran SQL in Supabase)
+   - Added `header_text_color` column to profiles table
+   - Added `avatar_feather` column to profiles table
+   - Fixed 500 errors on profile save
+
+4. **Removed Annoying Reload Dialog**
+   - Removed `e.preventDefault()` and `e.returnValue` from beforeunload
+   - Now uses `sendBeacon` for best-effort save without blocking
+
+### Font System Upgrade
+
+Replaced basic fonts with **15 curated boutique fonts** in `src/app/fonts.ts`:
+
+**Boutique Sans-Serif:**
+- Plus Jakarta Sans, Sora, Space Grotesk, DM Sans, Outfit, Manrope, Josefin Sans
+
+**Boutique Serif:**
+- Playfair Display, Cormorant Garamond, Instrument Serif, Fraunces
+
+**Display/Distinctive:**
+- Bebas Neue, Archivo Black, Syne, Krona One
+
+**Kept Retro/Pixel fonts:**
+- Auto Mission, New York, Pix Chicago, Village
+
+### Attempted (Reverted)
+
+- Font hover preview feature: Tried to make live preview update as user hovers over fonts in dropdown. Broke the Select dropdown - reverted to simple implementation.
+
+---
+
+**Previous session's work (2026-01-28):**
+
+Executed Phase 7 Theme System (7 plans across 5 waves):
+
+1. **Wave 1 (parallel):**
+   - 07-01: Theme Infrastructure - types, store, 3 theme configs, ThemeApplicator
+   - 07-02: CSS Variables & Fonts - 15 curated Google Fonts, theme token bridge
+
+2. **Wave 2 (parallel):**
+   - 07-03: Theme Selection UI - ThemePresets cards, ThemePanel with tabs
+   - 07-04: Color Customization - react-colorful, ColorPicker, palette presets
+
+3. **Wave 3:**
+   - 07-05: Font & Style Controls - FontPicker, StyleControls, blur slider
+
+4. **Wave 4:**
+   - 07-06: Card Theme Integration - MacOSCard, GlassCard, ThemedCardWrapper
+
+5. **Wave 5 (checkpoint):**
+   - 07-07: Background Controls - solid/image/video backgrounds (AWAITING APPROVAL)
+
+**Key commits:**
+- `fa5b299` - feat(07-01): create theme store with persistence
+- `506188d` - feat(07-02): extend globals.css with theme CSS variables
+- `1e73ffb` - feat(07-03): create ThemePresets component
+- `504e53e` - feat(07-04): add ColorPicker component
+- `f3f7c45` - feat(07-05): create FontPicker
+- `f504958` - feat(07-06): create Mac OS and Glass card wrappers
+- `080686c` - feat(07-07): create BackgroundControls component
+- `b10d146` - feat(07-07): integrate PageBackground
 
 ---
 *Updated: 2026-01-27 - Phase 6.1 complete, Phase 6 unblocked*
