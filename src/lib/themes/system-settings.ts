@@ -10,7 +10,7 @@ export const systemSettingsTheme: ThemeConfig = {
   defaultColors: {
     background: 'oklch(0.89 0.04 10)',        // #F6D5D5 light pink page background
     cardBg: 'oklch(0.95 0.02 70)',            // #F9F0E9 warm cream card background
-    text: 'oklch(0.20 0 0)',                  // Near-black text
+    text: 'oklch(0 0 0)',                     // Black text
     accent: 'oklch(1 0 0)',                   // White inner box
     border: 'oklch(0.20 0 0)',                // Dark border
     link: 'oklch(0.35 0.12 250)',             // Classic Mac dark blue links
@@ -37,7 +37,7 @@ export const systemSettingsTheme: ThemeConfig = {
       colors: {
         background: 'oklch(0.89 0.04 10)',    // #F6D5D5 light pink
         cardBg: 'oklch(0.95 0.02 70)',        // #F9F0E9 warm cream
-        text: 'oklch(0.20 0 0)',
+        text: 'oklch(0 0 0)',                 // Black text
         accent: 'oklch(1 0 0)',               // White inner box
         border: 'oklch(0.20 0 0)',
         link: 'oklch(0.35 0.12 250)',
