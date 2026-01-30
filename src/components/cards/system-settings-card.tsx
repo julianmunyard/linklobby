@@ -1,33 +1,54 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import type { CardType } from '@/types/card'
 
 interface SystemSettingsCardProps {
   children: React.ReactNode
   className?: string
   title?: string
+  cardType?: CardType
 }
 
-export function SystemSettingsCard({ children, className, title }: SystemSettingsCardProps) {
+// Card types that get the thin/simple treatment
+const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal']
+
+export function SystemSettingsCard({ children, className, title, cardType }: SystemSettingsCardProps) {
+  // Link and horizontal cards get a thin, simple wrapper
+  if (cardType && THIN_CARD_TYPES.includes(cardType)) {
+    return (
+      <div
+        className={cn(
+          "overflow-hidden",
+          "bg-theme-accent",
+          "border-2 border-theme-text",
+          className
+        )}
+        style={{ borderRadius: '8px' }}
+      >
+        {children}
+      </div>
+    )
+  }
+
+  // Hero, square, video cards get the full window chrome
   return (
-    // Outer container with thin 1px border
     <div
       className={cn(
         "overflow-hidden",
         "bg-theme-card-bg",
-        "border-2 border-theme-text", // Thicker 2px border
+        "border-2 border-theme-text",
         className
       )}
       style={{ borderRadius: '12px' }}
     >
       {/* System 7 Title Bar */}
       <div className="flex items-center justify-between px-1.5 py-1">
-        {/* Close box - left side */}
+        {/* Close button - left side (no border) */}
         <button
-          className="w-4 h-4 flex items-center justify-center border border-theme-text/60 hover:bg-theme-text/10 transition-colors"
-          style={{ borderRadius: '1px' }}
+          className="w-4 h-4 flex items-center justify-center text-theme-text/60 hover:text-theme-text transition-colors"
         >
-          <span className="text-[10px] leading-none text-theme-text/80">×</span>
+          <span className="text-sm leading-none">×</span>
         </button>
 
         {/* Title - right side */}
@@ -41,10 +62,10 @@ export function SystemSettingsCard({ children, className, title }: SystemSetting
         )}
       </div>
 
-      {/* Content area - inner box uses accent color */}
+      {/* Content area - inner box uses accent color, no padding so images fill */}
       <div className="px-1.5 pb-1.5">
         <div
-          className="bg-theme-accent border border-theme-text/40 overflow-hidden p-3"
+          className="bg-theme-accent border border-theme-text/40 overflow-hidden"
           style={{ borderRadius: '8px' }}
         >
           {children}

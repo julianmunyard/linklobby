@@ -46,7 +46,7 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
 
     case 'system-settings':
       return (
-        <SystemSettingsCard className={className}>
+        <SystemSettingsCard className={className} cardType={cardType}>
           {children}
         </SystemSettingsCard>
       )
