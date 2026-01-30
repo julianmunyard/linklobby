@@ -14,19 +14,25 @@ interface SystemSettingsCardProps {
 const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal']
 
 export function SystemSettingsCard({ children, className, title, cardType }: SystemSettingsCardProps) {
-  // Link and horizontal cards get a thin, simple wrapper
+  // Link and horizontal cards get slim outer frame
   if (cardType && THIN_CARD_TYPES.includes(cardType)) {
     return (
       <div
         className={cn(
           "overflow-hidden",
-          "bg-theme-accent",
+          "bg-theme-card-bg",
           "border-2 border-theme-text",
+          "p-1",
           className
         )}
-        style={{ borderRadius: '8px' }}
+        style={{ borderRadius: '6px' }}
       >
-        {children}
+        <div
+          className="bg-theme-accent border-2 border-theme-text/40 overflow-hidden"
+          style={{ borderRadius: '4px' }}
+        >
+          {children}
+        </div>
       </div>
     )
   }
@@ -40,7 +46,7 @@ export function SystemSettingsCard({ children, className, title, cardType }: Sys
         "border-2 border-theme-text",
         className
       )}
-      style={{ borderRadius: '12px' }}
+      style={{ borderRadius: '6px' }}
     >
       {/* System 7 Title Bar */}
       <div className="flex items-center justify-between px-1.5 py-1">
@@ -62,11 +68,11 @@ export function SystemSettingsCard({ children, className, title, cardType }: Sys
         )}
       </div>
 
-      {/* Content area - inner box uses accent color, no padding so images fill */}
+      {/* Content area - inner box uses accent color, same border thickness */}
       <div className="px-1.5 pb-1.5">
         <div
-          className="bg-theme-accent border border-theme-text/40 overflow-hidden"
-          style={{ borderRadius: '8px' }}
+          className="bg-theme-accent border-2 border-theme-text/40 overflow-hidden"
+          style={{ borderRadius: '4px' }}
         >
           {children}
         </div>
