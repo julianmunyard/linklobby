@@ -30,6 +30,7 @@
 ## Commits
 - `085b64d` - feat(quick-024): remove Sleek Modern theme, default to Instagram Reels
 - `bdc210c` - fix: white cards on Instagram Reels, sync background pickers
+- `6ff2ed8` - fix: reset per-card text colors when selecting theme/palette
 
 ## Additional Changes (bdc210c)
 
@@ -44,3 +45,12 @@
 - Changing background in Colors section updates Background section
 - Changing solid color in Background section updates Colors section
 - Switching themes/palettes also syncs the background value
+
+### Per-Card Color Reset (6ff2ed8)
+- Added `clearCardColorOverrides()` action to page-store
+- Clears `textColor` and `captionColor` from all card contents
+- Called when:
+  - Selecting a palette preset
+  - Clicking the Reset button
+  - Switching themes
+- Cards now properly inherit theme colors after preset selection

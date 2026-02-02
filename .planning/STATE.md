@@ -440,6 +440,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Instagram Reels default theme | quick-024 | Replaced Sleek Modern as default theme |
 | White cards on Instagram Reels | quick-024 | High contrast white cards with black text on black background |
 | Background color picker sync | quick-024 | colors.background and background.value sync when type is solid |
+| Clear per-card colors on preset | quick-024 | Selecting theme/palette/reset clears textColor from all cards |
 
 ## Quick Tasks
 
@@ -468,7 +469,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
 | 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
 | 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
-| 024 | Remove Sleek Modern, white cards, sync bg pickers | Complete | bdc210c |
+| 024 | Remove Sleek Modern, white cards, reset per-card colors | Complete | 6ff2ed8 |
 
 ## Session Continuity
 
