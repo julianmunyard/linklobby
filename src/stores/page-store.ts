@@ -40,6 +40,7 @@ interface PageState {
   markSaved: () => void
   discardChanges: () => void
   clearCardColorOverrides: () => void
+  setAllCardsTransparency: (transparent: boolean) => void
 
   // Computed
   getSortedCards: () => Card[]
@@ -250,6 +251,18 @@ export const usePageStore = create<PageState>()(
         updated_at: new Date().toISOString(),
       }
     }),
+    hasChanges: true,
+  })),
+
+  setAllCardsTransparency: (transparent) => set((state) => ({
+    cards: state.cards.map((card) => ({
+      ...card,
+      content: {
+        ...card.content,
+        transparentBackground: transparent,
+      },
+      updated_at: new Date().toISOString(),
+    })),
     hasChanges: true,
   })),
 

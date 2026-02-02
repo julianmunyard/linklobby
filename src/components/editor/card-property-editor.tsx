@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
 import { HorizontalLinkFields } from "./horizontal-link-fields"
@@ -59,6 +60,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const updateCard = usePageStore((state) => state.updateCard)
   const duplicateCard = usePageStore((state) => state.duplicateCard)
   const removeCard = usePageStore((state) => state.removeCard)
+  const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
   const { undo } = useHistory()
   const [urlError, setUrlError] = useState<string | null>(null)
 
@@ -405,6 +407,37 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   <AlignVerticalJustifyEnd className="h-4 w-4" />
                 </ToggleGroupItem>
               </ToggleGroup>
+            </div>
+
+            {/* Transparent Background */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={!!currentContent.transparentBackground}
+                    onCheckedChange={(checked) => {
+                      handleContentChange({ transparentBackground: checked })
+                    }}
+                  />
+                  <Label className="cursor-pointer" onClick={() => {
+                    handleContentChange({ transparentBackground: !currentContent.transparentBackground })
+                  }}>
+                    Transparent Background
+                  </Label>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAllCardsTransparency(!!currentContent.transparentBackground)
+                    toast("Applied transparency to all cards")
+                  }}
+                  className="h-8"
+                >
+                  Apply to All
+                </Button>
+              </div>
             </div>
 
             {/* Title */}
