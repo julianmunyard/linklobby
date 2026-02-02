@@ -1,6 +1,7 @@
 'use client'
 
 import { useThemeStore } from '@/stores/theme-store'
+import { usePageStore } from '@/stores/page-store'
 import { THEMES, getTheme } from '@/lib/themes'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { Button } from '@/components/ui/button'
@@ -19,9 +20,20 @@ const COLOR_LABELS: Record<keyof ColorPalette, string> = {
 
 export function ColorCustomizer() {
   const { themeId, paletteId, colors, setColor, setPalette, resetToThemeDefaults } = useThemeStore()
+  const clearCardColorOverrides = usePageStore((state) => state.clearCardColorOverrides)
   const theme = getTheme(themeId)
 
   if (!theme) return null
+
+  const handlePaletteSelect = (paletteId: string) => {
+    setPalette(paletteId)
+    clearCardColorOverrides()
+  }
+
+  const handleReset = () => {
+    resetToThemeDefaults()
+    clearCardColorOverrides()
+  }
 
   return (
     <div className="space-y-4">
@@ -35,7 +47,7 @@ export function ColorCustomizer() {
             return (
               <button
                 key={palette.id}
-                onClick={() => setPalette(palette.id)}
+                onClick={() => handlePaletteSelect(palette.id)}
                 className={cn(
                   "relative flex gap-0.5 h-7 rounded overflow-hidden border-2 transition-all",
                   isSelected ? "border-accent" : "border-transparent hover:border-muted"
@@ -76,7 +88,7 @@ export function ColorCustomizer() {
             variant="ghost"
             size="sm"
             className="h-6 text-xs"
-            onClick={resetToThemeDefaults}
+            onClick={handleReset}
           >
             <RotateCcw className="w-3 h-3 mr-1" />
             Reset

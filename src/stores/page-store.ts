@@ -39,6 +39,7 @@ interface PageState {
   setTheme: (theme: Theme) => void
   markSaved: () => void
   discardChanges: () => void
+  clearCardColorOverrides: () => void
 
   // Computed
   getSortedCards: () => Card[]
@@ -236,6 +237,22 @@ export const usePageStore = create<PageState>()(
     // In future: reset to last saved state from DB
     set({ hasChanges: false })
   },
+
+  clearCardColorOverrides: () => set((state) => ({
+    cards: state.cards.map((card) => {
+      const content = { ...card.content }
+      // Remove textColor override from card content
+      delete content.textColor
+      // Also remove captionColor for gallery cards
+      delete content.captionColor
+      return {
+        ...card,
+        content,
+        updated_at: new Date().toISOString(),
+      }
+    }),
+    hasChanges: true,
+  })),
 
   getSortedCards: () => {
     return sortCardsBySortKey(get().cards)

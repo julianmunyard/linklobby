@@ -1,12 +1,19 @@
 'use client'
 
 import { useThemeStore } from '@/stores/theme-store'
+import { usePageStore } from '@/stores/page-store'
 import { THEMES, getThemeDefaults } from '@/lib/themes'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 
 export function ThemePresets() {
   const { themeId, setTheme } = useThemeStore()
+  const clearCardColorOverrides = usePageStore((state) => state.clearCardColorOverrides)
+
+  const handleThemeSelect = (themeId: Parameters<typeof setTheme>[0]) => {
+    setTheme(themeId)
+    clearCardColorOverrides()
+  }
 
   return (
     <div className="grid grid-cols-1 gap-3">
@@ -17,7 +24,7 @@ export function ThemePresets() {
         return (
           <button
             key={theme.id}
-            onClick={() => setTheme(theme.id)}
+            onClick={() => handleThemeSelect(theme.id)}
             className={cn(
               "relative p-4 rounded-lg border-2 text-left transition-all",
               "hover:border-accent",
