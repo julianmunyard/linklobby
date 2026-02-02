@@ -444,6 +444,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Use PUT for card upsert | quick-025 | saveCards uses PUT endpoint with Supabase upsert for both new and existing cards |
 | Text cards use size-based layout | quick-027 | Text cards support ['big', 'small'] sizing not position-based (w-fit + margins) layout |
 | POSITIONABLE_CARD_TYPES is ['mini'] only | quick-027 | Position control only for w-fit cards, size control for sized cards |
+| transparentBackground in card.content | quick-028 | Boolean flag makes card background transparent, border remains visible |
+| setAllCardsTransparency bulk action | quick-028 | Single action applies transparency to all cards at once |
+| ThemedCardWrapper respects transparency | quick-028 | All theme types (Instagram Reels, Mac OS, System Settings) conditionally remove bg when transparent |
 
 ## Quick Tasks
 
@@ -475,11 +478,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 024 | Remove Sleek Modern, white cards, reset per-card colors | Complete | 6ff2ed8 |
 | 025 | Fix duplicate card function - not persisting to database | Complete | 84c73bf |
 | 027 | Text cards horizontal stacking support | Complete | 1b9a42d |
+| 028 | Transparent card background toggle with Apply to All | Complete | 9416989 |
 
 ## Session Continuity
 
-Last session: 2026-02-02
-Last activity: 2026-02-02 - Completed quick task 027 (text cards horizontal stacking)
+Last session: 2026-02-03
+Last activity: 2026-02-03 - Completed quick task 028 (transparent card backgrounds)
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
@@ -487,7 +491,31 @@ Resume file: None
 
 **Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
-**This session's work (2026-02-02):**
+**This session's work (2026-02-03):**
+
+### Transparent Card Background Toggle (Quick Task 028)
+
+Added transparency feature for cards with bulk apply functionality:
+
+**Changes:**
+- Added `setAllCardsTransparency(transparent: boolean)` action to page-store.ts
+- Added Switch toggle for "Transparent Background" in card property editor
+- Added "Apply to All" button next to toggle with toast notification
+- Updated ThemedCardWrapper to accept `content` prop and conditionally remove background
+- Updated MacOSCard to accept `transparentBackground` prop
+- Updated SystemSettingsCard to accept `transparentBackground` prop
+- CardRenderer passes card.content to ThemedCardWrapper
+
+**Result:** Users can make individual cards or all cards transparent, showing page background through bordered cards.
+
+**Commits:**
+- `21766a1` - feat(quick-028): add transparency toggle with Apply to All
+- `c0ea8b6` - feat(quick-028): apply transparency in themed card wrappers
+- `9416989` - feat(quick-028): pass card content to themed wrapper
+
+---
+
+**Previous session's work (2026-02-02):**
 
 ### Text Cards Horizontal Stacking (Quick Task 027)
 
