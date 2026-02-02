@@ -437,6 +437,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Retro video control bar | quick-023 | Mac-style control bar at bottom of video cards (System Settings only) |
 | Video bar uses Pixolde font | quick-023 | Retro pixel font for authentic Mac look |
 | Video bar colors follow theme | quick-023 | Bar bg = text color, text = card-bg color (inverted) |
+| Instagram Reels default theme | quick-024 | Replaced Sleek Modern as default theme |
+| White cards on Instagram Reels | quick-024 | High contrast white cards with black text on black background |
+| Background color picker sync | quick-024 | colors.background and background.value sync when type is solid |
 
 ## Quick Tasks
 
@@ -465,7 +468,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
 | 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
 | 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
-| 024 | Remove Sleek Modern, default to black bg/white text | Complete | 085b64d |
+| 024 | Remove Sleek Modern, white cards, sync bg pickers | Complete | bdc210c |
 
 ## Session Continuity
 

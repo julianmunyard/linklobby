@@ -27,5 +27,20 @@
 - Deleted: `src/lib/themes/sleek-modern.ts`
 - Deleted: `src/components/cards/glass-card.tsx`
 
-## Commit
-`085b64d` - feat(quick-024): remove Sleek Modern theme, default to Instagram Reels
+## Commits
+- `085b64d` - feat(quick-024): remove Sleek Modern theme, default to Instagram Reels
+- `bdc210c` - fix: white cards on Instagram Reels, sync background pickers
+
+## Additional Changes (bdc210c)
+
+### Instagram Reels Preset Updated
+- Cards are now pure white (`oklch(1 0 0)`)
+- Text is now black (`oklch(0 0 0)`) for contrast on white cards
+- Border is light (`oklch(0.85 0 0)`)
+- Link color adjusted for readability on white
+
+### Background Color Sync
+- `colors.background` and `background.value` now stay in sync when background type is 'solid'
+- Changing background in Colors section updates Background section
+- Changing solid color in Background section updates Colors section
+- Switching themes/palettes also syncs the background value
