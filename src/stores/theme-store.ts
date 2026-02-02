@@ -33,11 +33,11 @@ const initialState: ThemeState = {
   paletteId: 'ig-dark',
   colors: defaultDefaults?.colors ?? {
     background: 'oklch(0 0 0)',             // Pure black background
-    cardBg: 'oklch(0.18 0 0)',              // Very dark card bg
-    text: 'oklch(1 0 0)',                   // Pure white text
+    cardBg: 'oklch(1 0 0)',                 // Pure white cards
+    text: 'oklch(0 0 0)',                   // Black text on white cards
     accent: 'oklch(0.65 0.28 25)',          // Vibrant orange/red
-    border: 'oklch(0.25 0 0)',              // Minimal border
-    link: 'oklch(0.75 0.25 280)',           // Purple links
+    border: 'oklch(0.85 0 0)',              // Light border
+    link: 'oklch(0.45 0.25 280)',           // Purple links (darker for white bg)
   },
   fonts: defaultDefaults?.fonts ?? {
     heading: 'var(--font-geist-sans)',
@@ -77,13 +77,17 @@ export const useThemeStore = create<ThemeStore>()(
         const defaults = getThemeDefaults(themeId)
         if (!defaults) return
 
-        set({
+        set((state) => ({
           themeId,
           paletteId: theme.palettes[0]?.id ?? null,
           colors: defaults.colors,
           fonts: defaults.fonts,
           style: defaults.style,
-        })
+          // Sync background if solid
+          background: state.background.type === 'solid'
+            ? { ...state.background, value: defaults.colors.background }
+            : state.background,
+        }))
       },
 
       setPalette: (paletteId: string) => {
@@ -97,17 +101,28 @@ export const useThemeStore = create<ThemeStore>()(
         set({
           paletteId,
           colors: palette.colors,
+          // Sync background if solid
+          background: state.background.type === 'solid'
+            ? { ...state.background, value: palette.colors.background }
+            : state.background,
         })
       },
 
       setColor: (key: keyof ColorPalette, value: string) => {
-        set((state) => ({
-          paletteId: null, // Custom color = no longer using preset
-          colors: {
-            ...state.colors,
-            [key]: value,
-          },
-        }))
+        set((state) => {
+          const newState: Partial<ThemeState> = {
+            paletteId: null, // Custom color = no longer using preset
+            colors: {
+              ...state.colors,
+              [key]: value,
+            },
+          }
+          // Sync background color with background.value when type is solid
+          if (key === 'background' && state.background.type === 'solid') {
+            newState.background = { ...state.background, value }
+          }
+          return newState
+        })
       },
 
       setFont: (key: keyof FontConfig, value: string | number) => {
@@ -129,7 +144,14 @@ export const useThemeStore = create<ThemeStore>()(
       },
 
       setBackground: (background: BackgroundConfig) => {
-        set({ background })
+        set((state) => {
+          const newState: Partial<ThemeState> = { background }
+          // Sync solid background color with colors.background
+          if (background.type === 'solid') {
+            newState.colors = { ...state.colors, background: background.value }
+          }
+          return newState
+        })
       },
 
       setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => {
@@ -152,6 +174,10 @@ export const useThemeStore = create<ThemeStore>()(
           colors: defaults.colors,
           fonts: defaults.fonts,
           style: defaults.style,
+          // Sync background if solid
+          background: state.background.type === 'solid'
+            ? { ...state.background, value: defaults.colors.background }
+            : state.background,
         })
       },
     }),
