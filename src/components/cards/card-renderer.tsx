@@ -63,7 +63,7 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
 
   // Wrap with themed wrapper
   return (
-    <ThemedCardWrapper cardType={card.card_type}>
+    <ThemedCardWrapper cardType={card.card_type} content={card.content}>
       {cardContent}
     </ThemedCardWrapper>
   )
