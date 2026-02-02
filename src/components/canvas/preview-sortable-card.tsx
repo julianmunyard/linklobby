@@ -41,9 +41,9 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     WebkitBackfaceVisibility: 'hidden' as const,
   }
 
-  // Mini and text cards use w-fit with margin positioning
+  // Mini cards use w-fit with margin positioning
   // left: normal flow, center: mx-auto (own row), right: ml-auto (pushes to right)
-  const isPositionableCard = card.card_type === "mini" || card.card_type === "text"
+  const isPositionableCard = card.card_type === "mini"
 
   // Link cards are full width like horizontal cards
   const widthClass = isPositionableCard
