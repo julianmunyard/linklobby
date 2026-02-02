@@ -8,19 +8,20 @@ interface SystemSettingsCardProps {
   className?: string
   title?: string
   cardType?: CardType
+  transparentBackground?: boolean
 }
 
 // Card types that get the thin/simple treatment
 const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal', 'mini']
 
-export function SystemSettingsCard({ children, className, title, cardType }: SystemSettingsCardProps) {
+export function SystemSettingsCard({ children, className, title, cardType, transparentBackground = false }: SystemSettingsCardProps) {
   // Link and horizontal cards get slim outer frame
   if (cardType && THIN_CARD_TYPES.includes(cardType)) {
     return (
       <div
         className={cn(
           "overflow-hidden",
-          "bg-theme-card-bg",
+          !transparentBackground && "bg-theme-card-bg",
           "border border-theme-text",
           "p-1",
           className
@@ -42,7 +43,7 @@ export function SystemSettingsCard({ children, className, title, cardType }: Sys
     <div
       className={cn(
         "overflow-hidden",
-        "bg-theme-card-bg",
+        !transparentBackground && "bg-theme-card-bg",
         "border border-theme-text",
         className
       )}

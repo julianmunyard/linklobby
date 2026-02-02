@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { useThemeStore } from '@/stores/theme-store'
 
 export function MacOSTrafficLights({ className }: { className?: string }) {
   return (
@@ -15,21 +16,28 @@ export function MacOSTrafficLights({ className }: { className?: string }) {
 interface MacOSCardProps {
   children: React.ReactNode
   className?: string
+  transparentBackground?: boolean
 }
 
-export function MacOSCard({ children, className }: MacOSCardProps) {
+export function MacOSCard({ children, className, transparentBackground = false }: MacOSCardProps) {
+  const titleBarLineColor = useThemeStore((state) => state.colors.titleBarLine) || '#000000'
+
   return (
     <div
       className={cn(
         "overflow-hidden",
-        "bg-theme-card-bg border border-theme-border",
+        !transparentBackground && "bg-theme-card-bg",
+        "border border-theme-border",
         "shadow-theme-card",
         className
       )}
       style={{ borderRadius: 'var(--theme-border-radius)' }}
     >
       {/* Title bar with traffic lights */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-b from-white/5 to-transparent border-b border-white/10">
+      <div
+        className="flex items-center gap-2 px-3 py-2 bg-gradient-to-b from-white/5 to-transparent"
+        style={{ borderBottom: `1px solid ${titleBarLineColor}` }}
+      >
         <MacOSTrafficLights />
       </div>
       {/* Content */}

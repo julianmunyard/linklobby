@@ -10,6 +10,7 @@ interface ThemedCardWrapperProps {
   children: React.ReactNode
   cardType: CardType
   className?: string
+  content?: Record<string, unknown>
 }
 
 // Card types fully exempt from theming (no wrapper styling)
@@ -18,8 +19,9 @@ const EXEMPT_CARD_TYPES: CardType[] = ['game', 'gallery']
 // Card types that skip Mac OS traffic lights but still get other theme styling
 const SKIP_MACOS_CHROME: CardType[] = []
 
-export function ThemedCardWrapper({ children, cardType, className }: ThemedCardWrapperProps) {
+export function ThemedCardWrapper({ children, cardType, className, content }: ThemedCardWrapperProps) {
   const { themeId, style } = useThemeStore()
+  const isTransparent = content?.transparentBackground === true
 
   // Exempt cards get minimal wrapper
   if (EXEMPT_CARD_TYPES.includes(cardType)) {
@@ -41,7 +43,8 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
           <div
             className={cn(
               "overflow-hidden",
-              "bg-theme-card-bg border border-theme-border",
+              !isTransparent && "bg-theme-card-bg",
+              "border border-theme-border",
               style.shadowEnabled && "shadow-theme-card",
               className
             )}
@@ -52,14 +55,14 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
         )
       }
       return (
-        <MacOSCard className={className}>
+        <MacOSCard className={className} transparentBackground={isTransparent}>
           {children}
         </MacOSCard>
       )
 
     case 'system-settings':
       return (
-        <SystemSettingsCard className={className} cardType={cardType}>
+        <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent}>
           {children}
         </SystemSettingsCard>
       )
@@ -71,7 +74,8 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
         <div
           className={cn(
             "overflow-hidden",
-            "bg-theme-card-bg border border-theme-border",
+            !isTransparent && "bg-theme-card-bg",
+            "border border-theme-border",
             style.shadowEnabled && "shadow-theme-card",
             className
           )}
