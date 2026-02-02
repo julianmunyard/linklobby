@@ -25,35 +25,35 @@ interface ThemeStore extends ThemeState {
   resetToThemeDefaults: () => void
 }
 
-const defaultThemeId: ThemeId = 'sleek-modern'
+const defaultThemeId: ThemeId = 'instagram-reels'
 const defaultDefaults = getThemeDefaults(defaultThemeId)
 
 const initialState: ThemeState = {
   themeId: defaultThemeId,
-  paletteId: 'frosted-glass',
+  paletteId: 'ig-dark',
   colors: defaultDefaults?.colors ?? {
-    background: 'oklch(0.15 0 0)',
-    cardBg: 'oklch(0.25 0 0 / 0.6)',
-    text: 'oklch(0.95 0 0)',
-    accent: 'oklch(0.75 0.20 180)',
-    border: 'oklch(0.50 0 0 / 0.3)',
-    link: 'oklch(0.80 0.18 200)',
+    background: 'oklch(0 0 0)',             // Pure black background
+    cardBg: 'oklch(0.18 0 0)',              // Very dark card bg
+    text: 'oklch(1 0 0)',                   // Pure white text
+    accent: 'oklch(0.65 0.28 25)',          // Vibrant orange/red
+    border: 'oklch(0.25 0 0)',              // Minimal border
+    link: 'oklch(0.75 0.25 280)',           // Purple links
   },
   fonts: defaultDefaults?.fonts ?? {
     heading: 'var(--font-geist-sans)',
     body: 'var(--font-geist-sans)',
-    headingSize: 1,
+    headingSize: 1.1,
     bodySize: 1,
-    headingWeight: 'normal',
+    headingWeight: 'bold',
   },
   style: defaultDefaults?.style ?? {
-    borderRadius: 16,
+    borderRadius: 8,
     shadowEnabled: false,
-    blurIntensity: 12,
+    blurIntensity: 0,
   },
   background: {
     type: 'solid',
-    value: 'oklch(0.15 0 0)', // Dark background by default
+    value: 'oklch(0 0 0)', // Pure black background by default
   },
   cardTypeFontSizes: {
     hero: 1,
@@ -61,6 +61,7 @@ const initialState: ThemeState = {
     horizontal: 1,
     link: 1,
     gallery: 1,
+    video: 1,
   },
 }
 

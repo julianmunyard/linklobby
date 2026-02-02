@@ -1,18 +1,16 @@
 // src/lib/themes/index.ts
 import type { ThemeId, ThemeConfig, ColorPalette, FontConfig, StyleConfig } from '@/types/theme'
 import { macOsTheme } from './mac-os'
-import { sleekModernTheme } from './sleek-modern'
 import { instagramReelsTheme } from './instagram-reels'
 import { systemSettingsTheme } from './system-settings'
 
 export const THEMES: ThemeConfig[] = [
   macOsTheme,
-  sleekModernTheme,
   instagramReelsTheme,
   systemSettingsTheme,
 ]
 
-export const THEME_IDS: ThemeId[] = ['mac-os', 'sleek-modern', 'instagram-reels', 'system-settings']
+export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function getTheme(id: ThemeId): ThemeConfig | undefined {
   return THEMES.find((theme) => theme.id === id)

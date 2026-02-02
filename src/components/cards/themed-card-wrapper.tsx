@@ -2,7 +2,6 @@
 
 import { useThemeStore } from '@/stores/theme-store'
 import { MacOSCard } from './mac-os-card'
-import { GlassCard } from './glass-card'
 import { SystemSettingsCard } from './system-settings-card'
 import { cn } from '@/lib/utils'
 import type { CardType } from '@/types/card'
@@ -37,13 +36,6 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
         <MacOSCard className={className}>
           {children}
         </MacOSCard>
-      )
-
-    case 'sleek-modern':
-      return (
-        <GlassCard className={className}>
-          {children}
-        </GlassCard>
       )
 
     case 'system-settings':

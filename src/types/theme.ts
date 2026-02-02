@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'sleek-modern' | 'instagram-reels' | 'system-settings'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -67,7 +67,7 @@ export interface ThemeConfig {
   palettes: Array<{ id: string; name: string; colors: ColorPalette }>
   // Theme-specific features
   hasTrafficLights?: boolean   // Mac OS only
-  hasGlassEffect?: boolean     // Sleek Modern only
+  hasGlassEffect?: boolean     // For glass-style themes
   hasSpreadText?: boolean      // Instagram Reels only
   hasWindowChrome?: boolean    // System Settings only
 }
