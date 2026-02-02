@@ -240,20 +240,11 @@ export async function mapLinktreeToCards(
         }
       }
 
-      // Type-specific default content (text and vertical alignment)
-      const defaultContent: Record<string, unknown> = (() => {
-        switch (layoutItem.type) {
-          case 'hero':
-          case 'square':
-            return { textAlign: 'center', verticalAlign: 'bottom' }
-          case 'horizontal':
-            return { textAlign: 'left', verticalAlign: 'middle' }
-          case 'link':
-            return { textAlign: 'center', verticalAlign: 'middle' }
-          default:
-            return {}
-        }
-      })()
+      // Default content - all cards use center/center alignment
+      const defaultContent: Record<string, unknown> = {
+        textAlign: 'center',
+        verticalAlign: 'center',
+      }
 
       // Map to our card format - image blob is separate, not embedded in content
       const card: MappedCardData = {

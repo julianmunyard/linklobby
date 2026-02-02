@@ -66,11 +66,10 @@ export const usePageStore = create<PageState>()(
       switch (type) {
         case 'hero':
         case 'square':
-          return { textAlign: 'center', verticalAlign: 'bottom' }
         case 'horizontal':
-          return { textAlign: 'left', verticalAlign: 'middle' }
         case 'link':
-          return { textAlign: 'center', verticalAlign: 'middle' }
+        case 'video':
+          return { textAlign: 'center', verticalAlign: 'center' }
         case 'game':
           return { gameType: 'snake' }
         default:
