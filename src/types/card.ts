@@ -56,7 +56,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   'social-icons': null, // Always full width - singleton widget
   link: null, // Always full width - simple text link
   mini: null, // Compact width - fits content
-  text: null, // Plain text - no card wrapper
+  text: ['big', 'small'], // Text cards support sizing for horizontal stacking
 }
 
 // Card types that don't support images (use custom media handling instead)
@@ -65,6 +65,12 @@ export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
 export type VerticalAlign = 'top' | 'middle' | 'bottom'
+
+// Fuzzy/distress text effect settings
+export interface FuzzyTextSettings {
+  enabled: boolean
+  intensity: number  // 0-1 range, default 0.19
+}
 
 export const TEXT_ALIGN_OPTIONS: { value: TextAlign; label: string }[] = [
   { value: 'left', label: 'Left' },
@@ -99,6 +105,7 @@ export interface HeroCardContent {
   buttonText?: string
   buttonStyle?: "primary" | "secondary" | "outline"
   textColor?: string    // Override text color (default white)
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
 }
 
 export interface HorizontalLinkContent {
@@ -106,10 +113,12 @@ export interface HorizontalLinkContent {
   imageAlt?: string
   iconName?: string  // Lucide icon name as alternative to image
   textColor?: string // Override text color
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
 }
 
 export interface LinkCardContent {
   textColor?: string // Override text color
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
 }
 
 export interface SquareCardContent {
@@ -117,6 +126,7 @@ export interface SquareCardContent {
   imageAlt?: string
   showTitle?: boolean  // Whether to show title overlay (default true)
   textColor?: string   // Override text color (default white)
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
 }
 
 export interface VideoCardContent {
@@ -134,6 +144,7 @@ export interface VideoCardContent {
   videoPositionX?: number     // Default: 50 (center), range: 0-100
   videoPositionY?: number     // Default: 50 (center), range: 0-100
   textColor?: string          // Override text color (default white)
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
 }
 
 export interface GalleryImage {
