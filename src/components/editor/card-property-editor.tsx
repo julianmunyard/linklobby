@@ -39,7 +39,7 @@ import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, Hor
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Card types that support horizontal positioning (w-fit cards)
-const POSITIONABLE_CARD_TYPES: CardType[] = ['mini', 'text']
+const POSITIONABLE_CARD_TYPES: CardType[] = ['mini']
 
 // Common form schema
 const cardFormSchema = z.object({
