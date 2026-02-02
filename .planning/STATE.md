@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 7 of 18 - Theme System (COMPLETE)
 Plan: 7 of 7 - Complete
 Status: **Phase 7 complete, ready for Phase 8**
-Last activity: 2026-02-02 - Quick task 025 (fix duplicate card function)
+Last activity: 2026-02-02 - Quick task 027 (text cards horizontal stacking)
 
 Progress: [██████████████████████████████] 100%
 
@@ -442,6 +442,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Background color picker sync | quick-024 | colors.background and background.value sync when type is solid |
 | Clear per-card colors on preset | quick-024 | Selecting theme/palette/reset clears textColor from all cards |
 | Use PUT for card upsert | quick-025 | saveCards uses PUT endpoint with Supabase upsert for both new and existing cards |
+| Text cards use size-based layout | quick-027 | Text cards support ['big', 'small'] sizing not position-based (w-fit + margins) layout |
+| POSITIONABLE_CARD_TYPES is ['mini'] only | quick-027 | Position control only for w-fit cards, size control for sized cards |
 
 ## Quick Tasks
 
@@ -472,11 +474,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
 | 024 | Remove Sleek Modern, white cards, reset per-card colors | Complete | 6ff2ed8 |
 | 025 | Fix duplicate card function - not persisting to database | Complete | 84c73bf |
+| 027 | Text cards horizontal stacking support | Complete | 1b9a42d |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Last activity: 2026-02-02 - Fixed duplicate card persistence
+Last activity: 2026-02-02 - Completed quick task 027 (text cards horizontal stacking)
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
@@ -485,6 +488,27 @@ Resume file: None
 **Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
 **This session's work (2026-02-02):**
+
+### Text Cards Horizontal Stacking (Quick Task 027)
+
+Enabled text cards to stack horizontally when sized as "small":
+
+**Changes:**
+- Updated `CARD_TYPE_SIZING` to support `text: ['big', 'small']` instead of `null`
+- Removed text from `isPositionableCard` in preview-sortable-card.tsx
+- Removed text from `POSITIONABLE_CARD_TYPES` in card-property-editor.tsx
+- Text cards now use size-based layout (big/small) like hero/square/video/gallery
+- Small text cards stack side-by-side on same row
+- Position control (left/center/right) only for w-fit cards like mini
+
+**Result:** Text cards have size picker in property editor, two small text cards appear side-by-side.
+
+**Commits:**
+- `7eb22a4` - feat(quick-027): add text card sizing support to type system
+- `e694403` - feat(quick-027): enable size-based layout for text cards
+- `1b9a42d` - feat(quick-027): remove position control from text cards
+
+---
 
 ### Duplicate Card Persistence Fix (Quick Task 025)
 
