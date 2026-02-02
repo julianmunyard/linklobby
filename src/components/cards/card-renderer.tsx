@@ -4,6 +4,7 @@ import { HorizontalLink } from "./horizontal-link"
 import { SquareCard } from "./square-card"
 import { SocialIconsCard } from "./social-icons-card"
 import { LinkCard } from "./link-card"
+import { TextCard } from "./text-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
@@ -32,7 +33,11 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
     case "social-icons":
       // Social icons don't need themed wrapper - they're just icons
       return <SocialIconsCard card={card} isPreview={isPreview} />
+    case "text":
+      // Text cards are plain text without any card wrapper
+      return <TextCard card={card} isPreview={isPreview} />
     case "link":
+    case "mini":
       cardContent = <LinkCard card={card} isPreview={isPreview} />
       break
     case "video":

@@ -12,8 +12,11 @@ interface ThemedCardWrapperProps {
   className?: string
 }
 
-// Card types exempt from theming (per CONTEXT.md)
+// Card types fully exempt from theming (no wrapper styling)
 const EXEMPT_CARD_TYPES: CardType[] = ['game', 'gallery']
+
+// Card types that skip Mac OS traffic lights but still get other theme styling
+const SKIP_MACOS_CHROME: CardType[] = []
 
 export function ThemedCardWrapper({ children, cardType, className }: ThemedCardWrapperProps) {
   const { themeId, style } = useThemeStore()
@@ -32,6 +35,22 @@ export function ThemedCardWrapper({ children, cardType, className }: ThemedCardW
   // Theme-specific wrappers
   switch (themeId) {
     case 'mac-os':
+      // Mini cards skip Mac OS traffic lights, get simple bordered look
+      if (SKIP_MACOS_CHROME.includes(cardType)) {
+        return (
+          <div
+            className={cn(
+              "overflow-hidden",
+              "bg-theme-card-bg border border-theme-border",
+              style.shadowEnabled && "shadow-theme-card",
+              className
+            )}
+            style={{ borderRadius: 'var(--theme-border-radius)' }}
+          >
+            {children}
+          </div>
+        )
+      }
       return (
         <MacOSCard className={className}>
           {children}

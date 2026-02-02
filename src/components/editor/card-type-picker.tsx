@@ -1,7 +1,7 @@
 // src/components/editor/card-type-picker.tsx
 "use client"
 
-import { RectangleHorizontal, Minus, Square, Type } from "lucide-react"
+import { RectangleHorizontal, Minus, Square, Type, Tag, AlignLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { CardType } from "@/types/card"
@@ -13,6 +13,8 @@ const CONVERTIBLE_CARD_TYPES = [
   { type: "horizontal" as CardType, icon: Minus, label: "Horizontal" },
   { type: "square" as CardType, icon: Square, label: "Square" },
   { type: "link" as CardType, icon: Type, label: "Link" },
+  { type: "mini" as CardType, icon: Tag, label: "Mini" },
+  { type: "text" as CardType, icon: AlignLeft, label: "Text" },
 ] as const
 
 interface CardTypePickerProps {
@@ -22,7 +24,7 @@ interface CardTypePickerProps {
 
 export function CardTypePicker({ currentType, onChange }: CardTypePickerProps) {
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-6 gap-2">
       {CONVERTIBLE_CARD_TYPES.map(({ type, icon: Icon, label }) => {
         const isSelected = currentType === type
         return (

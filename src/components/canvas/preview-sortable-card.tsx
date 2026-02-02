@@ -41,9 +41,30 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     WebkitBackfaceVisibility: 'hidden' as const,
   }
 
-  const widthClass = card.size === "big"
-    ? "w-full"
-    : "w-[calc(50%-0.5rem)]"
+  // Mini and text cards use w-fit with margin positioning
+  // left: normal flow, center: mx-auto (own row), right: ml-auto (pushes to right)
+  const isPositionableCard = card.card_type === "mini" || card.card_type === "text"
+
+  // Link cards are full width like horizontal cards
+  const widthClass = isPositionableCard
+    ? "w-fit" // Compact width, positioned via margins
+    : card.card_type === "link" || card.card_type === "horizontal"
+      ? "w-full"
+      : card.size === "big"
+        ? "w-full"
+        : "w-[calc(50%-0.5rem)]"
+
+  // Position class for mini/text cards using margins
+  // - left: no margin (flows to left naturally)
+  // - center: mx-auto (centers, takes own row)
+  // - right: ml-auto (pushes to right edge of remaining space)
+  const positionClass = isPositionableCard
+    ? card.position === "right"
+      ? "ml-auto"
+      : card.position === "center"
+        ? "mx-auto"
+        : "" // left = normal flow
+    : ""
 
   // Interactive cards (gallery, video, game) need full pointer/touch events
   const isInteractive = INTERACTIVE_CARD_TYPES.includes(card.card_type)
@@ -65,13 +86,15 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
         widthClass,
         isDragging && "opacity-0",
         "cursor-pointer",
+        // Positionable cards use margin classes for positioning
+        positionClass,
         // Only use touch-none for non-interactive cards (needed for dnd-kit drag)
         // Interactive cards need touch events to pass through for their internal controls
         !isInteractive && "touch-none",
         // Gallery needs overflow visible for full-bleed effect
         card.card_type === 'gallery' && "overflow-visible",
-        // Selection highlight - white border with ring
-        isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background rounded-xl"
+        // Selection highlight - white border with tight ring
+        isSelected && "ring-2 ring-white ring-offset-1 ring-offset-background rounded-lg"
       )}
       onClick={handleClick}
       {...(isInteractive ? {} : { ...attributes, ...listeners })}

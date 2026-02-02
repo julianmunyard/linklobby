@@ -9,6 +9,8 @@ export type CardType =
   | 'audio'
   | 'social-icons'
   | 'link'
+  | 'mini'
+  | 'text'
 
 export type CardSize = 'big' | 'small'
 
@@ -53,10 +55,12 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   audio: null, // Always full width
   'social-icons': null, // Always full width - singleton widget
   link: null, // Always full width - simple text link
+  mini: null, // Compact width - fits content
+  text: null, // Plain text - no card wrapper
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'audio', 'video', 'gallery', 'game']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'video', 'gallery', 'game']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -129,6 +133,7 @@ export interface VideoCardContent {
   videoZoom?: number          // Default: 1.0, range: 1.0 to 2.0
   videoPositionX?: number     // Default: 50 (center), range: 0-100
   videoPositionY?: number     // Default: 50 (center), range: 0-100
+  textColor?: string          // Override text color (default white)
 }
 
 export interface GalleryImage {

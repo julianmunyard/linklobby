@@ -11,7 +11,7 @@ interface SystemSettingsCardProps {
 }
 
 // Card types that get the thin/simple treatment
-const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal']
+const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal', 'mini']
 
 export function SystemSettingsCard({ children, className, title, cardType }: SystemSettingsCardProps) {
   // Link and horizontal cards get slim outer frame

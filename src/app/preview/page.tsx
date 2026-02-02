@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
-import { PageBackground } from "@/components/preview/page-background"
+import { PageBackground, FrameOverlay } from "@/components/preview/page-background"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -45,10 +45,21 @@ export default function PreviewPage() {
   )
 }
 
+// Frame inset config - defines the "screen" area for the AWGE frame (as percentages of viewport)
+const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; right: number }> = {
+  '/frames/awge-tv.png': {
+    top: 8,      // % from top - padding from frame edge
+    bottom: 14,  // % from bottom - account for AWGE text + padding
+    left: 7,     // % from left - padding from frame edge
+    right: 7,    // % from right - padding from frame edge
+  },
+}
+
 function PreviewContent() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
   const { clearSelection } = useMultiSelectContext()
+  const { background } = useThemeStore()
 
   // Send SELECT_CARD message to parent editor
   const handleCardClick = useCallback((cardId: string) => {
@@ -122,8 +133,110 @@ function PreviewContent() {
 
   const hasCards = state.cards.length > 0
 
+  // Get frame insets if a frame overlay is active
+  const frameInsets = background.frameOverlay ? FRAME_INSETS[background.frameOverlay] : null
+
+  // Frame transform values
+  const frameZoom = background.frameZoom ?? 1
+  const framePosX = background.framePositionX ?? 0
+  const framePosY = background.framePositionY ?? 0
+  const frameFitContent = background.frameFitContent ?? false
+
+  // Content fine-tuning values
+  const contentOffsetX = background.contentOffsetX ?? 0
+  const contentOffsetY = background.contentOffsetY ?? 0
+  const contentZoom = background.contentZoom ?? 1
+
+  // When frameFitContent is enabled, content stays locked inside the frame
+  if (frameInsets && frameFitContent) {
+    return (
+      <>
+        {/* Page background (solid, image, or video) */}
+        <PageBackground />
+
+        {/* Content container - transforms with the frame */}
+        <div
+          className="fixed inset-0 overflow-hidden pointer-events-none"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            className="relative overflow-auto pointer-events-auto text-theme-text"
+            onClick={handleBackgroundClick}
+            style={{
+              // Size based on frame's screen area
+              width: `${100 - frameInsets.left - frameInsets.right}vw`,
+              height: `${100 - frameInsets.top - frameInsets.bottom}vh`,
+              // Transform to match frame zoom/position + content adjustments
+              transform: `scale(${frameZoom * contentZoom}) translate(${framePosX + contentOffsetX}%, ${framePosY + contentOffsetY}%)`,
+              transformOrigin: 'center center',
+              // Padding inside the content area
+              padding: '1rem',
+              '--page-padding-x': '1rem',
+            } as React.CSSProperties}
+          >
+            <ProfileHeader />
+            {!hasCards ? (
+              <div className="flex flex-col items-center justify-center min-h-full text-center">
+                <div className="rounded-full bg-muted p-6 mb-4">
+                  <svg className="h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
+                <p className="text-muted-foreground text-sm max-w-[300px]">Add cards in the editor to build your link-in-bio page.</p>
+              </div>
+            ) : (
+              <SelectableFlowGrid
+                cards={state.cards}
+                selectedCardId={state.selectedCardId}
+                onReorder={(oldIndex, newIndex) => {
+                  if (window.parent !== window) {
+                    window.parent.postMessage({ type: "REORDER_CARDS", payload: { oldIndex, newIndex } }, window.location.origin)
+                  }
+                }}
+                onReorderMultiple={(cardIds, targetIndex) => {
+                  if (window.parent !== window) {
+                    window.parent.postMessage({ type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } }, window.location.origin)
+                  }
+                }}
+                onCardClick={handleCardClick}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Frame overlay */}
+        <FrameOverlay />
+      </>
+    )
+  }
+
+  // When frame is active but NOT fit content, use padding to inset content
+  // Content scrolls behind the fixed frame overlay (no clipping)
+  // CSS custom property --page-padding-x allows full-bleed components to break out
   return (
-      <div className="min-h-screen p-4 text-theme-text" onClick={handleBackgroundClick}>
+    <>
+      <div
+        className="min-h-screen text-theme-text"
+        onClick={handleBackgroundClick}
+        style={frameInsets ? {
+          // Padding pushes content into the "screen" area
+          // But no overflow clipping - content scrolls behind frame
+          paddingTop: `${frameInsets.top}vh`,
+          paddingBottom: `${frameInsets.bottom}vh`,
+          paddingLeft: `${frameInsets.left}vw`,
+          paddingRight: `${frameInsets.right}vw`,
+          // CSS variable for full-bleed components to break out
+          '--page-padding-x': `${frameInsets.left}vw`,
+        } as React.CSSProperties : {
+          padding: '1rem',
+          '--page-padding-x': '1rem',
+        } as React.CSSProperties}
+      >
         {/* Page background (solid, image, or video) */}
         <PageBackground />
 
@@ -180,5 +293,9 @@ function PreviewContent() {
           />
         )}
       </div>
+
+      {/* Frame overlay - sits ON TOP of everything */}
+      <FrameOverlay />
+    </>
   )
 }

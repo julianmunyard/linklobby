@@ -9,6 +9,8 @@ export interface ColorPalette {
   accent: string          // Accent/highlight color
   border: string          // Border color
   link: string            // Link color
+  // Theme-specific optional colors
+  titleBarLine?: string   // Mac OS theme: title bar separator line color
 }
 
 export interface FontConfig {
@@ -53,6 +55,8 @@ export interface CardTypeFontSizes {
   square: number
   horizontal: number
   link: number
+  mini: number
+  text: number
   gallery: number
   video: number
 }

@@ -35,8 +35,11 @@ import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, LinkCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, LinkCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
+
+// Card types that support horizontal positioning (w-fit cards)
+const POSITIONABLE_CARD_TYPES: CardType[] = ['mini', 'text']
 
 // Common form schema
 const cardFormSchema = z.object({
@@ -330,6 +333,32 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
+            {/* Card Position - for w-fit cards (mini, text) */}
+            {POSITIONABLE_CARD_TYPES.includes(card.card_type) && (
+              <div className="space-y-2">
+                <Label>Position</Label>
+                <ToggleGroup
+                  type="single"
+                  variant="outline"
+                  value={card.position}
+                  onValueChange={(value) => {
+                    if (value) updateCard(card.id, { position: value as HorizontalPosition })
+                  }}
+                  className="justify-start"
+                >
+                  <ToggleGroupItem value="left" aria-label="Position left">
+                    <AlignLeft className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="center" aria-label="Position center">
+                    <AlignCenter className="h-4 w-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="right" aria-label="Position right">
+                    <AlignRight className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            )}
+
             {/* Text Alignment */}
             <div className="space-y-2">
               <Label>Text Align</Label>
@@ -462,7 +491,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 onChange={handleContentChange}
               />
             )}
-            {card.card_type === "link" && (
+            {(card.card_type === "link" || card.card_type === "mini" || card.card_type === "text") && (
               <LinkCardFields
                 content={currentContent as LinkCardContent}
                 onChange={handleContentChange}

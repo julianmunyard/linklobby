@@ -60,6 +60,8 @@ const initialState: ThemeState = {
     square: 1,
     horizontal: 1,
     link: 1,
+    mini: 1,
+    text: 1,
     gallery: 1,
     video: 1,
   },

@@ -20,6 +20,8 @@ import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "link", label: "Link" },
+  { type: "mini", label: "Mini Link" },
+  { type: "text", label: "Text" },
   { type: "horizontal", label: "Horizontal Link" },
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },
@@ -77,6 +79,8 @@ export function CardsTab() {
           case "horizontal":
             return { textAlign: "left", verticalAlign: "middle" }
           case "link":
+          case "mini":
+          case "text":
             return { textAlign: "center", verticalAlign: "middle" }
           case "game":
             return { gameType: "snake" }
@@ -85,6 +89,9 @@ export function CardsTab() {
         }
       })()
 
+      // Mini and text cards default to center position
+      const position = (type === "mini" || type === "text") ? "center" : "left"
+
       const newCard = await createCard({
         card_type: type,
         title: null,
@@ -92,7 +99,7 @@ export function CardsTab() {
         url: null,
         content: defaultContent,
         size,
-        position: "left",
+        position,
         sortKey,
         is_visible: true,
       })
