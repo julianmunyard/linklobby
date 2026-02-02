@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 7 of 18 - Theme System (COMPLETE)
 Plan: 7 of 7 - Complete
 Status: **Phase 7 complete, ready for Phase 8**
-Last activity: 2026-02-02 - Quick task 024 (remove Sleek Modern theme)
+Last activity: 2026-02-02 - Quick task 025 (fix duplicate card function)
 
 Progress: [██████████████████████████████] 100%
 
@@ -441,6 +441,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | White cards on Instagram Reels | quick-024 | High contrast white cards with black text on black background |
 | Background color picker sync | quick-024 | colors.background and background.value sync when type is solid |
 | Clear per-card colors on preset | quick-024 | Selecting theme/palette/reset clears textColor from all cards |
+| Use PUT for card upsert | quick-025 | saveCards uses PUT endpoint with Supabase upsert for both new and existing cards |
 
 ## Quick Tasks
 
@@ -470,11 +471,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
 | 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
 | 024 | Remove Sleek Modern, white cards, reset per-card colors | Complete | 6ff2ed8 |
+| 025 | Fix duplicate card function - not persisting to database | Complete | 84c73bf |
 
 ## Session Continuity
 
-Last session: 2026-01-31
-Last activity: 2026-01-31 - Refined System Settings theme with Poolsuite aesthetic
+Last session: 2026-02-02
+Last activity: 2026-02-02 - Fixed duplicate card persistence
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
@@ -482,7 +484,27 @@ Resume file: None
 
 **Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
-**This session's work (2026-01-31):**
+**This session's work (2026-02-02):**
+
+### Duplicate Card Persistence Fix (Quick Task 025)
+
+Fixed duplicate card function which wasn't persisting to database:
+
+**Root Cause:** `saveCards` used PATCH for all cards, but duplicated cards have new UUIDs that don't exist in the database yet. Supabase `.single()` failed when trying to update non-existent rows.
+
+**Solution:**
+- Added `upsertCard` function to `src/lib/supabase/cards.ts` using Supabase's `.upsert()` with `onConflict: 'id'`
+- Added PUT endpoint to `/api/cards/[id]` for upsert operations
+- Changed `saveCards` to use PUT instead of PATCH
+- Kept PATCH endpoint for backward compatibility
+
+**Result:** Duplicate cards now persist correctly to database after auto-save.
+
+**Commit:** `84c73bf` - fix(quick-025): use upsert for duplicate card persistence
+
+---
+
+**Previous session's work (2026-01-31):**
 
 ### System Settings Theme Refinements (Quick Task 023)
 
