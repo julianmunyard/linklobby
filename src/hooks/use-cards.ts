@@ -78,11 +78,11 @@ export function useCards() {
       // Get cards from store (they may have been modified)
       const currentCards = usePageStore.getState().cards
 
-      // For each card, update in database with retry
+      // For each card, upsert in database with retry (handles both new and existing cards)
       const promises = currentCards.map((card) =>
         saveWithRetry(() =>
           fetch(`/api/cards/${card.id}`, {
-            method: "PATCH",
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               card_type: card.card_type,

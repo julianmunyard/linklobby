@@ -90,6 +90,28 @@ export async function updateCard(
   return mapDbToCard(data)
 }
 
+export async function upsertCard(
+  id: string,
+  card: Partial<Card> & { page_id: string }
+): Promise<Card> {
+  const supabase = await createClient()
+
+  const dbCard = {
+    id,
+    ...mapCardToDb(card),
+    updated_at: new Date().toISOString(),
+  }
+
+  const { data, error } = await supabase
+    .from("cards")
+    .upsert(dbCard, { onConflict: "id" })
+    .select()
+    .single()
+
+  if (error) throw error
+  return mapDbToCard(data)
+}
+
 export async function deleteCard(id: string): Promise<void> {
   const supabase = await createClient()
 
