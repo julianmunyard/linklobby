@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 7 of 18 - Theme System (COMPLETE)
 Plan: 7 of 7 - Complete
 Status: **Phase 7 complete, ready for Phase 8**
-Last activity: 2026-01-29 - Bug fixes, font upgrade
+Last activity: 2026-02-02 - Quick task 024 (remove Sleek Modern theme)
 
 Progress: [██████████████████████████████] 100%
 
@@ -465,6 +465,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 021 | Gallery upload UI polish (plus icon button) | Complete | 8257065 |
 | 022 | System Settings theme with Classic Mac aesthetic | Complete | 0d8b7f0 |
 | 023 | System Settings theme refinements (Poolsuite style) | Complete | c967d8e |
+| 024 | Remove Sleek Modern, default to black bg/white text | Complete | 085b64d |
 
 ## Session Continuity
 
