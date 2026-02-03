@@ -547,6 +547,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 031 | Hide card toggle in cards list | Complete | 05ae720 |
 | 032 | Social icon size slider (16-48px) | Complete | 8af2f89 |
 | 033 | iPod Classic theme with click wheel navigation | Complete | d50f247 |
+| 034 | iPod theme screen polish | Complete | 45e24b4 |
 
 ## Phase 9 Progress (IN PROGRESS)
 
