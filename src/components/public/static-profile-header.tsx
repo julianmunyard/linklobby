@@ -1,8 +1,48 @@
 import Image from "next/image"
-import { User } from "lucide-react"
+import { User, Globe, Mail, Music } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { FuzzyText } from "@/components/ui/fuzzy-text"
-import type { SocialIcon } from "@/types/profile"
+import type { SocialIcon, SocialPlatform } from "@/types/profile"
+import {
+  SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiX,
+  SiSoundcloud, SiApplemusic, SiBandcamp, SiAmazonmusic,
+  SiFacebook, SiThreads, SiBluesky, SiSnapchat, SiPinterest, SiLinkedin, SiWhatsapp,
+  SiTwitch, SiKick, SiDiscord,
+  SiPatreon, SiVenmo, SiCashapp, SiPaypal
+} from "react-icons/si"
+import type { ComponentType } from "react"
+
+type IconComponent = ComponentType<{ className?: string }>
+
+// Platform icon mapping (matches social-icon-picker.tsx)
+const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
+  instagram: SiInstagram,
+  tiktok: SiTiktok,
+  youtube: SiYoutube,
+  spotify: SiSpotify,
+  twitter: SiX,
+  soundcloud: SiSoundcloud,
+  applemusic: SiApplemusic,
+  bandcamp: SiBandcamp,
+  deezer: Music,
+  amazonmusic: SiAmazonmusic,
+  facebook: SiFacebook,
+  threads: SiThreads,
+  bluesky: SiBluesky,
+  snapchat: SiSnapchat,
+  pinterest: SiPinterest,
+  linkedin: SiLinkedin,
+  whatsapp: SiWhatsapp,
+  twitch: SiTwitch,
+  kick: SiKick,
+  discord: SiDiscord,
+  website: Globe,
+  email: Mail,
+  patreon: SiPatreon,
+  venmo: SiVenmo,
+  cashapp: SiCashapp,
+  paypal: SiPaypal,
+}
 
 interface StaticProfileHeaderProps {
   displayName: string | null
@@ -17,8 +57,10 @@ interface StaticProfileHeaderProps {
   logoScale: number
   profileLayout: "classic" | "hero"
   headerTextColor: string | null
-  // Social icons stored as JSON string in database
+  // Social icons
+  showSocialIcons: boolean
   socialIconsJson?: string | null
+  socialIconSize?: number
   // Theme fonts
   fuzzyEnabled?: boolean
   fuzzyIntensity?: number
@@ -48,7 +90,9 @@ export function StaticProfileHeader({
   logoScale,
   profileLayout,
   headerTextColor,
+  showSocialIcons,
   socialIconsJson,
+  socialIconSize = 24,
   fuzzyEnabled = false,
   fuzzyIntensity = 0.19,
   fuzzySpeed = 12,
@@ -57,6 +101,41 @@ export function StaticProfileHeader({
   const socialIcons: SocialIcon[] = socialIconsJson
     ? JSON.parse(socialIconsJson)
     : []
+
+  // Sort social icons by sortKey
+  const sortedIcons = [...socialIcons].sort((a, b) =>
+    a.sortKey.localeCompare(b.sortKey)
+  )
+
+  // Render social icons
+  const renderSocialIcons = () => {
+    if (!showSocialIcons || sortedIcons.length === 0) return null
+
+    return (
+      <div className="flex flex-wrap justify-center gap-3 mt-2">
+        {sortedIcons.map((icon) => {
+          const IconComponent = PLATFORM_ICONS[icon.platform]
+          if (!IconComponent) return null
+
+          return (
+            <a
+              key={icon.id}
+              href={icon.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-opacity hover:opacity-70"
+              aria-label={icon.platform}
+              style={headerTextColor ? { color: headerTextColor } : undefined}
+            >
+              <div style={{ width: socialIconSize, height: socialIconSize }}>
+                <IconComponent className="w-full h-full" />
+              </div>
+            </a>
+          )
+        })}
+      </div>
+    )
+  }
 
   // Render logo
   const renderLogo = () => {
@@ -177,6 +256,9 @@ export function StaticProfileHeader({
 
         {/* Bio */}
         {renderBio()}
+
+        {/* Social Icons */}
+        {renderSocialIcons()}
       </div>
     )
   }
@@ -203,11 +285,12 @@ export function StaticProfileHeader({
         </div>
       )}
 
-      {/* Logo, Title, Bio below banner */}
+      {/* Logo, Title, Bio, Social Icons below banner */}
       <div className="flex flex-col items-center gap-4 p-4">
         {renderLogo()}
         {renderTitle()}
         {renderBio()}
+        {renderSocialIcons()}
       </div>
     </div>
   )

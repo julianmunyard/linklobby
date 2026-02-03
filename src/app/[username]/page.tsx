@@ -58,6 +58,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         logoScale={profile.logo_scale}
         profileLayout={profile.profile_layout}
         headerTextColor={profile.header_text_color}
+        showSocialIcons={profile.show_social_icons}
         socialIconsJson={profile.social_icons}
         fuzzyEnabled={fuzzyEnabled}
         fuzzyIntensity={fuzzyIntensity}

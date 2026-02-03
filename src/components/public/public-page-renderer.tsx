@@ -16,6 +16,7 @@ interface PublicPageRendererProps {
   logoScale: number
   profileLayout: "classic" | "hero"
   headerTextColor: string | null
+  showSocialIcons: boolean
   socialIconsJson?: string | null
   // Theme fonts
   fuzzyEnabled?: boolean
@@ -47,6 +48,7 @@ export function PublicPageRenderer({
   logoScale,
   profileLayout,
   headerTextColor,
+  showSocialIcons,
   socialIconsJson,
   fuzzyEnabled,
   fuzzyIntensity,
@@ -69,6 +71,7 @@ export function PublicPageRenderer({
         logoScale={logoScale}
         profileLayout={profileLayout}
         headerTextColor={headerTextColor}
+        showSocialIcons={showSocialIcons}
         socialIconsJson={socialIconsJson}
         fuzzyEnabled={fuzzyEnabled}
         fuzzyIntensity={fuzzyIntensity}
