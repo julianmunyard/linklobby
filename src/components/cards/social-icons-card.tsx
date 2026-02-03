@@ -33,7 +33,7 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
   }
 
   return (
-    <div className="w-full flex gap-4 justify-center py-2">
+    <div className="w-full flex flex-wrap gap-4 justify-center py-2">
       {socialIcons.map((icon) => {
         const Icon = PLATFORM_ICONS[icon.platform]
         return (
