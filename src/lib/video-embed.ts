@@ -3,17 +3,25 @@ import getVideoId from 'get-video-id'
 
 export interface VideoEmbedInfo {
   id: string
-  service: 'youtube' | 'vimeo' | 'tiktok'
+  service: 'youtube' | 'vimeo' | 'tiktok' | 'instagram'
   thumbnailUrl: string
   embedUrl: string
   title?: string
+  isVertical?: boolean  // True for TikTok and Instagram Reels (9:16 aspect ratio)
 }
 
 export async function parseVideoUrl(url: string): Promise<VideoEmbedInfo> {
+  // Check for Instagram URLs first (before get-video-id)
+  const instagramMatch = url.match(/instagram\.com\/(p|reel|reels)\/([a-zA-Z0-9_-]+)/)
+  if (instagramMatch) {
+    const isReel = instagramMatch[1] === 'reel' || instagramMatch[1] === 'reels'
+    return getInstagramInfo(instagramMatch[2], isReel)
+  }
+
   const result = getVideoId(url)
 
   if (!result.id || !result.service) {
-    throw new Error('Invalid video URL. Supported platforms: YouTube, Vimeo, TikTok')
+    throw new Error('Invalid video URL. Supported platforms: YouTube, Vimeo, TikTok, Instagram')
   }
 
   const { id, service } = result
@@ -91,5 +99,17 @@ async function getTikTokInfo(url: string): Promise<VideoEmbedInfo> {
     service: 'tiktok',
     thumbnailUrl: '', // TikTok embeds are iframe-only, no reliable thumbnail
     embedUrl: url,    // Store full URL (TikTok requires original URL)
+    isVertical: true, // TikTok videos are always 9:16
+  }
+}
+
+function getInstagramInfo(postId: string, isReel: boolean): VideoEmbedInfo {
+  // Instagram oEmbed requires access token - use direct embed instead
+  return {
+    id: postId,
+    service: 'instagram',
+    thumbnailUrl: '', // No reliable thumbnail without API access
+    embedUrl: `https://www.instagram.com/p/${postId}/embed/`,
+    isVertical: isReel, // Only reels are vertical (9:16), regular posts can be any aspect
   }
 }
