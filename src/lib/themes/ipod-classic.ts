@@ -8,12 +8,12 @@ export const ipodClassicTheme: ThemeConfig = {
   isListLayout: true,
 
   defaultColors: {
-    background: '#e8e0d0',           // Page background - subtle gradient effect via CSS
-    cardBg: '#c8c8c8',               // LCD screen gray
-    text: '#1a1a1a',                 // Dark text
-    accent: '#2a6eff',               // Selection blue
-    border: '#1a1a1a',               // Bezel black
-    link: '#1a1a1a',                 // Dark links
+    background: '#e8e0d0',           // Page background
+    cardBg: '#C2C1BA',               // LCD screen gray (classic iPod color)
+    text: '#3d3c39',                 // Dark text on LCD
+    accent: '#3d3c39',               // Selection/highlight color
+    border: '#3d3c39',               // LCD text/border
+    link: '#3d3c39',                 // Links
   },
 
   defaultFonts: {
@@ -32,51 +32,51 @@ export const ipodClassicTheme: ThemeConfig = {
 
   palettes: [
     {
-      id: 'classic-ipod',
-      name: 'Classic iPod',
+      id: 'classic-grey',
+      name: 'Classic Grey',
       colors: {
         background: '#e8e0d0',
-        cardBg: '#c8c8c8',
-        text: '#1a1a1a',
-        accent: '#2a6eff',
-        border: '#1a1a1a',
-        link: '#1a1a1a',
+        cardBg: '#C2C1BA',            // Classic iPod LCD grey
+        text: '#3d3c39',
+        accent: '#3d3c39',
+        border: '#3d3c39',
+        link: '#3d3c39',
       },
     },
     {
-      id: 'ipod-mini-pink',
-      name: 'iPod Mini Pink',
+      id: 'green-backlight',
+      name: 'Green Backlight',
       colors: {
-        background: '#f5e0e8',
-        cardBg: '#c8c8c8',
-        text: '#1a1a1a',
-        accent: '#ff4d6d',
-        border: '#1a1a1a',
-        link: '#1a1a1a',
+        background: '#e8e0d0',
+        cardBg: '#a8d4a0',            // Green LCD
+        text: '#2d4a2d',
+        accent: '#2d4a2d',
+        border: '#2d4a2d',
+        link: '#2d4a2d',
       },
     },
     {
-      id: 'ipod-mini-blue',
-      name: 'iPod Mini Blue',
+      id: 'amber-backlight',
+      name: 'Amber',
       colors: {
-        background: '#d0e8f0',
-        cardBg: '#c8c8c8',
-        text: '#1a1a1a',
-        accent: '#0077b6',
-        border: '#1a1a1a',
-        link: '#1a1a1a',
+        background: '#e8e0d0',
+        cardBg: '#e8c87a',            // Amber LCD
+        text: '#4a3d1a',
+        accent: '#4a3d1a',
+        border: '#4a3d1a',
+        link: '#4a3d1a',
       },
     },
     {
-      id: 'ipod-mini-green',
-      name: 'iPod Mini Green',
+      id: 'blue-backlight',
+      name: 'Blue',
       colors: {
-        background: '#d8f0d0',
-        cardBg: '#c8c8c8',
-        text: '#1a1a1a',
-        accent: '#38b000',
-        border: '#1a1a1a',
-        link: '#1a1a1a',
+        background: '#e8e0d0',
+        cardBg: '#a0c4d4',            // Blue LCD
+        text: '#2d3d4a',
+        accent: '#2d3d4a',
+        border: '#2d3d4a',
+        link: '#2d3d4a',
       },
     },
   ],

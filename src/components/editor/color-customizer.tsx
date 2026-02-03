@@ -22,6 +22,12 @@ const COLOR_LABELS: Record<RequiredColorKey, string> = {
   link: 'Link',
 }
 
+// iPod theme only shows LCD screen color
+const IPOD_COLOR_KEYS = ['cardBg'] as const
+const IPOD_COLOR_LABELS: Record<string, string> = {
+  cardBg: 'LCD Screen',
+}
+
 export function ColorCustomizer() {
   const { themeId, paletteId, colors, setColor, setPalette, resetToThemeDefaults } = useThemeStore()
   const clearCardColorOverrides = usePageStore((state) => state.clearCardColorOverrides)
@@ -99,14 +105,27 @@ export function ColorCustomizer() {
           </Button>
         </div>
         <div className="space-y-3">
-          {REQUIRED_COLOR_KEYS.map((key) => (
-            <ColorPicker
-              key={key}
-              label={COLOR_LABELS[key]}
-              color={colors[key]}
-              onChange={(value) => setColor(key, value)}
-            />
-          ))}
+          {themeId === 'ipod-classic' ? (
+            // iPod theme: only show LCD screen color
+            IPOD_COLOR_KEYS.map((key) => (
+              <ColorPicker
+                key={key}
+                label={IPOD_COLOR_LABELS[key]}
+                color={colors[key]}
+                onChange={(value) => setColor(key, value)}
+              />
+            ))
+          ) : (
+            // All other themes: show all colors
+            REQUIRED_COLOR_KEYS.map((key) => (
+              <ColorPicker
+                key={key}
+                label={COLOR_LABELS[key]}
+                color={colors[key]}
+                onChange={(value) => setColor(key, value)}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
