@@ -15,7 +15,9 @@ Artists can embed content from major platforms (music, video, social) into their
 
 ### Embed Behavior
 - Load pattern: Claude decides per platform (e.g., music auto-embed, video click-to-load)
-- Card shape adapts to embed — Spotify track = wider, album = square, YouTube = 16:9
+- Embeds fit into predetermined card sizes (big/small like existing cards) — NOT card adapts to embed
+- Exception: 9:16 vertical content (Reels, TikTok videos) gets its own tall card treatment
+- Works like current video card — YouTube embeds fit nicely into the card container
 - Only one embed plays at a time — starting a new embed pauses any currently playing
 - Error state: Show "Content unavailable" message in card with platform icon when embed fails
 
@@ -59,7 +61,8 @@ Artists can embed content from major platforms (music, video, social) into their
 <specifics>
 ## Specific Ideas
 
-- Cards should adapt shape to the embed content (not force embeds into existing card sizes)
+- Embeds fit into existing card system (big/small sizing) like the current video card does
+- 9:16 vertical content (Reels, TikTok) is the exception — needs tall card format
 - One-at-a-time playback for cleaner user experience
 - Instagram and TikTok support both profile-level links and individual post/video embeds
 
