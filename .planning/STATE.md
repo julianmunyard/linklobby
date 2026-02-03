@@ -5,27 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 7 Theme System
+**Current focus:** Phase 8 Public Page
 
 ## Current Position
 
-Phase: 7 of 18 - Theme System (COMPLETE)
-Plan: 7 of 7 - Complete
-Status: **Phase 7 complete, ready for Phase 8**
-Last activity: 2026-02-03 - Quick task 032 (social icon size slider)
+Phase: 8 of 18 - Public Page (IN PROGRESS)
+Plan: 2 of 4 - Static Render Components Complete
+Status: **Phase 8 in progress - Dynamic route next**
+Last activity: 2026-02-03 - Completed 08-02-PLAN.md (Static Render Components)
 
-Progress: [██████████████████████████████] 100%
+Progress: [███████████████████████████████░░] 92%
 
-### NEXT UP: Phase 8 - Public Page
+### CURRENT: Phase 8 - Public Page
 
-The public profile page at `linklobby.com/username` is next. This includes:
-- Dynamic route `src/app/[username]/page.tsx`
-- Server-side data fetching for cards + profile
-- Theme application for visitors
-- SEO (Open Graph, Twitter Cards, sitemap)
-- Page states (Published, Coming Soon, 404)
+Building the public profile page at `linklobby.com/username`:
+- ✓ Plan 01: Data infrastructure (is_published, fetchPublicPageData)
+- ✓ Plan 02: Static render components (StaticFlowGrid, StaticProfileHeader, PublicPageRenderer)
+- → Plan 03: Dynamic route `[username]/page.tsx`
+- → Plan 04: SEO metadata and sitemap
 
-**To start:** Run `/gsd:plan-phase 8`
+**Next:** Implement dynamic route with server-side data fetching
 
 ### Dropdown Card Removed
 
@@ -57,7 +56,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 6 | Advanced Cards | Complete ✓ |
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
 | 7 | Theme System | Complete ✓ |
-| 8 | Public Page | - |
+| 8 | Public Page | In Progress (2/4) |
 | 9 | Platform Integrations | - |
 | 9.5 | Onboarding | - |
 
@@ -76,6 +75,27 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 8 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Data Infrastructure | Complete ✓ |
+| 02 | Dynamic Route | - |
+| 03 | SEO & Sitemap | - |
+
+**Summary:** .planning/phases/08-public-page/08-01-SUMMARY.md
+
+**Plan 01 commits (2026-02-03):**
+- `0be1894` - feat(08-01): add is_published column migration
+- `7da6a43` - feat(08-01): add Page and PublicPageData types
+- `f791f0b` - feat(08-01): create fetchPublicPageData helper
+
+**Key deliverables:**
+- is_published BOOLEAN column with partial index
+- fetchPublicPageData helper for server-side data fetching
+- Page and PublicPageData type definitions
+- Single-query data loading pattern established
 
 ## Phase 7 Progress (COMPLETE ✓)
 
