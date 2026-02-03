@@ -18,14 +18,14 @@ interface StaticFlowGridProps {
  *
  * Features:
  * - Filters out hidden cards (is_visible = false)
- * - Sorts cards by sortKey
+ * - Relies on database sort order (cards pre-sorted by sort_key)
  * - Flow layout: small cards 50% width, big cards 100% width
  */
 export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
-  // Filter out hidden cards and sort by sortKey
-  const visibleCards = cards
-    .filter(c => c.is_visible)
-    .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+  // Filter out hidden cards
+  // NOTE: Cards are already sorted by sort_key from the database query
+  // We don't re-sort here because the DB ordering matches fractional-indexing expectations
+  const visibleCards = cards.filter(c => c.is_visible)
 
   // Empty state
   if (visibleCards.length === 0) {
@@ -38,17 +38,43 @@ export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
 
   return (
     <div className="flex flex-wrap gap-4 min-h-[100px]">
-      {visibleCards.map((card) => (
-        <div
-          key={card.id}
-          className={cn(
-            "transition-all",
-            card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"
-          )}
-        >
-          <CardRenderer card={card} isPreview />
-        </div>
-      ))}
+      {visibleCards.map((card) => {
+        // Mini cards use w-fit with margin positioning
+        const isPositionableCard = card.card_type === "mini"
+
+        // Width class: mini = w-fit, link/horizontal = full, else size-based
+        const widthClass = isPositionableCard
+          ? "w-fit"
+          : card.card_type === "link" || card.card_type === "horizontal"
+            ? "w-full"
+            : card.size === "big"
+              ? "w-full"
+              : "w-[calc(50%-0.5rem)]"
+
+        // Position class for mini cards using margins
+        const positionClass = isPositionableCard
+          ? card.position === "right"
+            ? "ml-auto"
+            : card.position === "center"
+              ? "mx-auto"
+              : ""
+          : ""
+
+        return (
+          <div
+            key={card.id}
+            className={cn(
+              "transition-all",
+              widthClass,
+              positionClass,
+              // Gallery needs overflow visible for full-bleed effect
+              card.card_type === 'gallery' && "overflow-visible"
+            )}
+          >
+            <CardRenderer card={card} isPreview />
+          </div>
+        )
+      })}
     </div>
   )
 }
