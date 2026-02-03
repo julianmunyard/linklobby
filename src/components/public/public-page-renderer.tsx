@@ -106,6 +106,7 @@ export function PublicPageRenderer({
         headingSize={headingSize}
         bodySize={bodySize}
         accentColor={accentColor}
+        background={background}
       />
     )
   }

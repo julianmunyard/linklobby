@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card } from '@/types/card'
 import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
+import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
 
 interface IpodClassicLayoutProps {
   title: string
@@ -34,7 +35,6 @@ export function IpodClassicLayout({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
-  const colors = useThemeStore((s) => s.colors)
 
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
@@ -137,11 +137,13 @@ export function IpodClassicLayout({
     <div
       ref={containerRef}
       className="fixed inset-0 w-full z-10 overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, ${colors.background} 0%, ${colors.background}ee 100%)`,
-      }}
     >
-      <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Background layer (solid/image/video) */}
+      <PageBackground />
+      <DimOverlay />
+      <NoiseOverlay />
+
+      <div className="relative min-h-screen flex items-center justify-center p-4">
         {/* iPod Container */}
         <div className="ipod-container">
           {/* Screen Bezel */}

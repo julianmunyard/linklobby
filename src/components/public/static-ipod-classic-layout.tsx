@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card } from '@/types/card'
+import type { BackgroundConfig } from '@/types/theme'
 import { cn } from '@/lib/utils'
+import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
 
 interface StaticIpodClassicLayoutProps {
   title: string
@@ -10,6 +12,7 @@ interface StaticIpodClassicLayoutProps {
   headingSize?: number
   bodySize?: number
   accentColor?: string
+  background?: BackgroundConfig
 }
 
 /**
@@ -20,7 +23,8 @@ export function StaticIpodClassicLayout({
   title,
   cards,
   headingSize = 1.0,
-  bodySize = 1.0
+  bodySize = 1.0,
+  background = { type: 'solid', value: '#000000' }
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -124,11 +128,12 @@ export function StaticIpodClassicLayout({
     <div
       ref={containerRef}
       className="fixed inset-0 w-full z-10 overflow-hidden"
-      style={{
-        background: 'var(--theme-background)',
-      }}
     >
-      <div className="min-h-screen flex items-center justify-center p-4">
+      {/* Background layer (solid/image/video) */}
+      <StaticBackground background={background} />
+      <StaticNoiseOverlay background={background} />
+
+      <div className="relative min-h-screen flex items-center justify-center p-4">
         {/* iPod Container */}
         <div className="ipod-container">
           {/* Screen Bezel */}
