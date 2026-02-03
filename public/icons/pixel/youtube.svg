@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+  <!-- Rounded rectangle screen -->
+  <rect x="1" y="3" width="14" height="10"/>
+  <!-- Play triangle (cut out) -->
+  <rect x="6" y="5" width="2" height="6" fill="white"/>
+  <rect x="8" y="6" width="2" height="4" fill="white"/>
+  <rect x="10" y="7" width="1" height="2" fill="white"/>
+</svg>
