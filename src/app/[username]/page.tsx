@@ -43,6 +43,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const headingSize = themeSettings?.fonts?.headingSize ?? 1.8
   const bodySize = themeSettings?.fonts?.bodySize ?? 1.5
   const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
+  const accentColor = themeSettings?.colors?.accent ?? '#2a6eff'
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -82,6 +83,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         headingSize={headingSize}
         bodySize={bodySize}
         vcrCenterContent={vcrCenterContent}
+        accentColor={accentColor}
         cards={cards}
       />
 

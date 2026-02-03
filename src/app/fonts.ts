@@ -1,4 +1,6 @@
 import {
+  // System/Classic fonts
+  Inter,
   // Boutique Sans-Serif
   Plus_Jakarta_Sans,
   Sora,
@@ -19,6 +21,13 @@ import {
   Krona_One,
 } from 'next/font/google'
 import localFont from 'next/font/local'
+
+// System/Classic fonts
+export const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 // Boutique Sans-Serif fonts
 export const plusJakartaSans = Plus_Jakarta_Sans({
@@ -162,8 +171,16 @@ export const pixolde = localFont({
   display: 'swap',
 })
 
+export const pixterGranular = localFont({
+  src: '../../public/fonts/pixter-granular.ttf',
+  variable: '--font-pixter-granular',
+  display: 'swap',
+})
+
 // Combine all font variables for layout className
 export const fontVariables = [
+  // System/Classic
+  inter.variable,
   // Sans-Serif
   plusJakartaSans.variable,
   sora.variable,
@@ -191,10 +208,14 @@ export const fontVariables = [
   chiKareGo.variable,
   ishmeria.variable,
   pixolde.variable,
+  // VCR/VHS fonts
+  pixterGranular.variable,
 ].join(' ')
 
 // Font registry for UI font picker
 export const CURATED_FONTS = [
+  // System/Classic fonts
+  { id: 'inter', name: 'Inter', variable: 'var(--font-inter)', category: 'sans' as const },
   // Boutique Sans-Serif
   { id: 'jakarta', name: 'Plus Jakarta Sans', variable: 'var(--font-jakarta)', category: 'sans' as const },
   { id: 'sora', name: 'Sora', variable: 'var(--font-sora)', category: 'sans' as const },
@@ -221,6 +242,7 @@ export const CURATED_FONTS = [
   { id: 'chikarego', name: 'ChiKareGo', variable: 'var(--font-chikarego)', category: 'retro' as const },
   { id: 'ishmeria', name: 'Ishmeria', variable: 'var(--font-ishmeria)', category: 'retro' as const },
   { id: 'pixolde', name: 'Pixolde', variable: 'var(--font-pixolde)', category: 'retro' as const },
+  { id: 'pixter-granular', name: 'Pixter Granular', variable: 'var(--font-pixter-granular)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
