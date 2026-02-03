@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic'
 
 export interface ColorPalette {
   background: string      // Page background
