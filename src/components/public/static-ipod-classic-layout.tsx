@@ -9,6 +9,7 @@ interface StaticIpodClassicLayoutProps {
   cards: Card[]
   headingSize?: number
   bodySize?: number
+  accentColor?: string
 }
 
 /**
@@ -141,8 +142,8 @@ export function StaticIpodClassicLayout({
             <div className="ipod-screen">
               {/* Status Bar */}
               <div className="ipod-status-bar">
-                <span className="text-[11px] font-semibold lowercase tracking-wide">links</span>
-                <span className="text-[10px]">{'\u{1F50B}'}</span>
+                <span className="text-[11px] font-semibold lowercase tracking-wide">{title || 'links'}</span>
+                <span className="text-[11px] tracking-tight">[####]</span>
               </div>
 
               {/* Menu Header */}
