@@ -13,6 +13,7 @@ interface SocialIconsCardProps {
 export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
   const getSortedSocialIcons = useProfileStore((state) => state.getSortedSocialIcons)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
+  const socialIconSize = useProfileStore((state) => state.socialIconSize)
   const headerTextColor = useProfileStore((state) => state.headerTextColor)
 
   const socialIcons = getSortedSocialIcons()
@@ -42,11 +43,13 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
             href={isPreview ? icon.url : undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-theme-text/70 hover:text-theme-link transition-colors"
+            className="text-theme-text/70 hover:text-theme-link transition-colors inline-block"
             style={headerTextColor ? { color: headerTextColor, opacity: 0.7 } : undefined}
             onClick={isPreview ? undefined : (e) => e.preventDefault()}
           >
-            <Icon className="w-6 h-6" />
+            <div style={{ width: socialIconSize, height: socialIconSize }}>
+              <Icon className="w-full h-full" />
+            </div>
           </a>
         )
       })}

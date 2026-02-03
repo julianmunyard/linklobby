@@ -41,6 +41,8 @@ export async function GET() {
     profileLayout: profile.profile_layout,
     showSocialIcons: profile.show_social_icons,
     socialIcons: profile.social_icons || [],
+    socialIconSize: profile.social_icon_size ?? 24,
+    headerTextColor: profile.header_text_color,
   })
 }
 
@@ -71,11 +73,14 @@ export async function POST(request: Request) {
       profile_layout: body.profileLayout,
       show_social_icons: body.showSocialIcons,
       social_icons: body.socialIcons,
+      social_icon_size: body.socialIconSize,
+      header_text_color: body.headerTextColor,
       updated_at: new Date().toISOString(),
     })
     .eq('id', user.id)
 
   if (error) {
+    console.error('Profile update error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 

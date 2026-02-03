@@ -24,7 +24,17 @@ import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
 import { uploadProfileImage, type ProfileImageType } from "@/lib/supabase/storage"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import type { TitleSize, ProfileLayout } from "@/types/profile"
+
+// Check if file is HEIC/HEIF format
+function isHeicFile(file: File): boolean {
+  const heicTypes = ['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence']
+  if (heicTypes.includes(file.type.toLowerCase())) return true
+  // Also check extension since some browsers don't set MIME type for HEIC
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  return ext === 'heic' || ext === 'heif'
+}
 
 interface CollapsibleSectionProps {
   title: string
@@ -73,6 +83,7 @@ export function HeaderSection() {
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
+  const socialIconSize = useProfileStore((state) => state.socialIconSize)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -87,6 +98,7 @@ export function HeaderSection() {
   const setLogoScale = useProfileStore((state) => state.setLogoScale)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
+  const setSocialIconSize = useProfileStore((state) => state.setSocialIconSize)
 
   // Local state for crop dialog
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
@@ -100,35 +112,93 @@ export function HeaderSection() {
   const logoInputRef = useRef<HTMLInputElement>(null)
 
   // Handle file selection for avatar
-  const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploadError(null)
-    const reader = new FileReader()
-    reader.onload = () => {
-      setSelectedImage(reader.result as string)
-      setImageType("avatar")
-      setCropDialogOpen(true)
+
+    // Reset input so same file can be selected again
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = ""
     }
-    reader.readAsDataURL(file)
-    e.target.value = ""
+
+    // Convert HEIC to JPEG if needed
+    let fileToUse: Blob = file
+    const isHeic = isHeicFile(file)
+
+    if (isHeic) {
+      setIsUploading(true)
+      setImageType("avatar")
+      toast.info("Converting HEIC image...")
+      try {
+        const heic2anyModule = await import('heic2any')
+        const heic2any = heic2anyModule.default || heic2anyModule
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.9,
+        })
+        fileToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+      } catch (err) {
+        console.error("HEIC conversion failed:", err)
+        toast.error(`Failed to convert HEIC: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        setIsUploading(false)
+        return
+      }
+      setIsUploading(false)
+    }
+
+    // Create object URL for cropper
+    const objectUrl = URL.createObjectURL(fileToUse)
+    setSelectedImage(objectUrl)
+    setImageType("avatar")
+    setCropDialogOpen(true)
   }
 
   // Handle file selection for logo
-  const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploadError(null)
-    const reader = new FileReader()
-    reader.onload = () => {
-      setSelectedImage(reader.result as string)
-      setImageType("logo")
-      setCropDialogOpen(true)
+
+    // Reset input so same file can be selected again
+    if (logoInputRef.current) {
+      logoInputRef.current.value = ""
     }
-    reader.readAsDataURL(file)
-    e.target.value = ""
+
+    // Convert HEIC to JPEG if needed
+    let fileToUse: Blob = file
+    const isHeic = isHeicFile(file)
+
+    if (isHeic) {
+      setIsUploading(true)
+      setImageType("logo")
+      toast.info("Converting HEIC image...")
+      try {
+        const heic2anyModule = await import('heic2any')
+        const heic2any = heic2anyModule.default || heic2anyModule
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.9,
+        })
+        fileToUse = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+      } catch (err) {
+        console.error("HEIC conversion failed:", err)
+        toast.error(`Failed to convert HEIC: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        setIsUploading(false)
+        return
+      }
+      setIsUploading(false)
+    }
+
+    // Create object URL for cropper
+    const objectUrl = URL.createObjectURL(fileToUse)
+    setSelectedImage(objectUrl)
+    setImageType("logo")
+    setCropDialogOpen(true)
   }
 
   // Handle crop completion
@@ -223,7 +293,7 @@ export function HeaderSection() {
           <input
             ref={avatarInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,.heic,.heif"
             onChange={handleAvatarFileSelect}
             className="hidden"
           />
@@ -363,7 +433,7 @@ export function HeaderSection() {
           <input
             ref={logoInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,.heic,.heif"
             onChange={handleLogoFileSelect}
             className="hidden"
           />
@@ -428,6 +498,21 @@ export function HeaderSection() {
                 Add Social Icon
               </Button>
             </SocialIconPicker>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-muted-foreground">Icon Size</Label>
+                <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+              </div>
+              <Slider
+                value={[socialIconSize]}
+                onValueChange={(value) => setSocialIconSize(value[0])}
+                min={16}
+                max={48}
+                step={4}
+                className="w-full"
+              />
+            </div>
           </div>
         )}
           </CollapsibleSection>
@@ -442,6 +527,7 @@ export function HeaderSection() {
           imageSrc={selectedImage}
           onCropComplete={handleCropComplete}
           initialAspect={imageType === "avatar" ? 1 : undefined}
+          outputFormat={imageType === "logo" ? "image/png" : "image/jpeg"}
         />
       )}
     </section>
