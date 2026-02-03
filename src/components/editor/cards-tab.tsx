@@ -60,6 +60,14 @@ export function CardsTab() {
     }
   }
 
+  // Toggle card visibility
+  const handleToggleVisibility = (id: string) => {
+    const card = cards.find(c => c.id === id)
+    if (card) {
+      usePageStore.getState().updateCard(id, { is_visible: !card.is_visible })
+    }
+  }
+
   // Create card in DB first, then add to store with DB-generated id
   const handleAddCard = async (type: CardType) => {
     try {
@@ -195,6 +203,7 @@ export function CardsTab() {
               selectedCardId={selectedCardId}
               onSelectCard={selectCard}
               onDeleteCard={handleDeleteCard}
+              onToggleVisibility={handleToggleVisibility}
             />
           </CanvasContainer>
         )}

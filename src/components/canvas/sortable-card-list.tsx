@@ -25,6 +25,7 @@ interface SortableCardListProps {
   selectedCardId?: string | null
   onSelectCard?: (id: string) => void
   onDeleteCard?: (id: string) => void
+  onToggleVisibility?: (id: string) => void
 }
 
 export function SortableCardList({
@@ -33,6 +34,7 @@ export function SortableCardList({
   selectedCardId,
   onSelectCard,
   onDeleteCard,
+  onToggleVisibility,
 }: SortableCardListProps) {
   const [mounted, setMounted] = useState(false)
 
@@ -109,6 +111,7 @@ export function SortableCardList({
               isSelected={card.id === selectedCardId}
               onSelect={onSelectCard}
               onDelete={onDeleteCard}
+              onToggleVisibility={onToggleVisibility}
             />
           ))}
         </div>
