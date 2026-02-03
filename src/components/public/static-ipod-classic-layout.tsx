@@ -24,9 +24,20 @@ export function StaticIpodClassicLayout({
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const menuListRef = useRef<HTMLDivElement>(null)
 
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
+
+  // Auto-scroll selected item into view
+  useEffect(() => {
+    const menuList = menuListRef.current
+    if (!menuList) return
+    const selectedItem = menuList.children[selectedIndex] as HTMLElement
+    if (selectedItem) {
+      selectedItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [selectedIndex])
 
   // Activate selected link
   const activateLink = useCallback((card: Card) => {
@@ -140,7 +151,7 @@ export function StaticIpodClassicLayout({
               </div>
 
               {/* Menu List */}
-              <div className="ipod-menu-list">
+              <div ref={menuListRef} className="ipod-menu-list">
                 {visibleCards.length === 0 ? (
                   <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
                     No links
@@ -165,11 +176,6 @@ export function StaticIpodClassicLayout({
                     )
                   })
                 )}
-              </div>
-
-              {/* Screen Footer */}
-              <div className="ipod-screen-footer">
-                <span>{visibleCards.length} items</span>
               </div>
             </div>
           </div>

@@ -303,15 +303,15 @@
   align-items: center;
   padding: 6px 10px;
   background: #C2C1BA;
-  color: #1a1a1a;
-  border-bottom: 1px solid #1a1a1a;
+  color: #3d3c39;
+  border-bottom: 1px solid #3d3c39;
 }
 
 /* Battery Icon */
 .ipod-battery {
   width: 22px;
   height: 11px;
-  color: #1a1a1a;
+  color: #3d3c39;
 }
 
 /* Menu List */
@@ -332,7 +332,7 @@
   padding: 7px 10px;
   cursor: pointer;
   transition: none;
-  color: #1a1a1a;
+  color: #3d3c39;
   font-weight: 500;
 }
 
@@ -341,18 +341,8 @@
 }
 
 .ipod-menu-item.selected {
-  background: #000000;
+  background: #3d3c39;
   color: #C2C1BA;
-}
-
-/* Screen Footer */
-.ipod-screen-footer {
-  padding: 4px 10px;
-  background: #C2C1BA;
-  font-size: 10px;
-  color: #666;
-  text-align: right;
-  font-weight: 500;
 }
 
 /* Click Wheel */
