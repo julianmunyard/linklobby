@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X, Copy, Trash2 } from "lucide-react"
+import { X, Copy, Trash2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { validateAndFixUrl } from "@/lib/url-validation"
 
@@ -255,6 +255,26 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
       <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
         <Form {...form}>
           <form className="space-y-6">
+            {/* Visibility Toggle */}
+            <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-2">
+                {card.is_visible ? (
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="text-sm font-medium">
+                  {card.is_visible ? "Visible" : "Hidden"}
+                </span>
+              </div>
+              <Switch
+                checked={card.is_visible}
+                onCheckedChange={(checked) => {
+                  updateCard(card.id, { is_visible: checked })
+                }}
+              />
+            </div>
+
             {/* Card Type Picker - only for convertible types */}
             {isConvertibleType(card.card_type) && (
               <div className="space-y-2">

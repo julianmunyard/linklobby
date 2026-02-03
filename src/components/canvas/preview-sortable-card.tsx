@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Pencil } from "lucide-react"
+import { GripVertical, Pencil, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { MobileSelectCheckbox } from "@/components/editor/mobile-select-mode"
@@ -83,6 +83,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
       style={style}
       data-selectable-id={card.id}
       className={cn(
+        "relative",
         widthClass,
         isDragging && "opacity-0",
         "cursor-pointer",
@@ -99,14 +100,24 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
       onClick={handleClick}
       {...(isInteractive ? {} : { ...attributes, ...listeners })}
     >
+      {/* Hidden card overlay */}
+      {!card.is_visible && (
+        <div className="absolute inset-0 z-20 bg-black/50 rounded-lg flex items-center justify-center pointer-events-none">
+          <div className="bg-black/70 rounded-full p-2">
+            <EyeOff className="h-5 w-5 text-white" />
+          </div>
+        </div>
+      )}
+
       {/* Wrapper that intercepts all link clicks for non-interactive cards */}
       {isInteractive ? (
-        <div className="relative group/interactive">
+        <div className={cn("relative group/interactive", !card.is_visible && "opacity-50")}>
           {/* Mobile select checkbox overlay */}
           <MobileSelectCheckbox cardId={card.id} />
           <CardRenderer card={card} isPreview />
           {/* Transparent click overlay for selection - only shows when NOT selected */}
-          {!isSelected && (
+          {/* Skip for gallery cards so Stack can receive pointer events */}
+          {!isSelected && card.card_type !== 'gallery' && (
             <div
               className="absolute inset-0 z-[5] cursor-pointer"
               onClick={(e) => {
@@ -141,7 +152,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
           </div>
         </div>
       ) : (
-        <div className="relative pointer-events-none">
+        <div className={cn("relative pointer-events-none", !card.is_visible && "opacity-50")}>
           {/* Mobile select checkbox overlay */}
           <MobileSelectCheckbox cardId={card.id} />
           <div className="pointer-events-auto [&_a]:pointer-events-none">
