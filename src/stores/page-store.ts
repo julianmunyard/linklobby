@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
-import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
+import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent } from '@/types/card'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey } from '@/lib/ordering'
@@ -73,6 +73,11 @@ export const usePageStore = create<PageState>()(
           return { textAlign: 'center', verticalAlign: 'center' }
         case 'game':
           return { gameType: 'snake' }
+        case 'music':
+          return {
+            platform: undefined,
+            embedUrl: undefined,
+          } satisfies MusicCardContent
         default:
           return {}
       }

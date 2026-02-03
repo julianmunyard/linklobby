@@ -7,6 +7,7 @@ export type CardType =
   | 'gallery'
   | 'game'
   | 'audio'
+  | 'music'
   | 'social-icons'
   | 'link'
   | 'mini'
@@ -53,6 +54,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   gallery: ['big', 'small'],
   game: ['big', 'small'],
   audio: null, // Always full width
+  music: ['big', 'small'], // Music cards support sizing
   'social-icons': null, // Always full width - singleton widget
   link: null, // Always full width - simple text link
   mini: null, // Compact width - fits content
@@ -60,7 +62,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'video', 'gallery', 'game']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'music', 'video', 'gallery', 'game']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -157,7 +159,7 @@ export interface GalleryImage {
 }
 
 export interface GalleryCardContent {
-  galleryStyle: 'circular' | 'carousel'  // Default: 'circular'
+  galleryStyle: 'circular' | 'carousel' | 'stack'  // Default: 'circular'
   images: GalleryImage[]
   // ReactBits Circular Gallery settings (optional overrides)
   bend?: number             // Default: 1.5, range: -3 to 3
@@ -176,6 +178,22 @@ export interface GameCardContent {
   accentColor?: string  // Default: "#ffffff" - used for border and game elements
 }
 
+// Music platform types
+export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack'
+
+export interface MusicCardContent {
+  platform?: MusicPlatform       // Detected platform from URL
+  embedUrl?: string              // Original URL pasted by user
+  embedIframeUrl?: string        // Constructed iframe src
+  thumbnailUrl?: string          // From oEmbed (if available)
+  title?: string                 // From oEmbed (if available)
+  // Bandcamp-specific (requires page fetch to get IDs)
+  bandcampAlbumId?: string
+  bandcampTrackId?: string
+  textColor?: string             // Override text color
+  fuzzyText?: FuzzyTextSettings  // Distress text effect
+}
+
 // Game type info for UI display
 export const GAME_TYPE_INFO: Record<GameType, { label: string; description: string }> = {
   snake: { label: 'Snake', description: 'Classic snake game' },
@@ -184,7 +202,7 @@ export const GAME_TYPE_INFO: Record<GameType, { label: string; description: stri
 }
 
 // Union type for all card content
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | Record<string, unknown>
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
@@ -211,4 +229,8 @@ export function isGalleryContent(content: unknown): content is GalleryCardConten
 
 export function isGameContent(content: unknown): content is GameCardContent {
   return typeof content === 'object' && content !== null && 'gameType' in content
+}
+
+export function isMusicContent(content: unknown): content is MusicCardContent {
+  return typeof content === 'object' && content !== null
 }
