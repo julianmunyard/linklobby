@@ -16,6 +16,7 @@ import { getTheme, getThemeDefaults } from '@/lib/themes'
 interface ThemeStore extends ThemeState {
   // Additional state (not in ThemeState type)
   socialIconSize: number  // Icon size in pixels (16-48), default 24
+  hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
   setTheme: (themeId: ThemeId) => void
@@ -27,6 +28,11 @@ interface ThemeStore extends ThemeState {
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
   setSocialIconSize: (size: number) => void
   resetToThemeDefaults: () => void
+
+  // Database sync
+  markSaved: () => void
+  loadFromDatabase: (theme: ThemeState | null) => void
+  getSnapshot: () => ThemeState
 }
 
 const defaultThemeId: ThemeId = 'instagram-reels'
@@ -78,6 +84,7 @@ export const useThemeStore = create<ThemeStore>()(
     (set, get) => ({
       ...initialState,
       socialIconSize: 24,
+      hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
         const theme = getTheme(themeId)
@@ -96,6 +103,7 @@ export const useThemeStore = create<ThemeStore>()(
           background: state.background.type === 'solid'
             ? { ...state.background, value: defaults.colors.background }
             : state.background,
+          hasChanges: true,
         }))
       },
 
@@ -114,17 +122,19 @@ export const useThemeStore = create<ThemeStore>()(
           background: state.background.type === 'solid'
             ? { ...state.background, value: palette.colors.background }
             : state.background,
+          hasChanges: true,
         })
       },
 
       setColor: (key: keyof ColorPalette, value: string) => {
         set((state) => {
-          const newState: Partial<ThemeState> = {
+          const newState: Partial<ThemeStore> = {
             paletteId: null, // Custom color = no longer using preset
             colors: {
               ...state.colors,
               [key]: value,
             },
+            hasChanges: true,
           }
           // Sync background color with background.value when type is solid
           if (key === 'background' && state.background.type === 'solid') {
@@ -140,6 +150,7 @@ export const useThemeStore = create<ThemeStore>()(
             ...state.fonts,
             [key]: value,
           },
+          hasChanges: true,
         }))
       },
 
@@ -149,12 +160,13 @@ export const useThemeStore = create<ThemeStore>()(
             ...state.style,
             [key]: value,
           },
+          hasChanges: true,
         }))
       },
 
       setBackground: (background: BackgroundConfig) => {
         set((state) => {
-          const newState: Partial<ThemeState> = { background }
+          const newState: Partial<ThemeStore> = { background, hasChanges: true }
           // Sync solid background color with colors.background
           if (background.type === 'solid') {
             newState.colors = { ...state.colors, background: background.value }
@@ -169,11 +181,12 @@ export const useThemeStore = create<ThemeStore>()(
             ...state.cardTypeFontSizes,
             [cardType]: size,
           },
+          hasChanges: true,
         }))
       },
 
       setSocialIconSize: (size: number) => {
-        set({ socialIconSize: size })
+        set({ socialIconSize: size, hasChanges: true })
       },
 
       resetToThemeDefaults: () => {
@@ -191,7 +204,41 @@ export const useThemeStore = create<ThemeStore>()(
           background: state.background.type === 'solid'
             ? { ...state.background, value: defaults.colors.background }
             : state.background,
+          hasChanges: true,
         })
+      },
+
+      // Database sync methods
+      markSaved: () => {
+        set({ hasChanges: false })
+      },
+
+      loadFromDatabase: (theme: ThemeState | null) => {
+        if (!theme) return
+        // Load theme from database, don't mark as changed
+        set({
+          themeId: theme.themeId,
+          paletteId: theme.paletteId,
+          colors: theme.colors,
+          fonts: theme.fonts,
+          style: theme.style,
+          background: theme.background,
+          cardTypeFontSizes: theme.cardTypeFontSizes || initialState.cardTypeFontSizes,
+          hasChanges: false,
+        })
+      },
+
+      getSnapshot: (): ThemeState => {
+        const state = get()
+        return {
+          themeId: state.themeId,
+          paletteId: state.paletteId,
+          colors: state.colors,
+          fonts: state.fonts,
+          style: state.style,
+          background: state.background,
+          cardTypeFontSizes: state.cardTypeFontSizes,
+        }
       },
     }),
     {

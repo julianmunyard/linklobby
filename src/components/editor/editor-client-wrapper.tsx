@@ -11,6 +11,7 @@ import { useUnsavedChanges } from "@/hooks/use-unsaved-changes"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { toast } from "sonner"
 
 interface EditorClientWrapperProps {
@@ -25,12 +26,12 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
     cancelNavigation,
   } = useUnsavedChanges()
 
-  // Auto-save changes after 500ms of inactivity
+  // Auto-save changes after 500ms of inactivity, plus immediate save on blur
   useAutoSave(500)
 
   const markSaved = usePageStore((state) => state.markSaved)
 
-  // Load profile from database on mount
+  // Load profile and theme from database on mount
   useEffect(() => {
     async function loadProfile() {
       const response = await fetch('/api/profile')
@@ -39,7 +40,20 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
         useProfileStore.getState().initializeProfile(data)
       }
     }
+
+    async function loadTheme() {
+      const response = await fetch('/api/theme')
+      if (response.ok) {
+        const data = await response.json()
+        // Only load from DB if theme exists, otherwise keep localStorage
+        if (data.theme) {
+          useThemeStore.getState().loadFromDatabase(data.theme)
+        }
+      }
+    }
+
     loadProfile()
+    loadTheme()
   }, [])
 
   const handleSave = async () => {
@@ -62,6 +76,19 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
         })
         if (!response.ok) throw new Error('Failed to save profile')
         useProfileStore.getState().markSaved()
+      }
+
+      // Save theme if changed
+      const themeHasChanges = useThemeStore.getState().hasChanges
+      if (themeHasChanges) {
+        const theme = useThemeStore.getState().getSnapshot()
+        const response = await fetch('/api/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme }),
+        })
+        if (!response.ok) throw new Error('Failed to save theme')
+        useThemeStore.getState().markSaved()
       }
 
       toast.success("Changes saved")
