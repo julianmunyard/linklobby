@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { fetchPublicPageData } from "@/lib/supabase/public"
 import { PublicPageRenderer } from "@/components/public/public-page-renderer"
 import { ThemeInjector } from "@/components/public/theme-injector"
+import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOverlay } from "@/components/public/static-overlays"
 
 interface PublicPageProps {
   params: Promise<{
@@ -39,13 +40,23 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const fuzzyIntensity = themeSettings?.fonts?.fuzzyIntensity ?? 0.19
   const fuzzySpeed = themeSettings?.fonts?.fuzzySpeed ?? 12
 
+  // Background config for overlays
+  const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
+
   return (
     <>
       {/* Inject theme CSS variables server-side */}
       <ThemeInjector themeSettings={themeSettings} />
 
+      {/* Background (solid, image, or video) */}
+      <StaticBackground background={background} />
+
+      {/* Dim overlay (if enabled) */}
+      <StaticDimOverlay background={background} />
+
       {/* Render public page */}
       <PublicPageRenderer
+        background={background}
         displayName={profile.display_name}
         bio={profile.bio}
         avatarUrl={profile.avatar_url}
@@ -65,6 +76,12 @@ export default async function PublicPage({ params }: PublicPageProps) {
         fuzzySpeed={fuzzySpeed}
         cards={cards}
       />
+
+      {/* Noise overlay (if enabled) */}
+      <StaticNoiseOverlay background={background} />
+
+      {/* Frame overlay (if enabled) */}
+      <StaticFrameOverlay background={background} />
     </>
   )
 }

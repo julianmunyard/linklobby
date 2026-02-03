@@ -7,28 +7,37 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
-import { Loader2, Upload, Image, Video, Paintbrush } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
+import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon } from 'lucide-react'
 import type { BackgroundConfig } from '@/types/theme'
+
+// Available frame overlays
+const FRAME_OPTIONS = [
+  { id: '', label: 'None', path: '' },
+  { id: 'awge-tv', label: 'AWGE TV', path: '/frames/awge-tv.png' },
+] as const
 
 export function BackgroundControls() {
   const { background, setBackground } = useThemeStore()
   const [isUploading, setIsUploading] = useState(false)
+  const [isVideoUploading, setIsVideoUploading] = useState(false)
   const [videoUrl, setVideoUrl] = useState(background.type === 'video' ? background.value : '')
 
   const handleTypeChange = (type: BackgroundConfig['type']) => {
     if (!type) return
 
     if (type === 'solid') {
-      setBackground({ type: 'solid', value: background.type === 'solid' ? background.value : '#0a0a0a' })
+      setBackground({ ...background, type: 'solid', value: background.type === 'solid' ? background.value : '#0a0a0a' })
     } else if (type === 'image') {
-      setBackground({ type: 'image', value: background.type === 'image' ? background.value : '' })
+      setBackground({ ...background, type: 'image', value: background.type === 'image' ? background.value : '' })
     } else if (type === 'video') {
-      setBackground({ type: 'video', value: videoUrl || '' })
+      setBackground({ ...background, type: 'video', value: videoUrl || '' })
     }
   }
 
   const handleColorChange = (color: string) => {
-    setBackground({ type: 'solid', value: color })
+    setBackground({ ...background, type: 'solid', value: color })
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,10 +46,9 @@ export function BackgroundControls() {
 
     setIsUploading(true)
     try {
-      // Upload to Supabase storage
       const { uploadBackgroundImage } = await import('@/lib/storage')
       const url = await uploadBackgroundImage(file)
-      setBackground({ type: 'image', value: url })
+      setBackground({ ...background, type: 'image', value: url })
     } catch (error) {
       console.error('Background upload failed:', error)
     } finally {
@@ -48,21 +56,84 @@ export function BackgroundControls() {
     }
   }
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsVideoUploading(true)
+    try {
+      const { uploadBackgroundVideo } = await import('@/lib/storage')
+      const url = await uploadBackgroundVideo(file)
+      setVideoUrl(url)
+      setBackground({ ...background, type: 'video', value: url })
+    } catch (error) {
+      console.error('Video upload failed:', error)
+    } finally {
+      setIsVideoUploading(false)
+    }
+  }
+
   const handleVideoUrlChange = (url: string) => {
     setVideoUrl(url)
     if (background.type === 'video') {
-      setBackground({ type: 'video', value: url })
+      setBackground({ ...background, type: 'video', value: url })
     }
   }
 
   const handleVideoUrlBlur = () => {
     if (background.type === 'video' && videoUrl) {
-      setBackground({ type: 'video', value: videoUrl })
+      setBackground({ ...background, type: 'video', value: videoUrl })
     }
   }
 
+  // Frame overlay handlers
+  const handleFrameChange = (framePath: string) => {
+    setBackground({
+      ...background,
+      frameOverlay: framePath || undefined,
+      // When enabling frame, default frameFitContent to true; when disabling, reset all frame settings
+      ...(framePath
+        ? { frameFitContent: true }
+        : { frameZoom: undefined, framePositionX: undefined, framePositionY: undefined, frameFitContent: undefined })
+    })
+  }
+
+  const handleFrameZoomChange = (value: number[]) => {
+    setBackground({ ...background, frameZoom: value[0] })
+  }
+
+  const handleFramePositionXChange = (value: number[]) => {
+    setBackground({ ...background, framePositionX: value[0] })
+  }
+
+  const handleFramePositionYChange = (value: number[]) => {
+    setBackground({ ...background, framePositionY: value[0] })
+  }
+
+  const handleFrameFitContentChange = (checked: boolean) => {
+    setBackground({ ...background, frameFitContent: checked })
+  }
+
+  // Noise overlay handlers
+  const handleNoiseToggle = (checked: boolean) => {
+    setBackground({ ...background, noiseOverlay: checked })
+  }
+
+  const handleNoiseIntensityChange = (value: number[]) => {
+    setBackground({ ...background, noiseIntensity: value[0] })
+  }
+
+  // Dim overlay handlers
+  const handleDimToggle = (checked: boolean) => {
+    setBackground({ ...background, dimOverlay: checked })
+  }
+
+  const handleDimIntensityChange = (value: number[]) => {
+    setBackground({ ...background, dimIntensity: value[0] })
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Background Type Selector */}
       <div>
         <Label className="text-xs font-medium text-muted-foreground mb-2 block">Background Type</Label>
@@ -143,23 +214,62 @@ export function BackgroundControls() {
         </div>
       )}
 
-      {/* Video URL */}
+      {/* Video Upload & URL */}
       {background.type === 'video' && (
-        <div className="space-y-2">
-          <Label className="text-xs">Video URL</Label>
-          <Input
-            placeholder="https://example.com/video.mp4"
-            value={videoUrl}
-            onChange={(e) => handleVideoUrlChange(e.target.value)}
-            onBlur={handleVideoUrlBlur}
-          />
-          <p className="text-xs text-muted-foreground">
-            Enter a direct video URL (MP4). Video will autoplay muted on loop.
-          </p>
-          {videoUrl && (
+        <div className="space-y-4">
+          {/* Video Upload */}
+          <div className="space-y-2">
+            <Label className="text-xs">Upload Video</Label>
+            <Button
+              variant="outline"
+              className="w-full h-16 flex flex-col items-center justify-center gap-2"
+              onClick={() => document.getElementById('bg-video-input')?.click()}
+              disabled={isVideoUploading}
+            >
+              {isVideoUploading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="text-xs">Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  <span className="text-xs">Upload MP4, WebM, or MOV</span>
+                </>
+              )}
+            </Button>
+            <input
+              id="bg-video-input"
+              type="file"
+              accept="video/mp4,video/webm,video/ogg,video/quicktime,.mov"
+              className="hidden"
+              onChange={handleVideoUpload}
+            />
+          </div>
+
+          {/* OR divider */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">OR</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          {/* Video URL Input */}
+          <div className="space-y-2">
+            <Label className="text-xs">Video URL</Label>
+            <Input
+              placeholder="https://example.com/video.mp4"
+              value={videoUrl}
+              onChange={(e) => handleVideoUrlChange(e.target.value)}
+              onBlur={handleVideoUrlBlur}
+            />
+          </div>
+
+          {/* Video Preview */}
+          {(videoUrl || background.value) && (
             <div className="aspect-video rounded overflow-hidden bg-muted">
               <video
-                src={videoUrl}
+                src={videoUrl || background.value}
                 className="w-full h-full object-cover"
                 muted
                 loop
@@ -170,6 +280,158 @@ export function BackgroundControls() {
           )}
         </div>
       )}
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Frame Overlay Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Frame className="w-4 h-4 text-muted-foreground" />
+          <Label className="text-xs font-medium text-muted-foreground">Frame Overlay</Label>
+        </div>
+
+        {/* Frame Selection */}
+        <div className="flex gap-2 flex-wrap">
+          {FRAME_OPTIONS.map((frame) => (
+            <Button
+              key={frame.id}
+              variant={background.frameOverlay === frame.path || (!background.frameOverlay && !frame.path) ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleFrameChange(frame.path)}
+            >
+              {frame.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Frame Settings (only show when frame is selected) */}
+        {background.frameOverlay && (
+          <div className="space-y-4 pl-4 border-l-2 border-border">
+            {/* Fit Content Toggle */}
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Fit Content Inside Frame</Label>
+              <Switch
+                checked={background.frameFitContent ?? true}
+                onCheckedChange={handleFrameFitContentChange}
+              />
+            </div>
+
+            {/* Frame Zoom */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Frame Zoom</Label>
+                <span className="text-xs text-muted-foreground">{(background.frameZoom ?? 1).toFixed(2)}x</span>
+              </div>
+              <Slider
+                value={[background.frameZoom ?? 1]}
+                onValueChange={handleFrameZoomChange}
+                min={0.5}
+                max={2}
+                step={0.05}
+              />
+            </div>
+
+            {/* Frame Position X */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Position X</Label>
+                <span className="text-xs text-muted-foreground">{background.framePositionX ?? 0}%</span>
+              </div>
+              <Slider
+                value={[background.framePositionX ?? 0]}
+                onValueChange={handleFramePositionXChange}
+                min={-50}
+                max={50}
+                step={1}
+              />
+            </div>
+
+            {/* Frame Position Y */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Position Y</Label>
+                <span className="text-xs text-muted-foreground">{background.framePositionY ?? 0}%</span>
+              </div>
+              <Slider
+                value={[background.framePositionY ?? 0]}
+                onValueChange={handleFramePositionYChange}
+                min={-50}
+                max={50}
+                step={1}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Noise Overlay Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
+            <Label className="text-xs font-medium text-muted-foreground">Noise Overlay</Label>
+          </div>
+          <Switch
+            checked={background.noiseOverlay ?? false}
+            onCheckedChange={handleNoiseToggle}
+          />
+        </div>
+
+        {/* Noise Intensity (only show when enabled) */}
+        {background.noiseOverlay && (
+          <div className="space-y-2 pl-4 border-l-2 border-border">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Intensity</Label>
+              <span className="text-xs text-muted-foreground">{background.noiseIntensity ?? 15}%</span>
+            </div>
+            <Slider
+              value={[background.noiseIntensity ?? 15]}
+              onValueChange={handleNoiseIntensityChange}
+              min={5}
+              max={50}
+              step={1}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Dim Overlay Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Moon className="w-4 h-4 text-muted-foreground" />
+            <Label className="text-xs font-medium text-muted-foreground">Dim Background</Label>
+          </div>
+          <Switch
+            checked={background.dimOverlay ?? false}
+            onCheckedChange={handleDimToggle}
+          />
+        </div>
+
+        {/* Dim Intensity (only show when enabled) */}
+        {background.dimOverlay && (
+          <div className="space-y-2 pl-4 border-l-2 border-border">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Intensity</Label>
+              <span className="text-xs text-muted-foreground">{background.dimIntensity ?? 40}%</span>
+            </div>
+            <Slider
+              value={[background.dimIntensity ?? 40]}
+              onValueChange={handleDimIntensityChange}
+              min={10}
+              max={80}
+              step={5}
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

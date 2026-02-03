@@ -9,7 +9,11 @@ import { cn } from '@/lib/utils'
 import { Check, RotateCcw } from 'lucide-react'
 import type { ColorPalette } from '@/types/theme'
 
-const COLOR_LABELS: Record<keyof ColorPalette, string> = {
+// Required color keys (always shown in editor)
+const REQUIRED_COLOR_KEYS = ['background', 'cardBg', 'text', 'accent', 'border', 'link'] as const
+type RequiredColorKey = typeof REQUIRED_COLOR_KEYS[number]
+
+const COLOR_LABELS: Record<RequiredColorKey, string> = {
   background: 'Background',
   cardBg: 'Card',
   text: 'Text',
@@ -95,7 +99,7 @@ export function ColorCustomizer() {
           </Button>
         </div>
         <div className="space-y-3">
-          {(Object.keys(COLOR_LABELS) as Array<keyof ColorPalette>).map((key) => (
+          {REQUIRED_COLOR_KEYS.map((key) => (
             <ColorPicker
               key={key}
               label={COLOR_LABELS[key]}

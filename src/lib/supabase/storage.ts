@@ -177,16 +177,19 @@ export async function uploadCardVideo(
     throw new Error("Video must be less than 100MB")
   }
 
-  // Validate file type (MP4, WebM, OGG)
-  const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg']
-  if (!validVideoTypes.includes(file.type)) {
-    throw new Error("Video must be MP4, WebM, or OGG format")
+  // Validate file type (MP4, WebM, OGG, MOV/QuickTime)
+  const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime']
+  // Also check extension for MOV files that might have wrong MIME type
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "mp4"
+  const isMovByExtension = fileExt === 'mov'
+
+  if (!validVideoTypes.includes(file.type) && !isMovByExtension) {
+    throw new Error("Video must be MP4, WebM, OGG, or MOV format")
   }
 
   const supabase = createClient()
 
-  // Generate unique filename: cardId/uuid.ext
-  const fileExt = file.name.split(".").pop()?.toLowerCase() || "mp4"
+  // Generate unique filename: cardId/uuid.ext (fileExt already defined above)
   const fileName = `${cardId}/${crypto.randomUUID()}.${fileExt}`
 
   const { data, error } = await supabase.storage

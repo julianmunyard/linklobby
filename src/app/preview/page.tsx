@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
-import { PageBackground, FrameOverlay, NoiseOverlay } from "@/components/preview/page-background"
+import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -141,7 +141,7 @@ function PreviewContent() {
   const frameZoom = background.frameZoom ?? 1
   const framePosX = background.framePositionX ?? 0
   const framePosY = background.framePositionY ?? 0
-  const frameFitContent = background.frameFitContent ?? false
+  const frameFitContent = background.frameFitContent ?? true
 
   // Content fine-tuning values
   const contentOffsetX = background.contentOffsetX ?? 0
@@ -154,6 +154,8 @@ function PreviewContent() {
       <>
         {/* Page background (solid, image, or video) */}
         <PageBackground />
+        {/* Dim overlay */}
+        <DimOverlay />
 
         {/* Content container - sized horizontally to frame, full height so content scrolls behind */}
         <div
@@ -239,6 +241,8 @@ function PreviewContent() {
       >
         {/* Page background (solid, image, or video) */}
         <PageBackground />
+        {/* Dim overlay */}
+        <DimOverlay />
 
         {/* Profile Header at top */}
         <ProfileHeader />

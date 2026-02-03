@@ -1,12 +1,10 @@
 // src/components/cards/music-card.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { Music, Play } from 'lucide-react'
+import { useState } from 'react'
+import { Music } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { useThemeStore } from '@/stores/theme-store'
-import { useOptionalEmbedPlayback } from '@/components/providers/embed-provider'
 import { getEmbedUrl } from '@/lib/platform-embed'
 import type { Card, MusicCardContent, MusicPlatform } from '@/types/card'
 import { isMusicContent } from '@/types/card'
@@ -45,31 +43,7 @@ interface MusicCardProps {
 
 export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   const themeId = useThemeStore((state) => state.themeId)
-  const [isPlaying, setIsPlaying] = useState(false)
   const [loadError, setLoadError] = useState(false)
-  const playback = useOptionalEmbedPlayback()
-
-  // Register with playback coordination
-  useEffect(() => {
-    if (!playback || !card.id) return
-
-    const pauseFn = () => {
-      // Reset to thumbnail state (simplest way to "pause")
-      setIsPlaying(false)
-    }
-
-    playback.registerEmbed(card.id, pauseFn)
-
-    return () => {
-      playback.unregisterEmbed(card.id)
-    }
-  }, [playback, card.id])
-
-  // Handle play - notify playback context
-  const handlePlay = () => {
-    setIsPlaying(true)
-    playback?.setActiveEmbed(card.id)
-  }
 
   // Type guard for content
   if (!isMusicContent(card.content)) {
@@ -91,7 +65,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   // Get iframe URL
   const iframeUrl = embedIframeUrl || getEmbedUrl(embedUrl, platform)
 
-  // Error state
+  // Error state - fallback link to platform
   if (loadError) {
     return (
       <div className="relative w-full rounded-xl overflow-hidden bg-muted flex flex-col items-center justify-center p-6 text-center"
@@ -112,52 +86,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
     )
   }
 
-  // Click-to-load pattern (performance optimization)
-  if (!isPlaying) {
-    return (
-      <button
-        onClick={handlePlay}
-        className="relative w-full rounded-xl overflow-hidden bg-muted group cursor-pointer block"
-        style={{ minHeight: embedHeight }}
-        aria-label={`Play ${title || 'music'} on ${platform}`}
-      >
-        {/* Thumbnail or gradient background */}
-        {thumbnailUrl ? (
-          <Image
-            src={thumbnailUrl}
-            alt={title || 'Music thumbnail'}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 600px"
-          />
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, ${platformColor}20 0%, ${platformColor}05 100%)`
-            }}
-          />
-        )}
-
-        {/* Platform icon + play button */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ color: platformColor }} className="opacity-60">
-            <PlatformIcon className="h-12 w-12 mb-3" />
-          </span>
-          <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform group-hover:scale-110 border border-white/20">
-            <Play className="h-5 w-5 text-white ml-0.5" fill="currentColor" />
-          </div>
-          {title && (
-            <p className="mt-3 text-sm text-white/80 max-w-[80%] truncate">
-              {title}
-            </p>
-          )}
-        </div>
-      </button>
-    )
-  }
-
-  // Active embed
+  // Show embed directly (no click-to-load)
   return (
     <div className="relative w-full rounded-xl overflow-hidden">
       <iframe

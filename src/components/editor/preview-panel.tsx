@@ -19,7 +19,6 @@ export function PreviewPanel() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
-  const reorderCardsById = usePageStore((state) => state.reorderCardsById)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
@@ -67,11 +66,6 @@ export function PreviewPanel() {
           // Save immediately after reorder - don't wait for debounce
           saveCards()
           break
-        case "REORDER_CARDS_BY_ID":
-          reorderCardsById(event.data.payload.movedCardId, event.data.payload.targetCardId)
-          // Save immediately after reorder - don't wait for debounce
-          saveCards()
-          break
         case "REORDER_MULTIPLE_CARDS":
           reorderMultipleCards(event.data.payload.cardIds, event.data.payload.targetIndex)
           // Save immediately after reorder - don't wait for debounce
@@ -85,7 +79,7 @@ export function PreviewPanel() {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, reorderCardsById, reorderMultipleCards, selectCard, saveCards])
+  }, [reorderCards, reorderMultipleCards, selectCard, saveCards])
 
   // Send initial state when preview becomes ready
   useEffect(() => {

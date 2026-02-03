@@ -35,6 +35,7 @@ interface ImageCropDialogProps {
   imageSrc: string
   onCropComplete: (croppedBlob: Blob) => void
   initialAspect?: number // undefined = free
+  outputFormat?: 'image/jpeg' | 'image/png' // default: image/jpeg
 }
 
 export function ImageCropDialog({
@@ -43,6 +44,7 @@ export function ImageCropDialog({
   imageSrc,
   onCropComplete,
   initialAspect,
+  outputFormat = 'image/jpeg',
 }: ImageCropDialogProps) {
   // Crop state
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
@@ -81,7 +83,7 @@ export function ImageCropDialog({
 
     setIsSaving(true)
     try {
-      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels, 0)
+      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels, 0, outputFormat)
       onCropComplete(croppedBlob)
       onOpenChange(false)
     } catch (error) {

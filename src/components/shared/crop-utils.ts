@@ -14,7 +14,8 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
 export async function getCroppedImg(
   imageSrc: string,
   croppedAreaPixels: Area,
-  rotation = 0
+  rotation = 0,
+  outputFormat: 'image/jpeg' | 'image/png' = 'image/jpeg'
 ): Promise<Blob> {
   const image = await createImage(imageSrc)
   const canvas = document.createElement('canvas')
@@ -60,8 +61,8 @@ export async function getCroppedImg(
         if (blob) resolve(blob)
         else reject(new Error('Canvas toBlob failed'))
       },
-      'image/jpeg',
-      0.9 // 90% quality
+      outputFormat,
+      outputFormat === 'image/jpeg' ? 0.9 : undefined // 90% quality for JPEG
     )
   })
 }
