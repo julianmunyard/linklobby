@@ -304,10 +304,7 @@ export function IpodClassicLayout({
               className="ipod-wheel-button ipod-wheel-play"
               onClick={() => {}}
             >
-              <span className="flex items-center gap-[2px]">
-                <span className="text-[8px]">▶</span>
-                <span className="text-[8px]">║</span>
-              </span>
+              ▶ ❙❙
             </button>
 
             {/* Center Button */}

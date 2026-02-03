@@ -431,7 +431,6 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 10px;
-  letter-spacing: -1px;
 }
 
 .ipod-wheel-play:active {
