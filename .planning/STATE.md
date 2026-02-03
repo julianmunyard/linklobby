@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 9 of 18 - Platform Integrations (IN PROGRESS)
-Plan: 4 of 6 - Vertical Video Embed Support Complete
+Plan: 5 of 6 - Editor Integration Complete
 Status: **Executing Phase 9 - Platform embed support**
-Last activity: 2026-02-03 - Completed 09-04-PLAN.md (Vertical Video Embed Support)
+Last activity: 2026-02-03 - Completed 09-05-PLAN.md (Editor Integration)
 
-Progress: [████████████████████░░░░░░░░░░░░] ~55%
+Progress: [████████████████████░░░░░░░░░░░░] ~57%
 
 ### IN PROGRESS: Phase 9 - Platform Integrations
 
@@ -23,10 +23,10 @@ Building embed support for major platforms (Spotify, Apple Music, SoundCloud, Yo
 - ✓ Plan 02: Playback coordination context (EmbedPlaybackProvider)
 - ✓ Plan 03: Music card component and editor
 - ✓ Plan 04: Vertical video embed support (TikTok, Instagram Reels)
-- Plan 05: Social card enhancement
+- ✓ Plan 05: Editor integration (MusicCard in CardRenderer, playback coordination)
 - Plan 06: Platform verification
 
-**Current:** Plan 04 complete - Video card 9:16 vertical aspect ratio for TikTok and Instagram
+**Current:** Plan 05 complete - Music card fully integrated, playback coordination wired
 
 ### COMPLETE: Phase 8 - Public Page
 
@@ -508,6 +508,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | TikTok always vertical | 09-04 | TikTok videos are always 9:16 aspect ratio |
 | 325px max-width for vertical | 09-04 | Matches TikTok's embed max width for consistent vertical content |
 | 177.78% padding-bottom for 9:16 | 09-04 | Padding-bottom technique creates exact 9:16 aspect ratio (16/9 * 100)
+| useOptionalEmbedPlayback for embeds | 09-05 | Graceful degradation on public pages where provider might not exist
+| Pause resets to thumbnail state | 09-05 | Simplest pause - unloads heavy iframe, saves resources
 
 ## Quick Tasks
 
@@ -553,7 +555,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 02 | Playback Coordination Context | Complete ✓ |
 | 03 | Music Card Component | Complete ✓ |
 | 04 | Vertical Video Embed Support | Complete ✓ |
-| 05 | Social Card Enhancement | - |
+| 05 | Editor Integration | Complete ✓ |
 | 06 | Platform Verification | - |
 
 **Summaries:**
@@ -561,27 +563,29 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 - Plan 02: .planning/phases/09-platform-integrations/09-02-SUMMARY.md
 - Plan 03: .planning/phases/09-platform-integrations/09-03-SUMMARY.md
 - Plan 04: .planning/phases/09-platform-integrations/09-04-SUMMARY.md
+- Plan 05: .planning/phases/09-platform-integrations/09-05-SUMMARY.md
 
-**Plan 04 commits (2026-02-03):**
-- `b0aaa02` - feat(09-04): add Instagram support and isVertical flag to video-embed.ts
-- `bdc9624` - feat(09-04): add vertical 9:16 aspect ratio support for TikTok and Instagram
+**Plan 05 commits (2026-02-03):**
+- `499e22a` - feat(09-05): integrate MusicCard into CardRenderer and PropertyEditor
+- `23e3ce9` - feat(09-05): wire playback coordination into music and video cards
 
 **Key deliverables:**
-- Instagram URL detection and parsing in video-embed.ts
-- isVertical flag for TikTok and Instagram Reels
-- VerticalEmbedContainer component (max-width 325px, 9:16 aspect ratio)
-- Vertical content renders in proper tall container with centered layout
+- MusicCard renders in CardRenderer switch statement
+- MusicCardFields in property editor for music card type
+- Music card in Add Card dropdown menu
+- Playback coordination with useOptionalEmbedPlayback in music-card.tsx and video-card.tsx
+- Starting one embed pauses others (resets to thumbnail state)
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 09-04-PLAN.md (Vertical Video Embed Support)
-Stopped at: Phase 9 Plan 04 complete
+Last activity: 2026-02-03 - Completed 09-05-PLAN.md (Editor Integration)
+Stopped at: Phase 9 Plan 05 complete
 Resume file: None
 
-**Phase 9 Progress:** Plan 04 complete. Ready for Plan 05 (Social card enhancement).
+**Phase 9 Progress:** Plan 05 complete. Ready for Plan 06 (Platform verification).
 
-**Next plan:** 09-05 - Social card enhancement
+**Next plan:** 09-06 - Platform verification
 
 **This session's work (2026-02-03):**
 
