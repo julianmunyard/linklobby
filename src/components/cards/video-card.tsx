@@ -5,7 +5,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Play, Video } from 'lucide-react'
 import { useThemeStore } from '@/stores/theme-store'
-import type { Card } from '@/types/card'
+import type { Card, CardSize } from '@/types/card'
 import { isVideoContent, type VideoCardContent } from '@/types/card'
 
 // Retro Mac-style video control bar for System Settings theme
@@ -44,18 +44,22 @@ function RetroVideoControlBar({ title }: { title?: string | null }) {
 interface VideoCardProps {
   card: Card
   isPreview?: boolean
+  size?: CardSize
 }
 
-export function VideoCard({ card, isPreview = false }: VideoCardProps) {
+export function VideoCard({ card, isPreview = false, size = 'big' }: VideoCardProps) {
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.video)
   const themeId = useThemeStore((state) => state.themeId)
   const isSystemSettings = themeId === 'system-settings'
+
+  // Small video cards use square aspect ratio to match square cards
+  const aspectClass = size === 'small' ? 'aspect-square' : 'aspect-video'
 
   // Use type guard to safely cast content
   if (!isVideoContent(card.content)) {
     // Fallback for cards with invalid content
     return (
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+      <div className={`relative w-full ${aspectClass} rounded-xl overflow-hidden bg-muted flex items-center justify-center`}>
         <div className="text-center text-muted-foreground">
           <Video className="h-12 w-12 mx-auto mb-2" />
           <p>Add video URL or upload video</p>
@@ -82,6 +86,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         textColor={textColor}
         fontSize={fontSize}
         showRetroControls={isSystemSettings}
+        size={size}
       />
     )
   }
@@ -99,13 +104,14 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         textColor={textColor}
         fontSize={fontSize}
         showRetroControls={isSystemSettings}
+        size={size}
       />
     )
   }
 
   // Placeholder when no video configured
   return (
-    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+    <div className={`relative w-full ${aspectClass} rounded-xl overflow-hidden bg-muted flex items-center justify-center`}>
       <div className="text-center text-muted-foreground">
         <Video className="h-12 w-12 mx-auto mb-2" />
         <p>Add video URL or upload video</p>
@@ -129,6 +135,7 @@ interface VideoCardUploadProps {
   textColor?: string
   fontSize?: number
   showRetroControls?: boolean
+  size?: CardSize
 }
 
 function VideoCardUpload({
@@ -142,7 +149,11 @@ function VideoCardUpload({
   textColor = '#ffffff',
   fontSize = 1,
   showRetroControls = false,
+  size = 'big',
 }: VideoCardUploadProps) {
+  // Small video cards use square aspect ratio to match square cards
+  const aspectClass = size === 'small' ? 'aspect-square' : 'aspect-video'
+
   // Text alignment classes
   const textAlignClass = {
     left: 'text-left',
@@ -159,7 +170,7 @@ function VideoCardUpload({
 
   return (
     <div className="relative w-full flex flex-col">
-      <div className="relative w-full aspect-video overflow-hidden bg-black">
+      <div className={`relative w-full ${aspectClass} overflow-hidden bg-black`}>
         <video
           src={videoUrl}
           autoPlay
@@ -205,6 +216,7 @@ interface VideoCardEmbedProps {
   textColor?: string
   fontSize?: number
   showRetroControls?: boolean
+  size?: CardSize
 }
 
 function VideoCardEmbed({
@@ -218,8 +230,12 @@ function VideoCardEmbed({
   textColor = '#ffffff',
   fontSize = 1,
   showRetroControls = false,
+  size = 'big',
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // Small video cards use square aspect ratio to match square cards
+  const aspectClass = size === 'small' ? 'aspect-square' : 'aspect-video'
 
   // Text alignment classes
   const textAlignClass = {
@@ -247,7 +263,7 @@ function VideoCardEmbed({
   if (isPlaying) {
     return (
       <div className="relative w-full flex flex-col">
-        <div className="relative w-full aspect-video overflow-hidden bg-black">
+        <div className={`relative w-full ${aspectClass} overflow-hidden bg-black`}>
           <iframe
             src={getEmbedUrl()}
             className="w-full h-full"
@@ -266,7 +282,7 @@ function VideoCardEmbed({
     <div className="relative w-full flex flex-col">
       <button
         onClick={() => setIsPlaying(true)}
-        className="relative w-full aspect-video overflow-hidden bg-muted group cursor-pointer block"
+        className={`relative w-full ${aspectClass} overflow-hidden bg-muted group cursor-pointer block`}
         aria-label={`Play ${title || 'video'}`}
       >
         {/* Thumbnail image or placeholder */}

@@ -41,7 +41,7 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       cardContent = <LinkCard card={card} isPreview={isPreview} />
       break
     case "video":
-      cardContent = <VideoCard card={card} isPreview={isPreview} />
+      cardContent = <VideoCard card={card} isPreview={isPreview} size={card.size} />
       break
     case "gallery":
       cardContent = <GalleryCard card={card} isPreview={isPreview} />
