@@ -32,27 +32,11 @@ export function IpodClassicLayout({
   selectedCardId
 }: IpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [currentTime, setCurrentTime] = useState(new Date())
   const containerRef = useRef<HTMLDivElement>(null)
   const colors = useThemeStore((s) => s.colors)
 
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
-
-  // Update clock every second
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
-
-  // Format time as "12:34 pm"
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).toLowerCase()
-  }
 
   // Activate selected link
   const activateLink = useCallback((card: Card) => {
@@ -153,16 +137,19 @@ export function IpodClassicLayout({
           <div className="ipod-screen-bezel">
             {/* LCD Screen */}
             <div className="ipod-screen">
-              {/* Status Bar */}
-              <div className="ipod-status-bar">
-                <span className="text-[11px] font-semibold lowercase tracking-wide">{title || 'links'}</span>
-                <span className="text-[11px] tracking-tight">[####]</span>
-              </div>
-
-              {/* Menu Header */}
-              <div className="ipod-menu-header">
+              {/* Title Bar - Arrow | Title | Battery */}
+              <div className="ipod-title-bar">
+                <span className="text-[11px]">▶</span>
                 <span className="font-bold text-[12px] tracking-wide">{displayTitle}</span>
-                <span className="text-[11px] font-medium tabular-nums">{formatTime(currentTime)}</span>
+                {/* Old-school battery icon */}
+                <svg className="ipod-battery" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="0.5" y="0.5" width="20" height="11" rx="1.5" stroke="currentColor" strokeWidth="1" fill="none"/>
+                  <rect x="21" y="3" width="3" height="6" rx="1" fill="currentColor"/>
+                  <rect x="2" y="2" width="4" height="8" fill="currentColor"/>
+                  <rect x="7" y="2" width="4" height="8" fill="currentColor"/>
+                  <rect x="12" y="2" width="4" height="8" fill="currentColor"/>
+                  <rect x="17" y="2" width="2" height="8" fill="currentColor"/>
+                </svg>
               </div>
 
               {/* Menu List */}
