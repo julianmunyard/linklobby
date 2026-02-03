@@ -11,6 +11,7 @@ import type { SocialPlatform } from '@/types/profile'
  * These get extracted as social icons rather than cards
  */
 const SOCIAL_PROFILE_PATTERNS: { platform: SocialPlatform; patterns: RegExp[] }[] = [
+  // === Big 5 ===
   {
     platform: 'instagram',
     patterns: [
@@ -52,6 +53,105 @@ const SOCIAL_PROFILE_PATTERNS: { platform: SocialPlatform; patterns: RegExp[] }[
       /x\.com\/(?!status\/|i\/|search|explore|home)[a-zA-Z0-9_]+\/?$/i,
     ],
   },
+
+  // === Music Platforms ===
+  {
+    platform: 'soundcloud',
+    patterns: [/soundcloud\.com\/[a-zA-Z0-9_-]+\/?$/i],
+  },
+  {
+    platform: 'applemusic',
+    patterns: [/music\.apple\.com\/.*\/artist\//i],
+  },
+  {
+    platform: 'bandcamp',
+    patterns: [/[a-zA-Z0-9_-]+\.bandcamp\.com\/?$/i],
+  },
+  {
+    platform: 'deezer',
+    patterns: [/deezer\.com\/.*\/artist\//i],
+  },
+  {
+    platform: 'amazonmusic',
+    patterns: [/music\.amazon\..*\/artists\//i],
+  },
+
+  // === Social Platforms ===
+  {
+    platform: 'facebook',
+    patterns: [
+      // facebook.com/pagename (not /watch, /events, /groups)
+      /facebook\.com\/(?!watch|events|groups)[a-zA-Z0-9.]+\/?$/i,
+      /fb\.com\/[a-zA-Z0-9.]+\/?$/i,
+    ],
+  },
+  {
+    platform: 'threads',
+    patterns: [/threads\.net\/@?[a-zA-Z0-9_.]+\/?$/i],
+  },
+  {
+    platform: 'bluesky',
+    patterns: [/bsky\.app\/profile\/[a-zA-Z0-9._-]+/i],
+  },
+  {
+    platform: 'snapchat',
+    patterns: [
+      /snapchat\.com\/add\/[a-zA-Z0-9_-]+/i,
+      /snapchat\.com\/t\/[a-zA-Z0-9_-]+/i,
+    ],
+  },
+  {
+    platform: 'pinterest',
+    patterns: [/pinterest\.com\/[a-zA-Z0-9_-]+\/?$/i],
+  },
+  {
+    platform: 'linkedin',
+    patterns: [/linkedin\.com\/in\/[a-zA-Z0-9_-]+/i],
+  },
+  {
+    platform: 'whatsapp',
+    patterns: [
+      /wa\.me\/[0-9]+/i,
+      /api\.whatsapp\.com\/send/i,
+    ],
+  },
+
+  // === Streaming ===
+  {
+    platform: 'twitch',
+    patterns: [/twitch\.tv\/[a-zA-Z0-9_]+\/?$/i],
+  },
+  {
+    platform: 'kick',
+    patterns: [/kick\.com\/[a-zA-Z0-9_]+\/?$/i],
+  },
+
+  // === Community ===
+  {
+    platform: 'discord',
+    patterns: [
+      /discord\.gg\/[a-zA-Z0-9]+/i,
+      /discord\.com\/invite\/[a-zA-Z0-9]+/i,
+    ],
+  },
+
+  // === Support/Payment ===
+  {
+    platform: 'patreon',
+    patterns: [/patreon\.com\/[a-zA-Z0-9_]+\/?$/i],
+  },
+  {
+    platform: 'venmo',
+    patterns: [/venmo\.com\/[a-zA-Z0-9_-]+\/?$/i],
+  },
+  {
+    platform: 'cashapp',
+    patterns: [/cash\.app\/\$[a-zA-Z0-9_]+/i],
+  },
+  {
+    platform: 'paypal',
+    patterns: [/paypal\.me\/[a-zA-Z0-9_]+/i],
+  },
 ]
 
 /**
@@ -69,14 +169,52 @@ function detectSocialPlatform(url: string): SocialPlatform | null {
 
 /**
  * Map Linktree's social type strings to our SocialPlatform type
+ * Includes all platforms Linktree may report in their socialLinks array
  */
 const LINKTREE_SOCIAL_TYPE_MAP: Record<string, SocialPlatform> = {
+  // Big 5
   'INSTAGRAM': 'instagram',
   'TIKTOK': 'tiktok',
   'YOUTUBE': 'youtube',
   'SPOTIFY': 'spotify',
   'TWITTER': 'twitter',
   'X': 'twitter',  // Linktree may use "X" now
+
+  // Music platforms
+  'SOUNDCLOUD': 'soundcloud',
+  'APPLEMUSIC': 'applemusic',
+  'APPLE_MUSIC': 'applemusic',
+  'BANDCAMP': 'bandcamp',
+  'DEEZER': 'deezer',
+  'AMAZONMUSIC': 'amazonmusic',
+  'AMAZON_MUSIC': 'amazonmusic',
+
+  // Social platforms
+  'FACEBOOK': 'facebook',
+  'THREADS': 'threads',
+  'BLUESKY': 'bluesky',
+  'SNAPCHAT': 'snapchat',
+  'PINTEREST': 'pinterest',
+  'LINKEDIN': 'linkedin',
+  'WHATSAPP': 'whatsapp',
+
+  // Streaming
+  'TWITCH': 'twitch',
+  'KICK': 'kick',
+
+  // Community
+  'DISCORD': 'discord',
+
+  // Support/Payment
+  'PATREON': 'patreon',
+  'VENMO': 'venmo',
+  'CASHAPP': 'cashapp',
+  'CASH_APP': 'cashapp',
+  'PAYPAL': 'paypal',
+
+  // Generic
+  'EMAIL': 'email',
+  'WEBSITE': 'website',
 }
 
 /**
