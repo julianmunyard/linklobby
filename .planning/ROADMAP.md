@@ -31,7 +31,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [ ] Phase 6: Advanced Cards *(Dropdown + Game Card)*
 - [ ] Phase 6.1: Dropdown Card Fix *(collapse, drag, reorder)*
 - [ ] Phase 7: Theme System *(core differentiator)*
-- [ ] Phase 8: Public Page *(includes page states, SEO, draft sharing)*
+- [x] Phase 8: Public Page *(includes page states, SEO, draft sharing)* ✓
 - [ ] Phase 9: Platform Integrations
 - [ ] Phase 9.5: Onboarding *(first-time UX, templates)*
 
@@ -295,7 +295,13 @@ Plans:
 14. **Twitter Card** meta tags
 15. **Draft/Preview sharing** - shareable link for unpublished pages (for feedback)
 
-**Plans:** 3-4 plans
+**Plans:** 4 plans ✓
+
+Plans:
+- [x] 08-01-PLAN.md - Data Infrastructure (is_published, fetchPublicPageData)
+- [x] 08-02-PLAN.md - Static Render Components
+- [x] 08-03-PLAN.md - Dynamic Route & 404
+- [x] 08-04-PLAN.md - SEO Features (OG images, sitemap, robots.txt)
 
 ---
 

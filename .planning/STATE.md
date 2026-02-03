@@ -25,6 +25,16 @@ Built the public profile page at `linklobby.com/username`:
 - ✓ Plan 04: SEO metadata and sitemap
 
 **Phase complete:** Public pages fully functional with dynamic OG images, sitemap, and robots.txt
+**Verified:** 17/17 must-haves passed
+
+### NEXT UP: Phase 9 - Platform Integrations
+
+Embed content from major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
+- Auto-detect platform from URL
+- Render embedded players
+- Support music, video, and social platforms
+
+**To start:** Run `/gsd:discuss-phase 9` or `/gsd:plan-phase 9`
 
 ### Dropdown Card Removed
 
