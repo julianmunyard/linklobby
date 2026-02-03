@@ -45,7 +45,10 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   const [mounted, setMounted] = useState(false)
   const isDraggingRef = useRef(false)
 
-  // Multi-select state
+  // Filter out hidden cards from preview
+  const visibleCards = cards.filter(c => c.is_visible)
+
+  // Multi-select state (use all cards for selection state tracking)
   const orderedIds = cards.map(c => c.id)
   const multiSelect = useMultiSelect({ orderedIds })
 
@@ -73,14 +76,14 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
 
   function handleDragStart(event: DragStartEvent) {
     isDraggingRef.current = true
-    const card = cards.find((c) => c.id === event.active.id)
+    const card = visibleCards.find((c) => c.id === event.active.id)
     setActiveCard(card || null)
 
     // Check if dragging a selected card - if so, drag all selected cards
     const activeId = event.active.id as string
     if (multiSelect.isSelected(activeId) && multiSelect.selectedCount > 1) {
       // Get all selected card IDs in their current order
-      const selectedInOrder = cards
+      const selectedInOrder = visibleCards
         .filter(c => multiSelect.isSelected(c.id))
         .map(c => c.id)
       setDraggedCardIds(selectedInOrder)
@@ -107,7 +110,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
 
     // Reordering on main canvas
     if (active.id !== over.id) {
-      const newIndex = cards.findIndex((c) => c.id === over.id)
+      const newIndex = visibleCards.findIndex((c) => c.id === over.id)
 
       if (newIndex !== -1) {
         // Multi-drag: move all selected cards
@@ -116,7 +119,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           multiSelect.clearSelection()
         } else {
           // Single drag
-          const oldIndex = cards.findIndex((c) => c.id === active.id)
+          const oldIndex = visibleCards.findIndex((c) => c.id === active.id)
           if (oldIndex !== -1) {
             onReorder(oldIndex, newIndex)
           }
@@ -144,7 +147,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   if (!mounted) {
     return (
       <div className="flex flex-wrap gap-4">
-        {cards.map((card) => (
+        {visibleCards.map((card) => (
           <div
             key={card.id}
             className={cn(
@@ -158,10 +161,10 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   }
 
   // Empty state
-  if (cards.length === 0) {
+  if (visibleCards.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 border-2 border-dashed rounded-lg text-muted-foreground">
-        <p>No cards yet. Add your first card above.</p>
+        <p>{cards.length === 0 ? "No cards yet. Add your first card above." : "No visible cards. Unhide cards to see them here."}</p>
       </div>
     )
   }
@@ -174,7 +177,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
       onDragEnd={handleDragEnd}
     >
       <SortableContext
-        items={cards.map((c) => c.id)}
+        items={visibleCards.map((c) => c.id)}
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
@@ -188,7 +191,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
             }
           }}
         >
-          {cards.map((card) => (
+          {visibleCards.map((card) => (
             <PreviewSortableCard
               key={card.id}
               card={card}
