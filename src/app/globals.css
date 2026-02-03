@@ -367,6 +367,7 @@
   inset: 0;
   border-radius: 50%;
   cursor: pointer;
+  touch-action: none; /* Prevent scroll interference during wheel rotation */
 }
 
 /* Wheel Buttons */

@@ -29,6 +29,12 @@ export function StaticIpodClassicLayout({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
+  const wheelRef = useRef<HTMLDivElement>(null)
+
+  // Wheel rotation tracking
+  const lastAngleRef = useRef<number | null>(null)
+  const accumulatedRotation = useRef(0)
+  const DEGREES_PER_ITEM = 30 // Rotate 30 degrees to move one item
 
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
@@ -95,21 +101,94 @@ export function StaticIpodClassicLayout({
     }
   }
 
-  // Handle touch wheel clicks (detect quadrant)
-  const handleTouchWheelClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
+  // Calculate angle from center of wheel
+  const getAngleFromCenter = (clientX: number, clientY: number, rect: DOMRect) => {
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
-    const x = e.clientX - centerX
-    const y = e.clientY - centerY
-    const angle = Math.atan2(y, x) * (180 / Math.PI)
+    const x = clientX - centerX
+    const y = clientY - centerY
+    return Math.atan2(y, x) * (180 / Math.PI)
+  }
 
-    // Determine which quadrant was clicked
-    if (angle > -135 && angle <= -45) {
-      handleWheelClick('up')
-    } else if (angle > 45 && angle <= 135) {
-      handleWheelClick('down')
+  // Handle wheel rotation (circular scrolling)
+  const handleWheelMove = useCallback((clientX: number, clientY: number) => {
+    const wheel = wheelRef.current
+    if (!wheel) return
+
+    const rect = wheel.getBoundingClientRect()
+    const currentAngle = getAngleFromCenter(clientX, clientY, rect)
+
+    if (lastAngleRef.current !== null) {
+      // Calculate angle difference
+      let delta = currentAngle - lastAngleRef.current
+
+      // Handle wrap-around at -180/180 boundary
+      if (delta > 180) delta -= 360
+      if (delta < -180) delta += 360
+
+      accumulatedRotation.current += delta
+
+      // Check if we've rotated enough to move an item
+      if (Math.abs(accumulatedRotation.current) >= DEGREES_PER_ITEM) {
+        const direction = accumulatedRotation.current > 0 ? 1 : -1
+        const steps = Math.floor(Math.abs(accumulatedRotation.current) / DEGREES_PER_ITEM)
+
+        setSelectedIndex(prev => {
+          let newIndex = prev + (direction * steps)
+          // Wrap around
+          if (newIndex < 0) newIndex = visibleCards.length + (newIndex % visibleCards.length)
+          if (newIndex >= visibleCards.length) newIndex = newIndex % visibleCards.length
+          return newIndex
+        })
+
+        // Keep remainder rotation
+        accumulatedRotation.current = accumulatedRotation.current % DEGREES_PER_ITEM
+      }
     }
+
+    lastAngleRef.current = currentAngle
+  }, [visibleCards.length])
+
+  // Mouse handlers for wheel
+  const handleWheelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    const rect = wheelRef.current?.getBoundingClientRect()
+    if (rect) {
+      lastAngleRef.current = getAngleFromCenter(e.clientX, e.clientY, rect)
+      accumulatedRotation.current = 0
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      handleWheelMove(e.clientX, e.clientY)
+    }
+
+    const handleMouseUp = () => {
+      lastAngleRef.current = null
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
+  // Touch handlers for wheel
+  const handleWheelTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0]
+    const rect = wheelRef.current?.getBoundingClientRect()
+    if (rect) {
+      lastAngleRef.current = getAngleFromCenter(touch.clientX, touch.clientY, rect)
+      accumulatedRotation.current = 0
+    }
+  }
+
+  const handleWheelTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0]
+    handleWheelMove(touch.clientX, touch.clientY)
+  }
+
+  const handleWheelTouchEnd = () => {
+    lastAngleRef.current = null
   }
 
   const handleMenuItemClick = (card: Card, index: number) => {
@@ -216,7 +295,10 @@ export function StaticIpodClassicLayout({
               className="ipod-wheel-button ipod-wheel-play"
               onClick={() => {}}
             >
-              {'\u25B6\u275A\u275A'}
+              <span className="flex items-center gap-[2px]">
+                <span className="text-[8px]">▶</span>
+                <span className="text-[8px]">║</span>
+              </span>
             </button>
 
             {/* Center Button */}
@@ -225,10 +307,14 @@ export function StaticIpodClassicLayout({
               onClick={() => handleWheelClick('center')}
             />
 
-            {/* Touch Wheel for scrolling */}
+            {/* Touch Wheel for scrolling - circular drag to scroll */}
             <div
+              ref={wheelRef}
               className="ipod-touch-wheel"
-              onClick={handleTouchWheelClick}
+              onMouseDown={handleWheelMouseDown}
+              onTouchStart={handleWheelTouchStart}
+              onTouchMove={handleWheelTouchMove}
+              onTouchEnd={handleWheelTouchEnd}
             />
           </div>
 
