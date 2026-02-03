@@ -1,4 +1,5 @@
 // src/lib/supabase/public.ts
+import { unstable_noStore as noStore } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { PublicPageData, Page } from '@/types/page'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
@@ -23,6 +24,9 @@ function mapLegacySize(size: string | null | undefined): CardSize {
  * @returns PublicPageData or null
  */
 export async function fetchPublicPageData(username: string): Promise<PublicPageData | null> {
+  // Opt out of Next.js data cache - always fetch fresh data
+  noStore()
+
   const supabase = await createClient()
 
   // Fetch profile, page, and cards in single query
