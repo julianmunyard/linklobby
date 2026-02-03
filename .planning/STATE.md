@@ -447,6 +447,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | transparentBackground in card.content | quick-028 | Boolean flag makes card background transparent, border remains visible |
 | setAllCardsTransparency bulk action | quick-028 | Single action applies transparency to all cards at once |
 | ThemedCardWrapper respects transparency | quick-028 | All theme types (Instagram Reels, Mac OS, System Settings) conditionally remove bg when transparent |
+| Hidden cards filtered from preview | quick-031 | visibleCards = cards.filter(c => c.is_visible) removes hidden cards completely, not just overlay |
+| Dual visibility feedback pattern | quick-031 | Cards list shows all cards with indicators, preview shows only visible cards |
 
 ## Quick Tasks
 
@@ -481,11 +483,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 028 | Transparent card background toggle with Apply to All | Complete | 9416989 |
 | 029 | Analyze social icons implementation and improvements | Complete | 98d9139 |
 | 030 | Expand social icons to 25+ platforms with brand icons | Complete | 502233e |
+| 031 | Hide card toggle in cards list | Complete | 05ae720 |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed quick task 030 (expand social icons)
+Last activity: 2026-02-03 - Completed quick task 031 (hide card toggle in cards list)
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
