@@ -480,11 +480,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 027 | Text cards horizontal stacking support | Complete | 1b9a42d |
 | 028 | Transparent card background toggle with Apply to All | Complete | 9416989 |
 | 029 | Analyze social icons implementation and improvements | Complete | 98d9139 |
+| 030 | Expand social icons to 25+ platforms with brand icons | Complete | 502233e |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed quick task 029 (social icons analysis)
+Last activity: 2026-02-03 - Completed quick task 030 (expand social icons)
 Stopped at: Phase 7 complete, ready for Phase 8 (Public Page)
 Resume file: None
 
@@ -493,6 +494,26 @@ Resume file: None
 **Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
 
 **This session's work (2026-02-03):**
+
+### Expand Social Icons to 25+ Platforms (Quick Task 030)
+
+Expanded social icon support from 5 to 25+ platforms with proper brand icons:
+
+**Changes:**
+- Installed react-icons package for Simple Icons brand SVGs
+- Expanded SocialPlatform type to 25+ platforms
+- Replaced Lucide icons with brand icons (SiInstagram, SiTiktok, SiSpotify, etc.)
+- Added categorized icon picker UI (Popular, Music, Social, Streaming, etc.)
+- Added URL detection patterns for all platforms in Linktree import
+- Expanded LINKTREE_SOCIAL_TYPE_MAP for import type mapping
+
+**New platforms:** SoundCloud, Apple Music, Bandcamp, Deezer, Amazon Music, Facebook, Threads, Bluesky, Snapchat, Pinterest, LinkedIn, WhatsApp, Twitch, Kick, Discord, Website, Email, Patreon, Venmo, CashApp, PayPal
+
+**Commits:**
+- `f9d31e9` - feat(quick-030): add 25+ social platforms with brand icons
+- `502233e` - feat(quick-030): add URL patterns for 25+ platforms in Linktree import
+
+---
 
 ### Transparent Card Background Toggle (Quick Task 028)
 
