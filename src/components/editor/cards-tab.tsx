@@ -26,6 +26,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },
   { type: "video", label: "Video Card" },
+  { type: "music", label: "Music Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },
   { type: "social-icons", label: "Social Icons" },

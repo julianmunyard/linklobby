@@ -8,6 +8,7 @@ import { TextCard } from "./text-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
+import { MusicCard } from "./music-card"
 import { ThemedCardWrapper } from "./themed-card-wrapper"
 import type { Card } from "@/types/card"
 
@@ -48,6 +49,9 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       break
     case "game":
       cardContent = <GameCard card={card} isPreview={isPreview} />
+      break
+    case "music":
+      cardContent = <MusicCard card={card} isPreview={isPreview} />
       break
     default:
       // Fallback for unimplemented card types (audio)
