@@ -285,7 +285,7 @@
 
 /* iPod Screen */
 .ipod-screen {
-  background: linear-gradient(180deg, #d0d0d0 0%, #b8b8b8 100%);
+  background: #C2C1BA;
   border-radius: 4px;
   overflow: hidden;
   font-size: 13px;
@@ -302,8 +302,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 3px 8px;
-  background: linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 100%);
-  border-bottom: 1px solid #a0a0a0;
+  background: #C2C1BA;
+  border-bottom: 1px solid #a8a7a0;
   color: #333;
 }
 
@@ -313,16 +313,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 6px 10px;
-  background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
+  background: #C2C1BA;
   color: #1a1a1a;
-  border-bottom: 1px solid #a0a0a0;
+  border-bottom: 1px solid #a8a7a0;
 }
 
 /* Menu List */
 .ipod-menu-list {
   flex: 1;
   overflow-y: auto;
-  background: #c8c8c8;
+  background: #C2C1BA;
 }
 
 .ipod-menu-list::-webkit-scrollbar {
@@ -346,15 +346,15 @@
 }
 
 .ipod-menu-item.selected {
-  background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
-  color: white;
+  background: #000000;
+  color: #C2C1BA;
 }
 
 /* Screen Footer */
 .ipod-screen-footer {
   padding: 4px 10px;
-  background: linear-gradient(180deg, #c8c8c8 0%, #b0b0b0 100%);
-  border-top: 1px solid #a0a0a0;
+  background: #C2C1BA;
+  border-top: 1px solid #a8a7a0;
   font-size: 10px;
   color: #666;
   text-align: right;
