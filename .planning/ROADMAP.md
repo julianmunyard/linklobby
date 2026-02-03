@@ -306,26 +306,32 @@ Plans:
 ---
 
 #### Phase 9: Platform Integrations
-**Goal:** Artists can embed content from major platforms
+**Goal:** Artists can embed content from major platforms with one-at-a-time playback
 **Competitive context:** Table stakes, but execution matters
 
 **Success Criteria:**
 1. Music: Spotify, Apple Music, SoundCloud, Audiomack, Bandcamp embeds
-2. Video: YouTube, TikTok Video, Vimeo embeds
-3. Social: Instagram, TikTok Profile, Twitter/X link cards
-4. Payments: PayPal, Venmo, Tip Jar, Shopify links
-5. Platform auto-detected from URL where possible
+2. Video: YouTube, TikTok Video, Vimeo embeds (existing + Instagram)
+3. Vertical 9:16 content: TikTok and Instagram Reels display correctly
+4. Platform auto-detected from URL
+5. One-at-a-time playback coordination
 6. Platform icons display correctly
+
+**Deferred to later phases:**
+- Payments: PayPal, Venmo, Tip Jar, Shopify links
+- Social profile links: Instagram profile, TikTok profile, Twitter/X
 
 **Note:** Bandsintown moved to Phase 13 (Tour & Events) for first-class treatment
 
-**Additional integrations for v1.1+:**
-- Discord, Patreon, Ko-fi, Twitch
-- Podcasts (Apple Podcasts, Spotify for Podcasters)
-- Newsletters (Substack, Buttondown)
-- Newer platforms (Threads, Bluesky)
+**Plans:** 6 plans
 
-**Plans:** 3-4 plans
+Plans:
+- [ ] 09-01-PLAN.md — Platform detection and music card types
+- [ ] 09-02-PLAN.md — Playback coordination context
+- [ ] 09-03-PLAN.md — Music card component and editor
+- [ ] 09-04-PLAN.md — Vertical 9:16 embed support
+- [ ] 09-05-PLAN.md — Integration and playback wiring
+- [ ] 09-06-PLAN.md — Human verification checkpoint
 
 ---
 
@@ -604,5 +610,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-01-28*
+*Last updated: 2026-02-03*
 *Based on: COMPETITORS.md competitive analysis*
