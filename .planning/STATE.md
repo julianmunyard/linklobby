@@ -10,21 +10,21 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 8 of 18 - Public Page (IN PROGRESS)
-Plan: 2 of 4 - Static Render Components Complete
-Status: **Phase 8 in progress - Dynamic route next**
-Last activity: 2026-02-03 - Completed 08-02-PLAN.md (Static Render Components)
+Plan: 3 of 4 - Dynamic Route and 404 Page Complete
+Status: **Phase 8 in progress - SEO and sitemap next**
+Last activity: 2026-02-03 - Completed 08-03-PLAN.md (Dynamic Route and 404 Page)
 
-Progress: [███████████████████████████████░░] 92%
+Progress: [███████████████████████████████░░] 93%
 
 ### CURRENT: Phase 8 - Public Page
 
 Building the public profile page at `linklobby.com/username`:
 - ✓ Plan 01: Data infrastructure (is_published, fetchPublicPageData)
 - ✓ Plan 02: Static render components (StaticFlowGrid, StaticProfileHeader, PublicPageRenderer)
-- → Plan 03: Dynamic route `[username]/page.tsx`
+- ✓ Plan 03: Dynamic route `[username]/page.tsx`
 - → Plan 04: SEO metadata and sitemap
 
-**Next:** Implement dynamic route with server-side data fetching
+**Next:** SEO optimization and sitemap generation
 
 ### Dropdown Card Removed
 
@@ -82,24 +82,25 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 |------|------|--------|
 | 01 | Data Infrastructure | Complete ✓ |
 | 02 | Static Render Components | Complete ✓ |
-| 03 | Dynamic Route | - |
+| 03 | Dynamic Route & 404 Page | Complete ✓ |
 | 04 | SEO & Sitemap | - |
 
 **Summaries:**
 - Plan 01: .planning/phases/08-public-page/08-01-SUMMARY.md
 - Plan 02: .planning/phases/08-public-page/08-02-SUMMARY.md
+- Plan 03: .planning/phases/08-public-page/08-03-SUMMARY.md
 
-**Plan 02 commits (2026-02-03):**
-- `007e789` - feat(08-02): create StaticFlowGrid component
-- `332df1c` - feat(08-02): create StaticProfileHeader component
-- `d0938eb` - feat(08-02): create PublicPageRenderer component
+**Plan 03 commits (2026-02-03):**
+- `fbe89b3` - feat(08-03): create ThemeInjector component
+- `3f7452f` - feat(08-03): create dynamic [username] route with SSR and metadata
+- `ec61ef9` - feat(08-03): create global 404 page with Ishmeria font
 
 **Key deliverables:**
-- Server Components for public page rendering (no "use client")
-- StaticFlowGrid: Non-interactive card grid with filtering and sorting
-- StaticProfileHeader: Props-based profile rendering
-- PublicPageRenderer: Complete page composition
-- Zero client-side JavaScript for core layout
+- Dynamic [username] route with server-side data fetching
+- ThemeInjector for flash-free theme rendering
+- Global 404 page with Ishmeria retro font
+- Dynamic SEO metadata (title, description, OpenGraph, Twitter cards)
+- Next.js 16 async params pattern
 
 ## Phase 7 Progress (COMPLETE ✓)
 
@@ -475,6 +476,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Dual visibility feedback pattern | quick-031 | Cards list shows all cards with indicators, preview shows only visible cards |
 | Icon size range 16-48px with 4px step | quick-032 | Balanced sizing options for social icons, default 24px maintains existing appearance |
 | Wrapper div pattern for dynamic sizing | quick-032 | Inline style on wrapper div with w-full h-full on icon for dynamic sizing (react-icons don't accept style prop) |
+| Server-side theme injection via inline styles | 08-03 | Prevents flash of unstyled content on public pages - CSS variables set before hydration |
+| Ishmeria font for 404 page | 08-03 | Matches retro/poolsuite-inspired aesthetic (per CONTEXT.md) on error pages |
+| Dynamic metadata with fallbacks | 08-03 | Generates SEO metadata from profile data with OpenGraph and Twitter cards |
+| notFound() for 404 handling | 08-03 | Uses Next.js built-in 404 instead of custom error UI for cleaner separation |
 
 ## Quick Tasks
 
@@ -515,15 +520,57 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 08-02-PLAN.md (Static Render Components)
-Stopped at: Phase 8 in progress - Dynamic route next
+Last activity: 2026-02-03 - Completed 08-03-PLAN.md (Dynamic Route and 404 Page)
+Stopped at: Phase 8 in progress - SEO and sitemap next
 Resume file: None
 
-**Phase 7 Progress:** Complete. Theme system fully functional.
+**Phase 8 Progress:** 3 of 4 plans complete. Public pages now render at linklobby.com/username.
 
-**Next phase:** Phase 8 - Public Page (`linklobby.com/username` routes)
+**Next plan:** 08-04 - SEO metadata and sitemap generation
 
 **This session's work (2026-02-03):**
+
+### Dynamic Route and 404 Page (Plan 08-03)
+
+Implemented dynamic public page route with server-side rendering:
+
+**Changes:**
+- Created ThemeInjector component for server-side CSS variable injection
+- Built [username] dynamic route with Next.js 16 async params pattern
+- Added global 404 page with Ishmeria font
+- Implemented dynamic metadata generation (title, description, OpenGraph, Twitter cards)
+- Server-side theme injection prevents flash of unstyled content
+
+**Result:** Users can visit linklobby.com/username to see published pages. Invalid/unpublished usernames show 404 with retro font.
+
+**Commits:**
+- `fbe89b3` - feat(08-03): create ThemeInjector component for server-side CSS variables
+- `3f7452f` - feat(08-03): create dynamic [username] route with SSR and metadata
+- `ec61ef9` - feat(08-03): create global 404 page with Ishmeria font
+
+---
+
+**Earlier this session's work (2026-02-03):**
+
+### Static Render Components (Plan 08-02)
+
+Created server components for rendering public pages:
+
+**Changes:**
+- StaticFlowGrid: Non-interactive card grid with filtering/sorting
+- StaticProfileHeader: Server-rendered profile header (Classic and Hero layouts)
+- PublicPageRenderer: Complete page composition
+
+**Result:** Zero client-side JavaScript for core public page layout.
+
+**Commits:**
+- `007e789` - feat(08-02): create StaticFlowGrid component
+- `332df1c` - feat(08-02): create StaticProfileHeader component
+- `d0938eb` - feat(08-02): create PublicPageRenderer component
+
+---
+
+**Earlier this session's work (2026-02-03):**
 
 ### Expand Social Icons to 25+ Platforms (Quick Task 030)
 
