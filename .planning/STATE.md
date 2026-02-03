@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 8 of 18 - Public Page (COMPLETE)
 Plan: 4 of 4 - SEO Features Complete
 Status: **Phase 8 complete - Public page fully functional with SEO**
-Last activity: 2026-02-03 - Completed 08-04-PLAN.md (SEO Features)
+Last activity: 2026-02-03 - Completed quick task 033: Small video card same size as square card
 
 Progress: [████████████████████████████████] 100%
 
@@ -535,6 +535,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 030 | Expand social icons to 25+ platforms with brand icons | Complete | 502233e |
 | 031 | Hide card toggle in cards list | Complete | 05ae720 |
 | 032 | Social icon size slider (16-48px) | Complete | 8af2f89 |
+| 033 | Small video card same size as square card | Complete | 81b81b9 |
 
 ## Session Continuity
 
