@@ -9,22 +9,22 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 8 of 18 - Public Page (IN PROGRESS)
-Plan: 3 of 4 - Dynamic Route and 404 Page Complete
-Status: **Phase 8 in progress - SEO and sitemap next**
-Last activity: 2026-02-03 - Completed 08-03-PLAN.md (Dynamic Route and 404 Page)
+Phase: 8 of 18 - Public Page (COMPLETE)
+Plan: 4 of 4 - SEO Features Complete
+Status: **Phase 8 complete - Public page fully functional with SEO**
+Last activity: 2026-02-03 - Completed 08-04-PLAN.md (SEO Features)
 
-Progress: [███████████████████████████████░░] 93%
+Progress: [████████████████████████████████] 100%
 
-### CURRENT: Phase 8 - Public Page
+### COMPLETE: Phase 8 - Public Page
 
-Building the public profile page at `linklobby.com/username`:
+Built the public profile page at `linklobby.com/username`:
 - ✓ Plan 01: Data infrastructure (is_published, fetchPublicPageData)
 - ✓ Plan 02: Static render components (StaticFlowGrid, StaticProfileHeader, PublicPageRenderer)
 - ✓ Plan 03: Dynamic route `[username]/page.tsx`
-- → Plan 04: SEO metadata and sitemap
+- ✓ Plan 04: SEO metadata and sitemap
 
-**Next:** SEO optimization and sitemap generation
+**Phase complete:** Public pages fully functional with dynamic OG images, sitemap, and robots.txt
 
 ### Dropdown Card Removed
 
@@ -56,7 +56,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 6 | Advanced Cards | Complete ✓ |
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
 | 7 | Theme System | Complete ✓ |
-| 8 | Public Page | In Progress (2/4) |
+| 8 | Public Page | Complete ✓ |
 | 9 | Platform Integrations | - |
 | 9.5 | Onboarding | - |
 
@@ -76,28 +76,30 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
 
-## Phase 8 Progress (IN PROGRESS)
+## Phase 8 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Data Infrastructure | Complete ✓ |
 | 02 | Static Render Components | Complete ✓ |
 | 03 | Dynamic Route & 404 Page | Complete ✓ |
-| 04 | SEO & Sitemap | - |
+| 04 | SEO & Sitemap | Complete ✓ |
 
 **Summaries:**
 - Plan 01: .planning/phases/08-public-page/08-01-SUMMARY.md
 - Plan 02: .planning/phases/08-public-page/08-02-SUMMARY.md
 - Plan 03: .planning/phases/08-public-page/08-03-SUMMARY.md
+- Plan 04: .planning/phases/08-public-page/08-04-SUMMARY.md
 
-**Plan 03 commits (2026-02-03):**
-- `fbe89b3` - feat(08-03): create ThemeInjector component
-- `3f7452f` - feat(08-03): create dynamic [username] route with SSR and metadata
-- `ec61ef9` - feat(08-03): create global 404 page with Ishmeria font
+**Plan 04 commits (2026-02-03):**
+- `10b57ff` - feat(08-04): create dynamic OG image with ImageResponse
+- `669d692` - feat(08-04): create dynamic sitemap for published pages
+- `47cf685` - feat(08-04): create robots.txt configuration
 
 **Key deliverables:**
-- Dynamic [username] route with server-side data fetching
-- ThemeInjector for flash-free theme rendering
+- Dynamic OG images with profile branding and theme colors
+- Sitemap with ISR for search engine discovery
+- Robots.txt for crawler access control
 - Global 404 page with Ishmeria retro font
 - Dynamic SEO metadata (title, description, OpenGraph, Twitter cards)
 - Next.js 16 async params pattern
@@ -480,6 +482,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Ishmeria font for 404 page | 08-03 | Matches retro/poolsuite-inspired aesthetic (per CONTEXT.md) on error pages |
 | Dynamic metadata with fallbacks | 08-03 | Generates SEO metadata from profile data with OpenGraph and Twitter cards |
 | notFound() for 404 handling | 08-03 | Uses Next.js built-in 404 instead of custom error UI for cleaner separation |
+| ImageResponse for OG images | 08-04 | Satori-based OG image generation instead of Puppeteer screenshots - faster, edge-compatible |
+| Edge runtime for OG images | 08-04 | Sub-100ms image generation for fast social sharing preview |
+| 1-hour sitemap ISR | 08-04 | Balance between search engine freshness and database load (3600s revalidation) |
+| Sitemap joins profiles.pages | 08-04 | Single query filtering by is_published for published pages only |
+| Theme colors in OG images | 08-04 | OG images use background and text colors from theme_settings for brand consistency |
+| Twitter image re-exports OG | 08-04 | Same 1.91:1 aspect ratio allows sharing implementation (twitter-image.tsx re-exports opengraph-image.tsx) |
+| Disallow private routes in robots | 08-04 | API, editor, settings, insights routes blocked from crawlers via robots.txt |
 
 ## Quick Tasks
 
@@ -520,13 +529,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 08-03-PLAN.md (Dynamic Route and 404 Page)
-Stopped at: Phase 8 in progress - SEO and sitemap next
+Last activity: 2026-02-03 - Completed 08-04-PLAN.md (SEO Features)
+Stopped at: Phase 8 complete - Public page fully functional with SEO
 Resume file: None
 
-**Phase 8 Progress:** 3 of 4 plans complete. Public pages now render at linklobby.com/username.
+**Phase 8 Progress:** All 4 plans complete. Public pages fully functional with dynamic OG images, sitemap, and robots.txt.
 
-**Next plan:** 08-04 - SEO metadata and sitemap generation
+**Next phase:** Phase 9 - Platform Integrations
 
 **This session's work (2026-02-03):**
 
