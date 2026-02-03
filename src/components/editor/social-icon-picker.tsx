@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useState, type ReactNode, type ComponentType } from "react"
 import {
   Dialog,
   DialogContent,
@@ -10,16 +10,14 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Plus, ArrowLeft, Globe, Mail, Music } from "lucide-react"
 import {
-  Instagram,
-  Youtube,
-  Twitter,
-  Music,
-  Music2,
-  Plus,
-  ArrowLeft,
-  type LucideIcon,
-} from "lucide-react"
+  SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiX,
+  SiSoundcloud, SiApplemusic, SiBandcamp, SiAmazonmusic,
+  SiFacebook, SiThreads, SiBluesky, SiSnapchat, SiPinterest, SiLinkedin, SiWhatsapp,
+  SiTwitch, SiKick, SiDiscord,
+  SiPatreon, SiVenmo, SiCashapp, SiPaypal
+} from "react-icons/si"
 import {
   SOCIAL_PLATFORMS,
   type SocialPlatform,
@@ -30,16 +28,78 @@ import { useCards } from "@/hooks/use-cards"
 import { generateAppendKey } from "@/lib/ordering"
 
 /**
- * Icon mapping for social platforms
- * Lucide doesn't have native TikTok/Spotify icons, using closest matches
+ * Icon component type that works with both react-icons and Lucide
  */
-export const PLATFORM_ICONS: Record<SocialPlatform, LucideIcon> = {
-  instagram: Instagram,
-  youtube: Youtube,
-  twitter: Twitter,
-  spotify: Music,    // Closest match for Spotify
-  tiktok: Music2,    // Closest match for TikTok
+type IconComponent = ComponentType<{ className?: string }>
+
+/**
+ * Icon mapping for social platforms using brand icons from react-icons
+ * Website and Email use Lucide icons (generic icons)
+ */
+export const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
+  // Big 5
+  instagram: SiInstagram,
+  tiktok: SiTiktok,
+  youtube: SiYoutube,
+  spotify: SiSpotify,
+  twitter: SiX,
+  // Music
+  soundcloud: SiSoundcloud,
+  applemusic: SiApplemusic,
+  bandcamp: SiBandcamp,
+  deezer: Music,  // No brand icon available
+  amazonmusic: SiAmazonmusic,
+  // Social
+  facebook: SiFacebook,
+  threads: SiThreads,
+  bluesky: SiBluesky,
+  snapchat: SiSnapchat,
+  pinterest: SiPinterest,
+  linkedin: SiLinkedin,
+  whatsapp: SiWhatsapp,
+  // Streaming
+  twitch: SiTwitch,
+  kick: SiKick,
+  // Community
+  discord: SiDiscord,
+  // Other
+  website: Globe,
+  email: Mail,
+  patreon: SiPatreon,
+  venmo: SiVenmo,
+  cashapp: SiCashapp,
+  paypal: SiPaypal,
 }
+
+/**
+ * Platform categories for organized icon picker UI
+ */
+const PLATFORM_CATEGORIES: { name: string; platforms: SocialPlatform[] }[] = [
+  {
+    name: "Popular",
+    platforms: ["instagram", "tiktok", "youtube", "spotify", "twitter"],
+  },
+  {
+    name: "Music",
+    platforms: ["soundcloud", "applemusic", "bandcamp", "deezer", "amazonmusic"],
+  },
+  {
+    name: "Social",
+    platforms: ["facebook", "threads", "bluesky", "snapchat", "pinterest", "linkedin", "whatsapp"],
+  },
+  {
+    name: "Streaming",
+    platforms: ["twitch", "kick"],
+  },
+  {
+    name: "Community & Support",
+    platforms: ["discord", "patreon", "venmo", "cashapp", "paypal"],
+  },
+  {
+    name: "Other",
+    platforms: ["website", "email"],
+  },
+]
 
 interface SocialIconPickerProps {
   children?: ReactNode
@@ -61,9 +121,6 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
   const addSocialIcon = useProfileStore((state) => state.addSocialIcon)
   const cards = usePageStore((state) => state.cards)
   const { createCard } = useCards()
-
-  // Get all platforms as array for rendering
-  const platforms = Object.entries(SOCIAL_PLATFORMS) as [SocialPlatform, typeof SOCIAL_PLATFORMS[SocialPlatform]][]
 
   function resetState() {
     setStep("select")
@@ -147,32 +204,38 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
         </DialogHeader>
 
         {step === "select" ? (
-          // Platform selection grid
-          <div className="grid grid-cols-3 gap-3">
-            {platforms.map(([platform, meta]) => {
-              const Icon = PLATFORM_ICONS[platform]
-              return (
-                <button
-                  key={platform}
-                  onClick={() => meta.enabled && handlePlatformSelect(platform)}
-                  disabled={!meta.enabled}
-                  className={`
-                    flex flex-col items-center gap-2 p-4 rounded-lg border
-                    transition-colors
-                    ${meta.enabled
-                      ? "hover:bg-accent hover:border-accent-foreground/20 cursor-pointer"
-                      : "opacity-50 cursor-not-allowed"
-                    }
-                  `}
-                >
-                  <Icon className="size-6" />
-                  <span className="text-sm font-medium">{meta.label}</span>
-                  {!meta.enabled && (
-                    <span className="text-xs text-muted-foreground">Coming soon</span>
-                  )}
-                </button>
-              )
-            })}
+          // Platform selection by category
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {PLATFORM_CATEGORIES.map((category) => (
+              <div key={category.name}>
+                <h4 className="text-xs font-medium text-muted-foreground mb-2">{category.name}</h4>
+                <div className="grid grid-cols-4 gap-2">
+                  {category.platforms.map((platform) => {
+                    const meta = SOCIAL_PLATFORMS[platform]
+                    const Icon = PLATFORM_ICONS[platform]
+                    return (
+                      <button
+                        key={platform}
+                        onClick={() => meta.enabled && handlePlatformSelect(platform)}
+                        disabled={!meta.enabled}
+                        className={`
+                          flex flex-col items-center gap-1 p-2 rounded-lg border
+                          transition-colors
+                          ${meta.enabled
+                            ? "hover:bg-accent hover:border-accent-foreground/20 cursor-pointer"
+                            : "opacity-50 cursor-not-allowed"
+                          }
+                        `}
+                        title={meta.label}
+                      >
+                        <Icon className="size-5" />
+                        <span className="text-[10px] font-medium truncate w-full text-center">{meta.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           // URL input step
