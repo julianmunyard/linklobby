@@ -1,6 +1,7 @@
 import { StaticProfileHeader } from "./static-profile-header"
 import { StaticFlowGrid } from "./static-flow-grid"
 import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
+import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId } from "@/types/theme"
 
@@ -38,6 +39,8 @@ interface PublicPageRendererProps {
   headingSize?: number
   bodySize?: number
   vcrCenterContent?: boolean
+  // Theme colors
+  accentColor?: string
   // Background (for frame positioning)
   background?: BackgroundConfig
   // Theme (for layout selection)
@@ -76,6 +79,7 @@ export function PublicPageRenderer({
   headingSize,
   bodySize,
   vcrCenterContent,
+  accentColor,
   background,
   themeId,
   cards,
@@ -89,6 +93,19 @@ export function PublicPageRenderer({
         headingSize={headingSize}
         bodySize={bodySize}
         centerContent={vcrCenterContent}
+      />
+    )
+  }
+
+  // iPod Classic theme uses iPod interface layout
+  if (themeId === 'ipod-classic') {
+    return (
+      <StaticIpodClassicLayout
+        title={displayName || 'links'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        accentColor={accentColor}
       />
     )
   }

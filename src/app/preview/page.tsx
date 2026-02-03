@@ -6,6 +6,7 @@ import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-sel
 import { ProfileHeader } from "@/components/preview/profile-header"
 import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
 import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
+import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -148,6 +149,30 @@ function PreviewContent() {
         {/* VCR Menu Layout */}
         <VcrMenuLayout
           title={displayName || 'MENU'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+
+        {/* Noise overlay */}
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // iPod Classic theme uses iPod interface layout
+  if (themeId === 'ipod-classic') {
+    return (
+      <>
+        {/* Page background */}
+        <PageBackground />
+        {/* Dim overlay */}
+        <DimOverlay />
+
+        {/* iPod Classic Layout */}
+        <IpodClassicLayout
+          title={displayName || 'links'}
           cards={state.cards}
           isPreview={true}
           onCardClick={handleCardClick}
