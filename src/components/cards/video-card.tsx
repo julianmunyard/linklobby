@@ -1,10 +1,11 @@
 // src/components/cards/video-card.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Play, Video } from 'lucide-react'
 import { useThemeStore } from '@/stores/theme-store'
+import { useOptionalEmbedPlayback } from '@/components/providers/embed-provider'
 import type { Card } from '@/types/card'
 import { isVideoContent, type VideoCardContent } from '@/types/card'
 
@@ -100,6 +101,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         fontSize={fontSize}
         showRetroControls={isSystemSettings}
         embedIsVertical={content.embedIsVertical as boolean | undefined}
+        cardId={card.id}
       />
     )
   }
@@ -207,6 +209,7 @@ interface VideoCardEmbedProps {
   fontSize?: number
   showRetroControls?: boolean
   embedIsVertical?: boolean
+  cardId: string
 }
 
 // Container for 9:16 vertical content (TikTok, Instagram Reels)
@@ -239,8 +242,32 @@ function VideoCardEmbed({
   fontSize = 1,
   showRetroControls = false,
   embedIsVertical = false,
+  cardId,
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+  const playback = useOptionalEmbedPlayback()
+
+  // Register with playback coordination
+  useEffect(() => {
+    if (!playback || !cardId) return
+
+    const pauseFn = () => {
+      // Reset to thumbnail state (simplest way to "pause")
+      setIsPlaying(false)
+    }
+
+    playback.registerEmbed(cardId, pauseFn)
+
+    return () => {
+      playback.unregisterEmbed(cardId)
+    }
+  }, [playback, cardId])
+
+  // Handle play - notify playback context
+  const handlePlay = () => {
+    setIsPlaying(true)
+    playback?.setActiveEmbed(cardId)
+  }
 
   // Check if this is vertical content (9:16 aspect ratio)
   const isVertical = embedIsVertical ||
@@ -304,7 +331,7 @@ function VideoCardEmbed({
       <div className="relative w-full flex flex-col">
         <VerticalEmbedContainer>
           <button
-            onClick={() => setIsPlaying(true)}
+            onClick={handlePlay}
             className="relative w-full h-full overflow-hidden bg-muted group cursor-pointer block rounded-xl"
             aria-label={`Play ${title || 'video'}`}
           >
@@ -370,7 +397,7 @@ function VideoCardEmbed({
   return (
     <div className="relative w-full flex flex-col">
       <button
-        onClick={() => setIsPlaying(true)}
+        onClick={handlePlay}
         className="relative w-full aspect-video overflow-hidden bg-muted group cursor-pointer block"
         aria-label={`Play ${title || 'video'}`}
       >

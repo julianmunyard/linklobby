@@ -1,11 +1,12 @@
 // src/components/cards/music-card.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Music, Play } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { useThemeStore } from '@/stores/theme-store'
+import { useOptionalEmbedPlayback } from '@/components/providers/embed-provider'
 import { getEmbedUrl } from '@/lib/platform-embed'
 import type { Card, MusicCardContent, MusicPlatform } from '@/types/card'
 import { isMusicContent } from '@/types/card'
@@ -46,6 +47,29 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   const themeId = useThemeStore((state) => state.themeId)
   const [isPlaying, setIsPlaying] = useState(false)
   const [loadError, setLoadError] = useState(false)
+  const playback = useOptionalEmbedPlayback()
+
+  // Register with playback coordination
+  useEffect(() => {
+    if (!playback || !card.id) return
+
+    const pauseFn = () => {
+      // Reset to thumbnail state (simplest way to "pause")
+      setIsPlaying(false)
+    }
+
+    playback.registerEmbed(card.id, pauseFn)
+
+    return () => {
+      playback.unregisterEmbed(card.id)
+    }
+  }, [playback, card.id])
+
+  // Handle play - notify playback context
+  const handlePlay = () => {
+    setIsPlaying(true)
+    playback?.setActiveEmbed(card.id)
+  }
 
   // Type guard for content
   if (!isMusicContent(card.content)) {
@@ -92,7 +116,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   if (!isPlaying) {
     return (
       <button
-        onClick={() => setIsPlaying(true)}
+        onClick={handlePlay}
         className="relative w-full rounded-xl overflow-hidden bg-muted group cursor-pointer block"
         style={{ minHeight: embedHeight }}
         aria-label={`Play ${title || 'music'} on ${platform}`}
