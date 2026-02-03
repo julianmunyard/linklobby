@@ -10,23 +10,23 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 9 of 18 - Platform Integrations (IN PROGRESS)
-Plan: 2 of 6 - Platform Detection Foundation Complete
+Plan: 4 of 6 - Vertical Video Embed Support Complete
 Status: **Executing Phase 9 - Platform embed support**
-Last activity: 2026-02-03 - Completed 09-01-PLAN.md (Platform Detection Foundation)
+Last activity: 2026-02-03 - Completed 09-04-PLAN.md (Vertical Video Embed Support)
 
-Progress: [██████████░░░░░░░░░░░░░░░░░░░░░░] ~33%
+Progress: [████████████████████░░░░░░░░░░░░] ~55%
 
 ### IN PROGRESS: Phase 9 - Platform Integrations
 
 Building embed support for major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
 - ✓ Plan 01: Platform detection foundation (platform-embed.ts, MusicCardContent type)
 - ✓ Plan 02: Playback coordination context (EmbedPlaybackProvider)
-- Plan 03: Music card component and editor
-- Plan 04: Instagram embed card
+- ✓ Plan 03: Music card component and editor
+- ✓ Plan 04: Vertical video embed support (TikTok, Instagram Reels)
 - Plan 05: Social card enhancement
 - Plan 06: Platform verification
 
-**Current:** Plan 01 complete - Platform URL detection and MusicCardContent type system
+**Current:** Plan 04 complete - Video card 9:16 vertical aspect ratio for TikTok and Instagram
 
 ### COMPLETE: Phase 8 - Public Page
 
@@ -69,7 +69,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
 | 7 | Theme System | Complete ✓ |
 | 8 | Public Page | Complete ✓ |
-| 9 | Platform Integrations | In Progress (Plan 2/6) |
+| 9 | Platform Integrations | In Progress (Plan 4/6) |
 | 9.5 | Onboarding | - |
 
 ### v1.1 Growth (Phases 10-12.5)
@@ -503,6 +503,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Ref-based Map for pause functions | 09-02 | embedsRef.current avoids re-renders when embeds register/unregister |
 | useOptionalEmbedPlayback hook | 09-02 | Returns null outside provider for graceful degradation on public pages |
 | Disallow private routes in robots | 08-04 | API, editor, settings, insights routes blocked from crawlers via robots.txt |
+| Instagram direct embed URL | 09-04 | Instagram oEmbed requires access token - use direct embed URL instead |
+| Only Reels marked vertical | 09-04 | Instagram Reels isVertical: true, regular posts can vary aspect ratio |
+| TikTok always vertical | 09-04 | TikTok videos are always 9:16 aspect ratio |
+| 325px max-width for vertical | 09-04 | Matches TikTok's embed max width for consistent vertical content |
+| 177.78% padding-bottom for 9:16 | 09-04 | Padding-bottom technique creates exact 9:16 aspect ratio (16/9 * 100)
 
 ## Quick Tasks
 
@@ -544,38 +549,39 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 | Plan | Name | Status |
 |------|------|--------|
-| 01 | Research & Context | Complete ✓ |
+| 01 | Platform Detection Foundation | Complete ✓ |
 | 02 | Playback Coordination Context | Complete ✓ |
-| 03 | URL Detection Utility | - |
-| 04 | Spotify Embed | - |
-| 05 | Apple Music Embed | - |
-| 06 | SoundCloud Embed | - |
-| 07 | YouTube/Video Embeds | - |
-| 08 | Embed Card UI | - |
+| 03 | Music Card Component | Complete ✓ |
+| 04 | Vertical Video Embed Support | Complete ✓ |
+| 05 | Social Card Enhancement | - |
+| 06 | Platform Verification | - |
 
 **Summaries:**
+- Plan 01: .planning/phases/09-platform-integrations/09-01-SUMMARY.md
 - Plan 02: .planning/phases/09-platform-integrations/09-02-SUMMARY.md
+- Plan 03: .planning/phases/09-platform-integrations/09-03-SUMMARY.md
+- Plan 04: .planning/phases/09-platform-integrations/09-04-SUMMARY.md
 
-**Plan 02 commits (2026-02-03):**
-- `0e5cdab` - feat(09-02): create EmbedPlaybackProvider context
-- `b3ca228` - feat(09-02): add EmbedPlaybackProvider to app layout
+**Plan 04 commits (2026-02-03):**
+- `b0aaa02` - feat(09-04): add Instagram support and isVertical flag to video-embed.ts
+- `bdc9624` - feat(09-04): add vertical 9:16 aspect ratio support for TikTok and Instagram
 
 **Key deliverables:**
-- EmbedPlaybackProvider context for one-at-a-time embed playback
-- useEmbedPlayback hook (throws outside provider)
-- useOptionalEmbedPlayback hook (graceful degradation)
-- Provider wrapped around app in layout.tsx
+- Instagram URL detection and parsing in video-embed.ts
+- isVertical flag for TikTok and Instagram Reels
+- VerticalEmbedContainer component (max-width 325px, 9:16 aspect ratio)
+- Vertical content renders in proper tall container with centered layout
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 09-02-PLAN.md (Playback Coordination Context)
-Stopped at: Phase 9 Plan 02 complete
+Last activity: 2026-02-03 - Completed 09-04-PLAN.md (Vertical Video Embed Support)
+Stopped at: Phase 9 Plan 04 complete
 Resume file: None
 
-**Phase 9 Progress:** Plan 02 complete. Ready for Plan 03 (URL Detection Utility).
+**Phase 9 Progress:** Plan 04 complete. Ready for Plan 05 (Social card enhancement).
 
-**Next plan:** 09-03 - URL Detection Utility
+**Next plan:** 09-05 - Social card enhancement
 
 **This session's work (2026-02-03):**
 
