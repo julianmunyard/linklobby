@@ -146,33 +146,26 @@ export function PreviewPanel() {
         className="flex-1 overflow-hidden p-4 flex items-center justify-center"
         onClick={handleDeselect}
       >
-        {isMobile ? (
-          <div
-            className="bg-background rounded-[2rem] shadow-lg overflow-hidden border-4 border-foreground/10 transition-all duration-300"
-            style={{
-              width: MOBILE_WIDTH,
-              height: MOBILE_HEIGHT,
-              transform: `scale(${mobileScale})`,
-              transformOrigin: "center center",
-            }}
-          >
-            <iframe
-              ref={iframeRef}
-              src="/preview"
-              className="w-full h-full border-0"
-              title="Page preview"
-            />
-          </div>
-        ) : (
-          <div className="w-full h-full bg-background rounded-lg shadow-lg overflow-hidden">
-            <iframe
-              ref={iframeRef}
-              src="/preview"
-              className="w-full h-full border-0"
-              title="Page preview"
-            />
-          </div>
-        )}
+        <div
+          className="bg-background shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
+          style={{
+            width: isMobile ? MOBILE_WIDTH : '100%',
+            height: isMobile ? MOBILE_HEIGHT : '100%',
+            borderRadius: isMobile ? '2rem' : '0.5rem',
+            borderWidth: isMobile ? '4px' : '0px',
+            borderColor: 'hsl(var(--foreground) / 0.1)',
+            borderStyle: 'solid',
+            transform: isMobile ? `scale(${mobileScale})` : 'scale(1)',
+            transformOrigin: 'center center',
+          }}
+        >
+          <iframe
+            ref={iframeRef}
+            src="/preview"
+            className="w-full h-full border-0"
+            title="Page preview"
+          />
+        </div>
       </div>
     </div>
   )

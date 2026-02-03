@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, User, Upload, Plus, Loader2, ChevronDown } from "lucide-react"
+import { Camera, User, Upload, Plus, Loader2, ChevronDown, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -263,9 +263,9 @@ export function HeaderSection() {
           />
         }
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -274,22 +274,35 @@ export function HeaderSection() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="h-8 w-8 text-muted-foreground" />
+                <User className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
+          </div>
+          <div className="flex flex-col gap-1">
             <Button
-              size="icon"
-              variant="secondary"
-              className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-md"
+              variant="outline"
+              size="sm"
               onClick={() => avatarInputRef.current?.click()}
               disabled={isUploading}
             >
               {isUploading && imageType === "avatar" ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Camera className="h-4 w-4" />
+                <Camera className="h-4 w-4 mr-2" />
               )}
+              {avatarUrl ? "Change" : "Upload"}
             </Button>
+            {avatarUrl && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setAvatarUrl(null)}
+                className="text-destructive hover:text-destructive"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Remove
+              </Button>
+            )}
           </div>
           <input
             ref={avatarInputRef}
@@ -394,32 +407,21 @@ export function HeaderSection() {
           />
         }
       >
-        <div className="flex items-center gap-4">
-          {logoUrl ? (
-            <div className="relative">
+        <div className="flex items-center gap-3">
+          {logoUrl && (
+            <div className="h-12 max-w-[120px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-16 max-w-[200px] object-contain bg-transparent"
+                className="h-full w-auto object-contain"
               />
-              <Button
-                size="icon"
-                variant="secondary"
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
-                onClick={() => logoInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                {isUploading && imageType === "logo" ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Camera className="h-3 w-3" />
-                )}
-              </Button>
             </div>
-          ) : (
+          )}
+          <div className="flex flex-col gap-1">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => logoInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -428,9 +430,20 @@ export function HeaderSection() {
               ) : (
                 <Upload className="h-4 w-4 mr-2" />
               )}
-              Upload Logo
+              {logoUrl ? "Change" : "Upload"}
             </Button>
-          )}
+            {logoUrl && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLogoUrl(null)}
+                className="text-destructive hover:text-destructive"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Remove
+              </Button>
+            )}
+          </div>
           <input
             ref={logoInputRef}
             type="file"

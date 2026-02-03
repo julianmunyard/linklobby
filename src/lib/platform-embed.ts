@@ -279,7 +279,10 @@ export function getEmbedUrl(url: string, platform: EmbedPlatform): string {
   switch (platform) {
     case 'spotify': {
       // open.spotify.com/track/ID -> open.spotify.com/embed/track/ID
-      return url.replace('open.spotify.com/', 'open.spotify.com/embed/')
+      // Add theme=0 for dark mode to avoid white background in corners
+      const embedUrl = url.replace('open.spotify.com/', 'open.spotify.com/embed/')
+      const separator = embedUrl.includes('?') ? '&' : '?'
+      return `${embedUrl}${separator}theme=0`
     }
 
     case 'apple-music': {
