@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { SocialIconsEditor } from "./social-icons-editor"
 import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
@@ -83,7 +84,7 @@ export function HeaderSection() {
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
-  const socialIconSize = useProfileStore((state) => state.socialIconSize)
+  const socialIconSize = useThemeStore((state) => state.socialIconSize)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -98,7 +99,7 @@ export function HeaderSection() {
   const setLogoScale = useProfileStore((state) => state.setLogoScale)
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
-  const setSocialIconSize = useProfileStore((state) => state.setSocialIconSize)
+  const setSocialIconSize = useThemeStore((state) => state.setSocialIconSize)
 
   // Local state for crop dialog
   const [cropDialogOpen, setCropDialogOpen] = useState(false)

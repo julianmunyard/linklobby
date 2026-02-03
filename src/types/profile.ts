@@ -240,6 +240,5 @@ export interface Profile {
   profileLayout: ProfileLayout
   showSocialIcons: boolean
   socialIcons: SocialIcon[]
-  socialIconSize: number  // Icon size in pixels (16-48), default 24
   headerTextColor: string | null  // Custom color for title, bio, icons (null = use theme text color)
 }

@@ -14,14 +14,18 @@ import type { CardType } from '@/types/card'
 import { getTheme, getThemeDefaults } from '@/lib/themes'
 
 interface ThemeStore extends ThemeState {
+  // Additional state (not in ThemeState type)
+  socialIconSize: number  // Icon size in pixels (16-48), default 24
+
   // Actions
   setTheme: (themeId: ThemeId) => void
   setPalette: (paletteId: string) => void
   setColor: (key: keyof ColorPalette, value: string) => void
-  setFont: (key: keyof FontConfig, value: string | number) => void
+  setFont: (key: keyof FontConfig, value: string | number | boolean) => void
   setStyle: (key: keyof StyleConfig, value: number | boolean) => void
   setBackground: (background: BackgroundConfig) => void
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
+  setSocialIconSize: (size: number) => void
   resetToThemeDefaults: () => void
 }
 
@@ -45,6 +49,8 @@ const initialState: ThemeState = {
     headingSize: 1.1,
     bodySize: 1,
     headingWeight: 'bold',
+    fuzzyEnabled: false,
+    fuzzyIntensity: 0.19,
   },
   style: defaultDefaults?.style ?? {
     borderRadius: 8,
@@ -71,6 +77,7 @@ export const useThemeStore = create<ThemeStore>()(
   persist(
     (set, get) => ({
       ...initialState,
+      socialIconSize: 24,
 
       setTheme: (themeId: ThemeId) => {
         const theme = getTheme(themeId)
@@ -127,7 +134,7 @@ export const useThemeStore = create<ThemeStore>()(
         })
       },
 
-      setFont: (key: keyof FontConfig, value: string | number) => {
+      setFont: (key: keyof FontConfig, value: string | number | boolean) => {
         set((state) => ({
           fonts: {
             ...state.fonts,
@@ -163,6 +170,10 @@ export const useThemeStore = create<ThemeStore>()(
             [cardType]: size,
           },
         }))
+      },
+
+      setSocialIconSize: (size: number) => {
+        set({ socialIconSize: size })
       },
 
       resetToThemeDefaults: () => {

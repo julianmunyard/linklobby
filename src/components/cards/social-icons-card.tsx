@@ -2,6 +2,7 @@
 "use client"
 
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { PLATFORM_ICONS } from "@/components/editor/social-icon-picker"
 import type { Card } from "@/types/card"
 
@@ -13,7 +14,7 @@ interface SocialIconsCardProps {
 export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
   const getSortedSocialIcons = useProfileStore((state) => state.getSortedSocialIcons)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
-  const socialIconSize = useProfileStore((state) => state.socialIconSize)
+  const socialIconSize = useThemeStore((state) => state.socialIconSize)
   const headerTextColor = useProfileStore((state) => state.headerTextColor)
 
   const socialIcons = getSortedSocialIcons()
