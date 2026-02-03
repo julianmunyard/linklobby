@@ -5,6 +5,7 @@ import { Plus, Trash2, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import {
   Select,
   SelectContent,
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useProfileStore } from "@/stores/profile-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { PLATFORM_ICONS } from "./social-icon-picker"
 import { SOCIAL_PLATFORMS, type SocialPlatform, type SocialIcon } from "@/types/profile"
 
@@ -26,6 +28,8 @@ export function SocialIconsCardFields() {
   const addSocialIcon = useProfileStore((state) => state.addSocialIcon)
   const updateSocialIcon = useProfileStore((state) => state.updateSocialIcon)
   const removeSocialIcon = useProfileStore((state) => state.removeSocialIcon)
+  const socialIconSize = useThemeStore((state) => state.socialIconSize)
+  const setSocialIconSize = useThemeStore((state) => state.setSocialIconSize)
 
   const [newPlatform, setNewPlatform] = useState<SocialPlatform | "">("")
   const [newUrl, setNewUrl] = useState("")
@@ -68,6 +72,22 @@ export function SocialIconsCardFields() {
 
   return (
     <div className="space-y-4">
+      {/* Icon Size Slider */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm">Icon Size</Label>
+          <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+        </div>
+        <Slider
+          value={[socialIconSize]}
+          onValueChange={(value) => setSocialIconSize(value[0])}
+          min={16}
+          max={48}
+          step={4}
+          className="w-full"
+        />
+      </div>
+
       <Label>Social Icons</Label>
 
       {/* List of existing icons */}
