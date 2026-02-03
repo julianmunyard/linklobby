@@ -36,9 +36,13 @@ export default async function PublicPage({ params }: PublicPageProps) {
 
   // Extract theme settings and fuzzy text configuration
   const themeSettings = page.theme_settings
+  const themeId = themeSettings?.themeId ?? 'mac-os'
   const fuzzyEnabled = themeSettings?.fonts?.fuzzyEnabled ?? false
   const fuzzyIntensity = themeSettings?.fonts?.fuzzyIntensity ?? 0.19
   const fuzzySpeed = themeSettings?.fonts?.fuzzySpeed ?? 12
+  const headingSize = themeSettings?.fonts?.headingSize ?? 1.8
+  const bodySize = themeSettings?.fonts?.bodySize ?? 1.5
+  const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -57,6 +61,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
       {/* Render public page */}
       <PublicPageRenderer
         background={background}
+        themeId={themeId}
         displayName={profile.display_name}
         bio={profile.bio}
         avatarUrl={profile.avatar_url}
@@ -74,6 +79,9 @@ export default async function PublicPage({ params }: PublicPageProps) {
         fuzzyEnabled={fuzzyEnabled}
         fuzzyIntensity={fuzzyIntensity}
         fuzzySpeed={fuzzySpeed}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        vcrCenterContent={vcrCenterContent}
         cards={cards}
       />
 

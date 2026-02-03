@@ -212,3 +212,4 @@ export function StaticFrameOverlay({ background }: StaticFrameOverlayProps) {
     </div>
   )
 }
+

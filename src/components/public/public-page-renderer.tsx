@@ -1,7 +1,8 @@
 import { StaticProfileHeader } from "./static-profile-header"
 import { StaticFlowGrid } from "./static-flow-grid"
+import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import type { Card } from "@/types/card"
-import type { BackgroundConfig } from "@/types/theme"
+import type { BackgroundConfig, ThemeId } from "@/types/theme"
 
 // Frame inset config - defines the "screen" area for frames (as percentages of viewport)
 const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; right: number }> = {
@@ -33,8 +34,14 @@ interface PublicPageRendererProps {
   fuzzyEnabled?: boolean
   fuzzyIntensity?: number
   fuzzySpeed?: number
+  // Font sizes (for VCR theme)
+  headingSize?: number
+  bodySize?: number
+  vcrCenterContent?: boolean
   // Background (for frame positioning)
   background?: BackgroundConfig
+  // Theme (for layout selection)
+  themeId?: ThemeId
   // Cards
   cards: Card[]
 }
@@ -66,9 +73,26 @@ export function PublicPageRenderer({
   fuzzyEnabled,
   fuzzyIntensity,
   fuzzySpeed,
+  headingSize,
+  bodySize,
+  vcrCenterContent,
   background,
+  themeId,
   cards,
 }: PublicPageRendererProps) {
+  // VCR Menu theme uses completely different layout
+  if (themeId === 'vcr-menu') {
+    return (
+      <StaticVcrMenuLayout
+        title={displayName || 'MENU'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        centerContent={vcrCenterContent}
+      />
+    )
+  }
+
   // Get frame insets if a frame overlay is active with fit content enabled
   const frameOverlay = background?.frameOverlay
   const frameFitContent = background?.frameFitContent ?? true // Default to true

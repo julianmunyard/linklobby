@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -84,6 +84,7 @@ export interface ThemeConfig {
   hasGlassEffect?: boolean     // For glass-style themes
   hasSpreadText?: boolean      // Instagram Reels only
   hasWindowChrome?: boolean    // System Settings only
+  isListLayout?: boolean       // VCR Menu - simple text list instead of cards
 }
 
 export interface ThemeState {
@@ -95,4 +96,5 @@ export interface ThemeState {
   background: BackgroundConfig
   cardTypeFontSizes: CardTypeFontSizes
   socialIconSize?: number  // Icon size in pixels (16-48), default 24
+  vcrCenterContent?: boolean  // VCR theme: center content vertically
 }

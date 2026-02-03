@@ -16,6 +16,7 @@ import { getTheme, getThemeDefaults } from '@/lib/themes'
 interface ThemeStore extends ThemeState {
   // Additional state (not in ThemeState type)
   socialIconSize: number  // Icon size in pixels (16-48), default 24
+  vcrCenterContent: boolean  // VCR theme: center content vertically
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -27,6 +28,7 @@ interface ThemeStore extends ThemeState {
   setBackground: (background: BackgroundConfig) => void
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
   setSocialIconSize: (size: number) => void
+  setVcrCenterContent: (center: boolean) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -84,6 +86,7 @@ export const useThemeStore = create<ThemeStore>()(
     (set, get) => ({
       ...initialState,
       socialIconSize: 24,
+      vcrCenterContent: false,
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -189,6 +192,10 @@ export const useThemeStore = create<ThemeStore>()(
         set({ socialIconSize: size, hasChanges: true })
       },
 
+      setVcrCenterContent: (center: boolean) => {
+        set({ vcrCenterContent: center, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -224,6 +231,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: theme.style,
           background: theme.background,
           cardTypeFontSizes: theme.cardTypeFontSizes || initialState.cardTypeFontSizes,
+          vcrCenterContent: theme.vcrCenterContent ?? false,
           hasChanges: false,
         })
       },
@@ -238,6 +246,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: state.style,
           background: state.background,
           cardTypeFontSizes: state.cardTypeFontSizes,
+          vcrCenterContent: state.vcrCenterContent,
         }
       },
     }),

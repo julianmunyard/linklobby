@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 
 export function StyleControls() {
-  const { themeId, style, setStyle } = useThemeStore()
+  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent } = useThemeStore()
   const theme = getTheme(themeId)
 
   return (
@@ -64,6 +64,20 @@ export function StyleControls() {
           <p className="text-xs text-muted-foreground">
             Blur effect for glass-style cards. Keep under 16px for best mobile performance.
           </p>
+        </div>
+      )}
+
+      {/* VCR Theme: Center Content Toggle */}
+      {themeId === 'vcr-menu' && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Center Content</Label>
+            <p className="text-xs text-muted-foreground">Vertically center on screen</p>
+          </div>
+          <Switch
+            checked={vcrCenterContent}
+            onCheckedChange={setVcrCenterContent}
+          />
         </div>
       )}
 

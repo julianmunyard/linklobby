@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* VCR Menu Font */
+@font-face {
+  font-family: 'Pixter Granular';
+  src: url('/fonts/pixter-granular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -56,6 +65,7 @@
   /* Font tokens */
   --font-theme-heading: var(--theme-font-heading, var(--font-geist-sans));
   --font-theme-body: var(--theme-font-body, var(--font-geist-sans));
+  --font-pixter-granular: 'Pixter Granular', monospace;
 
   /* Style tokens */
   --radius-theme-card: var(--theme-border-radius, 0.75rem);
@@ -109,6 +119,9 @@
   --theme-blur-intensity: 16px;
   --theme-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --theme-shadow-enabled: 1;
+
+  /* VCR Menu font variable */
+  --font-pixter-granular: 'Pixter Granular', monospace;
 }
 
 .dark {
@@ -167,6 +180,36 @@
 /* Instagram Reels Theme Variants */
 [data-theme="instagram-reels"] {
   --theme-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
+}
+
+/* VCR Menu Theme Variants */
+[data-theme="vcr-menu"] {
+  --theme-shadow: none;
+  --font-pixter-granular: 'Pixter Granular', monospace;
+}
+
+/* VCR Menu item hover states */
+.vcr-menu-item:hover,
+.vcr-menu-item:focus {
+  background-color: var(--theme-text) !important;
+  color: var(--theme-background) !important;
+  outline: none;
+}
+
+/* VCR flashing/blinking animation for focused item */
+@keyframes vcr-blink {
+  0%, 60% {
+    background-color: var(--theme-text);
+    color: var(--theme-background);
+  }
+  61%, 100% {
+    background-color: transparent;
+    color: var(--theme-text);
+  }
+}
+
+.vcr-blink {
+  animation: vcr-blink 1.4s steps(1) infinite;
 }
 
 /* Shadow utility that respects theme */

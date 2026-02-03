@@ -56,7 +56,7 @@ export function FontPicker() {
             value={[fonts.headingSize]}
             onValueChange={([value]) => setFont('headingSize', value)}
             min={0.75}
-            max={2}
+            max={3}
             step={0.125}
             className="flex-1"
           />
@@ -121,7 +121,7 @@ export function FontPicker() {
             value={[fonts.bodySize]}
             onValueChange={([value]) => setFont('bodySize', value)}
             min={0.75}
-            max={1.5}
+            max={2.5}
             step={0.125}
             className="flex-1"
           />

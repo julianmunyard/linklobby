@@ -74,25 +74,50 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
     cssVariables["--bg-image"] = `url(${background.value})`
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: `
-          :root {
-            ${Object.entries(cssVariables)
-              .map(([key, value]) => `${key}: ${value};`)
-              .join("\n            ")}
-          }
+  // Get theme ID for data-theme attribute
+  const themeId = themeSettings?.themeId ?? 'mac-os'
 
-          body {
-            background-color: var(--bg-color);
-            color: var(--fg-color);
-            ${background.type === "image" && background.value
-              ? "background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed;"
-              : ""}
-          }
-        `,
-      }}
-    />
+  return (
+    <>
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            :root {
+              ${Object.entries(cssVariables)
+                .map(([key, value]) => `${key}: ${value};`)
+                .join("\n            ")}
+              --theme-background: ${colors.background};
+              --theme-card-bg: ${colors.cardBg};
+              --theme-text: ${colors.text};
+              --theme-accent: ${colors.accent};
+              --theme-border: ${colors.border};
+              --theme-link: ${colors.link};
+              --theme-font-heading: ${fonts.heading};
+              --theme-font-body: ${fonts.body};
+              --font-theme-heading: ${fonts.heading};
+              --font-theme-body: ${fonts.body};
+              --font-pixter-granular: 'Pixter Granular', monospace;
+            }
+
+            html {
+              data-theme: ${themeId};
+            }
+
+            body {
+              background-color: var(--bg-color);
+              color: var(--fg-color);
+              ${background.type === "image" && background.value
+                ? "background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed;"
+                : ""}
+            }
+          `,
+        }}
+      />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.setAttribute('data-theme', '${themeId}');`,
+        }}
+      />
+    </>
   )
 }

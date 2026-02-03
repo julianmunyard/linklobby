@@ -5,6 +5,7 @@ import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
 import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
+import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -59,7 +60,8 @@ function PreviewContent() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
   const { clearSelection } = useMultiSelectContext()
-  const { background } = useThemeStore()
+  const { background, themeId } = useThemeStore()
+  const displayName = useProfileStore((s) => s.displayName)
 
   // Send SELECT_CARD message to parent editor
   const handleCardClick = useCallback((cardId: string) => {
@@ -133,6 +135,30 @@ function PreviewContent() {
   }, [])
 
   const hasCards = state.cards.length > 0
+
+  // VCR Menu theme uses completely different layout
+  if (themeId === 'vcr-menu') {
+    return (
+      <>
+        {/* Page background */}
+        <PageBackground />
+        {/* Dim overlay */}
+        <DimOverlay />
+
+        {/* VCR Menu Layout */}
+        <VcrMenuLayout
+          title={displayName || 'MENU'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+
+        {/* Noise overlay */}
+        <NoiseOverlay />
+      </>
+    )
+  }
 
   // Get frame insets if a frame overlay is active
   const frameInsets = background.frameOverlay ? FRAME_INSETS[background.frameOverlay] : null
