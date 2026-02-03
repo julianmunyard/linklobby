@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
-import { PageBackground, FrameOverlay } from "@/components/preview/page-background"
+import { PageBackground, FrameOverlay, NoiseOverlay } from "@/components/preview/page-background"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -110,6 +110,7 @@ function PreviewContent() {
             style: ts.style,
             background: ts.background,
             cardTypeFontSizes: ts.cardTypeFontSizes,
+            socialIconSize: ts.socialIconSize,
           })
         }
       }
@@ -154,30 +155,28 @@ function PreviewContent() {
         {/* Page background (solid, image, or video) */}
         <PageBackground />
 
-        {/* Content container - transforms with the frame */}
+        {/* Content container - sized horizontally to frame, full height so content scrolls behind */}
         <div
-          className="fixed inset-0 overflow-hidden pointer-events-none"
+          className="fixed overflow-y-auto overflow-x-hidden pointer-events-auto text-theme-text"
+          onClick={handleBackgroundClick}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+            // Horizontal: sized to frame's screen area and centered
+            width: `${100 - frameInsets.left - frameInsets.right}vw`,
+            left: `${frameInsets.left}vw`,
+            // Vertical: full viewport height so content scrolls behind frame top/bottom
+            top: 0,
+            bottom: 0,
+            // Transform to match frame zoom/position + content adjustments
+            transform: `scale(${frameZoom * contentZoom}) translate(${framePosX + contentOffsetX}%, ${framePosY + contentOffsetY}%)`,
+            transformOrigin: 'center center',
+            // Vertical padding positions content in visible area
+            paddingTop: `${frameInsets.top}vh`,
+            paddingBottom: `${frameInsets.bottom}vh`,
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+            '--page-padding-x': '1rem',
+          } as React.CSSProperties}
         >
-          <div
-            className="relative overflow-auto pointer-events-auto text-theme-text"
-            onClick={handleBackgroundClick}
-            style={{
-              // Size based on frame's screen area
-              width: `${100 - frameInsets.left - frameInsets.right}vw`,
-              height: `${100 - frameInsets.top - frameInsets.bottom}vh`,
-              // Transform to match frame zoom/position + content adjustments
-              transform: `scale(${frameZoom * contentZoom}) translate(${framePosX + contentOffsetX}%, ${framePosY + contentOffsetY}%)`,
-              transformOrigin: 'center center',
-              // Padding inside the content area
-              padding: '1rem',
-              '--page-padding-x': '1rem',
-            } as React.CSSProperties}
-          >
             <ProfileHeader />
             {!hasCards ? (
               <div className="flex flex-col items-center justify-center min-h-full text-center">
@@ -206,9 +205,10 @@ function PreviewContent() {
                 onCardClick={handleCardClick}
               />
             )}
-          </div>
         </div>
 
+        {/* Noise overlay */}
+        <NoiseOverlay />
         {/* Frame overlay */}
         <FrameOverlay />
       </>
@@ -221,7 +221,7 @@ function PreviewContent() {
   return (
     <>
       <div
-        className="min-h-screen text-theme-text"
+        className="min-h-screen text-theme-text overflow-x-hidden"
         onClick={handleBackgroundClick}
         style={frameInsets ? {
           // Padding pushes content into the "screen" area
@@ -294,6 +294,8 @@ function PreviewContent() {
         )}
       </div>
 
+      {/* Noise overlay */}
+      <NoiseOverlay />
       {/* Frame overlay - sits ON TOP of everything */}
       <FrameOverlay />
     </>

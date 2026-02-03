@@ -19,6 +19,10 @@ export interface FontConfig {
   headingSize: number     // rem multiplier (1 = base, 1.25 = 25% larger)
   bodySize: number        // rem multiplier
   headingWeight: 'normal' | 'bold'
+  // Fuzzy/distress text effect
+  fuzzyEnabled?: boolean  // Whether distress effect is enabled
+  fuzzyIntensity?: number // 0-1 range, default 0.19
+  fuzzySpeed?: number     // FPS for animation, default 12
 }
 
 export interface StyleConfig {
@@ -47,6 +51,12 @@ export interface BackgroundConfig {
   contentOffsetX?: number    // Content X offset (default: 0, range: -20 to 20)
   contentOffsetY?: number    // Content Y offset (default: 0, range: -20 to 20)
   contentZoom?: number       // Content zoom (default: 1, range: 0.8 to 1.2)
+  // Noise overlay
+  noiseOverlay?: boolean     // Whether noise grain overlay is enabled
+  noiseIntensity?: number    // Noise opacity (0-100, default 15)
+  // Dim overlay
+  dimOverlay?: boolean       // Whether to dim the background
+  dimIntensity?: number      // Dim opacity (0-100, default 40)
 }
 
 // Font sizes for each card type (rem multiplier, 1 = base)
@@ -84,4 +94,5 @@ export interface ThemeState {
   style: StyleConfig
   background: BackgroundConfig
   cardTypeFontSizes: CardTypeFontSizes
+  socialIconSize?: number  // Icon size in pixels (16-48), default 24
 }
