@@ -35,7 +35,10 @@ export function MacOSCard({ children, className, transparentBackground = false }
     >
       {/* Title bar with traffic lights */}
       <div
-        className="flex items-center gap-2 px-3 py-2 bg-gradient-to-b from-white/5 to-transparent"
+        className={cn(
+          "flex items-center gap-2 px-3 py-2",
+          !transparentBackground && "bg-gradient-to-b from-white/5 to-transparent"
+        )}
         style={{ borderBottom: `1px solid ${titleBarLineColor}` }}
       >
         <MacOSTrafficLights />

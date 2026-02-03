@@ -29,7 +29,10 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
         style={{ borderRadius: '6px' }}
       >
         <div
-          className="bg-theme-accent border border-theme-text overflow-hidden"
+          className={cn(
+            "border border-theme-text overflow-hidden",
+            !transparentBackground && "bg-theme-accent"
+          )}
           style={{ borderRadius: '4px' }}
         >
           {children}
@@ -72,7 +75,10 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
       {/* Content area - inner box uses accent color, same border color */}
       <div className="px-1.5 pb-1.5">
         <div
-          className="bg-theme-accent border border-theme-text overflow-hidden"
+          className={cn(
+            "border border-theme-text overflow-hidden",
+            !transparentBackground && "bg-theme-accent"
+          )}
           style={{ borderRadius: '4px' }}
         >
           {children}
