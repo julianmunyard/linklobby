@@ -134,10 +134,11 @@ export interface SquareCardContent {
 export interface VideoCardContent {
   videoType?: 'embed' | 'upload'  // Defaults to 'embed'
   // For embeds
-  embedUrl?: string           // Original URL (YouTube/Vimeo/TikTok)
-  embedService?: 'youtube' | 'vimeo' | 'tiktok'
+  embedUrl?: string           // Original URL (YouTube/Vimeo/TikTok/Instagram)
+  embedService?: 'youtube' | 'vimeo' | 'tiktok' | 'instagram'
   embedVideoId?: string
   embedThumbnailUrl?: string
+  embedIsVertical?: boolean   // True for TikTok and Instagram Reels (9:16 aspect ratio)
   // For uploads
   uploadedVideoUrl?: string
   uploadedVideoPath?: string  // Supabase Storage path for deletion

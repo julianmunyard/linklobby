@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { Link2, Upload, Loader2, AlertCircle, RotateCcw } from 'lucide-react'
 import { parseVideoUrl } from '@/lib/video-embed'
 import { uploadCardVideo } from '@/lib/supabase/storage'
+import { useThemeStore } from '@/stores/theme-store'
 import type { VideoCardContent } from '@/types/card'
 
 interface VideoCardFieldsProps {
@@ -22,6 +24,10 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
   const [embedUrlInput, setEmbedUrlInput] = useState(content.embedUrl || '')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Global font size for all video cards
+  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.video)
+  const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
 
   // Drag state for video positioning (use refs to avoid stale closure issues)
   const isDraggingRef = useRef(false)
@@ -52,6 +58,7 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
         embedService: videoInfo.service,
         embedVideoId: videoInfo.id,
         embedThumbnailUrl: videoInfo.thumbnailUrl,
+        embedIsVertical: videoInfo.isVertical,
       })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Invalid video URL'
@@ -164,6 +171,28 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
 
   return (
     <div className="space-y-4">
+      {/* Font Size - applies to all video cards */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <Label>Font Size (all video cards)</Label>
+          <span className="text-muted-foreground">{Math.round(fontSize * 100)}%</span>
+        </div>
+        <Slider
+          value={[fontSize]}
+          onValueChange={(v) => setCardTypeFontSize('video', v[0])}
+          min={0.5}
+          max={2}
+          step={0.1}
+        />
+      </div>
+
+      {/* Text Color */}
+      <ColorPicker
+        label="Text Color"
+        color={content.textColor || "#ffffff"}
+        onChange={(color) => onChange({ textColor: color })}
+      />
+
       {/* Video Source Toggle */}
       <div className="space-y-2">
         <Label>Video Source</Label>
@@ -284,7 +313,7 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
               <Input
                 id="videoUpload"
                 type="file"
-                accept="video/mp4,video/webm,video/ogg"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime,.mov"
                 onChange={handleFileUpload}
                 disabled={isLoading}
                 className="hidden"
@@ -296,7 +325,7 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
               <Input
                 id="videoUpload"
                 type="file"
-                accept="video/mp4,video/webm,video/ogg"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime,.mov"
                 onChange={handleFileUpload}
                 disabled={isLoading}
                 className="cursor-pointer"
@@ -323,7 +352,7 @@ export function VideoCardFields({ content, onChange, cardId }: VideoCardFieldsPr
             <Input
               id="embedUrl"
               type="url"
-              placeholder="Paste YouTube, Vimeo, or TikTok URL"
+              placeholder="Paste YouTube, Vimeo, TikTok, or Instagram URL"
               value={embedUrlInput}
               onChange={(e) => setEmbedUrlInput(e.target.value)}
               onBlur={handleEmbedUrlBlur}

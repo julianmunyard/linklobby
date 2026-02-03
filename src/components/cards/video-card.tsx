@@ -90,7 +90,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
     return (
       <VideoCardEmbed
         embedUrl={content.embedUrl as string}
-        embedService={content.embedService as 'youtube' | 'vimeo' | 'tiktok' | undefined}
+        embedService={content.embedService as 'youtube' | 'vimeo' | 'tiktok' | 'instagram' | undefined}
         embedVideoId={content.embedVideoId as string | undefined}
         thumbnailUrl={content.embedThumbnailUrl as string | undefined}
         title={card.title}
@@ -99,6 +99,7 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         textColor={textColor}
         fontSize={fontSize}
         showRetroControls={isSystemSettings}
+        embedIsVertical={content.embedIsVertical as boolean | undefined}
       />
     )
   }
@@ -196,7 +197,7 @@ function VideoCardUpload({
 
 interface VideoCardEmbedProps {
   embedUrl: string
-  embedService?: 'youtube' | 'vimeo' | 'tiktok'
+  embedService?: 'youtube' | 'vimeo' | 'tiktok' | 'instagram'
   embedVideoId?: string
   thumbnailUrl?: string
   title: string | null
@@ -205,6 +206,25 @@ interface VideoCardEmbedProps {
   textColor?: string
   fontSize?: number
   showRetroControls?: boolean
+  embedIsVertical?: boolean
+}
+
+// Container for 9:16 vertical content (TikTok, Instagram Reels)
+function VerticalEmbedContainer({ children }: { children: React.ReactNode }) {
+  return (
+    // Center the container and constrain max width
+    <div className="relative w-full flex justify-center">
+      {/* Max width matches TikTok's embed max (325px) */}
+      <div className="relative w-full max-w-[325px]">
+        {/* 9:16 aspect ratio: 16/9 * 100 = 177.78% */}
+        <div className="relative w-full pb-[177.78%]">
+          <div className="absolute inset-0">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function VideoCardEmbed({
@@ -218,8 +238,14 @@ function VideoCardEmbed({
   textColor = '#ffffff',
   fontSize = 1,
   showRetroControls = false,
+  embedIsVertical = false,
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // Check if this is vertical content (9:16 aspect ratio)
+  const isVertical = embedIsVertical ||
+    embedService === 'tiktok' ||
+    (embedService === 'instagram' && embedUrl?.includes('/reel'))
 
   // Text alignment classes
   const textAlignClass = {
@@ -241,9 +267,88 @@ function VideoCardEmbed({
     if (embedService === 'youtube' && embedUrl.includes('watch?v=')) {
       return `https://www.youtube.com/embed/${embedVideoId}`
     }
+    // TikTok: use v2 embed URL
+    if (embedService === 'tiktok' && embedVideoId) {
+      return `https://www.tiktok.com/embed/v2/${embedVideoId}`
+    }
+    // Instagram: ensure embed format
+    if (embedService === 'instagram') {
+      if (embedUrl.includes('/embed/')) return embedUrl
+      const postId = embedUrl.match(/\/(p|reel|reels)\/([a-zA-Z0-9_-]+)/)?.[2]
+      if (postId) return `https://www.instagram.com/p/${postId}/embed/`
+    }
     return embedUrl
   }
 
+  // Vertical content (TikTok, Instagram Reels) - 9:16 aspect ratio
+  if (isVertical) {
+    if (isPlaying) {
+      return (
+        <div className="relative w-full flex flex-col">
+          <VerticalEmbedContainer>
+            <iframe
+              src={getEmbedUrl()}
+              className="w-full h-full rounded-xl"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={title || 'Video'}
+            />
+          </VerticalEmbedContainer>
+          {showRetroControls && <RetroVideoControlBar title={title} />}
+        </div>
+      )
+    }
+
+    // Vertical thumbnail view with play button
+    return (
+      <div className="relative w-full flex flex-col">
+        <VerticalEmbedContainer>
+          <button
+            onClick={() => setIsPlaying(true)}
+            className="relative w-full h-full overflow-hidden bg-muted group cursor-pointer block rounded-xl"
+            aria-label={`Play ${title || 'video'}`}
+          >
+            {/* Thumbnail image or placeholder */}
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
+                alt={title || 'Video thumbnail'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 325px"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                <Play className="h-16 w-16 text-muted-foreground" />
+              </div>
+            )}
+
+            {/* Play button overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform group-hover:scale-110 border border-white/20">
+                <Play className="h-5 w-5 text-white ml-0.5" fill="currentColor" />
+              </div>
+            </div>
+
+            {/* Title overlay (optional) - hide when retro controls shown */}
+            {title && !showRetroControls && (
+              <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
+                <p
+                  className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
+                  style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
+                >
+                  {title}
+                </p>
+              </div>
+            )}
+          </button>
+        </VerticalEmbedContainer>
+        {showRetroControls && <RetroVideoControlBar title={title} />}
+      </div>
+    )
+  }
+
+  // Standard horizontal content (YouTube, Vimeo) - 16:9 aspect ratio
   if (isPlaying) {
     return (
       <div className="relative w-full flex flex-col">
