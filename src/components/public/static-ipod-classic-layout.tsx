@@ -9,35 +9,6 @@ interface StaticIpodClassicLayoutProps {
   cards: Card[]
   headingSize?: number
   bodySize?: number
-  accentColor?: string
-}
-
-// Extract first emoji from string, or return fallback icon based on card type
-function getCardIcon(card: Card): string {
-  // Try to extract emoji from title
-  if (card.title) {
-    const emojiMatch = card.title.match(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u)
-    if (emojiMatch) return emojiMatch[0]
-  }
-
-  // Fallback icons by card type
-  switch (card.card_type) {
-    case 'link':
-    case 'horizontal':
-      return '\u{1F517}' // link icon
-    case 'hero':
-      return '\u{2B50}' // star
-    case 'video':
-      return '\u{25B6}' // play
-    case 'gallery':
-      return '\u{1F5BC}' // image
-    case 'music':
-      return '\u{1F3B5}' // music note
-    case 'social-icons':
-      return '\u{1F465}' // people
-    default:
-      return '\u{2022}' // bullet point
-  }
 }
 
 /**
@@ -48,8 +19,7 @@ export function StaticIpodClassicLayout({
   title,
   cards,
   headingSize = 1.0,
-  bodySize = 1.0,
-  accentColor = '#2a6eff'
+  bodySize = 1.0
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -176,12 +146,9 @@ export function StaticIpodClassicLayout({
               </div>
 
               {/* Menu Header */}
-              <div
-                className="ipod-menu-header"
-                style={{ background: `linear-gradient(180deg, ${accentColor} 0%, ${accentColor}dd 100%)` }}
-              >
-                <span className="font-bold text-[14px] tracking-wide">{displayTitle}</span>
-                <span className="text-[12px] font-medium tabular-nums">{formatTime(currentTime)}</span>
+              <div className="ipod-menu-header">
+                <span className="font-bold text-[12px] tracking-wide">{displayTitle}</span>
+                <span className="text-[11px] font-medium tabular-nums">{formatTime(currentTime)}</span>
               </div>
 
               {/* Menu List */}
@@ -204,9 +171,8 @@ export function StaticIpodClassicLayout({
                         )}
                         onClick={() => handleMenuItemClick(card, index)}
                       >
-                        <span className="w-5 mr-2 text-[12px] text-center">{getCardIcon(card)}</span>
-                        <span className="flex-1 text-[13px] tracking-wide truncate">{displayText}</span>
-                        {isSelected && <span className="text-[10px] ml-1">{'\u25B6'}</span>}
+                        <span className="flex-1 text-[12px] truncate">{displayText}</span>
+                        <span className="text-[11px] ml-2">{'>'}</span>
                       </div>
                     )
                   })
@@ -285,11 +251,6 @@ export function StaticIpodClassicLayout({
           </div>
         </div>
 
-        {/* Instructions (desktop only) */}
-        <div className="ipod-instructions">
-          <p>Use {'\u2191'} {'\u2193'} arrow keys or click wheel to navigate</p>
-          <p>Press Enter or center button to open link</p>
-        </div>
       </div>
     </div>
   )

@@ -177,6 +177,13 @@ export const pixterGranular = localFont({
   display: 'swap',
 })
 
+// iPod Classic font
+export const chiqReducedBold = localFont({
+  src: '../../public/fonts/chiq-reduced-bold.ttf',
+  variable: '--font-chiq',
+  display: 'swap',
+})
+
 // Combine all font variables for layout className
 export const fontVariables = [
   // System/Classic
@@ -210,6 +217,8 @@ export const fontVariables = [
   pixolde.variable,
   // VCR/VHS fonts
   pixterGranular.variable,
+  // iPod fonts
+  chiqReducedBold.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -243,6 +252,7 @@ export const CURATED_FONTS = [
   { id: 'ishmeria', name: 'Ishmeria', variable: 'var(--font-ishmeria)', category: 'retro' as const },
   { id: 'pixolde', name: 'Pixolde', variable: 'var(--font-pixolde)', category: 'retro' as const },
   { id: 'pixter-granular', name: 'Pixter Granular', variable: 'var(--font-pixter-granular)', category: 'retro' as const },
+  { id: 'chiq', name: 'Chiq', variable: 'var(--font-chiq)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']

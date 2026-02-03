@@ -19,8 +19,8 @@ export const vcrMenuTheme: ThemeConfig = {
   defaultFonts: {
     heading: 'var(--font-pixter-granular)',
     body: 'var(--font-pixter-granular)',
-    headingSize: 1.8,
-    bodySize: 1.5,
+    headingSize: 3.0,
+    bodySize: 1.63,
     headingWeight: 'normal',
   },
 

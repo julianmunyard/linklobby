@@ -17,11 +17,11 @@ export const ipodClassicTheme: ThemeConfig = {
   },
 
   defaultFonts: {
-    heading: 'var(--font-inter)',    // Clean system font
-    body: 'var(--font-inter)',
-    headingSize: 1.0,
-    bodySize: 1.0,
-    headingWeight: 'bold',
+    heading: 'var(--font-chiq)',     // Classic Chicago-style font
+    body: 'var(--font-chiq)',
+    headingSize: 0.85,               // Smaller since Chiq is chunky
+    bodySize: 0.8,
+    headingWeight: 'normal',
   },
 
   defaultStyle: {
