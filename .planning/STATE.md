@@ -5,16 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 8 Public Page
+**Current focus:** Phase 9 Platform Integrations
 
 ## Current Position
 
-Phase: 8 of 18 - Public Page (COMPLETE)
-Plan: 4 of 4 - SEO Features Complete
-Status: **Phase 8 complete - Public page fully functional with SEO**
-Last activity: 2026-02-03 - Completed 08-04-PLAN.md (SEO Features)
+Phase: 9 of 18 - Platform Integrations (IN PROGRESS)
+Plan: 2 of 8 - Playback Coordination Context Complete
+Status: **Executing Phase 9 - Platform embed support**
+Last activity: 2026-02-03 - Completed 09-02-PLAN.md (Playback Coordination Context)
 
-Progress: [████████████████████████████████] 100%
+Progress: [████████████████░░░░░░░░░░░░░░░░] ~50%
+
+### IN PROGRESS: Phase 9 - Platform Integrations
+
+Building embed support for major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
+- ✓ Plan 01: Research and context (completed by user)
+- ✓ Plan 02: Playback coordination context (EmbedPlaybackProvider)
+- Plan 03: URL detection utility
+- Plan 04-07: Platform-specific embed components
+- Plan 08: Embed card UI integration
+
+**Current:** Plan 02 complete - EmbedPlaybackProvider context for one-at-a-time playback
 
 ### COMPLETE: Phase 8 - Public Page
 
@@ -25,16 +36,6 @@ Built the public profile page at `linklobby.com/username`:
 - ✓ Plan 04: SEO metadata and sitemap
 
 **Phase complete:** Public pages fully functional with dynamic OG images, sitemap, and robots.txt
-**Verified:** 17/17 must-haves passed
-
-### NEXT UP: Phase 9 - Platform Integrations
-
-Embed content from major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
-- Auto-detect platform from URL
-- Render embedded players
-- Support music, video, and social platforms
-
-**To start:** Run `/gsd:discuss-phase 9` or `/gsd:plan-phase 9`
 
 ### Dropdown Card Removed
 
@@ -67,7 +68,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | ~~6.1~~ | ~~Dropdown Card Fix~~ | Removed |
 | 7 | Theme System | Complete ✓ |
 | 8 | Public Page | Complete ✓ |
-| 9 | Platform Integrations | - |
+| 9 | Platform Integrations | In Progress (Plan 2/8) |
 | 9.5 | Onboarding | - |
 
 ### v1.1 Growth (Phases 10-12.5)
@@ -498,6 +499,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Sitemap joins profiles.pages | 08-04 | Single query filtering by is_published for published pages only |
 | Theme colors in OG images | 08-04 | OG images use background and text colors from theme_settings for brand consistency |
 | Twitter image re-exports OG | 08-04 | Same 1.91:1 aspect ratio allows sharing implementation (twitter-image.tsx re-exports opengraph-image.tsx) |
+| Ref-based Map for pause functions | 09-02 | embedsRef.current avoids re-renders when embeds register/unregister |
+| useOptionalEmbedPlayback hook | 09-02 | Returns null outside provider for graceful degradation on public pages |
 | Disallow private routes in robots | 08-04 | API, editor, settings, insights routes blocked from crawlers via robots.txt |
 
 ## Quick Tasks
@@ -536,16 +539,42 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 031 | Hide card toggle in cards list | Complete | 05ae720 |
 | 032 | Social icon size slider (16-48px) | Complete | 8af2f89 |
 
+## Phase 9 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Research & Context | Complete ✓ |
+| 02 | Playback Coordination Context | Complete ✓ |
+| 03 | URL Detection Utility | - |
+| 04 | Spotify Embed | - |
+| 05 | Apple Music Embed | - |
+| 06 | SoundCloud Embed | - |
+| 07 | YouTube/Video Embeds | - |
+| 08 | Embed Card UI | - |
+
+**Summaries:**
+- Plan 02: .planning/phases/09-platform-integrations/09-02-SUMMARY.md
+
+**Plan 02 commits (2026-02-03):**
+- `0e5cdab` - feat(09-02): create EmbedPlaybackProvider context
+- `b3ca228` - feat(09-02): add EmbedPlaybackProvider to app layout
+
+**Key deliverables:**
+- EmbedPlaybackProvider context for one-at-a-time embed playback
+- useEmbedPlayback hook (throws outside provider)
+- useOptionalEmbedPlayback hook (graceful degradation)
+- Provider wrapped around app in layout.tsx
+
 ## Session Continuity
 
 Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 08-04-PLAN.md (SEO Features)
-Stopped at: Phase 8 complete - Public page fully functional with SEO
+Last activity: 2026-02-03 - Completed 09-02-PLAN.md (Playback Coordination Context)
+Stopped at: Phase 9 Plan 02 complete
 Resume file: None
 
-**Phase 8 Progress:** All 4 plans complete. Public pages fully functional with dynamic OG images, sitemap, and robots.txt.
+**Phase 9 Progress:** Plan 02 complete. Ready for Plan 03 (URL Detection Utility).
 
-**Next phase:** Phase 9 - Platform Integrations
+**Next plan:** 09-03 - URL Detection Utility
 
 **This session's work (2026-02-03):**
 
