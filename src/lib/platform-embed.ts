@@ -50,10 +50,10 @@ export const PLATFORM_PATTERNS: PlatformPattern[] = [
     platform: 'soundcloud',
     pattern: /^https?:\/\/(?:www\.)?soundcloud\.com\/([^\/]+)(?:\/(sets))?\/([^\/\?]+)/i,
   },
-  // Bandcamp: ARTIST.bandcamp.com/(album|track)/SLUG
+  // Bandcamp: ARTIST.bandcamp.com/(album|track)/SLUG or bandcamp.com/EmbeddedPlayer/...
   {
     platform: 'bandcamp',
-    pattern: /^https?:\/\/([^\.]+)\.bandcamp\.com\/(album|track)\/([^\/\?]+)/i,
+    pattern: /^https?:\/\/(?:([^\.]+)\.bandcamp\.com\/(album|track)\/([^\/\?]+)|bandcamp\.com\/EmbeddedPlayer\/)/i,
   },
   // Audiomack: audiomack.com/(song|album|playlist)/ARTIST/TITLE
   {
@@ -177,9 +177,10 @@ export async function fetchPlatformEmbed(
         return await fetchSoundCloudEmbed(url, embedUrl)
       case 'audiomack':
         return await fetchAudiomackEmbed(url, embedUrl)
+      case 'bandcamp':
+        return await fetchBandcampEmbed(url)
       // These platforms don't have accessible oEmbed
       case 'apple-music':
-      case 'bandcamp':
       case 'instagram':
       case 'tiktok':
       case 'youtube':
@@ -244,6 +245,29 @@ async function fetchAudiomackEmbed(url: string, embedUrl: string): Promise<Embed
     thumbnailUrl: data.thumbnail_url,
     title: data.title,
     rawOembedData: data,
+  }
+}
+
+async function fetchBandcampEmbed(url: string): Promise<EmbedInfo> {
+  try {
+    // Use server-side API route to avoid CORS issues
+    const response = await fetch(`/api/oembed/bandcamp?url=${encodeURIComponent(url)}`)
+
+    if (!response.ok) {
+      // Fallback: return original URL
+      return { embedUrl: url }
+    }
+
+    const data = await response.json()
+
+    return {
+      embedUrl: data.embedUrl || url,
+      thumbnailUrl: data.thumbnailUrl,
+      title: data.title,
+    }
+  } catch (error) {
+    console.warn('Bandcamp oEmbed failed:', error)
+    return { embedUrl: url }
   }
 }
 

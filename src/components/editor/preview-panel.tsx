@@ -1,29 +1,51 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { PreviewToggle, type PreviewMode } from "./preview-toggle"
 import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
-import { cn } from "@/lib/utils"
 
-const PREVIEW_SIZES = {
-  mobile: { width: 375, height: 667 },
-  desktop: { width: "100%", height: "100%" },
-} as const
+const MOBILE_WIDTH = 375
+const MOBILE_HEIGHT = 667
 
 export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile")
   const [previewReady, setPreviewReady] = useState(false)
+  const [mobileScale, setMobileScale] = useState(1)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
-  const themeState = useThemeStore()
   const { saveCards } = useCards()
+
+  // Calculate scale to fit mobile preview in container
+  const updateMobileScale = useCallback(() => {
+    if (!containerRef.current) return
+    const container = containerRef.current
+    const padding = 32 // p-4 = 16px * 2
+    const availableWidth = container.clientWidth - padding
+    const availableHeight = container.clientHeight - padding
+
+    const scaleX = availableWidth / MOBILE_WIDTH
+    const scaleY = availableHeight / MOBILE_HEIGHT
+    const scale = Math.min(scaleX, scaleY, 1) // Don't scale up, only down
+    setMobileScale(scale)
+  }, [])
+
+  // Update scale on mount and resize
+  useEffect(() => {
+    updateMobileScale()
+    const resizeObserver = new ResizeObserver(updateMobileScale)
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
+    }
+    return () => resizeObserver.disconnect()
+  }, [updateMobileScale])
 
   // Deselect card and save any pending changes
   // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
@@ -106,7 +128,6 @@ export function PreviewPanel() {
     }
   }, [previewReady])
 
-  const size = PREVIEW_SIZES[previewMode]
   const isMobile = previewMode === "mobile"
 
   return (
@@ -121,27 +142,37 @@ export function PreviewPanel() {
 
       {/* Preview area - click to deselect card and save */}
       <div
-        className="flex-1 overflow-auto p-4"
+        ref={containerRef}
+        className="flex-1 overflow-hidden p-4 flex items-center justify-center"
         onClick={handleDeselect}
       >
-        <div
-          className={cn(
-            "mx-auto bg-background rounded-lg shadow-lg overflow-hidden transition-all duration-300",
-            isMobile && "border-4 border-foreground/10 rounded-[2rem]"
-          )}
-          style={{
-            width: isMobile ? size.width : "100%",
-            height: isMobile ? size.height : "100%",
-            maxWidth: "100%",
-          }}
-        >
-          <iframe
-            ref={iframeRef}
-            src="/preview"
-            className="w-full h-full border-0"
-            title="Page preview"
-          />
-        </div>
+        {isMobile ? (
+          <div
+            className="bg-background rounded-[2rem] shadow-lg overflow-hidden border-4 border-foreground/10 transition-all duration-300"
+            style={{
+              width: MOBILE_WIDTH,
+              height: MOBILE_HEIGHT,
+              transform: `scale(${mobileScale})`,
+              transformOrigin: "center center",
+            }}
+          >
+            <iframe
+              ref={iframeRef}
+              src="/preview"
+              className="w-full h-full border-0"
+              title="Page preview"
+            />
+          </div>
+        ) : (
+          <div className="w-full h-full bg-background rounded-lg shadow-lg overflow-hidden">
+            <iframe
+              ref={iframeRef}
+              src="/preview"
+              className="w-full h-full border-0"
+              title="Page preview"
+            />
+          </div>
+        )}
       </div>
     </div>
   )

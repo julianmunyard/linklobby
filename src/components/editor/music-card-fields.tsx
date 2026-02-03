@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { detectPlatform, fetchPlatformEmbed, isMusicPlatform } from '@/lib/platform-embed'
@@ -29,12 +30,41 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Extract Bandcamp embed URL and height from iframe code or direct URL
+  function extractBandcampEmbed(input: string): { embedUrl: string; originalUrl?: string; height?: number } | null {
+    // Check for iframe embed code
+    const iframeSrcMatch = input.match(/src=["']([^"']*bandcamp\.com\/EmbeddedPlayer[^"']*)["']/i)
+    if (iframeSrcMatch) {
+      // Try to extract height from style attribute
+      const heightMatch = input.match(/height:\s*(\d+)px/i)
+      // Also try to extract the original URL from the <a> tag
+      const linkMatch = input.match(/href=["']([^"']*bandcamp\.com[^"']*)["']/i)
+      return {
+        embedUrl: iframeSrcMatch[1],
+        originalUrl: linkMatch?.[1],
+        height: heightMatch ? parseInt(heightMatch[1], 10) : undefined,
+      }
+    }
+
+    // Check for direct EmbeddedPlayer URL
+    if (input.includes('bandcamp.com/EmbeddedPlayer/')) {
+      // Detect size from URL: size=small (~120px) vs size=large (~470px)
+      const isSmall = input.includes('/size=small')
+      return {
+        embedUrl: input,
+        height: isSmall ? 120 : 470,
+      }
+    }
+
+    return null
+  }
+
   // Handle URL input blur - detect platform and fetch metadata
   async function handleUrlBlur() {
-    const url = urlInput.trim()
+    const input = urlInput.trim()
 
     // Clear if empty
-    if (!url) {
+    if (!input) {
       onChange({
         platform: undefined,
         embedUrl: undefined,
@@ -50,11 +80,25 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
     setError(null)
 
     try {
+      // Special handling for Bandcamp embed code or EmbeddedPlayer URL
+      const bandcampEmbed = extractBandcampEmbed(input)
+      if (bandcampEmbed) {
+        onChange({
+          platform: 'bandcamp' as MusicPlatform,
+          embedUrl: bandcampEmbed.originalUrl || bandcampEmbed.embedUrl,
+          embedIframeUrl: bandcampEmbed.embedUrl,
+          embedHeight: bandcampEmbed.height,
+          thumbnailUrl: undefined,
+          title: undefined,
+        })
+        return
+      }
+
       // Detect platform from URL
-      const detected = detectPlatform(url)
+      const detected = detectPlatform(input)
 
       if (!detected) {
-        setError('URL not recognized. Supported: Spotify, Apple Music, SoundCloud, Bandcamp, Audiomack')
+        setError('URL not recognized. Supported: Spotify, Apple Music, SoundCloud, Bandcamp, Audiomack. For Bandcamp, you can also paste the embed code.')
         return
       }
 
@@ -67,11 +111,11 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
       }
 
       // Fetch metadata via oEmbed (if available)
-      const embedInfo = await fetchPlatformEmbed(url, platform)
+      const embedInfo = await fetchPlatformEmbed(input, platform)
 
       onChange({
         platform,
-        embedUrl: url,
+        embedUrl: input,
         embedIframeUrl: embedInfo.embedUrl,
         thumbnailUrl: embedInfo.thumbnailUrl,
         title: embedInfo.title,
@@ -97,8 +141,8 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         <div className="relative">
           <Input
             id="musicUrl"
-            type="url"
-            placeholder="Paste Spotify, Apple Music, SoundCloud, Bandcamp, or Audiomack URL"
+            type="text"
+            placeholder="Paste music URL or Bandcamp embed code"
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             onBlur={handleUrlBlur}
@@ -113,7 +157,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Paste a link to a track, album, or playlist
+          Paste a link to a track, album, or playlist. For Bandcamp, paste the embed code from &quot;Share/Embed&quot;.
         </p>
       </div>
 
@@ -131,12 +175,15 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         </div>
       )}
 
-      {/* Bandcamp Note */}
-      {content.platform === 'bandcamp' && !content.bandcampAlbumId && (
-        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <p className="text-xs text-amber-600 dark:text-amber-400">
-            Bandcamp embeds require additional processing. The embed may take a moment to load.
-          </p>
+      {/* No Border Option */}
+      {content.platform && (
+        <div className="flex items-center justify-between">
+          <Label htmlFor="noBorder" className="text-sm">Remove card border</Label>
+          <Switch
+            id="noBorder"
+            checked={content.noBorder ?? false}
+            onCheckedChange={(checked) => onChange({ noBorder: checked })}
+          />
         </div>
       )}
 

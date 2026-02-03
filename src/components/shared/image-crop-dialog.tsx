@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
 import {
@@ -15,26 +15,26 @@ import { getCroppedImg } from './crop-utils'
 
 /**
  * Aspect ratio presets
- * - FREE: no constraint (undefined aspect)
+ * - ORIGINAL: match the source image's natural aspect ratio
  * - PORTRAIT: 7:9 for gallery images (matches CircularGallery display)
  * - RECTANGLE: 16:9 for landscape images
  * - SQUARE: 1:1 for profile photos
  */
 const ASPECT_PRESETS = [
-  { label: 'FREE', aspect: undefined },
+  { label: 'ORIGINAL', aspect: 'original' as const },
   { label: 'PORTRAIT', aspect: 7 / 9 },
   { label: 'RECTANGLE', aspect: 16 / 9 },
   { label: 'SQUARE', aspect: 1 },
 ] as const
 
-type AspectPreset = (typeof ASPECT_PRESETS)[number]
+type AspectValue = number | 'original'
 
 interface ImageCropDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   imageSrc: string
   onCropComplete: (croppedBlob: Blob) => void
-  initialAspect?: number // undefined = free
+  initialAspect?: number // undefined = use original image aspect
   outputFormat?: 'image/jpeg' | 'image/png' // default: image/jpeg
 }
 
@@ -49,11 +49,26 @@ export function ImageCropDialog({
   // Crop state
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
-  const [aspect, setAspect] = useState<number | undefined>(
-    initialAspect ?? 1 // Default to square if not specified
+  const [naturalAspect, setNaturalAspect] = useState<number>(1)
+  const [aspectSelection, setAspectSelection] = useState<AspectValue>(
+    initialAspect ?? 'original'
   )
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Load image to get natural dimensions
+  useEffect(() => {
+    if (!imageSrc) return
+    const img = new Image()
+    img.onload = () => {
+      const aspect = img.naturalWidth / img.naturalHeight
+      setNaturalAspect(aspect)
+    }
+    img.src = imageSrc
+  }, [imageSrc])
+
+  // Compute actual aspect ratio for cropper
+  const aspect = aspectSelection === 'original' ? naturalAspect : aspectSelection
 
   // Store the cropped area pixels when crop completes
   const handleCropComplete = useCallback(
@@ -64,8 +79,8 @@ export function ImageCropDialog({
   )
 
   // Reset crop position and zoom when aspect ratio changes
-  const handleAspectChange = (newAspect: number | undefined) => {
-    setAspect(newAspect)
+  const handleAspectChange = (newAspect: AspectValue) => {
+    setAspectSelection(newAspect)
     setCrop({ x: 0, y: 0 })
     setZoom(1)
   }
@@ -74,7 +89,7 @@ export function ImageCropDialog({
   const handleReset = () => {
     setCrop({ x: 0, y: 0 })
     setZoom(1)
-    setAspect(initialAspect ?? 1)
+    setAspectSelection(initialAspect ?? 'original')
   }
 
   // Process the crop and return the blob
@@ -95,7 +110,7 @@ export function ImageCropDialog({
 
   // Find current preset for highlighting
   const currentPresetLabel =
-    ASPECT_PRESETS.find((p) => p.aspect === aspect)?.label ?? null
+    ASPECT_PRESETS.find((p) => p.aspect === aspectSelection)?.label ?? null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -134,6 +149,7 @@ export function ImageCropDialog({
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={handleCropComplete}
+            objectFit="contain"
           />
         </div>
 

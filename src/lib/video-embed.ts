@@ -89,16 +89,32 @@ async function getVimeoInfo(videoId: string): Promise<VideoEmbedInfo> {
 }
 
 async function getTikTokInfo(url: string): Promise<VideoEmbedInfo> {
-  // TikTok oEmbed is unreliable - don't rely on it
   // Extract video ID from URL pattern: /video/([0-9]+)
   const videoIdMatch = url.match(/\/video\/([0-9]+)/)
   const videoId = videoIdMatch?.[1] || url
 
+  // Try TikTok oEmbed for thumbnail
+  let thumbnailUrl = ''
+  let title = ''
+  try {
+    const response = await fetch(
+      `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      thumbnailUrl = data.thumbnail_url || ''
+      title = data.title || ''
+    }
+  } catch {
+    // oEmbed failed, continue without thumbnail
+  }
+
   return {
     id: videoId,
     service: 'tiktok',
-    thumbnailUrl: '', // TikTok embeds are iframe-only, no reliable thumbnail
-    embedUrl: url,    // Store full URL (TikTok requires original URL)
+    thumbnailUrl,
+    embedUrl: url,
+    title,
     isVertical: true, // TikTok videos are always 9:16
   }
 }

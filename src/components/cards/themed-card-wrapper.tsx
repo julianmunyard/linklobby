@@ -22,6 +22,16 @@ const SKIP_MACOS_CHROME: CardType[] = []
 export function ThemedCardWrapper({ children, cardType, className, content }: ThemedCardWrapperProps) {
   const { themeId, style } = useThemeStore()
   const isTransparent = content?.transparentBackground === true
+  const noBorder = content?.noBorder === true
+
+  // Cards with noBorder option get no styling wrapper
+  if (noBorder) {
+    return (
+      <div className={cn("overflow-hidden", className)}>
+        {children}
+      </div>
+    )
+  }
 
   // Exempt cards get minimal wrapper
   if (EXEMPT_CARD_TYPES.includes(cardType)) {

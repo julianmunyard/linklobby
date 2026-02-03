@@ -54,7 +54,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   gallery: ['big', 'small'],
   game: ['big', 'small'],
   audio: null, // Always full width
-  music: ['big', 'small'], // Music cards support sizing
+  music: null, // Always full width, no sizing option
   'social-icons': null, // Always full width - singleton widget
   link: null, // Always full width - simple text link
   mini: null, // Compact width - fits content
@@ -186,6 +186,7 @@ export interface MusicCardContent {
   platform?: MusicPlatform       // Detected platform from URL
   embedUrl?: string              // Original URL pasted by user
   embedIframeUrl?: string        // Constructed iframe src
+  embedHeight?: number           // Custom height from embed code (e.g., Bandcamp slim vs large)
   thumbnailUrl?: string          // From oEmbed (if available)
   title?: string                 // From oEmbed (if available)
   // Bandcamp-specific (requires page fetch to get IDs)
@@ -193,6 +194,7 @@ export interface MusicCardContent {
   bandcampTrackId?: string
   textColor?: string             // Override text color
   fuzzyText?: FuzzyTextSettings  // Distress text effect
+  noBorder?: boolean             // Remove card border/background styling
 }
 
 // Game type info for UI display

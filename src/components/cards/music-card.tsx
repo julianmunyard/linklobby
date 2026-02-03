@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Music } from 'lucide-react'
+import { Music, GripVertical } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { useThemeStore } from '@/stores/theme-store'
 import { getEmbedUrl } from '@/lib/platform-embed'
@@ -27,13 +27,13 @@ const PLATFORM_COLORS: Record<MusicPlatform, string> = {
   audiomack: '#FFA500',
 }
 
-// Embed heights per platform (Spotify compact=152, full=352, etc)
+// Embed heights per platform
 const EMBED_HEIGHTS: Record<MusicPlatform, number> = {
   spotify: 352,
-  'apple-music': 175,  // Apple Music album embed height
-  soundcloud: 166,     // Single track height
-  bandcamp: 120,       // Slim player
-  audiomack: 252,      // Standard height
+  'apple-music': 352,
+  soundcloud: 166,
+  bandcamp: 470,
+  audiomack: 252,
 }
 
 interface MusicCardProps {
@@ -60,7 +60,9 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
 
   const PlatformIcon = PLATFORM_ICONS[platform]
   const platformColor = PLATFORM_COLORS[platform]
-  const embedHeight = EMBED_HEIGHTS[platform]
+
+  // Use custom height from embed code if available, otherwise use default
+  const embedHeight = (content.embedHeight as number) || EMBED_HEIGHTS[platform]
 
   // Get iframe URL
   const iframeUrl = embedIframeUrl || getEmbedUrl(embedUrl, platform)
@@ -68,7 +70,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   // Error state - fallback link to platform
   if (loadError) {
     return (
-      <div className="relative w-full rounded-xl overflow-hidden bg-muted flex flex-col items-center justify-center p-6 text-center"
+      <div className="relative w-full overflow-hidden bg-muted flex flex-col items-center justify-center p-6 text-center"
            style={{ minHeight: embedHeight }}>
         <span style={{ color: platformColor }}>
           <PlatformIcon className="h-10 w-10 mb-3" />
@@ -87,8 +89,9 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   }
 
   // Show embed directly (no click-to-load)
+  // Transparent background so page bg shows through embed gaps
   return (
-    <div className="relative w-full rounded-xl overflow-hidden">
+    <div className="relative w-full group">
       <iframe
         src={iframeUrl}
         width="100%"
@@ -98,8 +101,14 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
         loading="lazy"
         onError={() => setLoadError(true)}
         title={title || `${platform} embed`}
-        style={{ borderRadius: 'inherit' }}
+        style={{ background: 'transparent' }}
       />
+      {/* Drag handle overlay - appears on hover, sits above iframe */}
+      <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto z-10">
+        <div className="bg-black/60 backdrop-blur-sm rounded p-1.5 cursor-grab active:cursor-grabbing">
+          <GripVertical className="h-4 w-4 text-white" />
+        </div>
+      </div>
     </div>
   )
 }
@@ -107,7 +116,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
 // Placeholder when no music configured
 function MusicCardPlaceholder() {
   return (
-    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+    <div className="relative w-full aspect-video overflow-hidden bg-muted flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <Music className="h-12 w-12 mx-auto mb-2" />
         <p>Add music URL</p>

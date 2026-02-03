@@ -45,7 +45,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
   // left: normal flow, center: mx-auto (own row), right: ml-auto (pushes to right)
   const isPositionableCard = card.card_type === "mini"
 
-  // Link cards are full width like horizontal cards
+  // Link and horizontal cards are always full width
   const widthClass = isPositionableCard
     ? "w-fit" // Compact width, positioned via margins
     : card.card_type === "link" || card.card_type === "horizontal"

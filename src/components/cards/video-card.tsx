@@ -213,12 +213,12 @@ interface VideoCardEmbedProps {
 }
 
 // Container for 9:16 vertical content (TikTok, Instagram Reels)
+// Responsive: full width on mobile, max 400px on desktop
 function VerticalEmbedContainer({ children }: { children: React.ReactNode }) {
   return (
-    // Center the container and constrain max width
     <div className="relative w-full flex justify-center">
-      {/* Max width matches TikTok's embed max (325px) */}
-      <div className="relative w-full max-w-[325px]">
+      {/* Responsive max width: full on mobile, constrained on desktop */}
+      <div className="relative w-full max-w-full sm:max-w-[400px]">
         {/* 9:16 aspect ratio: 16/9 * 100 = 177.78% */}
         <div className="relative w-full pb-[177.78%]">
           <div className="absolute inset-0">
@@ -229,6 +229,7 @@ function VerticalEmbedContainer({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
 
 function VideoCardEmbed({
   embedUrl,
@@ -309,7 +310,10 @@ function VideoCardEmbed({
 
   // Vertical content (TikTok, Instagram Reels) - 9:16 aspect ratio
   if (isVertical) {
-    if (isPlaying) {
+    // For TikTok without thumbnail, or when playing, show the iframe directly
+    const showEmbed = isPlaying || (embedService === 'tiktok' && !thumbnailUrl)
+
+    if (showEmbed) {
       return (
         <div className="relative w-full flex flex-col">
           <VerticalEmbedContainer>
@@ -335,14 +339,14 @@ function VideoCardEmbed({
             className="relative w-full h-full overflow-hidden bg-muted group cursor-pointer block rounded-xl"
             aria-label={`Play ${title || 'video'}`}
           >
-            {/* Thumbnail image or placeholder */}
+            {/* Thumbnail image or generic placeholder */}
             {thumbnailUrl ? (
               <Image
                 src={thumbnailUrl}
                 alt={title || 'Video thumbnail'}
                 fill
                 className="object-cover"
-                sizes="(max-width: 768px) 100vw, 325px"
+                sizes="(max-width: 768px) 100vw, 400px"
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
