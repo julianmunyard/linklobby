@@ -9,6 +9,7 @@ import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
 import { MusicCard } from "./music-card"
+import { EmailCollectionCard } from "./email-collection-card"
 import { ThemedCardWrapper } from "./themed-card-wrapper"
 import type { Card } from "@/types/card"
 
@@ -52,6 +53,16 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       break
     case "music":
       cardContent = <MusicCard card={card} isPreview={isPreview} />
+      break
+    case "email-collection":
+      // Email collection needs pageId for form submission
+      cardContent = (
+        <EmailCollectionCard
+          card={card}
+          pageId={card.page_id}
+          isEditing={isPreview}
+        />
+      )
       break
     default:
       // Fallback for unimplemented card types (audio)

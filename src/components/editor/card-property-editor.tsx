@@ -30,6 +30,7 @@ import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
 import { GameCardFields } from "./game-card-fields"
 import { MusicCardFields } from "./music-card-fields"
+import { EmailCollectionFields } from "./email-collection-fields"
 import { SocialIconsCardFields } from "./social-icons-card-fields"
 import { LinkCardFields } from "./link-card-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
@@ -37,7 +38,7 @@ import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, MusicCardContent, LinkCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, MusicCardContent, LinkCardContent, EmailCollectionCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Card types that support horizontal positioning (w-fit cards)
@@ -319,6 +320,14 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 content={currentContent as MusicCardContent}
                 onChange={handleContentChange}
                 cardId={card.id}
+              />
+            )}
+
+            {/* Email collection-specific fields */}
+            {card.card_type === "email-collection" && (
+              <EmailCollectionFields
+                content={currentContent as Partial<EmailCollectionCardContent>}
+                onChange={handleContentChange}
               />
             )}
 

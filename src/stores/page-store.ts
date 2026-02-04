@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
 import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent } from '@/types/card'
+import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey } from '@/lib/ordering'
@@ -78,6 +79,8 @@ export const usePageStore = create<PageState>()(
             platform: undefined,
             embedUrl: undefined,
           } satisfies MusicCardContent
+        case 'email-collection':
+          return { ...DEFAULT_EMAIL_COLLECTION_CONTENT }
         default:
           return {}
       }
