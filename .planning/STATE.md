@@ -567,12 +567,25 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Plan | Name | Status |
 |------|------|--------|
 | 01 | Email Collection Infrastructure | Complete ✓ |
-| 02 | Email Collection Card | Complete ✓ |
+| 02 | QR Code and Email Tools | Complete ✓ |
 | 03 | Link Scheduling | Complete ✓ |
 | 04 | Enhanced Visibility Controls | - |
 
 **Summaries:**
+- Plan 01: .planning/phases/10-fan-tools/10-01-SUMMARY.md
+- Plan 02: .planning/phases/10-fan-tools/10-02-SUMMARY.md
 - Plan 03: .planning/phases/10-fan-tools/10-03-SUMMARY.md
+
+**Plan 02 commits (2026-02-04):**
+- `9908c3a` - feat(10-02): QR code generation dialog with download options
+- `f4f8f56` - feat(10-02): email export API and CSV download
+- `74bb547` - feat(10-02): Mailchimp sync and settings tab with fan tools
+
+**Plan 02 key deliverables:**
+- QR code dialog with SVG/PNG download at multiple sizes
+- Email export API with CSV download
+- Mailchimp integration for email sync
+- Settings tab added to editor with all fan tools
 
 **Plan 03 commits (2026-02-04):**
 - `f2cd74c` - feat(10-03): add scheduling fields to card content type
@@ -614,13 +627,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-04
-Last activity: 2026-02-04 - Completed 10-03-PLAN.md (Link Scheduling)
-Stopped at: Phase 10 Plan 03 complete
+Last activity: 2026-02-04 - Completed 10-02-PLAN.md (QR Code and Email Tools)
+Stopped at: Phase 10 Plan 02 complete
 Resume file: None
 
-**Phase 10 Progress:** Plan 03 complete. Ready for Plan 04 (Enhanced Visibility Controls).
+**Phase 10 Progress:** Plans 01-03 complete. Ready for Plan 04 (Enhanced Visibility Controls).
 
-**Next plan:** 09-06 - Platform verification
+**Next plan:** 10-04 - Enhanced Visibility Controls
 
 **This session's work (2026-02-03):**
 
