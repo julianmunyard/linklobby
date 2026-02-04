@@ -36,7 +36,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [ ] Phase 9.5: Onboarding *(first-time UX, templates)*
 
 ### Growth Milestone (v1.1)
-- [ ] Phase 10: Fan Tools *(email, QR, release mode)*
+- [x] Phase 10: Fan Tools *(email, QR, release mode)* ✓
 - [ ] Phase 11: Analytics & Pixels *(tracking pixels, cookie consent, legal compliance)*
 - [ ] Phase 12: Audio System
 - [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
@@ -355,25 +355,25 @@ Plans:
 
 ### GROWTH MILESTONE (v1.1)
 
-#### Phase 10: Fan Tools
+#### Phase 10: Fan Tools ✓
 **Goal:** Artists can capture fan data and control release timing
 **Competitive context:** ADDRESSES MAJOR GAP - fan data ownership, release workflows
 
 **Success Criteria:**
-1. **Email Collection Block:** Inline form to capture emails
-2. **Email Export:** CSV download of all collected emails
-3. **Mailchimp Integration:** Optional sync to Mailchimp list
-4. **QR Code Generation:** Auto-generated QR for page URL (for flyers, merch)
-5. **Release Mode:** Temporary prominence for featured content with countdown
-6. **Link Scheduling:** Publish/expire links at specific times
+1. **Email Collection Block:** Inline form to capture emails ✓
+2. **Email Export:** CSV download of all collected emails ✓
+3. **Mailchimp Integration:** Optional sync to Mailchimp list ✓
+4. **QR Code Generation:** Auto-generated QR for page URL (for flyers, merch) ✓
+5. **Release Mode:** Temporary prominence for featured content with countdown ✓
+6. **Link Scheduling:** Publish/expire links at specific times ✓
 
 **Plans:** 4 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Email collection card type and API
-- [ ] 10-02-PLAN.md — QR code dialog, CSV export, Mailchimp sync
-- [ ] 10-03-PLAN.md — Link scheduling infrastructure and Schedule tab
-- [ ] 10-04-PLAN.md — Release card with countdown and auto-conversion
+- [x] 10-01-PLAN.md — Email collection card type and API
+- [x] 10-02-PLAN.md — QR code dialog, CSV export, Mailchimp sync
+- [x] 10-03-PLAN.md — Link scheduling infrastructure and Schedule tab
+- [x] 10-04-PLAN.md — Release card with countdown and auto-conversion
 
 ---
 
