@@ -13,6 +13,7 @@ export type CardType =
   | 'mini'
   | 'text'
   | 'email-collection'
+  | 'release'
 
 export type CardSize = 'big' | 'small'
 
@@ -61,10 +62,11 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   mini: null, // Compact width - fits content
   text: ['big', 'small'], // Text cards support sizing for horizontal stacking
   'email-collection': null, // Always full width - form needs space
+  'release': ['big', 'small'], // Release cards support sizing
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'music', 'video', 'gallery', 'game', 'email-collection']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'music', 'video', 'gallery', 'game', 'email-collection', 'release']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -199,6 +201,31 @@ export interface MusicCardContent {
   noBorder?: boolean             // Remove card border/background styling
 }
 
+// Release card content - for pre-release with countdown and auto-conversion to music card
+export interface ReleaseCardContent extends ScheduledContent {
+  // Core release info
+  albumArtUrl?: string           // Uploaded album art
+  albumArtStoragePath?: string   // For deletion
+  releaseTitle?: string          // Album/single name
+  artistName?: string            // Artist name (if different from profile)
+
+  // Countdown
+  showCountdown?: boolean        // Default true for new release cards
+  releaseDate?: string           // ISO 8601 UTC - when release goes live
+
+  // Pre-save
+  preSaveUrl?: string            // Link to pre-save page (feature.fm, smarturl, etc.)
+  preSaveButtonText?: string     // Default "Pre-save"
+
+  // Music card conversion
+  musicUrl?: string              // Spotify/Apple Music URL for post-release
+  // When release date passes, card converts to music type using this URL
+
+  // Styling
+  textColor?: string
+  fuzzyText?: FuzzyTextSettings
+}
+
 // Re-export from fan-tools for convenience
 export type { EmailCollectionCardContent } from './fan-tools'
 
@@ -222,7 +249,7 @@ export interface ScheduledContent {
 
 // Union type for all card content
 // Note: All content types can optionally include ScheduledContent fields (publishAt, expireAt)
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | EmailCollectionCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | EmailCollectionCardContent | ReleaseCardContent | Record<string, unknown>
 
 // Scheduling helper functions
 export function isScheduled(content: Record<string, unknown>): boolean {
@@ -275,4 +302,8 @@ export function isMusicContent(content: unknown): content is MusicCardContent {
 
 export function isEmailCollectionContent(content: unknown): content is EmailCollectionCardContent {
   return typeof content === 'object' && content !== null && 'heading' in content
+}
+
+export function isReleaseContent(content: unknown): content is ReleaseCardContent {
+  return typeof content === 'object' && content !== null
 }
