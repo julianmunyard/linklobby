@@ -5,28 +5,38 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** The dashboard and live preview experience - artists watching their page become theirs.
-**Current focus:** Phase 9 Platform Integrations
+**Current focus:** Phase 10 Fan Tools
 
 ## Current Position
 
-Phase: 9 of 18 - Platform Integrations (IN PROGRESS)
-Plan: 5 of 6 - Editor Integration Complete
-Status: **Executing Phase 9 - Platform embed support**
-Last activity: 2026-02-04 - Completed quick task 034: iPod theme screen polish
+Phase: 10 of 18 - Fan Tools (IN PROGRESS)
+Plan: 3 of 4 - Link Scheduling Complete
+Status: **Executing Phase 10 - Fan engagement features**
+Last activity: 2026-02-04 - Completed 10-03-PLAN.md (Link Scheduling)
 
-Progress: [████████████████████░░░░░░░░░░░░] ~57%
+Progress: [█████████████████████░░░░░░░░░░░] ~60%
 
-### IN PROGRESS: Phase 9 - Platform Integrations
+### IN PROGRESS: Phase 10 - Fan Tools
 
-Building embed support for major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
+Building fan engagement features for artists:
+- ✓ Plan 01: Email Collection Infrastructure
+- ✓ Plan 02: Email Collection Card
+- ✓ Plan 03: Link Scheduling
+- Plan 04: Enhanced Visibility Controls
+
+**Current:** Plan 03 complete - Scheduling infrastructure with publishAt/expireAt
+
+### COMPLETE: Phase 9 - Platform Integrations
+
+Built embed support for major platforms (Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.):
 - ✓ Plan 01: Platform detection foundation (platform-embed.ts, MusicCardContent type)
 - ✓ Plan 02: Playback coordination context (EmbedPlaybackProvider)
 - ✓ Plan 03: Music card component and editor
 - ✓ Plan 04: Vertical video embed support (TikTok, Instagram Reels)
 - ✓ Plan 05: Editor integration (MusicCard in CardRenderer, playback coordination)
-- Plan 06: Platform verification
+- Plan 06: Platform verification (deferred)
 
-**Current:** Plan 05 complete - Music card fully integrated, playback coordination wired
+**Phase complete:** Music card fully integrated, playback coordination wired
 
 ### COMPLETE: Phase 8 - Public Page
 
@@ -75,7 +85,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ### v1.1 Growth (Phases 10-12.5)
 | # | Phase | Status |
 |---|-------|--------|
-| 10 | Fan Tools | - |
+| 10 | Fan Tools | In Progress (Plan 3/4) |
 | 11 | Analytics & Pixels & Legal | - |
 | 12 | Audio System | - |
 | 12.5 | Billing & Subscriptions | - |
@@ -510,6 +520,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 177.78% padding-bottom for 9:16 | 09-04 | Padding-bottom technique creates exact 9:16 aspect ratio (16/9 * 100)
 | useOptionalEmbedPlayback for embeds | 09-05 | Graceful degradation on public pages where provider might not exist
 | Pause resets to thumbnail state | 09-05 | Simplest pause - unloads heavy iframe, saves resources
+| ScheduledContent mixin interface | 10-03 | Any card type can have scheduling without modifying content types
+| UTC storage with local display | 10-03 | ISO 8601 UTC for storage, Intl.DateTimeFormat for user's timezone display
+| Public page schedule filtering | 10-03 | Server-side filter hides future publishAt and past expireAt cards
 
 ## Quick Tasks
 
@@ -549,7 +562,31 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 033 | iPod Classic theme with click wheel navigation | Complete | d50f247 |
 | 034 | iPod theme screen polish | Complete | 45e24b4 |
 
-## Phase 9 Progress (IN PROGRESS)
+## Phase 10 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Email Collection Infrastructure | Complete ✓ |
+| 02 | Email Collection Card | Complete ✓ |
+| 03 | Link Scheduling | Complete ✓ |
+| 04 | Enhanced Visibility Controls | - |
+
+**Summaries:**
+- Plan 03: .planning/phases/10-fan-tools/10-03-SUMMARY.md
+
+**Plan 03 commits (2026-02-04):**
+- `f2cd74c` - feat(10-03): add scheduling fields to card content type
+- `e611108` - feat(10-03): create Schedule tab and card item components
+- `5b05964` - feat(10-03): add schedule badges and public page filtering
+
+**Key deliverables:**
+- ScheduledContent interface with publishAt/expireAt timestamps
+- Schedule tab in editor with categorized cards (Scheduled/Active/Expired)
+- datetime-local inputs with UTC storage and local display
+- Schedule badges on preview cards
+- Public page filtering by schedule dates
+
+## Phase 9 Progress (COMPLETE)
 
 | Plan | Name | Status |
 |------|------|--------|
@@ -558,7 +595,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 03 | Music Card Component | Complete ✓ |
 | 04 | Vertical Video Embed Support | Complete ✓ |
 | 05 | Editor Integration | Complete ✓ |
-| 06 | Platform Verification | - |
+| 06 | Platform Verification | Deferred |
 
 **Summaries:**
 - Plan 01: .planning/phases/09-platform-integrations/09-01-SUMMARY.md
@@ -566,10 +603,6 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 - Plan 03: .planning/phases/09-platform-integrations/09-03-SUMMARY.md
 - Plan 04: .planning/phases/09-platform-integrations/09-04-SUMMARY.md
 - Plan 05: .planning/phases/09-platform-integrations/09-05-SUMMARY.md
-
-**Plan 05 commits (2026-02-03):**
-- `499e22a` - feat(09-05): integrate MusicCard into CardRenderer and PropertyEditor
-- `23e3ce9` - feat(09-05): wire playback coordination into music and video cards
 
 **Key deliverables:**
 - MusicCard renders in CardRenderer switch statement
@@ -580,12 +613,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-03
-Last activity: 2026-02-03 - Completed 09-05-PLAN.md (Editor Integration)
-Stopped at: Phase 9 Plan 05 complete
+Last session: 2026-02-04
+Last activity: 2026-02-04 - Completed 10-03-PLAN.md (Link Scheduling)
+Stopped at: Phase 10 Plan 03 complete
 Resume file: None
 
-**Phase 9 Progress:** Plan 05 complete. Ready for Plan 06 (Platform verification).
+**Phase 10 Progress:** Plan 03 complete. Ready for Plan 04 (Enhanced Visibility Controls).
 
 **Next plan:** 09-06 - Platform verification
 
