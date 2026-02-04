@@ -7,6 +7,7 @@ import { ProfileHeader } from "@/components/preview/profile-header"
 import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
 import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
+import { ReceiptLayout } from "@/components/cards/receipt-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -114,6 +115,8 @@ function PreviewContent() {
             background: ts.background,
             cardTypeFontSizes: ts.cardTypeFontSizes,
             socialIconSize: ts.socialIconSize,
+            vcrCenterContent: ts.vcrCenterContent ?? false,
+            receiptPrice: ts.receiptPrice ?? 'PRICELESS',
           })
         }
       }
@@ -173,6 +176,30 @@ function PreviewContent() {
         {/* iPod Classic Layout */}
         <IpodClassicLayout
           title={displayName || 'links'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+
+        {/* Noise overlay */}
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Receipt theme uses receipt paper layout
+  if (themeId === 'receipt') {
+    return (
+      <>
+        {/* Page background */}
+        <PageBackground />
+        {/* Dim overlay */}
+        <DimOverlay />
+
+        {/* Receipt Layout */}
+        <ReceiptLayout
+          title={displayName || 'RECEIPT'}
           cards={state.cards}
           isPreview={true}
           onCardClick={handleCardClick}

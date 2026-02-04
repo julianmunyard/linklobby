@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic' | 'receipt'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -85,6 +85,7 @@ export interface ThemeConfig {
   hasSpreadText?: boolean      // Instagram Reels only
   hasWindowChrome?: boolean    // System Settings only
   isListLayout?: boolean       // VCR Menu - simple text list instead of cards
+  hasReceiptPhoto?: boolean    // Receipt theme - dithered B&W photo
 }
 
 export interface ThemeState {
@@ -97,4 +98,5 @@ export interface ThemeState {
   cardTypeFontSizes: CardTypeFontSizes
   socialIconSize?: number  // Icon size in pixels (16-48), default 24
   vcrCenterContent?: boolean  // VCR theme: center content vertically
+  receiptPrice?: string  // Receipt theme: custom price text
 }

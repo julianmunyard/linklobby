@@ -5,9 +5,10 @@ import { getTheme } from '@/lib/themes'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
 
 export function StyleControls() {
-  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent } = useThemeStore()
+  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice } = useThemeStore()
   const theme = getTheme(themeId)
 
   return (
@@ -78,6 +79,20 @@ export function StyleControls() {
             checked={vcrCenterContent}
             onCheckedChange={setVcrCenterContent}
           />
+        </div>
+      )}
+
+      {/* Receipt Theme: Price Text */}
+      {themeId === 'receipt' && (
+        <div className="space-y-2">
+          <Label className="text-sm">Price</Label>
+          <Input
+            value={receiptPrice}
+            onChange={(e) => setReceiptPrice(e.target.value)}
+            placeholder="PRICELESS"
+            className="font-mono"
+          />
+          <p className="text-xs text-muted-foreground">Displayed under total links on your receipt</p>
         </div>
       )}
 

@@ -44,6 +44,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const bodySize = themeSettings?.fonts?.bodySize ?? 1.5
   const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
   const accentColor = themeSettings?.colors?.accent ?? '#2a6eff'
+  const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -84,6 +85,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         bodySize={bodySize}
         vcrCenterContent={vcrCenterContent}
         accentColor={accentColor}
+        receiptPrice={receiptPrice}
         cards={cards}
       />
 

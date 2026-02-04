@@ -2,6 +2,7 @@ import { StaticProfileHeader } from "./static-profile-header"
 import { StaticFlowGrid } from "./static-flow-grid"
 import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
+import { StaticReceiptLayout } from "./static-receipt-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -46,6 +47,8 @@ interface PublicPageRendererProps {
   background?: BackgroundConfig
   // Theme (for layout selection)
   themeId?: ThemeId
+  // Receipt theme
+  receiptPrice?: string
   // Cards
   cards: Card[]
 }
@@ -83,6 +86,7 @@ export function PublicPageRenderer({
   accentColor,
   background,
   themeId,
+  receiptPrice,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -115,6 +119,27 @@ export function PublicPageRenderer({
         showLogo={showLogo}
         logoScale={logoScale}
         socialIcons={socialIcons}
+      />
+    )
+  }
+
+  // Receipt theme uses receipt paper layout
+  if (themeId === 'receipt') {
+    // Parse social icons from JSON for receipt theme
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+
+    return (
+      <StaticReceiptLayout
+        title={displayName || 'RECEIPT'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        avatarUrl={avatarUrl}
+        showAvatar={showAvatar}
+        bio={bio}
+        socialIcons={socialIcons}
+        showSocialIcons={showSocialIcons}
+        receiptPrice={receiptPrice}
       />
     )
   }

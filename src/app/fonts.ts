@@ -184,6 +184,19 @@ export const chiqReducedBold = localFont({
   display: 'swap',
 })
 
+// Receipt theme fonts
+export const ticketDeCaisse = localFont({
+  src: '../../public/fonts/ticket-de-caisse.ttf',
+  variable: '--font-ticket-de-caisse',
+  display: 'swap',
+})
+
+export const hypermarket = localFont({
+  src: '../../public/fonts/hypermarket.woff2',
+  variable: '--font-hypermarket',
+  display: 'swap',
+})
+
 // Combine all font variables for layout className
 export const fontVariables = [
   // System/Classic
@@ -219,6 +232,9 @@ export const fontVariables = [
   pixterGranular.variable,
   // iPod fonts
   chiqReducedBold.variable,
+  // Receipt fonts
+  ticketDeCaisse.variable,
+  hypermarket.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -253,6 +269,8 @@ export const CURATED_FONTS = [
   { id: 'pixolde', name: 'Pixolde', variable: 'var(--font-pixolde)', category: 'retro' as const },
   { id: 'pixter-granular', name: 'Pixter Granular', variable: 'var(--font-pixter-granular)', category: 'retro' as const },
   { id: 'chiq', name: 'Chiq', variable: 'var(--font-chiq)', category: 'retro' as const },
+  { id: 'ticket-de-caisse', name: 'Ticket De Caisse', variable: 'var(--font-ticket-de-caisse)', category: 'retro' as const },
+  { id: 'hypermarket', name: 'Hypermarket', variable: 'var(--font-hypermarket)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']

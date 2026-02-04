@@ -17,6 +17,7 @@ interface ThemeStore extends ThemeState {
   // Additional state (not in ThemeState type)
   socialIconSize: number  // Icon size in pixels (16-48), default 24
   vcrCenterContent: boolean  // VCR theme: center content vertically
+  receiptPrice: string  // Receipt theme: custom price text
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -29,6 +30,7 @@ interface ThemeStore extends ThemeState {
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
   setSocialIconSize: (size: number) => void
   setVcrCenterContent: (center: boolean) => void
+  setReceiptPrice: (price: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -87,6 +89,7 @@ export const useThemeStore = create<ThemeStore>()(
       ...initialState,
       socialIconSize: 24,
       vcrCenterContent: false,
+      receiptPrice: 'PRICELESS',
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -196,6 +199,10 @@ export const useThemeStore = create<ThemeStore>()(
         set({ vcrCenterContent: center, hasChanges: true })
       },
 
+      setReceiptPrice: (price: string) => {
+        set({ receiptPrice: price, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -232,6 +239,7 @@ export const useThemeStore = create<ThemeStore>()(
           background: theme.background,
           cardTypeFontSizes: theme.cardTypeFontSizes || initialState.cardTypeFontSizes,
           vcrCenterContent: theme.vcrCenterContent ?? false,
+          receiptPrice: theme.receiptPrice ?? 'PRICELESS',
           hasChanges: false,
         })
       },
@@ -247,6 +255,7 @@ export const useThemeStore = create<ThemeStore>()(
           background: state.background,
           cardTypeFontSizes: state.cardTypeFontSizes,
           vcrCenterContent: state.vcrCenterContent,
+          receiptPrice: state.receiptPrice,
         }
       },
     }),
