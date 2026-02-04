@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
+import { SOCIAL_PLATFORMS } from '@/types/profile'
 
 interface IpodClassicLayoutProps {
   title: string
@@ -34,10 +35,14 @@ export function IpodClassicLayout({
   selectedCardId
 }: IpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [expandedSocials, setExpandedSocials] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
   const logoUrl = useProfileStore((s) => s.logoUrl)
+  const showLogo = useProfileStore((s) => s.showLogo)
+  const logoScale = useProfileStore((s) => s.logoScale)
+  const getSortedSocialIcons = useProfileStore((s) => s.getSortedSocialIcons)
 
   // Wheel rotation tracking
   const lastAngleRef = useRef<number | null>(null)
@@ -257,6 +262,47 @@ export function IpodClassicLayout({
                     const displayText = card.title || card.card_type
                     const isLongText = displayText.length > 25
 
+                    // Handle social-icons card specially - render as expandable "Socials" menu
+                    if (card.card_type === 'social-icons') {
+                      const socialIcons = getSortedSocialIcons()
+                      const isExpanded = expandedSocials === card.id
+
+                      return (
+                        <div key={card.id}>
+                          <div
+                            className={cn(
+                              'ipod-menu-item',
+                              isSelected && 'selected'
+                            )}
+                            onClick={() => {
+                              if (isSelected) {
+                                // Toggle expansion on second click
+                                setExpandedSocials(prev => prev === card.id ? null : card.id)
+                              } else {
+                                // Select it first
+                                setSelectedIndex(index)
+                              }
+                            }}
+                          >
+                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                              Socials
+                            </span>
+                            <span className="text-[11px] ml-2">{isExpanded ? 'v' : '>'}</span>
+                          </div>
+                          {isExpanded && socialIcons.map((icon) => (
+                            <div
+                              key={icon.id}
+                              className="ipod-menu-subitem"
+                              onClick={() => window.open(icon.url, '_blank', 'noopener,noreferrer')}
+                            >
+                              <span className="text-[11px]">{SOCIAL_PLATFORMS[icon.platform].label}</span>
+                              <span className="text-[10px] ml-2">{'>'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+
                     return (
                       <div
                         key={card.id}
@@ -331,13 +377,18 @@ export function IpodClassicLayout({
             />
           </div>
 
-          {/* Logo - User's logo or Rainbow Apple */}
+          {/* Logo - User's logo (if enabled) or Rainbow Apple */}
           <div className="ipod-apple-logo">
-            {logoUrl ? (
+            {logoUrl && showLogo ? (
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="w-full h-full object-contain"
+                style={{
+                  width: `${(logoScale / 100) * 56}px`,
+                  height: `${(logoScale / 100) * 56}px`,
+                  objectFit: 'contain',
+                  background: 'none',
+                }}
               />
             ) : (
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

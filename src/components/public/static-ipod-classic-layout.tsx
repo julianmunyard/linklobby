@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card } from '@/types/card'
 import type { BackgroundConfig } from '@/types/theme'
+import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
+import { SOCIAL_PLATFORMS } from '@/types/profile'
 
 interface StaticIpodClassicLayoutProps {
   title: string
@@ -14,6 +16,9 @@ interface StaticIpodClassicLayoutProps {
   accentColor?: string
   background?: BackgroundConfig
   logoUrl?: string | null
+  showLogo?: boolean
+  logoScale?: number
+  socialIcons?: SocialIcon[]
 }
 
 /**
@@ -26,9 +31,13 @@ export function StaticIpodClassicLayout({
   headingSize = 1.0,
   bodySize = 1.0,
   background = { type: 'solid', value: '#000000' },
-  logoUrl
+  logoUrl,
+  showLogo = false,
+  logoScale = 100,
+  socialIcons = []
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [expandedSocials, setExpandedSocials] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
@@ -248,6 +257,46 @@ export function StaticIpodClassicLayout({
                     const displayText = card.title || card.card_type
                     const isLongText = displayText.length > 25
 
+                    // Handle social-icons card specially - render as expandable "Socials" menu
+                    if (card.card_type === 'social-icons') {
+                      const isExpanded = expandedSocials === card.id
+
+                      return (
+                        <div key={card.id}>
+                          <div
+                            className={cn(
+                              'ipod-menu-item',
+                              isSelected && 'selected'
+                            )}
+                            onClick={() => {
+                              if (isSelected) {
+                                // Toggle expansion on second click
+                                setExpandedSocials(prev => prev === card.id ? null : card.id)
+                              } else {
+                                // Select it first
+                                setSelectedIndex(index)
+                              }
+                            }}
+                          >
+                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                              Socials
+                            </span>
+                            <span className="text-[11px] ml-2">{isExpanded ? 'v' : '>'}</span>
+                          </div>
+                          {isExpanded && socialIcons.map((icon) => (
+                            <div
+                              key={icon.id}
+                              className="ipod-menu-subitem"
+                              onClick={() => window.open(icon.url, '_blank', 'noopener,noreferrer')}
+                            >
+                              <span className="text-[11px]">{SOCIAL_PLATFORMS[icon.platform].label}</span>
+                              <span className="text-[10px] ml-2">{'>'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+
                     return (
                       <div
                         key={card.id}
@@ -322,13 +371,18 @@ export function StaticIpodClassicLayout({
             />
           </div>
 
-          {/* Logo - User's logo or Rainbow Apple */}
+          {/* Logo - User's logo (if enabled) or Rainbow Apple */}
           <div className="ipod-apple-logo">
-            {logoUrl ? (
+            {logoUrl && showLogo ? (
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="w-full h-full object-contain"
+                style={{
+                  width: `${(logoScale / 100) * 56}px`,
+                  height: `${(logoScale / 100) * 56}px`,
+                  objectFit: 'contain',
+                  background: 'none',
+                }}
               />
             ) : (
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

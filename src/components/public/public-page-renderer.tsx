@@ -4,6 +4,7 @@ import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId } from "@/types/theme"
+import type { SocialIcon } from "@/types/profile"
 
 // Frame inset config - defines the "screen" area for frames (as percentages of viewport)
 const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; right: number }> = {
@@ -99,6 +100,9 @@ export function PublicPageRenderer({
 
   // iPod Classic theme uses iPod interface layout
   if (themeId === 'ipod-classic') {
+    // Parse social icons from JSON for iPod theme
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+
     return (
       <StaticIpodClassicLayout
         title={displayName || 'links'}
@@ -108,6 +112,9 @@ export function PublicPageRenderer({
         accentColor={accentColor}
         background={background}
         logoUrl={logoUrl}
+        showLogo={showLogo}
+        logoScale={logoScale}
+        socialIcons={socialIcons}
       />
     )
   }
