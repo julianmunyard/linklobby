@@ -1,11 +1,23 @@
 "use client"
 
+import { useMemo } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Trash2, Eye, EyeOff } from "lucide-react"
+import { GripVertical, Trash2, Eye, EyeOff, Clock, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { getScheduleStatus } from "@/types/card"
 import type { Card } from "@/types/card"
+
+// Format date for tooltip display
+function formatTooltipDate(isoString: string): string {
+  const date = new Date(isoString)
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date)
+}
 
 interface SortableCardProps {
   card: Card
@@ -24,6 +36,21 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
     transition,
     isDragging,
   } = useSortable({ id: card.id })
+
+  // Get schedule status for indicator
+  const content = card.content as Record<string, unknown>
+  const scheduleStatus = useMemo(() => getScheduleStatus(content), [content])
+  const publishAt = content.publishAt as string | undefined
+  const expireAt = content.expireAt as string | undefined
+
+  // Build tooltip text
+  const scheduleTooltip = useMemo(() => {
+    if (!scheduleStatus || scheduleStatus === "active" && !expireAt) return null
+    const parts: string[] = []
+    if (publishAt) parts.push(`Publish: ${formatTooltipDate(publishAt)}`)
+    if (expireAt) parts.push(`Expire: ${formatTooltipDate(expireAt)}`)
+    return parts.join("\n")
+  }, [scheduleStatus, publishAt, expireAt])
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -62,9 +89,45 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
 
       {/* Card content area */}
       <div className="flex-1 p-3 min-w-0">
-        <p className={cn("font-medium truncate", !card.is_visible && "line-through text-muted-foreground")}>
-          {card.title || "Untitled"}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className={cn("font-medium truncate", !card.is_visible && "line-through text-muted-foreground")}>
+            {card.title || "Untitled"}
+          </p>
+          {/* Schedule indicator */}
+          {scheduleStatus && scheduleStatus !== "active" && scheduleTooltip && (
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="shrink-0">
+                    {scheduleStatus === "scheduled" ? (
+                      <Clock className="h-4 w-4 text-blue-500" />
+                    ) : scheduleStatus === "expired" ? (
+                      <AlertTriangle className="h-4 w-4 text-gray-500" />
+                    ) : null}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="whitespace-pre-line">
+                  {scheduleTooltip}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {/* Expiring soon indicator for active cards */}
+          {scheduleStatus === "active" && expireAt && scheduleTooltip && (
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="shrink-0">
+                    <Clock className="h-4 w-4 text-orange-500" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="whitespace-pre-line">
+                  {scheduleTooltip}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground capitalize">
           {card.card_type.replace("_", " ")}
         </p>

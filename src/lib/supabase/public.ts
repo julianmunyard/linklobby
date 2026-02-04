@@ -95,7 +95,7 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
   }
 
   // Map database rows to Card type
-  const cards: Card[] = (cardsData || []).map((row) => ({
+  const allCards: Card[] = (cardsData || []).map((row) => ({
     id: row.id,
     page_id: row.page_id,
     card_type: row.card_type as CardType,
@@ -110,6 +110,25 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
     created_at: row.created_at,
     updated_at: row.updated_at,
   }))
+
+  // Filter cards by visibility and schedule
+  const now = new Date().toISOString()
+  const cards = allCards.filter(card => {
+    // Must be visible
+    if (!card.is_visible) return false
+
+    const content = card.content as Record<string, unknown>
+    const publishAt = content.publishAt as string | undefined
+    const expireAt = content.expireAt as string | undefined
+
+    // Check publish date - if set and in future, hide
+    if (publishAt && publishAt > now) return false
+
+    // Check expiry date - if set and in past, hide
+    if (expireAt && expireAt < now) return false
+
+    return true
+  })
 
   return {
     profile: {

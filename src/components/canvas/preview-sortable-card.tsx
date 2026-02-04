@@ -1,12 +1,58 @@
 "use client"
 
+import { useMemo } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical, Pencil } from "lucide-react"
+import { GripVertical, Pencil, Calendar, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { MobileSelectCheckbox } from "@/components/editor/mobile-select-mode"
+import { Badge } from "@/components/ui/badge"
+import { getScheduleStatus, type ScheduleStatus } from "@/types/card"
 import type { Card } from "@/types/card"
+
+// Format date for badge display using Intl.DateTimeFormat
+function formatBadgeDate(isoString: string): string {
+  const date = new Date(isoString)
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date)
+}
+
+// Get badge info based on schedule status
+function getScheduleBadgeInfo(status: ScheduleStatus, content: Record<string, unknown>): { icon: React.ReactNode; text: string; className: string } | null {
+  const publishAt = content.publishAt as string | undefined
+  const expireAt = content.expireAt as string | undefined
+
+  switch (status) {
+    case "scheduled":
+      return {
+        icon: <Calendar className="h-3 w-3" />,
+        text: `Scheduled ${formatBadgeDate(publishAt!)}`,
+        className: "bg-blue-500/90 text-white border-blue-600"
+      }
+    case "expired":
+      return {
+        icon: <Clock className="h-3 w-3" />,
+        text: "Expired",
+        className: "bg-gray-500/90 text-white border-gray-600"
+      }
+    case "active":
+      if (expireAt) {
+        return {
+          icon: <Clock className="h-3 w-3" />,
+          text: `Expires ${formatBadgeDate(expireAt)}`,
+          className: "bg-orange-500/90 text-white border-orange-600"
+        }
+      }
+      return null
+    default:
+      return null
+  }
+}
 
 interface PreviewSortableCardProps {
   card: Card
@@ -32,6 +78,14 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     transition,
     isDragging,
   } = useSortable({ id: card.id })
+
+  // Get schedule status and badge info
+  const content = card.content as Record<string, unknown>
+  const scheduleStatus = useMemo(() => getScheduleStatus(content), [content])
+  const scheduleBadge = useMemo(
+    () => getScheduleBadgeInfo(scheduleStatus, content),
+    [scheduleStatus, content]
+  )
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -149,6 +203,22 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
           <div className="pointer-events-auto [&_a]:pointer-events-none">
             <CardRenderer card={card} isPreview />
           </div>
+        </div>
+      )}
+
+      {/* Schedule badge - only shown in editor mode (this component is editor-only) */}
+      {scheduleBadge && (
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-20">
+          <Badge
+            variant="outline"
+            className={cn(
+              "flex items-center gap-1 text-xs px-2 py-0.5 shadow-sm",
+              scheduleBadge.className
+            )}
+          >
+            {scheduleBadge.icon}
+            <span>{scheduleBadge.text}</span>
+          </Badge>
         </div>
       )}
     </div>
