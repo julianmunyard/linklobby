@@ -345,6 +345,25 @@
   color: var(--theme-card-bg, #C2C1BA);
 }
 
+/* Marquee scroll for long text on selected items */
+.ipod-menu-item.selected .ipod-marquee {
+  display: inline-block;
+  animation: ipod-marquee 6s linear infinite;
+  animation-delay: 1s;
+}
+
+@keyframes ipod-marquee {
+  0%, 10% {
+    transform: translateX(0);
+  }
+  45%, 55% {
+    transform: translateX(calc(-100% + 200px));
+  }
+  90%, 100% {
+    transform: translateX(0);
+  }
+}
+
 /* Click Wheel */
 .ipod-click-wheel {
   width: 180px;

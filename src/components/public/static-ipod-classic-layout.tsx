@@ -244,6 +244,7 @@ export function StaticIpodClassicLayout({
                   visibleCards.map((card, index) => {
                     const isSelected = selectedIndex === index
                     const displayText = card.title || card.card_type
+                    const isLongText = displayText.length > 25
 
                     return (
                       <div
@@ -254,7 +255,11 @@ export function StaticIpodClassicLayout({
                         )}
                         onClick={() => handleMenuItemClick(card, index)}
                       >
-                        <span className="flex-1 text-[12px] truncate">{displayText}</span>
+                        <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                          <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                            {displayText}
+                          </span>
+                        </span>
                         <span className="text-[11px] ml-2">{'>'}</span>
                       </div>
                     )
