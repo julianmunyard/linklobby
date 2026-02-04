@@ -9,22 +9,22 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 10 of 18 - Fan Tools (IN PROGRESS)
-Plan: 3 of 4 - Link Scheduling Complete
-Status: **Executing Phase 10 - Fan engagement features**
-Last activity: 2026-02-04 - Completed 10-03-PLAN.md (Link Scheduling)
+Phase: 10 of 18 - Fan Tools (COMPLETE)
+Plan: 4 of 4 - Release Card Complete
+Status: **Phase 10 Complete - Fan engagement features done**
+Last activity: 2026-02-04 - Completed 10-04-PLAN.md (Release Card)
 
-Progress: [█████████████████████░░░░░░░░░░░] ~60%
+Progress: [██████████████████████░░░░░░░░░░] ~62%
 
-### IN PROGRESS: Phase 10 - Fan Tools
+### COMPLETE: Phase 10 - Fan Tools
 
-Building fan engagement features for artists:
+Built fan engagement features for artists:
 - ✓ Plan 01: Email Collection Infrastructure
-- ✓ Plan 02: Email Collection Card
+- ✓ Plan 02: Email Collection Card (QR Code, Export, Mailchimp)
 - ✓ Plan 03: Link Scheduling
-- Plan 04: Enhanced Visibility Controls
+- ✓ Plan 04: Release Card
 
-**Current:** Plan 03 complete - Scheduling infrastructure with publishAt/expireAt
+**Phase complete:** Email collection, QR codes, link scheduling, and release card all functional
 
 ### COMPLETE: Phase 9 - Platform Integrations
 
@@ -85,7 +85,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ### v1.1 Growth (Phases 10-12.5)
 | # | Phase | Status |
 |---|-------|--------|
-| 10 | Fan Tools | In Progress (Plan 3/4) |
+| 10 | Fan Tools | Complete ✓ |
 | 11 | Analytics & Pixels & Legal | - |
 | 12 | Audio System | - |
 | 12.5 | Billing & Subscriptions | - |
@@ -523,6 +523,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | ScheduledContent mixin interface | 10-03 | Any card type can have scheduling without modifying content types
 | UTC storage with local display | 10-03 | ISO 8601 UTC for storage, Intl.DateTimeFormat for user's timezone display
 | Public page schedule filtering | 10-03 | Server-side filter hides future publishAt and past expireAt cards
+| Album art square aspect ratio | 10-04 | Album art uses 1:1 aspect ratio for consistency with album covers
+| Countdown conversion delay | 10-04 | Card auto-converts to music card 2 seconds after countdown ends to show "Out Now!"
+| Card type conversion pattern | 10-04 | Update card_type and content in single updateCard call for atomic conversion
 
 ## Quick Tasks
 
@@ -569,12 +572,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 01 | Email Collection Infrastructure | Complete ✓ |
 | 02 | QR Code and Email Tools | Complete ✓ |
 | 03 | Link Scheduling | Complete ✓ |
-| 04 | Enhanced Visibility Controls | - |
+| 04 | Release Card | Complete ✓ |
 
 **Summaries:**
 - Plan 01: .planning/phases/10-fan-tools/10-01-SUMMARY.md
 - Plan 02: .planning/phases/10-fan-tools/10-02-SUMMARY.md
 - Plan 03: .planning/phases/10-fan-tools/10-03-SUMMARY.md
+- Plan 04: .planning/phases/10-fan-tools/10-04-SUMMARY.md
 
 **Plan 02 commits (2026-02-04):**
 - `9908c3a` - feat(10-02): QR code generation dialog with download options
@@ -598,6 +602,18 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 - datetime-local inputs with UTC storage and local display
 - Schedule badges on preview cards
 - Public page filtering by schedule dates
+
+**Plan 04 commits (2026-02-04):**
+- `cc5cb73` - feat(10-04): install react-countdown and add release card type
+- `d8096d9` - feat(10-04): create release card component with countdown
+- `8fa83fd` - feat(10-04): integrate release card with editor and store
+
+**Plan 04 key deliverables:**
+- Release card type with ReleaseCardContent interface
+- Countdown timer using react-countdown library
+- Pre-save button with customizable text
+- Album art upload with square aspect crop
+- Auto-conversion to music card when countdown completes
 
 ## Phase 9 Progress (COMPLETE)
 
@@ -627,13 +643,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-04
-Last activity: 2026-02-04 - Completed 10-02-PLAN.md (QR Code and Email Tools)
-Stopped at: Phase 10 Plan 02 complete
+Last activity: 2026-02-04 - Completed 10-04-PLAN.md (Release Card)
+Stopped at: Phase 10 Complete
 Resume file: None
 
-**Phase 10 Progress:** Plans 01-03 complete. Ready for Plan 04 (Enhanced Visibility Controls).
+**Phase 10 Complete:** All 4 plans finished. Email collection, QR codes, scheduling, and release cards.
 
-**Next plan:** 10-04 - Enhanced Visibility Controls
+**Next phase:** 11 - Analytics, Pixels & Legal
 
 **This session's work (2026-02-03):**
 
