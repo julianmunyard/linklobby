@@ -107,6 +107,7 @@ export function PublicPageRenderer({
         bodySize={bodySize}
         accentColor={accentColor}
         background={background}
+        logoUrl={logoUrl}
       />
     )
   }
