@@ -212,8 +212,35 @@ export const GAME_TYPE_INFO: Record<GameType, { label: string; description: stri
 // Import EmailCollectionCardContent for the union type
 import type { EmailCollectionCardContent } from './fan-tools'
 
+// Scheduling mixin - any card content type can include these fields
+// publishAt: ISO 8601 UTC timestamp - null/undefined = published immediately
+// expireAt: ISO 8601 UTC timestamp - null/undefined = never expires
+export interface ScheduledContent {
+  publishAt?: string
+  expireAt?: string
+}
+
 // Union type for all card content
+// Note: All content types can optionally include ScheduledContent fields (publishAt, expireAt)
 export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | EmailCollectionCardContent | Record<string, unknown>
+
+// Scheduling helper functions
+export function isScheduled(content: Record<string, unknown>): boolean {
+  return !!(content.publishAt || content.expireAt)
+}
+
+export type ScheduleStatus = 'scheduled' | 'active' | 'expired' | null
+
+export function getScheduleStatus(content: Record<string, unknown>): ScheduleStatus {
+  const now = new Date().toISOString()
+  const publishAt = content.publishAt as string | undefined
+  const expireAt = content.expireAt as string | undefined
+
+  if (!publishAt && !expireAt) return null
+  if (publishAt && publishAt > now) return 'scheduled'
+  if (expireAt && expireAt < now) return 'expired'
+  return 'active'
+}
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
