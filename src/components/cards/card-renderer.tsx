@@ -10,12 +10,59 @@ import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
 import { MusicCard } from "./music-card"
 import { EmailCollectionCard } from "./email-collection-card"
+import { ReleaseCard } from "./release-card"
 import { ThemedCardWrapper } from "./themed-card-wrapper"
-import type { Card } from "@/types/card"
+import type { Card, MusicCardContent, MusicPlatform, ReleaseCardContent } from "@/types/card"
+import { usePageStore } from "@/stores/page-store"
+import { detectPlatform, isMusicPlatform, fetchPlatformEmbed } from "@/lib/platform-embed"
 
 interface CardRendererProps {
   card: Card
   isPreview?: boolean
+}
+
+// Wrapper for ReleaseCard that handles conversion to music card
+function ReleaseCardWithConversion({ card, isEditing }: { card: Card; isEditing: boolean }) {
+  const updateCard = usePageStore((state) => state.updateCard)
+  const content = card.content as ReleaseCardContent
+
+  async function handleConvert() {
+    const musicUrl = content.musicUrl
+    if (!musicUrl) return
+
+    const detected = detectPlatform(musicUrl)
+    if (!detected || !isMusicPlatform(detected.platform)) return
+
+    try {
+      // Fetch embed info for the music URL
+      const embedInfo = await fetchPlatformEmbed(musicUrl, detected.platform)
+
+      // Build MusicCardContent
+      const musicContent = {
+        platform: detected.platform as MusicPlatform,
+        embedUrl: musicUrl,
+        embedIframeUrl: embedInfo.embedUrl,
+        thumbnailUrl: embedInfo.thumbnailUrl,
+        title: embedInfo.title || content.releaseTitle,
+      } as Record<string, unknown>
+
+      // Convert the card
+      updateCard(card.id, {
+        card_type: 'music',
+        content: musicContent,
+      })
+    } catch (error) {
+      console.error('Failed to convert release card to music card:', error)
+    }
+  }
+
+  return (
+    <ReleaseCard
+      card={card}
+      isEditing={isEditing}
+      onConvert={handleConvert}
+    />
+  )
 }
 
 export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
@@ -60,6 +107,15 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
         <EmailCollectionCard
           card={card}
           pageId={card.page_id}
+          isEditing={isPreview}
+        />
+      )
+      break
+    case "release":
+      // Release card with countdown and conversion callback
+      cardContent = (
+        <ReleaseCardWithConversion
+          card={card}
           isEditing={isPreview}
         />
       )

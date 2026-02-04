@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
-import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent } from '@/types/card'
+import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent, ReleaseCardContent } from '@/types/card'
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
@@ -81,6 +81,11 @@ export const usePageStore = create<PageState>()(
           } satisfies MusicCardContent
         case 'email-collection':
           return { ...DEFAULT_EMAIL_COLLECTION_CONTENT }
+        case 'release':
+          return {
+            showCountdown: true,
+            preSaveButtonText: 'Pre-save',
+          } satisfies Partial<ReleaseCardContent>
         default:
           return {}
       }

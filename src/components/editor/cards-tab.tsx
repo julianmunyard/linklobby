@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Loader2, Plus, Download, Gamepad2, Mail } from "lucide-react"
+import { Loader2, Plus, Download, Gamepad2, Mail, Disc } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import { generateAppendKey, generatePrependKey, sortCardsBySortKey } from "@/lib
 import type { CardType } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from "@/types/fan-tools"
+import { DEFAULT_RELEASE_CONTENT } from "./release-card-fields"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
@@ -31,6 +32,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },
   { type: "email-collection", label: "Email Collection" },
+  { type: "release", label: "Release" },
   { type: "social-icons", label: "Social Icons" },
 ]
 
@@ -97,6 +99,8 @@ export function CardsTab() {
             return { gameType: "snake" }
           case "email-collection":
             return { ...DEFAULT_EMAIL_COLLECTION_CONTENT }
+          case "release":
+            return { ...DEFAULT_RELEASE_CONTENT }
           default:
             return {}
         }
