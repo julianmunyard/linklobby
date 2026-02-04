@@ -108,18 +108,31 @@ export const useThemeStore = create<ThemeStore>()(
         const defaults = getThemeDefaults(themeId)
         if (!defaults) return
 
-        set((state) => ({
+        // Set default background based on theme
+        let newBackground: BackgroundConfig
+        if (themeId === 'receipt') {
+          // Receipt theme defaults to sky/clouds image
+          newBackground = {
+            type: 'image',
+            value: '/images/receipt-bg-default.jpeg',
+          }
+        } else {
+          // Other themes: sync background if solid
+          const state = get()
+          newBackground = state.background.type === 'solid'
+            ? { ...state.background, value: defaults.colors.background }
+            : state.background
+        }
+
+        set({
           themeId,
           paletteId: theme.palettes[0]?.id ?? null,
           colors: defaults.colors,
           fonts: defaults.fonts,
           style: defaults.style,
-          // Sync background if solid
-          background: state.background.type === 'solid'
-            ? { ...state.background, value: defaults.colors.background }
-            : state.background,
+          background: newBackground,
           hasChanges: true,
-        }))
+        })
       },
 
       setPalette: (paletteId: string) => {
