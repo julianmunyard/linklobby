@@ -1,11 +1,12 @@
 "use client"
 
-import { Link2, Palette } from "lucide-react"
+import { Link2, Palette, Calendar } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { CardsTab } from "./cards-tab"
 import { DesignTab } from "./design-tab"
+import { ScheduleTab } from "./schedule-tab"
 import { CardPropertyEditor } from "./card-property-editor"
 import { SelectionToolbar } from "./selection-toolbar"
 import { usePageStore } from "@/stores/page-store"
@@ -76,6 +77,10 @@ export function EditorPanel() {
                 <Palette className="h-4 w-4" />
                 <span className="hidden sm:inline">Design</span>
               </TabsTrigger>
+              <TabsTrigger value="schedule" className="flex-1 gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Schedule</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -97,6 +102,16 @@ export function EditorPanel() {
             )}
           >
             <DesignTab />
+          </TabsContent>
+
+          <TabsContent
+            value="schedule"
+            className={cn(
+              "flex-1 overflow-hidden",
+              "data-[state=inactive]:hidden"
+            )}
+          >
+            <ScheduleTab />
           </TabsContent>
 
         </Tabs>
