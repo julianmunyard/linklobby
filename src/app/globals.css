@@ -364,6 +364,27 @@
   }
 }
 
+/* iPod sub-menu items (for expandable menus like Socials) */
+.ipod-menu-subitem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px 6px 24px; /* Extra left padding for indentation */
+  cursor: pointer;
+  font-family: var(--font-chicago), 'Chicago', 'Pix Chicago', monospace;
+  background: transparent;
+  color: var(--theme-text, #3d3c39);
+  transition: background 0.1s;
+}
+
+.ipod-menu-subitem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.ipod-menu-subitem:active {
+  background: rgba(0, 0, 0, 0.1);
+}
+
 /* Click Wheel */
 .ipod-click-wheel {
   width: 180px;
@@ -486,14 +507,22 @@
 
 /* Apple Logo */
 .ipod-apple-logo {
-  width: 28px;
-  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ipod-apple-logo svg {
-  width: 100%;
-  height: 100%;
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.ipod-apple-logo img {
+  background: transparent !important;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
