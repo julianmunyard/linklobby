@@ -118,6 +118,7 @@ function PreviewContent() {
             vcrCenterContent: ts.vcrCenterContent ?? false,
             receiptPrice: ts.receiptPrice ?? 'PRICELESS',
             receiptStickers: ts.receiptStickers ?? [],
+            receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
           })
         }
       }

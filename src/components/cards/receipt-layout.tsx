@@ -115,6 +115,7 @@ export function ReceiptLayout({
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
   const receiptPrice = useThemeStore((s) => s.receiptPrice)
   const receiptStickers = useThemeStore((s) => s.receiptStickers)
+  const receiptFloatAnimation = useThemeStore((s) => s.receiptFloatAnimation)
   const updateReceiptSticker = useThemeStore((s) => s.updateReceiptSticker)
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -329,7 +330,7 @@ export function ReceiptLayout({
       <div className="flex justify-center py-8 px-4">
         <div
           ref={receiptPaperRef}
-          className="receipt-paper relative"
+          className={cn("receipt-paper relative", receiptFloatAnimation && "receipt-float")}
           style={{
             backgroundColor: 'var(--theme-card-bg)',
             color: 'var(--theme-text)',

@@ -95,6 +95,7 @@ interface StaticReceiptLayoutProps {
   showSocialIcons?: boolean
   receiptPrice?: string
   receiptStickers?: ReceiptSticker[]
+  receiptFloatAnimation?: boolean
 }
 
 /**
@@ -112,7 +113,8 @@ export function StaticReceiptLayout({
   socialIcons = [],
   showSocialIcons = true,
   receiptPrice = 'PRICELESS',
-  receiptStickers = []
+  receiptStickers = [],
+  receiptFloatAnimation = true
 }: StaticReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [ditheredPhoto, setDitheredPhoto] = useState<string | null>(null)
@@ -268,7 +270,7 @@ export function StaticReceiptLayout({
       {/* Receipt paper */}
       <div className="flex justify-center py-8 px-4">
         <div
-          className="receipt-paper relative"
+          className={cn("receipt-paper relative", receiptFloatAnimation && "receipt-float")}
           style={{
             backgroundColor: 'var(--theme-card-bg)',
             color: 'var(--theme-text)',

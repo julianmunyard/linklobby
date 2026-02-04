@@ -20,6 +20,7 @@ interface ThemeStore extends ThemeState {
   vcrCenterContent: boolean  // VCR theme: center content vertically
   receiptPrice: string  // Receipt theme: custom price text
   receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
+  receiptFloatAnimation: boolean  // Receipt theme: floating animation enabled
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -36,6 +37,7 @@ interface ThemeStore extends ThemeState {
   addReceiptSticker: (sticker: ReceiptSticker) => void
   updateReceiptSticker: (id: string, updates: Partial<ReceiptSticker>) => void
   removeReceiptSticker: (id: string) => void
+  setReceiptFloatAnimation: (enabled: boolean) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -96,6 +98,7 @@ export const useThemeStore = create<ThemeStore>()(
       vcrCenterContent: false,
       receiptPrice: 'PRICELESS',
       receiptStickers: [],
+      receiptFloatAnimation: true,
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -232,6 +235,10 @@ export const useThemeStore = create<ThemeStore>()(
         }))
       },
 
+      setReceiptFloatAnimation: (enabled: boolean) => {
+        set({ receiptFloatAnimation: enabled, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -270,6 +277,7 @@ export const useThemeStore = create<ThemeStore>()(
           vcrCenterContent: theme.vcrCenterContent ?? false,
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
           receiptStickers: theme.receiptStickers ?? [],
+          receiptFloatAnimation: theme.receiptFloatAnimation ?? true,
           hasChanges: false,
         })
       },
@@ -287,6 +295,7 @@ export const useThemeStore = create<ThemeStore>()(
           vcrCenterContent: state.vcrCenterContent,
           receiptPrice: state.receiptPrice,
           receiptStickers: state.receiptStickers,
+          receiptFloatAnimation: state.receiptFloatAnimation,
         }
       },
     }),

@@ -111,4 +111,5 @@ export interface ThemeState {
   vcrCenterContent?: boolean  // VCR theme: center content vertically
   receiptPrice?: string  // Receipt theme: custom price text
   receiptStickers?: ReceiptSticker[]  // Receipt theme: draggable stickers
+  receiptFloatAnimation?: boolean  // Receipt theme: floating animation enabled
 }

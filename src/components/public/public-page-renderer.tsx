@@ -50,6 +50,7 @@ interface PublicPageRendererProps {
   // Receipt theme
   receiptPrice?: string
   receiptStickers?: ReceiptSticker[]
+  receiptFloatAnimation?: boolean
   // Cards
   cards: Card[]
 }
@@ -89,6 +90,7 @@ export function PublicPageRenderer({
   themeId,
   receiptPrice,
   receiptStickers,
+  receiptFloatAnimation,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -143,6 +145,7 @@ export function PublicPageRenderer({
         showSocialIcons={showSocialIcons}
         receiptPrice={receiptPrice}
         receiptStickers={receiptStickers}
+        receiptFloatAnimation={receiptFloatAnimation}
       />
     )
   }

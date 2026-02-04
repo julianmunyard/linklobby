@@ -18,7 +18,7 @@ const RECEIPT_STICKERS = [
 ]
 
 export function StyleControls() {
-  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker } = useThemeStore()
+  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation } = useThemeStore()
   const theme = getTheme(themeId)
 
   return (
@@ -103,6 +103,20 @@ export function StyleControls() {
             className="font-mono"
           />
           <p className="text-xs text-muted-foreground">Displayed under total links on your receipt</p>
+        </div>
+      )}
+
+      {/* Receipt Theme: Float Animation Toggle */}
+      {themeId === 'receipt' && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Float Animation</Label>
+            <p className="text-xs text-muted-foreground">Gentle floating breeze effect</p>
+          </div>
+          <Switch
+            checked={receiptFloatAnimation}
+            onCheckedChange={setReceiptFloatAnimation}
+          />
         </div>
       )}
 
