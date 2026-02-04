@@ -367,7 +367,13 @@ Plans:
 5. **Release Mode:** Temporary prominence for featured content with countdown
 6. **Link Scheduling:** Publish/expire links at specific times
 
-**Plans:** 3-4 plans
+**Plans:** 4 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Email collection card type and API
+- [ ] 10-02-PLAN.md — QR code dialog, CSV export, Mailchimp sync
+- [ ] 10-03-PLAN.md — Link scheduling infrastructure and Schedule tab
+- [ ] 10-04-PLAN.md — Release card with countdown and auto-conversion
 
 ---
 
@@ -610,5 +616,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-02-03*
+*Last updated: 2026-02-05*
 *Based on: COMPETITORS.md competitive analysis*
