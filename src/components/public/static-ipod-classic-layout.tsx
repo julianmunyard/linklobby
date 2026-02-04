@@ -37,7 +37,7 @@ export function StaticIpodClassicLayout({
   socialIcons = []
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [expandedSocials, setExpandedSocials] = useState<string | null>(null)
+  const [currentScreen, setCurrentScreen] = useState<'main' | 'socials'>('main')
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
@@ -49,6 +49,18 @@ export function StaticIpodClassicLayout({
 
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
+
+  // Navigate to socials screen
+  const goToSocials = () => {
+    setCurrentScreen('socials')
+    setSelectedIndex(0)
+  }
+
+  // Go back to main screen
+  const goBack = () => {
+    setCurrentScreen('main')
+    setSelectedIndex(0)
+  }
 
   // Auto-scroll selected item into view
   useEffect(() => {
@@ -69,23 +81,43 @@ export function StaticIpodClassicLayout({
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
+
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault()
-        setSelectedIndex(prev => (prev > 0 ? prev - 1 : visibleCards.length - 1))
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : menuLength - 1))
         break
       case 'ArrowDown':
         e.preventDefault()
-        setSelectedIndex(prev => (prev < visibleCards.length - 1 ? prev + 1 : 0))
+        setSelectedIndex(prev => (prev < menuLength - 1 ? prev + 1 : 0))
         break
       case 'Enter':
         e.preventDefault()
-        if (visibleCards[selectedIndex]) {
-          activateLink(visibleCards[selectedIndex])
+        if (currentScreen === 'main') {
+          const card = visibleCards[selectedIndex]
+          if (card?.card_type === 'social-icons') {
+            goToSocials()
+          } else if (card) {
+            activateLink(card)
+          }
+        } else {
+          // On socials screen, open the URL
+          const icon = socialIcons[selectedIndex]
+          if (icon?.url) {
+            window.open(icon.url, '_blank', 'noopener,noreferrer')
+          }
+        }
+        break
+      case 'Escape':
+      case 'Backspace':
+        e.preventDefault()
+        if (currentScreen === 'socials') {
+          goBack()
         }
         break
     }
-  }, [selectedIndex, visibleCards, activateLink])
+  }, [selectedIndex, visibleCards, socialIcons, currentScreen, activateLink])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -94,20 +126,36 @@ export function StaticIpodClassicLayout({
 
   // Click wheel handlers
   const handleWheelClick = (direction: 'up' | 'down' | 'center' | 'menu') => {
+    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
+
     switch (direction) {
       case 'up':
-        setSelectedIndex(prev => (prev > 0 ? prev - 1 : visibleCards.length - 1))
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : menuLength - 1))
         break
       case 'down':
-        setSelectedIndex(prev => (prev < visibleCards.length - 1 ? prev + 1 : 0))
+        setSelectedIndex(prev => (prev < menuLength - 1 ? prev + 1 : 0))
         break
       case 'center':
-        if (visibleCards[selectedIndex]) {
-          activateLink(visibleCards[selectedIndex])
+        if (currentScreen === 'main') {
+          const card = visibleCards[selectedIndex]
+          if (card?.card_type === 'social-icons') {
+            goToSocials()
+          } else if (card) {
+            activateLink(card)
+          }
+        } else {
+          // On socials screen, open the URL
+          const icon = socialIcons[selectedIndex]
+          if (icon?.url) {
+            window.open(icon.url, '_blank', 'noopener,noreferrer')
+          }
         }
         break
       case 'menu':
-        // Menu button - could go back if we had nested menus
+        // Menu button goes back
+        if (currentScreen === 'socials') {
+          goBack()
+        }
         break
     }
   }
@@ -126,6 +174,7 @@ export function StaticIpodClassicLayout({
     const wheel = wheelRef.current
     if (!wheel) return
 
+    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
     const rect = wheel.getBoundingClientRect()
     const currentAngle = getAngleFromCenter(clientX, clientY, rect)
 
@@ -147,8 +196,8 @@ export function StaticIpodClassicLayout({
         setSelectedIndex(prev => {
           let newIndex = prev + (direction * steps)
           // Wrap around
-          if (newIndex < 0) newIndex = visibleCards.length + (newIndex % visibleCards.length)
-          if (newIndex >= visibleCards.length) newIndex = newIndex % visibleCards.length
+          if (newIndex < 0) newIndex = menuLength + (newIndex % menuLength)
+          if (newIndex >= menuLength) newIndex = newIndex % menuLength
           return newIndex
         })
 
@@ -158,7 +207,7 @@ export function StaticIpodClassicLayout({
     }
 
     lastAngleRef.current = currentAngle
-  }, [visibleCards.length])
+  }, [visibleCards.length, socialIcons.length, currentScreen])
 
   // Mouse handlers for wheel
   const handleWheelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -202,17 +251,7 @@ export function StaticIpodClassicLayout({
     lastAngleRef.current = null
   }
 
-  const handleMenuItemClick = (card: Card, index: number) => {
-    if (selectedIndex === index) {
-      // Already selected, activate
-      activateLink(card)
-    } else {
-      // Select it
-      setSelectedIndex(index)
-    }
-  }
-
-  const displayTitle = title || 'Menu'
+  const displayTitle = currentScreen === 'socials' ? 'Socials' : (title || 'Menu')
 
   return (
     <div
@@ -232,7 +271,11 @@ export function StaticIpodClassicLayout({
             <div className="ipod-screen">
               {/* Title Bar - Arrow | Title | Battery */}
               <div className="ipod-title-bar">
-                <span className="text-[11px]">▶</span>
+                {currentScreen === 'socials' ? (
+                  <span className="text-[11px] cursor-pointer" onClick={goBack}>◀</span>
+                ) : (
+                  <span className="text-[11px]">▶</span>
+                )}
                 <span className="font-bold text-[12px] tracking-wide">{displayTitle}</span>
                 {/* Old-school battery icon */}
                 <svg className="ipod-battery" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -247,74 +290,88 @@ export function StaticIpodClassicLayout({
 
               {/* Menu List */}
               <div ref={menuListRef} className="ipod-menu-list">
-                {visibleCards.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
-                    No links
-                  </div>
-                ) : (
-                  visibleCards.map((card, index) => {
-                    const isSelected = selectedIndex === index
-                    const displayText = card.title || card.card_type
-                    const isLongText = displayText.length > 25
-
-                    // Handle social-icons card specially - render as expandable "Socials" menu
-                    if (card.card_type === 'social-icons') {
-                      const isExpanded = expandedSocials === card.id
+                {currentScreen === 'main' ? (
+                  // Main menu - show cards
+                  visibleCards.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
+                      No links
+                    </div>
+                  ) : (
+                    visibleCards.map((card, index) => {
+                      const isSelected = selectedIndex === index
+                      const displayText = card.card_type === 'social-icons' ? 'Socials' : (card.title || card.card_type)
+                      const isLongText = displayText.length > 25
 
                       return (
-                        <div key={card.id}>
-                          <div
-                            className={cn(
-                              'ipod-menu-item',
-                              isSelected && 'selected'
-                            )}
-                            onClick={() => {
-                              if (isSelected) {
-                                // Toggle expansion on second click
-                                setExpandedSocials(prev => prev === card.id ? null : card.id)
+                        <div
+                          key={card.id}
+                          className={cn(
+                            'ipod-menu-item',
+                            isSelected && 'selected'
+                          )}
+                          onClick={() => {
+                            if (selectedIndex === index) {
+                              // Already selected - activate
+                              if (card.card_type === 'social-icons') {
+                                goToSocials()
                               } else {
-                                // Select it first
-                                setSelectedIndex(index)
+                                activateLink(card)
                               }
-                            }}
-                          >
-                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
-                              Socials
+                            } else {
+                              setSelectedIndex(index)
+                            }
+                          }}
+                        >
+                          <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                            <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                              {displayText}
                             </span>
-                            <span className="text-[11px] ml-2">{isExpanded ? 'v' : '>'}</span>
-                          </div>
-                          {isExpanded && socialIcons.map((icon) => (
-                            <div
-                              key={icon.id}
-                              className="ipod-menu-subitem"
-                              onClick={() => window.open(icon.url, '_blank', 'noopener,noreferrer')}
-                            >
-                              <span className="text-[11px]">{SOCIAL_PLATFORMS[icon.platform].label}</span>
-                              <span className="text-[10px] ml-2">{'>'}</span>
-                            </div>
-                          ))}
+                          </span>
+                          <span className="text-[11px] ml-2">{'>'}</span>
                         </div>
                       )
-                    }
+                    })
+                  )
+                ) : (
+                  // Socials screen - show social icons as menu items
+                  socialIcons.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
+                      No socials
+                    </div>
+                  ) : (
+                    socialIcons.map((icon, index) => {
+                      const isSelected = selectedIndex === index
+                      const displayText = SOCIAL_PLATFORMS[icon.platform]?.label || icon.platform
+                      const isLongText = displayText.length > 25
 
-                    return (
-                      <div
-                        key={card.id}
-                        className={cn(
-                          'ipod-menu-item',
-                          isSelected && 'selected'
-                        )}
-                        onClick={() => handleMenuItemClick(card, index)}
-                      >
-                        <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
-                          <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
-                            {displayText}
+                      return (
+                        <div
+                          key={icon.id}
+                          className={cn(
+                            'ipod-menu-item',
+                            isSelected && 'selected'
+                          )}
+                          onClick={() => {
+                            if (selectedIndex === index) {
+                              // Already selected - open URL
+                              if (icon.url) {
+                                window.open(icon.url, '_blank', 'noopener,noreferrer')
+                              }
+                            } else {
+                              setSelectedIndex(index)
+                            }
+                          }}
+                        >
+                          <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                            <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                              {displayText}
+                            </span>
                           </span>
-                        </span>
-                        <span className="text-[11px] ml-2">{'>'}</span>
-                      </div>
-                    )
-                  })
+                          <span className="text-[11px] ml-2">{'>'}</span>
+                        </div>
+                      )
+                    })
+                  )
                 )}
               </div>
             </div>
@@ -371,33 +428,35 @@ export function StaticIpodClassicLayout({
             />
           </div>
 
-          {/* Logo - User's logo (if enabled) or Rainbow Apple */}
+          {/* Logo - User's logo (if enabled) or Rainbow Apple, hidden if showLogo is false */}
           <div className="ipod-apple-logo">
-            {logoUrl && showLogo ? (
-              <img
-                src={logoUrl}
-                alt="Logo"
-                style={{
-                  width: `${(logoScale / 100) * 56}px`,
-                  height: `${(logoScale / 100) * 56}px`,
-                  objectFit: 'contain',
-                  background: 'none',
-                }}
-              />
-            ) : (
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="url(#ipod-rainbow-static)"/>
-                <defs>
-                  <linearGradient id="ipod-rainbow-static" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#FF6B6B"/>
-                    <stop offset="0.2" stopColor="#FFA500"/>
-                    <stop offset="0.4" stopColor="#FFD93D"/>
-                    <stop offset="0.6" stopColor="#6BCF7F"/>
-                    <stop offset="0.8" stopColor="#4D96FF"/>
-                    <stop offset="1" stopColor="#9B59B6"/>
-                  </linearGradient>
-                </defs>
-              </svg>
+            {showLogo && (
+              logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt="Logo"
+                  style={{
+                    width: `${(logoScale / 100) * 56}px`,
+                    height: `${(logoScale / 100) * 56}px`,
+                    objectFit: 'contain',
+                    background: 'none',
+                  }}
+                />
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="url(#ipod-rainbow-static)"/>
+                  <defs>
+                    <linearGradient id="ipod-rainbow-static" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+                      <stop stopColor="#FF6B6B"/>
+                      <stop offset="0.2" stopColor="#FFA500"/>
+                      <stop offset="0.4" stopColor="#FFD93D"/>
+                      <stop offset="0.6" stopColor="#6BCF7F"/>
+                      <stop offset="0.8" stopColor="#4D96FF"/>
+                      <stop offset="1" stopColor="#9B59B6"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              )
             )}
           </div>
         </div>

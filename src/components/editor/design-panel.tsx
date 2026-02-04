@@ -326,6 +326,7 @@ export function DesignPanel() {
           imageSrc={selectedImage}
           onCropComplete={handleCropComplete}
           initialAspect={imageType === 'avatar' ? 1 : undefined}
+          outputFormat={imageType === 'logo' ? 'image/png' : 'image/jpeg'}
         />
       )}
     </div>

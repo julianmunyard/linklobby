@@ -348,15 +348,14 @@
 /* Marquee scroll for long text on selected items */
 .ipod-menu-item.selected .ipod-marquee {
   display: inline-block;
-  animation: ipod-marquee 6s linear infinite;
-  animation-delay: 1s;
+  animation: ipod-marquee 3s linear infinite;
 }
 
 @keyframes ipod-marquee {
-  0%, 10% {
+  0% {
     transform: translateX(0);
   }
-  45%, 55% {
+  40%, 50% {
     transform: translateX(calc(-100% + 200px));
   }
   90%, 100% {
