@@ -12,6 +12,7 @@ export type CardType =
   | 'link'
   | 'mini'
   | 'text'
+  | 'email-collection'
 
 export type CardSize = 'big' | 'small'
 
@@ -59,10 +60,11 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   link: null, // Always full width - simple text link
   mini: null, // Compact width - fits content
   text: ['big', 'small'], // Text cards support sizing for horizontal stacking
+  'email-collection': null, // Always full width - form needs space
 }
 
 // Card types that don't support images (use custom media handling instead)
-export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'music', 'video', 'gallery', 'game']
+export const CARD_TYPES_NO_IMAGE: CardType[] = ['social-icons', 'link', 'mini', 'text', 'audio', 'music', 'video', 'gallery', 'game', 'email-collection']
 
 // Text alignment options
 export type TextAlign = 'left' | 'center' | 'right'
@@ -197,6 +199,9 @@ export interface MusicCardContent {
   noBorder?: boolean             // Remove card border/background styling
 }
 
+// Re-export from fan-tools for convenience
+export type { EmailCollectionCardContent } from './fan-tools'
+
 // Game type info for UI display
 export const GAME_TYPE_INFO: Record<GameType, { label: string; description: string }> = {
   snake: { label: 'Snake', description: 'Classic snake game' },
@@ -204,8 +209,11 @@ export const GAME_TYPE_INFO: Record<GameType, { label: string; description: stri
   flappy: { label: 'Flappy', description: 'Tap to fly' },
 }
 
+// Import EmailCollectionCardContent for the union type
+import type { EmailCollectionCardContent } from './fan-tools'
+
 // Union type for all card content
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | EmailCollectionCardContent | Record<string, unknown>
 
 // Helper type guards
 export function isHeroContent(content: unknown): content is HeroCardContent {
@@ -236,4 +244,8 @@ export function isGameContent(content: unknown): content is GameCardContent {
 
 export function isMusicContent(content: unknown): content is MusicCardContent {
   return typeof content === 'object' && content !== null
+}
+
+export function isEmailCollectionContent(content: unknown): content is EmailCollectionCardContent {
+  return typeof content === 'object' && content !== null && 'heading' in content
 }
