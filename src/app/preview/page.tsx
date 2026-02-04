@@ -119,6 +119,7 @@ function PreviewContent() {
             receiptPrice: ts.receiptPrice ?? 'PRICELESS',
             receiptStickers: ts.receiptStickers ?? [],
             receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
+            ipodStickers: ts.ipodStickers ?? [],
           })
         }
       }

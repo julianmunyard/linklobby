@@ -51,6 +51,8 @@ interface PublicPageRendererProps {
   receiptPrice?: string
   receiptStickers?: ReceiptSticker[]
   receiptFloatAnimation?: boolean
+  // iPod theme
+  ipodStickers?: ReceiptSticker[]
   // Cards
   cards: Card[]
 }
@@ -91,6 +93,7 @@ export function PublicPageRenderer({
   receiptPrice,
   receiptStickers,
   receiptFloatAnimation,
+  ipodStickers,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -123,6 +126,7 @@ export function PublicPageRenderer({
         showLogo={showLogo}
         logoScale={logoScale}
         socialIcons={socialIcons}
+        ipodStickers={ipodStickers}
       />
     )
   }

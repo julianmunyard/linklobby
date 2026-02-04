@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card } from '@/types/card'
-import type { BackgroundConfig } from '@/types/theme'
+import type { BackgroundConfig, ReceiptSticker } from '@/types/theme'
 import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
@@ -19,6 +19,7 @@ interface StaticIpodClassicLayoutProps {
   showLogo?: boolean
   logoScale?: number
   socialIcons?: SocialIcon[]
+  ipodStickers?: ReceiptSticker[]
 }
 
 /**
@@ -34,7 +35,8 @@ export function StaticIpodClassicLayout({
   logoUrl,
   showLogo = false,
   logoScale = 100,
-  socialIcons = []
+  socialIcons = [],
+  ipodStickers = []
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentScreen, setCurrentScreen] = useState<'main' | 'socials'>('main')
@@ -459,6 +461,26 @@ export function StaticIpodClassicLayout({
               )
             )}
           </div>
+
+          {/* Stickers (static, no drag) */}
+          {ipodStickers.map((sticker) => (
+            <img
+              key={sticker.id}
+              src={sticker.src}
+              alt=""
+              className={cn(
+                "absolute pointer-events-none",
+                sticker.behindText ? "z-[0]" : "z-[9000]"
+              )}
+              style={{
+                left: `${sticker.x}%`,
+                top: `${sticker.y}%`,
+                transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                width: '80px',
+                height: 'auto',
+              }}
+            />
+          ))}
         </div>
 
       </div>

@@ -18,7 +18,7 @@ const RECEIPT_STICKERS = [
 ]
 
 export function StyleControls() {
-  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation } = useThemeStore()
+  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker } = useThemeStore()
   const theme = getTheme(themeId)
 
   return (
@@ -214,6 +214,110 @@ export function StyleControls() {
                       <Switch
                         checked={sticker.behindText ?? false}
                         onCheckedChange={(checked) => updateReceiptSticker(sticker.id, { behindText: checked })}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* iPod Theme: Stickers */}
+      {themeId === 'ipod-classic' && (
+        <div className="space-y-3">
+          <Label className="text-sm">Stickers</Label>
+          <p className="text-xs text-muted-foreground">Add stickers to your iPod. Drag them around in the preview.</p>
+
+          {/* Sticker picker grid */}
+          <div className="grid grid-cols-4 gap-2">
+            {RECEIPT_STICKERS.map((sticker) => (
+              <button
+                key={sticker.id}
+                onClick={() => {
+                  addIpodSticker({
+                    id: `${sticker.id}-${Date.now()}`,
+                    src: sticker.src,
+                    x: 50 + Math.random() * 20 - 10,
+                    y: 30 + Math.random() * 20 - 10,
+                    rotation: Math.random() * 30 - 15,
+                    scale: 0.8 + Math.random() * 0.4,
+                    behindText: false,
+                  })
+                }}
+                className="p-1 rounded border hover:border-primary transition-colors bg-white"
+              >
+                <img
+                  src={sticker.src}
+                  alt={sticker.label}
+                  className="w-full h-auto object-contain"
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Active stickers list */}
+          {ipodStickers.length > 0 && (
+            <div className="space-y-3">
+              <Label className="text-xs text-muted-foreground">Active Stickers</Label>
+              <div className="space-y-3">
+                {ipodStickers.map((sticker, index) => (
+                  <div
+                    key={sticker.id}
+                    className="p-3 rounded bg-muted/50 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <img src={sticker.src} alt="" className="w-8 h-8 object-contain" />
+                        <span className="text-xs font-medium">Sticker {index + 1}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => removeIpodSticker(sticker.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    {/* Rotation slider */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Rotation</Label>
+                        <span className="text-xs text-muted-foreground">{sticker.rotation.toFixed(0)}°</span>
+                      </div>
+                      <Slider
+                        value={[sticker.rotation]}
+                        onValueChange={([value]) => updateIpodSticker(sticker.id, { rotation: value })}
+                        min={-45}
+                        max={45}
+                        step={1}
+                      />
+                    </div>
+
+                    {/* Scale slider */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Size</Label>
+                        <span className="text-xs text-muted-foreground">{(sticker.scale * 100).toFixed(0)}%</span>
+                      </div>
+                      <Slider
+                        value={[sticker.scale]}
+                        onValueChange={([value]) => updateIpodSticker(sticker.id, { scale: value })}
+                        min={0.3}
+                        max={2}
+                        step={0.1}
+                      />
+                    </div>
+
+                    {/* Behind text toggle */}
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Behind text</Label>
+                      <Switch
+                        checked={sticker.behindText ?? false}
+                        onCheckedChange={(checked) => updateIpodSticker(sticker.id, { behindText: checked })}
                       />
                     </div>
                   </div>

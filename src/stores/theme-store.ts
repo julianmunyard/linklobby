@@ -21,6 +21,7 @@ interface ThemeStore extends ThemeState {
   receiptPrice: string  // Receipt theme: custom price text
   receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
   receiptFloatAnimation: boolean  // Receipt theme: floating animation enabled
+  ipodStickers: ReceiptSticker[]  // iPod theme: draggable stickers
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -38,6 +39,9 @@ interface ThemeStore extends ThemeState {
   updateReceiptSticker: (id: string, updates: Partial<ReceiptSticker>) => void
   removeReceiptSticker: (id: string) => void
   setReceiptFloatAnimation: (enabled: boolean) => void
+  addIpodSticker: (sticker: ReceiptSticker) => void
+  updateIpodSticker: (id: string, updates: Partial<ReceiptSticker>) => void
+  removeIpodSticker: (id: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -99,6 +103,7 @@ export const useThemeStore = create<ThemeStore>()(
       receiptPrice: 'PRICELESS',
       receiptStickers: [],
       receiptFloatAnimation: true,
+      ipodStickers: [],
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -252,6 +257,29 @@ export const useThemeStore = create<ThemeStore>()(
         set({ receiptFloatAnimation: enabled, hasChanges: true })
       },
 
+      addIpodSticker: (sticker: ReceiptSticker) => {
+        set((state) => ({
+          ipodStickers: [...state.ipodStickers, sticker],
+          hasChanges: true,
+        }))
+      },
+
+      updateIpodSticker: (id: string, updates: Partial<ReceiptSticker>) => {
+        set((state) => ({
+          ipodStickers: state.ipodStickers.map((s) =>
+            s.id === id ? { ...s, ...updates } : s
+          ),
+          hasChanges: true,
+        }))
+      },
+
+      removeIpodSticker: (id: string) => {
+        set((state) => ({
+          ipodStickers: state.ipodStickers.filter((s) => s.id !== id),
+          hasChanges: true,
+        }))
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -291,6 +319,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
           receiptStickers: theme.receiptStickers ?? [],
           receiptFloatAnimation: theme.receiptFloatAnimation ?? true,
+          ipodStickers: theme.ipodStickers ?? [],
           hasChanges: false,
         })
       },
@@ -309,6 +338,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptPrice: state.receiptPrice,
           receiptStickers: state.receiptStickers,
           receiptFloatAnimation: state.receiptFloatAnimation,
+          ipodStickers: state.ipodStickers,
         }
       },
     }),

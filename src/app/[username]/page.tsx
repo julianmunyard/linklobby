@@ -47,6 +47,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
   const receiptStickers = themeSettings?.receiptStickers ?? []
   const receiptFloatAnimation = themeSettings?.receiptFloatAnimation ?? true
+  const ipodStickers = themeSettings?.ipodStickers ?? []
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -90,6 +91,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         receiptPrice={receiptPrice}
         receiptStickers={receiptStickers}
         receiptFloatAnimation={receiptFloatAnimation}
+        ipodStickers={ipodStickers}
         cards={cards}
       />
 

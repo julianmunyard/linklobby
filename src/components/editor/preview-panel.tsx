@@ -22,6 +22,7 @@ export function PreviewPanel() {
   const selectCard = usePageStore((state) => state.selectCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
   const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
+  const updateIpodSticker = useThemeStore((state) => state.updateIpodSticker)
   const { saveCards } = useCards()
 
   // Calculate scale to fit mobile preview in container
@@ -66,8 +67,8 @@ export function PreviewPanel() {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
       // Get theme state snapshot (exclude actions)
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, ipodStickers } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, ipodStickers }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
@@ -100,12 +101,15 @@ export function PreviewPanel() {
         case "UPDATE_STICKER":
           updateReceiptSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break
+        case "UPDATE_IPOD_STICKER":
+          updateIpodSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
+          break
       }
     }
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateReceiptSticker])
+  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateReceiptSticker, updateIpodSticker])
 
   // Send initial state when preview becomes ready
   useEffect(() => {

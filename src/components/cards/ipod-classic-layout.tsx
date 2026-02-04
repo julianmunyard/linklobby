@@ -36,14 +36,19 @@ export function IpodClassicLayout({
 }: IpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentScreen, setCurrentScreen] = useState<'main' | 'socials'>('main')
+  const [draggingSticker, setDraggingSticker] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
+  const ipodRef = useRef<HTMLDivElement>(null)
+  const dragStartRef = useRef<{ x: number; y: number; stickerX: number; stickerY: number } | null>(null)
   const logoUrl = useProfileStore((s) => s.logoUrl)
   const showLogo = useProfileStore((s) => s.showLogo)
   const logoScale = useProfileStore((s) => s.logoScale)
   const getSortedSocialIcons = useProfileStore((s) => s.getSortedSocialIcons)
   const socialIcons = getSortedSocialIcons()
+  const ipodStickers = useThemeStore((s) => s.ipodStickers)
+  const updateIpodSticker = useThemeStore((s) => s.updateIpodSticker)
 
   // Wheel rotation tracking
   const lastAngleRef = useRef<number | null>(null)
@@ -259,6 +264,46 @@ export function IpodClassicLayout({
     lastAngleRef.current = null
   }
 
+  // Sticker drag handlers
+  const handleStickerMouseDown = (e: React.MouseEvent, stickerId: string) => {
+    if (!isPreview) return
+    e.preventDefault()
+    e.stopPropagation()
+    const sticker = ipodStickers.find(s => s.id === stickerId)
+    if (!sticker) return
+    setDraggingSticker(stickerId)
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      stickerX: sticker.x,
+      stickerY: sticker.y,
+    }
+  }
+
+  const handleStickerMouseMove = (e: React.MouseEvent) => {
+    if (!draggingSticker || !dragStartRef.current || !ipodRef.current) return
+    const rect = ipodRef.current.getBoundingClientRect()
+    const deltaX = ((e.clientX - dragStartRef.current.x) / rect.width) * 100
+    const deltaY = ((e.clientY - dragStartRef.current.y) / rect.height) * 100
+    const newX = Math.max(0, Math.min(100, dragStartRef.current.stickerX + deltaX))
+    const newY = Math.max(0, Math.min(100, dragStartRef.current.stickerY + deltaY))
+    updateIpodSticker(draggingSticker, { x: newX, y: newY })
+  }
+
+  const handleStickerMouseUp = () => {
+    if (draggingSticker && isPreview && window.parent !== window) {
+      const sticker = ipodStickers.find(s => s.id === draggingSticker)
+      if (sticker) {
+        window.parent.postMessage(
+          { type: "UPDATE_IPOD_STICKER", payload: { id: sticker.id, x: sticker.x, y: sticker.y } },
+          window.location.origin
+        )
+      }
+    }
+    setDraggingSticker(null)
+    dragStartRef.current = null
+  }
+
   const displayTitle = currentScreen === 'socials' ? 'Socials' : (title || 'Menu')
 
   return (
@@ -273,7 +318,13 @@ export function IpodClassicLayout({
 
       <div className="relative min-h-screen flex items-center justify-center p-4">
         {/* iPod Container */}
-        <div className="ipod-container">
+        <div
+          ref={ipodRef}
+          className="ipod-container"
+          onMouseMove={handleStickerMouseMove}
+          onMouseUp={handleStickerMouseUp}
+          onMouseLeave={handleStickerMouseUp}
+        >
           {/* Screen Bezel */}
           <div className="ipod-screen-bezel">
             {/* LCD Screen */}
@@ -468,6 +519,32 @@ export function IpodClassicLayout({
               )
             )}
           </div>
+
+          {/* Draggable stickers */}
+          {ipodStickers.map((sticker) => (
+            <img
+              key={sticker.id}
+              src={sticker.src}
+              alt=""
+              className={cn(
+                "absolute pointer-events-auto",
+                sticker.behindText ? "z-[0]" : "z-[9000]",
+                isPreview && "cursor-grab",
+                draggingSticker === sticker.id && "cursor-grabbing"
+              )}
+              style={{
+                left: `${sticker.x}%`,
+                top: `${sticker.y}%`,
+                transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                width: '80px',
+                height: 'auto',
+                userSelect: 'none',
+                opacity: 1,
+              }}
+              onMouseDown={(e) => handleStickerMouseDown(e, sticker.id)}
+              draggable={false}
+            />
+          ))}
         </div>
 
       </div>

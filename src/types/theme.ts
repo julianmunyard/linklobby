@@ -112,4 +112,5 @@ export interface ThemeState {
   receiptPrice?: string  // Receipt theme: custom price text
   receiptStickers?: ReceiptSticker[]  // Receipt theme: draggable stickers
   receiptFloatAnimation?: boolean  // Receipt theme: floating animation enabled
+  ipodStickers?: ReceiptSticker[]  // iPod theme: draggable stickers (reuses ReceiptSticker type)
 }
