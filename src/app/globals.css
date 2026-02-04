@@ -491,6 +491,28 @@
   align-items: center;
   gap: 24px;
   font-family: var(--font-chiq), 'Chicago', -apple-system, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Brushed metal texture overlay - iPod only */
+.ipod-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/metal-texture.jpeg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.8;
+  border-radius: inherit;
 }
 
 /* Screen Bezel */
@@ -502,6 +524,8 @@
   box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.5),
     0 1px 2px rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 1;
 }
 
 /* iPod Screen */
@@ -612,6 +636,7 @@
   border-radius: 50%;
   background: linear-gradient(145deg, #f0ece0 0%, #d8d4c9 100%);
   position: relative;
+  z-index: 1;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.15),
     inset 0 1px 2px rgba(255, 255, 255, 0.8),
@@ -733,6 +758,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .ipod-apple-logo svg {
