@@ -117,6 +117,7 @@ function PreviewContent() {
             socialIconSize: ts.socialIconSize,
             vcrCenterContent: ts.vcrCenterContent ?? false,
             receiptPrice: ts.receiptPrice ?? 'PRICELESS',
+            receiptStickers: ts.receiptStickers ?? [],
           })
         }
       }

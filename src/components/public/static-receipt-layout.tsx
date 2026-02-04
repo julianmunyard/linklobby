@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { Card } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
+import type { ReceiptSticker } from '@/types/theme'
 import { cn } from '@/lib/utils'
 import { Globe, Mail, Music } from 'lucide-react'
 import {
@@ -93,6 +94,7 @@ interface StaticReceiptLayoutProps {
   socialIcons?: SocialIcon[]
   showSocialIcons?: boolean
   receiptPrice?: string
+  receiptStickers?: ReceiptSticker[]
 }
 
 /**
@@ -109,7 +111,8 @@ export function StaticReceiptLayout({
   bio,
   socialIcons = [],
   showSocialIcons = true,
-  receiptPrice = 'PRICELESS'
+  receiptPrice = 'PRICELESS',
+  receiptStickers = []
 }: StaticReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [ditheredPhoto, setDitheredPhoto] = useState<string | null>(null)
@@ -249,14 +252,9 @@ export function StaticReceiptLayout({
   }
 
   const handleCardClick = (card: Card, index: number) => {
-    if (focusedIndex === index) {
-      // Already focused, activate it
-      if (card.url) {
-        window.open(card.url, '_blank', 'noopener,noreferrer')
-      }
-    } else {
-      // Just focus it
-      setFocusedIndex(index)
+    setFocusedIndex(index)
+    if (card.url) {
+      window.open(card.url, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -270,7 +268,7 @@ export function StaticReceiptLayout({
       {/* Receipt paper */}
       <div className="flex justify-center py-8 px-4">
         <div
-          className="receipt-paper"
+          className="receipt-paper relative"
           style={{
             backgroundColor: 'var(--theme-card-bg)',
             color: 'var(--theme-text)',
@@ -296,7 +294,7 @@ export function StaticReceiptLayout({
               {bio && (
                 <div className="text-xs opacity-70 mb-2">{bio}</div>
               )}
-              <div className="receipt-divider">{'='.repeat(32)}</div>
+              <div className="receipt-divider">{'='.repeat(60)}</div>
             </div>
 
             {/* Dithered photo */}
@@ -327,7 +325,7 @@ export function StaticReceiptLayout({
               </div>
             </div>
 
-            <div className="receipt-divider">{'-'.repeat(32)}</div>
+            <div className="receipt-divider">{'-'.repeat(60)}</div>
 
             {/* Links as items */}
             <div className="my-4 space-y-2">
@@ -353,7 +351,7 @@ export function StaticReceiptLayout({
               })}
             </div>
 
-            <div className="receipt-divider">{'-'.repeat(32)}</div>
+            <div className="receipt-divider">{'-'.repeat(60)}</div>
 
             {/* Total */}
             <div className="my-4 space-y-1">
@@ -369,7 +367,7 @@ export function StaticReceiptLayout({
               )}
             </div>
 
-            <div className="receipt-divider">{'='.repeat(32)}</div>
+            <div className="receipt-divider">{'='.repeat(60)}</div>
 
             {/* Social Icons */}
             {showSocialIcons && socialIcons.length > 0 && (
@@ -392,7 +390,7 @@ export function StaticReceiptLayout({
                     )
                   })}
                 </div>
-                <div className="receipt-divider">{'-'.repeat(32)}</div>
+                <div className="receipt-divider">{'-'.repeat(60)}</div>
               </>
             )}
 
@@ -414,6 +412,27 @@ export function StaticReceiptLayout({
 
           {/* Torn bottom edge */}
           <div className="receipt-torn-edge receipt-torn-bottom" />
+
+          {/* Stickers - rendered after content so they appear on top */}
+          {receiptStickers.map((sticker) => (
+            <img
+              key={sticker.id}
+              src={sticker.src}
+              alt=""
+              className={cn(
+                "absolute pointer-events-none",
+                sticker.behindText ? "z-[1]" : "z-[9000]"
+              )}
+              style={{
+                left: `${sticker.x}%`,
+                top: `${sticker.y}%`,
+                transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                width: '80px',
+                height: 'auto',
+                opacity: 1,
+              }}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import { StaticReceiptLayout } from "./static-receipt-layout"
 import type { Card } from "@/types/card"
-import type { BackgroundConfig, ThemeId } from "@/types/theme"
+import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
 
 // Frame inset config - defines the "screen" area for frames (as percentages of viewport)
@@ -49,6 +49,7 @@ interface PublicPageRendererProps {
   themeId?: ThemeId
   // Receipt theme
   receiptPrice?: string
+  receiptStickers?: ReceiptSticker[]
   // Cards
   cards: Card[]
 }
@@ -87,6 +88,7 @@ export function PublicPageRenderer({
   background,
   themeId,
   receiptPrice,
+  receiptStickers,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -140,6 +142,7 @@ export function PublicPageRenderer({
         socialIcons={socialIcons}
         showSocialIcons={showSocialIcons}
         receiptPrice={receiptPrice}
+        receiptStickers={receiptStickers}
       />
     )
   }

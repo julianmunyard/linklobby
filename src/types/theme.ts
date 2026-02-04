@@ -59,6 +59,17 @@ export interface BackgroundConfig {
   dimIntensity?: number      // Dim opacity (0-100, default 40)
 }
 
+// Receipt sticker configuration
+export interface ReceiptSticker {
+  id: string
+  src: string              // Image path (e.g., '/images/stickers/special-tag.jpeg')
+  x: number                // Position as percentage (0-100)
+  y: number                // Position as percentage (0-100)
+  rotation: number         // Rotation in degrees (-45 to 45)
+  scale: number            // Scale multiplier (0.5 to 1.5)
+  behindText?: boolean     // If true, sticker renders behind receipt text
+}
+
 // Font sizes for each card type (rem multiplier, 1 = base)
 export interface CardTypeFontSizes {
   hero: number
@@ -99,4 +110,5 @@ export interface ThemeState {
   socialIconSize?: number  // Icon size in pixels (16-48), default 24
   vcrCenterContent?: boolean  // VCR theme: center content vertically
   receiptPrice?: string  // Receipt theme: custom price text
+  receiptStickers?: ReceiptSticker[]  // Receipt theme: draggable stickers
 }

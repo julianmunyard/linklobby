@@ -174,13 +174,17 @@ export function StaticNoiseOverlay({ background }: StaticNoiseOverlayProps) {
 
 interface StaticFrameOverlayProps {
   background: BackgroundConfig
+  theme?: string
 }
 
 /**
  * Static frame overlay for public pages
  * Accepts background config as props instead of using store
+ * Disabled for receipt theme
  */
-export function StaticFrameOverlay({ background }: StaticFrameOverlayProps) {
+export function StaticFrameOverlay({ background, theme }: StaticFrameOverlayProps) {
+  // Disable frame overlay for receipt theme
+  if (theme === 'receipt') return null
   if (!background.frameOverlay) return null
 
   const zoom = background.frameZoom ?? 1

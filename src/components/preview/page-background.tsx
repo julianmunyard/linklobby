@@ -99,10 +99,13 @@ export function NoiseOverlay() {
 
 /**
  * Frame overlay for preview - uses theme store
+ * Disabled for receipt theme
  */
 export function FrameOverlay() {
-  const { background } = useThemeStore()
+  const { background, themeId } = useThemeStore()
 
+  // Disable frame overlay for receipt theme
+  if (themeId === 'receipt') return null
   if (!background.frameOverlay) return null
 
   const zoom = background.frameZoom ?? 1

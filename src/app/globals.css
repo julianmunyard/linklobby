@@ -173,6 +173,46 @@
   }
 }
 
+/* Paper texture overlay - Receipt paper only */
+.receipt-paper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/paper-texture.jpeg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.7;
+  border-radius: inherit;
+}
+
+/* Screen texture overlay - Receipt paper only */
+.receipt-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/plastic-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 10000;
+  opacity: 0.9;
+  border-radius: inherit;
+}
+
 /* Mac OS Theme Variants */
 [data-theme="mac-os"] {
   --theme-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.3), 0 4px 6px -2px rgb(0 0 0 / 0.2);
@@ -298,6 +338,7 @@
   max-width: 100%;
   position: relative;
   padding: 0;
+  overflow: hidden;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.15),
     2px 0 0 rgba(0, 0, 0, 0.05),
@@ -307,6 +348,12 @@
 /* Receipt content padding */
 .receipt-content {
   padding: 24px 20px;
+  position: relative;
+  z-index: 10;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+  filter: blur(0.2px) contrast(0.85);
+  text-shadow: 0.3px 0.3px 0.5px rgba(0,0,0,0.15);
 }
 
 /* Torn paper edge effect */
@@ -315,6 +362,7 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  z-index: 10;
 }
 
 .receipt-torn-top {
@@ -357,6 +405,8 @@
   font-size: 10px;
   overflow: hidden;
   white-space: nowrap;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 
 /* Receipt photo (dithered) */

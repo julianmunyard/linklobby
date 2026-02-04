@@ -45,6 +45,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
   const accentColor = themeSettings?.colors?.accent ?? '#2a6eff'
   const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
+  const receiptStickers = themeSettings?.receiptStickers ?? []
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -86,6 +87,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         vcrCenterContent={vcrCenterContent}
         accentColor={accentColor}
         receiptPrice={receiptPrice}
+        receiptStickers={receiptStickers}
         cards={cards}
       />
 
@@ -93,7 +95,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
       <StaticNoiseOverlay background={background} />
 
       {/* Frame overlay (if enabled) */}
-      <StaticFrameOverlay background={background} />
+      <StaticFrameOverlay background={background} theme={themeId} />
     </>
   )
 }

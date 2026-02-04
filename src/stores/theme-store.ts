@@ -8,7 +8,8 @@ import type {
   StyleConfig,
   BackgroundConfig,
   CardTypeFontSizes,
-  ThemeState
+  ThemeState,
+  ReceiptSticker
 } from '@/types/theme'
 import type { CardType } from '@/types/card'
 import { getTheme, getThemeDefaults } from '@/lib/themes'
@@ -18,6 +19,7 @@ interface ThemeStore extends ThemeState {
   socialIconSize: number  // Icon size in pixels (16-48), default 24
   vcrCenterContent: boolean  // VCR theme: center content vertically
   receiptPrice: string  // Receipt theme: custom price text
+  receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -31,6 +33,9 @@ interface ThemeStore extends ThemeState {
   setSocialIconSize: (size: number) => void
   setVcrCenterContent: (center: boolean) => void
   setReceiptPrice: (price: string) => void
+  addReceiptSticker: (sticker: ReceiptSticker) => void
+  updateReceiptSticker: (id: string, updates: Partial<ReceiptSticker>) => void
+  removeReceiptSticker: (id: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -90,6 +95,7 @@ export const useThemeStore = create<ThemeStore>()(
       socialIconSize: 24,
       vcrCenterContent: false,
       receiptPrice: 'PRICELESS',
+      receiptStickers: [],
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -203,6 +209,29 @@ export const useThemeStore = create<ThemeStore>()(
         set({ receiptPrice: price, hasChanges: true })
       },
 
+      addReceiptSticker: (sticker: ReceiptSticker) => {
+        set((state) => ({
+          receiptStickers: [...state.receiptStickers, sticker],
+          hasChanges: true,
+        }))
+      },
+
+      updateReceiptSticker: (id: string, updates: Partial<ReceiptSticker>) => {
+        set((state) => ({
+          receiptStickers: state.receiptStickers.map((s) =>
+            s.id === id ? { ...s, ...updates } : s
+          ),
+          hasChanges: true,
+        }))
+      },
+
+      removeReceiptSticker: (id: string) => {
+        set((state) => ({
+          receiptStickers: state.receiptStickers.filter((s) => s.id !== id),
+          hasChanges: true,
+        }))
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -240,6 +269,7 @@ export const useThemeStore = create<ThemeStore>()(
           cardTypeFontSizes: theme.cardTypeFontSizes || initialState.cardTypeFontSizes,
           vcrCenterContent: theme.vcrCenterContent ?? false,
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
+          receiptStickers: theme.receiptStickers ?? [],
           hasChanges: false,
         })
       },
@@ -256,6 +286,7 @@ export const useThemeStore = create<ThemeStore>()(
           cardTypeFontSizes: state.cardTypeFontSizes,
           vcrCenterContent: state.vcrCenterContent,
           receiptPrice: state.receiptPrice,
+          receiptStickers: state.receiptStickers,
         }
       },
     }),

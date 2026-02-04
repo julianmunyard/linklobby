@@ -114,8 +114,13 @@ export function ReceiptLayout({
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
   const receiptPrice = useThemeStore((s) => s.receiptPrice)
+  const receiptStickers = useThemeStore((s) => s.receiptStickers)
+  const updateReceiptSticker = useThemeStore((s) => s.updateReceiptSticker)
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const receiptPaperRef = useRef<HTMLDivElement>(null)
+  const [draggingSticker, setDraggingSticker] = useState<string | null>(null)
+  const dragStartRef = useRef<{ x: number; y: number; stickerX: number; stickerY: number } | null>(null)
 
   // Profile data
   const avatarUrl = useProfileStore((s) => s.avatarUrl)
@@ -261,17 +266,53 @@ export function ReceiptLayout({
   }
 
   const handleCardClick = (card: Card, index: number) => {
-    if (focusedIndex === index) {
-      // Already focused, activate it
-      if (card.url && !isPreview) {
-        window.open(card.url, '_blank', 'noopener,noreferrer')
-      } else if (onCardClick) {
-        onCardClick(card.id)
-      }
-    } else {
-      // Just focus it
-      setFocusedIndex(index)
+    setFocusedIndex(index)
+    if (card.url && !isPreview) {
+      window.open(card.url, '_blank', 'noopener,noreferrer')
+    } else if (onCardClick) {
+      onCardClick(card.id)
     }
+  }
+
+  // Sticker drag handlers
+  const handleStickerMouseDown = (e: React.MouseEvent, stickerId: string) => {
+    if (!isPreview) return // Only allow dragging in editor preview, not public page
+    e.preventDefault()
+    e.stopPropagation()
+    const sticker = receiptStickers.find(s => s.id === stickerId)
+    if (!sticker) return
+    setDraggingSticker(stickerId)
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      stickerX: sticker.x,
+      stickerY: sticker.y,
+    }
+  }
+
+  const handleStickerMouseMove = (e: React.MouseEvent) => {
+    if (!draggingSticker || !dragStartRef.current || !receiptPaperRef.current) return
+    const rect = receiptPaperRef.current.getBoundingClientRect()
+    const deltaX = ((e.clientX - dragStartRef.current.x) / rect.width) * 100
+    const deltaY = ((e.clientY - dragStartRef.current.y) / rect.height) * 100
+    const newX = Math.max(0, Math.min(100, dragStartRef.current.stickerX + deltaX))
+    const newY = Math.max(0, Math.min(100, dragStartRef.current.stickerY + deltaY))
+    updateReceiptSticker(draggingSticker, { x: newX, y: newY })
+  }
+
+  const handleStickerMouseUp = () => {
+    // Send final position to parent editor so it persists
+    if (draggingSticker && isPreview && window.parent !== window) {
+      const sticker = receiptStickers.find(s => s.id === draggingSticker)
+      if (sticker) {
+        window.parent.postMessage(
+          { type: "UPDATE_STICKER", payload: { id: sticker.id, x: sticker.x, y: sticker.y } },
+          window.location.origin
+        )
+      }
+    }
+    setDraggingSticker(null)
+    dragStartRef.current = null
   }
 
   return (
@@ -279,12 +320,16 @@ export function ReceiptLayout({
       ref={containerRef}
       className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto"
       onKeyDown={handleKeyDown}
+      onMouseMove={draggingSticker ? handleStickerMouseMove : undefined}
+      onMouseUp={draggingSticker ? handleStickerMouseUp : undefined}
+      onMouseLeave={draggingSticker ? handleStickerMouseUp : undefined}
       tabIndex={0}
     >
       {/* Receipt paper */}
       <div className="flex justify-center py-8 px-4">
         <div
-          className="receipt-paper"
+          ref={receiptPaperRef}
+          className="receipt-paper relative"
           style={{
             backgroundColor: 'var(--theme-card-bg)',
             color: 'var(--theme-text)',
@@ -310,7 +355,7 @@ export function ReceiptLayout({
               {bio && (
                 <div className="text-xs opacity-70 mb-2">{bio}</div>
               )}
-              <div className="receipt-divider">{'='.repeat(32)}</div>
+              <div className="receipt-divider">{'='.repeat(60)}</div>
             </div>
 
             {/* Dithered photo */}
@@ -341,7 +386,7 @@ export function ReceiptLayout({
               </div>
             </div>
 
-            <div className="receipt-divider">{'-'.repeat(32)}</div>
+            <div className="receipt-divider">{'-'.repeat(60)}</div>
 
             {/* Links as items */}
             <div className="my-4 space-y-2">
@@ -367,7 +412,7 @@ export function ReceiptLayout({
               })}
             </div>
 
-            <div className="receipt-divider">{'-'.repeat(32)}</div>
+            <div className="receipt-divider">{'-'.repeat(60)}</div>
 
             {/* Total */}
             <div className="my-4 space-y-1">
@@ -383,7 +428,7 @@ export function ReceiptLayout({
               )}
             </div>
 
-            <div className="receipt-divider">{'='.repeat(32)}</div>
+            <div className="receipt-divider">{'='.repeat(60)}</div>
 
             {/* Social Icons */}
             {showSocialIcons && socialIcons.length > 0 && (
@@ -406,7 +451,7 @@ export function ReceiptLayout({
                     )
                   })}
                 </div>
-                <div className="receipt-divider">{'-'.repeat(32)}</div>
+                <div className="receipt-divider">{'-'.repeat(60)}</div>
               </>
             )}
 
@@ -428,6 +473,32 @@ export function ReceiptLayout({
 
           {/* Torn bottom edge */}
           <div className="receipt-torn-edge receipt-torn-bottom" />
+
+          {/* Draggable stickers - rendered after content so they appear on top */}
+          {receiptStickers.map((sticker) => (
+            <img
+              key={sticker.id}
+              src={sticker.src}
+              alt=""
+              className={cn(
+                "absolute pointer-events-auto",
+                sticker.behindText ? "z-[1]" : "z-[9000]",
+                isPreview && "cursor-grab",
+                draggingSticker === sticker.id && "cursor-grabbing"
+              )}
+              style={{
+                left: `${sticker.x}%`,
+                top: `${sticker.y}%`,
+                transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                width: '80px',
+                height: 'auto',
+                userSelect: 'none',
+                opacity: 1,
+              }}
+              onMouseDown={(e) => handleStickerMouseDown(e, sticker.id)}
+              draggable={false}
+            />
+          ))}
         </div>
       </div>
 

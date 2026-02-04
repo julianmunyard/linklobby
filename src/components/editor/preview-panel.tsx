@@ -21,6 +21,7 @@ export function PreviewPanel() {
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
+  const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
   const { saveCards } = useCards()
 
   // Calculate scale to fit mobile preview in container
@@ -65,8 +66,8 @@ export function PreviewPanel() {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
       // Get theme state snapshot (exclude actions)
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, vcrCenterContent, receiptPrice, receiptStickers }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
@@ -96,12 +97,15 @@ export function PreviewPanel() {
         case "SELECT_CARD":
           selectCard(event.data.payload.cardId)
           break
+        case "UPDATE_STICKER":
+          updateReceiptSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
+          break
       }
     }
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, reorderMultipleCards, selectCard, saveCards])
+  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateReceiptSticker])
 
   // Send initial state when preview becomes ready
   useEffect(() => {
