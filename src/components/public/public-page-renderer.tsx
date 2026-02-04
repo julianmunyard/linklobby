@@ -53,6 +53,7 @@ interface PublicPageRendererProps {
   receiptFloatAnimation?: boolean
   // iPod theme
   ipodStickers?: ReceiptSticker[]
+  ipodTexture?: string
   // Cards
   cards: Card[]
 }
@@ -94,10 +95,14 @@ export function PublicPageRenderer({
   receiptStickers,
   receiptFloatAnimation,
   ipodStickers,
+  ipodTexture,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
   if (themeId === 'vcr-menu') {
+    // Parse social icons from JSON for VCR theme
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+
     return (
       <StaticVcrMenuLayout
         title={displayName || 'MENU'}
@@ -105,6 +110,7 @@ export function PublicPageRenderer({
         headingSize={headingSize}
         bodySize={bodySize}
         centerContent={vcrCenterContent}
+        socialIcons={socialIcons}
       />
     )
   }
@@ -127,6 +133,7 @@ export function PublicPageRenderer({
         logoScale={logoScale}
         socialIcons={socialIcons}
         ipodStickers={ipodStickers}
+        ipodTexture={ipodTexture}
       />
     )
   }

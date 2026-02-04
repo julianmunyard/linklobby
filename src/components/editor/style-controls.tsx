@@ -17,8 +17,18 @@ const RECEIPT_STICKERS = [
   { id: 'cleared-stamp', src: '/images/stickers/cleared-stamp.jpeg', label: 'Cleared' },
 ]
 
+// Available textures for iPod theme
+const IPOD_TEXTURES = [
+  { id: 'chrome', src: '/images/metal-texture.jpeg', label: 'Chrome' },
+  { id: 'rusty', src: '/images/ipod-texture-rusty.jpeg', label: 'Rusty' },
+  { id: 'scratched', src: '/images/ipod-texture-scratched.jpeg', label: 'Scratched' },
+  { id: 'military', src: '/images/ipod-texture-military.jpeg', label: 'Military' },
+  { id: 'redpaint', src: '/images/ipod-texture-redpaint.jpeg', label: 'Red Paint' },
+  { id: 'none', src: '', label: 'None' },
+]
+
 export function StyleControls() {
-  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker } = useThemeStore()
+  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture } = useThemeStore()
   const theme = getTheme(themeId)
 
   return (
@@ -221,6 +231,37 @@ export function StyleControls() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* iPod Theme: Texture */}
+      {themeId === 'ipod-classic' && (
+        <div className="space-y-3">
+          <Label className="text-sm">Body Texture</Label>
+          <p className="text-xs text-muted-foreground">Choose a texture overlay for the iPod body.</p>
+          <div className="grid grid-cols-4 gap-2">
+            {IPOD_TEXTURES.map((texture) => (
+              <button
+                key={texture.id}
+                onClick={() => setIpodTexture(texture.src)}
+                className={`p-1 rounded border transition-colors ${
+                  ipodTexture === texture.src ? 'border-primary ring-2 ring-primary' : 'hover:border-primary'
+                } ${texture.src ? 'bg-white' : 'bg-muted'}`}
+              >
+                {texture.src ? (
+                  <img
+                    src={texture.src}
+                    alt={texture.label}
+                    className="w-full h-12 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-full h-12 flex items-center justify-center text-xs text-muted-foreground">
+                    None
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

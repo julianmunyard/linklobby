@@ -20,6 +20,7 @@ interface StaticIpodClassicLayoutProps {
   logoScale?: number
   socialIcons?: SocialIcon[]
   ipodStickers?: ReceiptSticker[]
+  ipodTexture?: string
 }
 
 /**
@@ -36,7 +37,8 @@ export function StaticIpodClassicLayout({
   showLogo = false,
   logoScale = 100,
   socialIcons = [],
-  ipodStickers = []
+  ipodStickers = [],
+  ipodTexture = '/images/metal-texture.jpeg'
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentScreen, setCurrentScreen] = useState<'main' | 'socials'>('main')
@@ -267,6 +269,15 @@ export function StaticIpodClassicLayout({
       <div className="relative min-h-screen flex items-center justify-center p-4">
         {/* iPod Container */}
         <div className="ipod-container">
+          {/* Texture overlay */}
+          {ipodTexture && (
+            <img
+              src={ipodTexture}
+              alt=""
+              className="ipod-texture-overlay"
+            />
+          )}
+
           {/* Screen Bezel */}
           <div className="ipod-screen-bezel">
             {/* LCD Screen */}
@@ -462,7 +473,7 @@ export function StaticIpodClassicLayout({
             )}
           </div>
 
-          {/* Stickers (static, no drag) */}
+          {/* Stickers (static, no drag) - can overflow edges */}
           {ipodStickers.map((sticker) => (
             <img
               key={sticker.id}
@@ -478,6 +489,8 @@ export function StaticIpodClassicLayout({
                 transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
                 width: '80px',
                 height: 'auto',
+                opacity: 0.9,
+                mixBlendMode: 'multiply',
               }}
             />
           ))}

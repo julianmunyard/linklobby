@@ -113,4 +113,5 @@ export interface ThemeState {
   receiptStickers?: ReceiptSticker[]  // Receipt theme: draggable stickers
   receiptFloatAnimation?: boolean  // Receipt theme: floating animation enabled
   ipodStickers?: ReceiptSticker[]  // iPod theme: draggable stickers (reuses ReceiptSticker type)
+  ipodTexture?: string  // iPod theme: texture overlay image path
 }

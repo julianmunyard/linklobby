@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import type { Card } from '@/types/card'
+import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
+import { SOCIAL_PLATFORMS } from '@/types/profile'
+import * as SiIcons from 'react-icons/si'
 
 interface StaticVcrMenuLayoutProps {
   title: string
@@ -10,6 +13,7 @@ interface StaticVcrMenuLayoutProps {
   headingSize?: number
   bodySize?: number
   centerContent?: boolean
+  socialIcons?: SocialIcon[]
 }
 
 /**
@@ -21,14 +25,15 @@ export function StaticVcrMenuLayout({
   cards,
   headingSize = 1.8,
   bodySize = 1.5,
-  centerContent = false
+  centerContent = false,
+  socialIcons = []
 }: StaticVcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef<number>(0)
 
-  // Filter to only visible cards
-  const visibleCards = cards.filter(c => c.is_visible !== false)
+  // Filter to only visible cards, excluding social-icons card type
+  const visibleCards = cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons')
 
   // Font sizes
   const titleFontSize = `${headingSize}rem`
@@ -111,7 +116,7 @@ export function StaticVcrMenuLayout({
       >
         {/* Title with dashes - responsive */}
         <div
-          className="text-center mb-10 tracking-wider w-full px-2"
+          className="text-center mb-6 tracking-wider w-full px-2"
           style={{
             color: 'var(--theme-text)',
             fontSize: `clamp(1rem, ${parseFloat(titleFontSize) * 0.6}rem, ${titleFontSize})`,
@@ -124,6 +129,31 @@ export function StaticVcrMenuLayout({
           <span className="sm:hidden select-none"> ---</span>
           <span className="hidden sm:inline select-none"> ----------</span>
         </div>
+
+        {/* Social icons below title */}
+        {socialIcons.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-4 mb-10">
+            {socialIcons.map((icon) => {
+              const platform = SOCIAL_PLATFORMS[icon.platform]
+              if (!platform) return null
+              const IconComponent = (SiIcons as Record<string, React.ComponentType<{ className?: string }>>)[platform.icon]
+              if (!IconComponent) return null
+
+              return (
+                <a
+                  key={icon.id}
+                  href={icon.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-70 transition-opacity"
+                  style={{ color: 'var(--theme-text)' }}
+                >
+                  <IconComponent className="w-6 h-6" />
+                </a>
+              )
+            })}
+          </div>
+        )}
 
         {/* Links list */}
         <div className="flex flex-col items-center gap-2 w-full max-w-full">

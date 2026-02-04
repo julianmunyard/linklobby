@@ -22,6 +22,7 @@ interface ThemeStore extends ThemeState {
   receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
   receiptFloatAnimation: boolean  // Receipt theme: floating animation enabled
   ipodStickers: ReceiptSticker[]  // iPod theme: draggable stickers
+  ipodTexture: string  // iPod theme: texture overlay path
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -42,6 +43,7 @@ interface ThemeStore extends ThemeState {
   addIpodSticker: (sticker: ReceiptSticker) => void
   updateIpodSticker: (id: string, updates: Partial<ReceiptSticker>) => void
   removeIpodSticker: (id: string) => void
+  setIpodTexture: (texture: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -104,6 +106,7 @@ export const useThemeStore = create<ThemeStore>()(
       receiptStickers: [],
       receiptFloatAnimation: true,
       ipodStickers: [],
+      ipodTexture: '/images/metal-texture.jpeg',
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -280,6 +283,10 @@ export const useThemeStore = create<ThemeStore>()(
         }))
       },
 
+      setIpodTexture: (texture: string) => {
+        set({ ipodTexture: texture, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -320,6 +327,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptStickers: theme.receiptStickers ?? [],
           receiptFloatAnimation: theme.receiptFloatAnimation ?? true,
           ipodStickers: theme.ipodStickers ?? [],
+          ipodTexture: theme.ipodTexture ?? '/images/metal-texture.jpeg',
           hasChanges: false,
         })
       },
@@ -339,6 +347,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptStickers: state.receiptStickers,
           receiptFloatAnimation: state.receiptFloatAnimation,
           ipodStickers: state.ipodStickers,
+          ipodTexture: state.ipodTexture,
         }
       },
     }),

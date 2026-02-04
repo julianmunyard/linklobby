@@ -49,6 +49,7 @@ export function IpodClassicLayout({
   const socialIcons = getSortedSocialIcons()
   const ipodStickers = useThemeStore((s) => s.ipodStickers)
   const updateIpodSticker = useThemeStore((s) => s.updateIpodSticker)
+  const ipodTexture = useThemeStore((s) => s.ipodTexture)
 
   // Wheel rotation tracking
   const lastAngleRef = useRef<number | null>(null)
@@ -325,6 +326,15 @@ export function IpodClassicLayout({
           onMouseUp={handleStickerMouseUp}
           onMouseLeave={handleStickerMouseUp}
         >
+          {/* Texture overlay */}
+          {ipodTexture && (
+            <img
+              src={ipodTexture}
+              alt=""
+              className="ipod-texture-overlay"
+            />
+          )}
+
           {/* Screen Bezel */}
           <div className="ipod-screen-bezel">
             {/* LCD Screen */}
@@ -520,7 +530,7 @@ export function IpodClassicLayout({
             )}
           </div>
 
-          {/* Draggable stickers */}
+          {/* Draggable stickers - can overflow edges */}
           {ipodStickers.map((sticker) => (
             <img
               key={sticker.id}
@@ -539,7 +549,8 @@ export function IpodClassicLayout({
                 width: '80px',
                 height: 'auto',
                 userSelect: 'none',
-                opacity: 1,
+                opacity: 0.9,
+                mixBlendMode: 'multiply',
               }}
               onMouseDown={(e) => handleStickerMouseDown(e, sticker.id)}
               draggable={false}

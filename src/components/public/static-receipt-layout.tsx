@@ -338,11 +338,11 @@ export function StaticReceiptLayout({
                 return (
                   <button
                     key={card.id}
-                    className="w-full text-left py-1 px-2 cursor-pointer focus:outline-none text-sm font-bold"
+                    className="w-full text-left py-1 px-2 cursor-pointer focus:outline-none text-sm font-bold group"
                     onClick={() => handleCardClick(card, index)}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="truncate flex-1">{displayText}</span>
+                      <span className="truncate flex-1 group-hover:underline">{displayText}</span>
                       <span className="receipt-dots flex-shrink-0 mx-2">
                         {'.'.repeat(Math.max(3, 20 - displayText.length))}
                       </span>

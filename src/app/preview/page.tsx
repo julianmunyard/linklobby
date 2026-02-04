@@ -120,6 +120,7 @@ function PreviewContent() {
             receiptStickers: ts.receiptStickers ?? [],
             receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
             ipodStickers: ts.ipodStickers ?? [],
+            ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
           })
         }
       }
