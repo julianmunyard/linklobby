@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 10 of 18 - Fan Tools (COMPLETE)
 Plan: 4 of 4 - Release Card Complete
 Status: **Phase 10 Complete - Fan engagement features done**
-Last activity: 2026-02-06 - Completed quick task 037 (Fix Linktree import ordering)
+Last activity: 2026-02-06 - Completed quick task 038 (Clean up design tab controls per theme)
 
 Progress: [██████████████████████░░░░░░░░░░] ~62%
 
@@ -569,6 +569,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 034 | iPod theme screen polish | Complete | 45e24b4 |
 | 036 | Release card theme integration (iPod, VCR, Receipt) | Complete | 91e9fa5, 513e3f7, 34bbeda |
 | 037 | Fix Linktree import ordering | Complete | 6028dbb, 7c5635e, dd1ab62, 3d8c516 |
+| 038 | Clean up design tab controls per theme | Complete | 677fcdc, 1e8a1f2 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -647,13 +648,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Last activity: 2026-02-05 - Completed quick-036 (Release Card Theme Integration)
+Last session: 2026-02-06
+Last activity: 2026-02-06 - Completed quick-038 (Clean up design tab controls per theme)
 Stopped at: Phase 10 Complete + Quick tasks
 Resume file: None
 
 **Phase 10 Complete:** All 4 plans finished. Email collection, QR codes, scheduling, and release cards.
-**Quick task 036 Complete:** Release cards integrated into iPod, VCR, and Receipt themes.
+**Quick task 038 Complete:** Design tab intelligently hides irrelevant controls per theme.
 
 **Next phase:** 11 - Analytics, Pixels & Legal
 
