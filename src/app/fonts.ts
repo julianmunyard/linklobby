@@ -184,6 +184,13 @@ export const chiqReducedBold = localFont({
   display: 'swap',
 })
 
+// Chicago font for iPod
+export const chicago = localFont({
+  src: '../../public/fonts/chicago.ttf',
+  variable: '--font-chicago',
+  display: 'swap',
+})
+
 // Receipt theme fonts
 export const ticketDeCaisse = localFont({
   src: '../../public/fonts/ticket-de-caisse.ttf',
@@ -232,6 +239,7 @@ export const fontVariables = [
   pixterGranular.variable,
   // iPod fonts
   chiqReducedBold.variable,
+  chicago.variable,
   // Receipt fonts
   ticketDeCaisse.variable,
   hypermarket.variable,
@@ -269,6 +277,7 @@ export const CURATED_FONTS = [
   { id: 'pixolde', name: 'Pixolde', variable: 'var(--font-pixolde)', category: 'retro' as const },
   { id: 'pixter-granular', name: 'Pixter Granular', variable: 'var(--font-pixter-granular)', category: 'retro' as const },
   { id: 'chiq', name: 'Chiq', variable: 'var(--font-chiq)', category: 'retro' as const },
+  { id: 'chicago', name: 'Chicago', variable: 'var(--font-chicago)', category: 'retro' as const },
   { id: 'ticket-de-caisse', name: 'Ticket De Caisse', variable: 'var(--font-ticket-de-caisse)', category: 'retro' as const },
   { id: 'hypermarket', name: 'Hypermarket', variable: 'var(--font-hypermarket)', category: 'retro' as const },
 ] as const

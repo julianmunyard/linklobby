@@ -4,15 +4,30 @@ import { z } from 'zod'
 // Individual link schema - matches Linktree's link structure
 // Made permissive to handle variations in Linktree's data
 // Using passthrough() to allow extra fields Linktree might add
-export const LinktreeLinkSchema = z.object({
+// Note: links can have nested 'links' array for grouped content
+export const LinktreeLinkSchema: z.ZodType<LinktreeLinkBase> = z.object({
   id: z.union([z.number(), z.string()]), // Can be number or string
   title: z.string().nullable().optional().default(''), // Can be null
-  url: z.string(), // Don't validate as URL - Linktree might have special URLs
-  type: z.string().optional().nullable(), // 'HEADER', 'CLASSIC', etc.
+  url: z.string().optional().default(''), // URL might be empty for group headers
+  type: z.string().optional().nullable(), // 'HEADER', 'CLASSIC', 'LINK_GROUP', etc.
   position: z.number().optional().nullable().default(0),
   thumbnail: z.string().optional().nullable(),
   locked: z.boolean().optional().nullable(), // Can be null
+  links: z.lazy(() => z.array(LinktreeLinkSchema)).optional(), // Nested links for groups
 }).passthrough()
+
+// Base type for recursive schema
+interface LinktreeLinkBase {
+  id: number | string
+  title?: string | null
+  url?: string
+  type?: string | null
+  position?: number | null
+  thumbnail?: string | null
+  locked?: boolean | null
+  links?: LinktreeLinkBase[]
+  [key: string]: unknown
+}
 
 // Social link schema - matches Linktree's socialLinks structure
 export const LinktreeSocialLinkSchema = z.object({

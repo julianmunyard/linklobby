@@ -208,49 +208,45 @@ export function StaticVcrMenuLayout({
 
           return (
             <div key={card.id} className="mb-6 text-center w-full max-w-2xl">
-              <div
-                className="text-xl font-bold tracking-widest vcr-blink mb-2"
-                style={{ color: 'var(--theme-text)' }}
-              >
-                -- {(releaseTitle || 'UPCOMING RELEASE').toUpperCase()} --
-              </div>
-
-              {!isReleased && releaseDate && isMounted && (
-                <div className="my-3">
-                  <Countdown
-                    date={new Date(releaseDate)}
-                    renderer={vcrCountdownRenderer}
-                    onComplete={() => {
-                      if (afterCountdownAction === 'hide') {
-                        setCompletedReleases(prev => new Set(prev).add(card.id))
-                      }
+              {!isReleased ? (
+                <>
+                  {/* PRESAVE (title) button box */}
+                  <a
+                    href={preSaveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity mb-3"
+                    style={{
+                      color: 'var(--theme-text)',
+                      borderColor: 'var(--theme-text)'
                     }}
-                  />
-                </div>
-              )}
+                    onClick={(e) => {
+                      if (!preSaveUrl) e.preventDefault()
+                    }}
+                  >
+                    [PRESAVE {(releaseTitle || 'UPCOMING').toUpperCase()}]
+                  </a>
 
-              {!isReleased && preSaveUrl && (
-                <a
-                  href={preSaveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
-                  style={{
-                    color: 'var(--theme-text)',
-                    borderColor: 'var(--theme-text)'
-                  }}
-                >
-                  [{preSaveButtonText.toUpperCase()}]
-                </a>
-              )}
-
-              {isReleased && afterCountdownAction === 'custom' && (
+                  {/* Countdown */}
+                  {releaseDate && isMounted && (
+                    <Countdown
+                      date={new Date(releaseDate)}
+                      renderer={vcrCountdownRenderer}
+                      onComplete={() => {
+                        if (afterCountdownAction === 'hide') {
+                          setCompletedReleases(prev => new Set(prev).add(card.id))
+                        }
+                      }}
+                    />
+                  )}
+                </>
+              ) : afterCountdownAction === 'custom' && (
                 afterCountdownUrl ? (
                   <a
                     href={afterCountdownUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-xl font-bold tracking-widest px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
                     style={{
                       color: 'var(--theme-text)',
                       borderColor: 'var(--theme-text)'

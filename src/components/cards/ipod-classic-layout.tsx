@@ -663,7 +663,7 @@ export function IpodClassicLayout({
                     const ipodCountdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
                       if (completed || isReleased) return null
                       return (
-                        <div className="text-[12px] font-bold text-center tracking-wide" style={{ fontFamily: 'var(--font-pix-chicago), system-ui' }}>
+                        <div className="text-[12px] font-bold text-center tracking-wide" style={{ fontFamily: 'var(--font-chicago), system-ui' }}>
                           {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}H {String(minutes).padStart(2, '0')}M {String(seconds).padStart(2, '0')}S
                         </div>
                       )

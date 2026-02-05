@@ -221,62 +221,48 @@ export function VcrMenuLayout({
 
           return (
             <div key={card.id} className="mb-6 text-center w-full max-w-2xl">
-              {/* OSD Title with blink effect */}
-              <div
-                className="text-xl font-bold tracking-widest vcr-blink mb-2"
-                style={{ color: 'var(--theme-text)' }}
-              >
-                -- {(releaseTitle || 'UPCOMING RELEASE').toUpperCase()} --
-              </div>
-
-              {/* Countdown */}
-              {!isReleased && releaseDate && (
-                <div className="my-3">
-                  <Countdown
-                    date={new Date(releaseDate)}
-                    renderer={vcrCountdownRenderer}
-                    onComplete={() => {
-                      if (afterCountdownAction === 'hide') {
-                        setCompletedReleases(prev => new Set(prev).add(card.id))
-                      }
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Pre-save button (before release) */}
-              {!isReleased && preSaveUrl && (
-                <a
-                  href={isPreview ? undefined : preSaveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
-                  style={{
-                    color: 'var(--theme-text)',
-                    borderColor: 'var(--theme-text)'
-                  }}
-                  onClick={(e) => {
-                    if (isPreview) e.preventDefault()
-                  }}
-                >
-                  [{preSaveButtonText.toUpperCase()}]
-                </a>
-              )}
-
-              {/* After countdown custom action */}
-              {isReleased && afterCountdownAction === 'custom' && (
-                afterCountdownUrl ? (
+              {!isReleased ? (
+                <>
+                  {/* PRESAVE (title) button box */}
                   <a
-                    href={isPreview ? undefined : afterCountdownUrl}
+                    href={preSaveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-xl font-bold tracking-widest px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity mb-3"
                     style={{
                       color: 'var(--theme-text)',
                       borderColor: 'var(--theme-text)'
                     }}
                     onClick={(e) => {
-                      if (isPreview) e.preventDefault()
+                      if (!preSaveUrl) e.preventDefault()
+                    }}
+                  >
+                    [PRESAVE {(releaseTitle || 'UPCOMING').toUpperCase()}]
+                  </a>
+
+                  {/* Countdown */}
+                  {releaseDate && (
+                    <Countdown
+                      date={new Date(releaseDate)}
+                      renderer={vcrCountdownRenderer}
+                      onComplete={() => {
+                        if (afterCountdownAction === 'hide') {
+                          setCompletedReleases(prev => new Set(prev).add(card.id))
+                        }
+                      }}
+                    />
+                  )}
+                </>
+              ) : afterCountdownAction === 'custom' && (
+                afterCountdownUrl ? (
+                  <a
+                    href={afterCountdownUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                    style={{
+                      color: 'var(--theme-text)',
+                      borderColor: 'var(--theme-text)'
                     }}
                   >
                     [{(afterCountdownText || 'OUT NOW').toUpperCase()}]

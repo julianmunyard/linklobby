@@ -497,20 +497,14 @@ export function ReceiptLayout({
                     {/* Pre-save button (before release) */}
                     {!isReleased && preSaveUrl && (
                       <button
-                        className="w-full text-left py-1 px-2 group"
+                        className="font-bold text-sm mt-2 underline"
                         onClick={() => {
                           if (!isPreview) {
                             window.open(preSaveUrl, '_blank', 'noopener,noreferrer')
                           }
                         }}
                       >
-                        <div className="flex justify-between items-center">
-                          <span className="group-hover:underline">({preSaveButtonText.toUpperCase()}</span>
-                          <span className="receipt-dots flex-shrink-0 mx-2">
-                            {'.' .repeat(15)}
-                          </span>
-                          <span>&gt;)</span>
-                        </div>
+                        ({preSaveButtonText.toUpperCase()})
                       </button>
                     )}
 

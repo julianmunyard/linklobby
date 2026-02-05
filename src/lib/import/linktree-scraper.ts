@@ -92,12 +92,29 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
     const pageProps = validated.data.props.pageProps
 
-    // Filter to only clickable links (exclude headers, etc.)
-    const clickableLinks = pageProps.links.filter(link =>
-      link.url &&
-      !link.locked &&
-      link.type !== 'HEADER'
-    )
+    // Flatten nested links from groups and filter to only clickable links
+    const flattenLinks = (links: typeof pageProps.links): typeof pageProps.links => {
+      const result: typeof pageProps.links = []
+
+      for (const link of links) {
+        // If this link has nested links (it's a group), extract them
+        if (link.links && Array.isArray(link.links) && link.links.length > 0) {
+          console.log(`[LinktreeScraper] Found group "${link.title}" with ${link.links.length} nested links`)
+          // Recursively flatten nested links
+          result.push(...flattenLinks(link.links))
+        }
+
+        // Add this link if it's clickable (has URL, not locked, not a header/group)
+        if (link.url && !link.locked && link.type !== 'HEADER' && link.type !== 'LINK_GROUP') {
+          result.push(link)
+        }
+      }
+
+      return result
+    }
+
+    const clickableLinks = flattenLinks(pageProps.links)
+    console.log(`[LinktreeScraper] Total clickable links after flattening: ${clickableLinks.length}`)
 
     if (clickableLinks.length === 0) {
       throw new LinktreeEmptyError()

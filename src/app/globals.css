@@ -260,6 +260,22 @@
   animation: vcr-blink 1.4s steps(1) infinite;
 }
 
+/* VCR glow pulse - subtle pulsing glow like a recording indicator */
+@keyframes vcr-glow {
+  0%, 100% {
+    text-shadow: 0 0 4px currentColor;
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+    opacity: 0.9;
+  }
+}
+
+.vcr-glow {
+  animation: vcr-glow 2s ease-in-out infinite;
+}
+
 /* Shadow utility that respects theme */
 .shadow-theme-card {
   box-shadow: var(--theme-shadow);

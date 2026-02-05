@@ -93,20 +93,20 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
         {days > 0 && (
           <div className="text-center">
             <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{days}</span>
-            <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>days</span>
+            <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-heading)' }}>days</span>
           </div>
         )}
         <div className="text-center">
           <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(hours).padStart(2, '0')}</span>
-          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>hrs</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-heading)' }}>hrs</span>
         </div>
         <div className="text-center">
           <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(minutes).padStart(2, '0')}</span>
-          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>min</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-heading)' }}>min</span>
         </div>
         <div className="text-center">
           <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(seconds).padStart(2, '0')}</span>
-          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>sec</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-heading)' }}>sec</span>
         </div>
       </div>
     )
@@ -152,7 +152,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                   {artistName && (
                     <p
                       className={isSmall ? "text-xs opacity-80 break-words" : "text-sm opacity-80 break-words"}
-                      style={{ fontFamily: 'var(--font-theme-body)' }}
+                      style={{ fontFamily: 'var(--font-theme-heading)' }}
                     >
                       {artistName}
                     </p>
@@ -178,7 +178,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                   variant="secondary"
                   size={isSmall ? "sm" : "default"}
                   className={isSmall ? "w-full bg-white/90 text-black hover:bg-white text-xs h-7" : "w-full bg-white/90 text-black hover:bg-white"}
-                  style={{ fontFamily: 'var(--font-theme-body)' }}
+                  style={{ fontFamily: 'var(--font-theme-heading)' }}
                   onClick={(e) => isEditing && e.preventDefault()}
                 >
                   <a
@@ -200,7 +200,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                     variant="secondary"
                     size={isSmall ? "sm" : "default"}
                     className={isSmall ? "w-full bg-white/90 text-black hover:bg-white text-xs h-7" : "w-full bg-white/90 text-black hover:bg-white"}
-                    style={{ fontFamily: 'var(--font-theme-body)' }}
+                    style={{ fontFamily: 'var(--font-theme-heading)' }}
                     onClick={(e) => isEditing && e.preventDefault()}
                   >
                     <a
@@ -251,7 +251,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
               {artistName && (
                 <p
                   className={isSmall ? "text-xs opacity-70 break-words" : "text-sm opacity-70 break-words"}
-                  style={{ fontFamily: 'var(--font-theme-body)' }}
+                  style={{ fontFamily: 'var(--font-theme-heading)' }}
                 >
                   {artistName}
                 </p>
@@ -275,7 +275,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
               variant="outline"
               size={isSmall ? "sm" : "default"}
               className={isSmall ? "mt-2 text-xs" : "mt-4"}
-              style={{ fontFamily: 'var(--font-theme-body)' }}
+              style={{ fontFamily: 'var(--font-theme-heading)' }}
               onClick={(e) => isEditing && e.preventDefault()}
             >
               <a href={preSaveUrl} target="_blank" rel="noopener noreferrer">
@@ -292,7 +292,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                 variant="outline"
                 size={isSmall ? "sm" : "default"}
                 className={isSmall ? "mt-2 text-xs" : "mt-4"}
-                style={{ fontFamily: 'var(--font-theme-body)' }}
+                style={{ fontFamily: 'var(--font-theme-heading)' }}
                 onClick={(e) => isEditing && e.preventDefault()}
               >
                 <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer">

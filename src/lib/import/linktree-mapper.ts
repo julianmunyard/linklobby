@@ -340,6 +340,9 @@ export async function mapLinktreeToCards(
 
   // Then process regular links, extracting profile URLs as social icons
   for (const link of links) {
+    // Skip links without URLs (shouldn't happen after scraper filtering, but be safe)
+    if (!link.url) continue
+
     const platform = detectSocialPlatform(link.url)
     if (platform) {
       // Check if we already have this platform (avoid duplicates)
@@ -389,7 +392,7 @@ export async function mapLinktreeToCards(
         card_type: layoutItem.type,
         title: link.title || null,
         description: null, // Linktree doesn't have descriptions on links
-        url: link.url,
+        url: link.url || '', // URL should always exist after filtering, but default to empty string
         content: defaultContent,
         size: layoutItem.size,
         position: 'left' as HorizontalPosition, // Will flow naturally in our layout
