@@ -469,8 +469,14 @@ export function ReceiptLayout({
                     <div className="font-bold mb-2">
                       {isReleased && afterCountdownAction === 'custom' ? '** NEW RELEASE **' : '** UPCOMING RELEASE **'}
                     </div>
-                    {releaseTitle && <div className="text-xs">ALBUM: {releaseTitle.toUpperCase()}</div>}
-                    {artistName && <div className="text-xs">ARTIST: {artistName.toUpperCase()}</div>}
+
+                    {/* Album/artist info only before release */}
+                    {!isReleased && (
+                      <>
+                        {releaseTitle && <div className="text-xs">ALBUM: {releaseTitle.toUpperCase()}</div>}
+                        {artistName && <div className="text-xs">ARTIST: {artistName.toUpperCase()}</div>}
+                      </>
+                    )}
 
                     {/* Countdown (only before release) */}
                     {!isReleased && releaseDate && (
@@ -508,24 +514,18 @@ export function ReceiptLayout({
                       </button>
                     )}
 
-                    {/* Custom message link (after release) */}
+                    {/* Custom message link (after release) - simple centered link */}
                     {isReleased && afterCountdownAction === 'custom' && (
                       afterCountdownUrl ? (
                         <button
-                          className="w-full text-left py-1 px-2 group mt-2"
+                          className="font-bold text-sm mt-2 hover:underline"
                           onClick={() => {
                             if (!isPreview) {
                               window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer')
                             }
                           }}
                         >
-                          <div className="flex justify-between items-center">
-                            <span className="group-hover:underline">({(afterCountdownText || 'LISTEN NOW').toUpperCase()}</span>
-                            <span className="receipt-dots flex-shrink-0 mx-2">
-                              {'.' .repeat(15)}
-                            </span>
-                            <span>&gt;)</span>
-                          </div>
+                          ({(afterCountdownText || 'LISTEN NOW').toUpperCase()})
                         </button>
                       ) : (
                         <div className="font-bold text-sm mt-2">({(afterCountdownText || 'OUT NOW').toUpperCase()})</div>
