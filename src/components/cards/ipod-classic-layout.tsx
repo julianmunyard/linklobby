@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import type { Card } from '@/types/card'
+import type { Card, ReleaseCardContent } from '@/types/card'
+import { isReleaseContent } from '@/types/card'
 import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
+import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 interface IpodClassicLayoutProps {
   title: string
@@ -35,7 +37,8 @@ export function IpodClassicLayout({
   selectedCardId
 }: IpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [currentScreen, setCurrentScreen] = useState<'main' | 'socials'>('main')
+  const [currentScreen, setCurrentScreen] = useState<'main' | 'socials' | 'release'>('main')
+  const [activeReleaseIndex, setActiveReleaseIndex] = useState(0)
   const [draggingSticker, setDraggingSticker] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
@@ -59,8 +62,23 @@ export function IpodClassicLayout({
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
 
+  // Filter release cards separately
+  const releaseCards = visibleCards.filter(c => {
+    if (c.card_type !== 'release' || !isReleaseContent(c.content)) return false
+    const content = c.content as ReleaseCardContent
+    // Hide releases that have passed and have hide action
+    if (content.releaseDate && content.afterCountdownAction === 'hide') {
+      const isReleased = new Date(content.releaseDate) <= new Date()
+      if (isReleased) return false
+    }
+    return true
+  })
+
+  // Filter releases from main menu
+  const menuCards = visibleCards.filter(c => c.card_type !== 'release')
+
   // Get current menu items based on screen
-  const currentMenuItems = currentScreen === 'main' ? visibleCards : socialIcons
+  const currentMenuItems = currentScreen === 'main' ? menuCards : socialIcons
 
   // Auto-scroll selected item into view
   useEffect(() => {
@@ -75,6 +93,13 @@ export function IpodClassicLayout({
   // Navigate to socials screen
   const goToSocials = () => {
     setCurrentScreen('socials')
+    setSelectedIndex(0)
+  }
+
+  // Navigate to release screen
+  const goToRelease = (index: number) => {
+    setCurrentScreen('release')
+    setActiveReleaseIndex(index)
     setSelectedIndex(0)
   }
 
@@ -95,7 +120,19 @@ export function IpodClassicLayout({
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
+    let menuLength = 0
+    if (currentScreen === 'main') {
+      menuLength = menuCards.length + releaseCards.length
+    } else if (currentScreen === 'socials') {
+      menuLength = socialIcons.length
+    } else if (currentScreen === 'release') {
+      // On release screen, arrow keys do nothing (just center button to go back)
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        e.preventDefault()
+        goBack()
+      }
+      return
+    }
 
     switch (e.key) {
       case 'ArrowUp':
@@ -109,11 +146,17 @@ export function IpodClassicLayout({
       case 'Enter':
         e.preventDefault()
         if (currentScreen === 'main') {
-          const card = visibleCards[selectedIndex]
-          if (card?.card_type === 'social-icons') {
-            goToSocials()
-          } else if (card) {
-            activateLink(card)
+          // Check if it's a release card
+          if (selectedIndex >= menuCards.length) {
+            const releaseIndex = selectedIndex - menuCards.length
+            goToRelease(releaseIndex)
+          } else {
+            const card = menuCards[selectedIndex]
+            if (card?.card_type === 'social-icons') {
+              goToSocials()
+            } else if (card) {
+              activateLink(card)
+            }
           }
         } else {
           // On socials screen, open the URL
@@ -131,7 +174,7 @@ export function IpodClassicLayout({
         }
         break
     }
-  }, [selectedIndex, visibleCards, socialIcons, currentScreen, activateLink])
+  }, [selectedIndex, menuCards, releaseCards, socialIcons, currentScreen, activateLink])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -140,7 +183,18 @@ export function IpodClassicLayout({
 
   // Click wheel handlers
   const handleWheelClick = (direction: 'up' | 'down' | 'center' | 'menu') => {
-    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
+    let menuLength = 0
+    if (currentScreen === 'main') {
+      menuLength = menuCards.length + releaseCards.length
+    } else if (currentScreen === 'socials') {
+      menuLength = socialIcons.length
+    } else if (currentScreen === 'release') {
+      // On release screen, only menu button works (go back)
+      if (direction === 'menu' || direction === 'center') {
+        goBack()
+      }
+      return
+    }
 
     switch (direction) {
       case 'up':
@@ -151,11 +205,17 @@ export function IpodClassicLayout({
         break
       case 'center':
         if (currentScreen === 'main') {
-          const card = visibleCards[selectedIndex]
-          if (card?.card_type === 'social-icons') {
-            goToSocials()
-          } else if (card) {
-            activateLink(card)
+          // Check if it's a release card
+          if (selectedIndex >= menuCards.length) {
+            const releaseIndex = selectedIndex - menuCards.length
+            goToRelease(releaseIndex)
+          } else {
+            const card = menuCards[selectedIndex]
+            if (card?.card_type === 'social-icons') {
+              goToSocials()
+            } else if (card) {
+              activateLink(card)
+            }
           }
         } else {
           // On socials screen, open the URL
@@ -167,7 +227,7 @@ export function IpodClassicLayout({
         break
       case 'menu':
         // Menu button goes back
-        if (currentScreen === 'socials') {
+        if (currentScreen === 'socials' || currentScreen === 'release') {
           goBack()
         }
         break
@@ -188,7 +248,16 @@ export function IpodClassicLayout({
     const wheel = wheelRef.current
     if (!wheel) return
 
-    const menuLength = currentScreen === 'main' ? visibleCards.length : socialIcons.length
+    // No scrolling on release screen
+    if (currentScreen === 'release') return
+
+    let menuLength = 0
+    if (currentScreen === 'main') {
+      menuLength = menuCards.length + releaseCards.length
+    } else if (currentScreen === 'socials') {
+      menuLength = socialIcons.length
+    }
+
     const rect = wheel.getBoundingClientRect()
     const currentAngle = getAngleFromCenter(clientX, clientY, rect)
 
@@ -221,7 +290,7 @@ export function IpodClassicLayout({
     }
 
     lastAngleRef.current = currentAngle
-  }, [visibleCards.length, socialIcons.length, currentScreen])
+  }, [menuCards.length, releaseCards.length, socialIcons.length, currentScreen])
 
   // Mouse handlers for wheel
   const handleWheelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -305,7 +374,20 @@ export function IpodClassicLayout({
     dragStartRef.current = null
   }
 
-  const displayTitle = currentScreen === 'socials' ? 'Socials' : (title || 'Menu')
+  let displayTitle = title || 'Menu'
+  if (currentScreen === 'socials') {
+    displayTitle = 'Socials'
+  } else if (currentScreen === 'release') {
+    const releaseCard = releaseCards[activeReleaseIndex]
+    if (releaseCard && isReleaseContent(releaseCard.content)) {
+      const content = releaseCard.content as ReleaseCardContent
+      displayTitle = content.releaseTitle || 'Release'
+      // Truncate if too long for title bar
+      if (displayTitle.length > 20) {
+        displayTitle = displayTitle.substring(0, 17) + '...'
+      }
+    }
+  }
 
   return (
     <div
@@ -341,7 +423,7 @@ export function IpodClassicLayout({
             <div className="ipod-screen">
               {/* Title Bar - Arrow | Title | Battery */}
               <div className="ipod-title-bar">
-                {currentScreen === 'socials' ? (
+                {(currentScreen === 'socials' || currentScreen === 'release') ? (
                   <span className="text-[11px] cursor-pointer" onClick={goBack}>◀</span>
                 ) : (
                   <span className="text-[11px]">▶</span>
@@ -361,48 +443,82 @@ export function IpodClassicLayout({
               {/* Menu List */}
               <div ref={menuListRef} className="ipod-menu-list">
                 {currentScreen === 'main' ? (
-                  // Main menu - show cards
-                  visibleCards.length === 0 ? (
+                  // Main menu - show cards + releases
+                  (menuCards.length === 0 && releaseCards.length === 0) ? (
                     <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
                       No links
                     </div>
                   ) : (
-                    visibleCards.map((card, index) => {
-                      const isSelected = selectedIndex === index
-                      const displayText = card.card_type === 'social-icons' ? 'Socials' : (card.title || card.card_type)
-                      const isLongText = displayText.length > 25
+                    <>
+                      {menuCards.map((card, index) => {
+                        const isSelected = selectedIndex === index
+                        const displayText = card.card_type === 'social-icons' ? 'Socials' : (card.title || card.card_type)
+                        const isLongText = displayText.length > 25
 
-                      return (
-                        <div
-                          key={card.id}
-                          className={cn(
-                            'ipod-menu-item',
-                            isSelected && 'selected'
-                          )}
-                          onClick={() => {
-                            if (selectedIndex === index) {
-                              // Already selected - activate
-                              if (card.card_type === 'social-icons') {
-                                goToSocials()
+                        return (
+                          <div
+                            key={card.id}
+                            className={cn(
+                              'ipod-menu-item',
+                              isSelected && 'selected'
+                            )}
+                            onClick={() => {
+                              if (selectedIndex === index) {
+                                // Already selected - activate
+                                if (card.card_type === 'social-icons') {
+                                  goToSocials()
+                                } else {
+                                  activateLink(card)
+                                }
                               } else {
-                                activateLink(card)
+                                setSelectedIndex(index)
                               }
-                            } else {
-                              setSelectedIndex(index)
-                            }
-                          }}
-                        >
-                          <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
-                            <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
-                              {displayText}
+                            }}
+                          >
+                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                              <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                                {displayText}
+                              </span>
                             </span>
-                          </span>
-                          <span className="text-[11px] ml-2">{'>'}</span>
-                        </div>
-                      )
-                    })
+                            <span className="text-[11px] ml-2">{'>'}</span>
+                          </div>
+                        )
+                      })}
+                      {releaseCards.map((card, releaseIndex) => {
+                        const index = menuCards.length + releaseIndex
+                        const isSelected = selectedIndex === index
+                        const content = card.content as ReleaseCardContent
+                        const displayText = content.releaseTitle || 'Upcoming Release'
+                        const isLongText = displayText.length > 25
+
+                        return (
+                          <div
+                            key={card.id}
+                            className={cn(
+                              'ipod-menu-item',
+                              isSelected && 'selected'
+                            )}
+                            onClick={() => {
+                              if (selectedIndex === index) {
+                                // Already selected - navigate to release screen
+                                goToRelease(releaseIndex)
+                              } else {
+                                setSelectedIndex(index)
+                              }
+                            }}
+                          >
+                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                              <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                                {displayText}
+                              </span>
+                            </span>
+                            <span className="text-[11px] ml-2">{'>'}</span>
+                          </div>
+                        )
+                      })}
+                    </>
                   )
-                ) : (
+                ) : currentScreen === 'socials' ? (
                   // Socials screen - show social icons as menu items
                   socialIcons.length === 0 ? (
                     <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
@@ -442,7 +558,98 @@ export function IpodClassicLayout({
                       )
                     })
                   )
-                )}
+                ) : currentScreen === 'release' ? (
+                  // Release screen - show release details with countdown
+                  (() => {
+                    const releaseCard = releaseCards[activeReleaseIndex]
+                    if (!releaseCard || !isReleaseContent(releaseCard.content)) {
+                      return (
+                        <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
+                          No release data
+                        </div>
+                      )
+                    }
+
+                    const content = releaseCard.content as ReleaseCardContent
+                    const {
+                      albumArtUrl,
+                      releaseTitle,
+                      artistName,
+                      releaseDate,
+                      preSaveUrl,
+                      preSaveButtonText = 'Pre-save',
+                      afterCountdownAction = 'custom',
+                      afterCountdownText = 'OUT NOW',
+                      afterCountdownUrl
+                    } = content
+
+                    const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+
+                    // Countdown renderer for iPod style
+                    const ipodCountdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
+                      if (completed || isReleased) return null
+                      return (
+                        <div className="text-[11px] font-mono text-center tabular-nums">
+                          {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}H {String(minutes).padStart(2, '0')}M {String(seconds).padStart(2, '0')}S
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <div className="flex flex-col items-center justify-center h-full p-3 gap-2">
+                        {/* Album art - small dithered image */}
+                        {albumArtUrl && (
+                          <img
+                            src={albumArtUrl}
+                            alt={releaseTitle || 'Release'}
+                            className="w-20 h-20 object-cover"
+                            style={{ imageRendering: 'pixelated', filter: 'contrast(1.2)' }}
+                          />
+                        )}
+
+                        {/* Release title and artist */}
+                        {!isReleased && (
+                          <>
+                            {releaseTitle && (
+                              <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2">
+                                {releaseTitle.length > 30 ? releaseTitle.substring(0, 27) + '...' : releaseTitle}
+                              </div>
+                            )}
+                            {artistName && (
+                              <div className="text-[10px] text-center opacity-80 max-w-full px-2">
+                                {artistName.length > 30 ? artistName.substring(0, 27) + '...' : artistName}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Countdown */}
+                        {releaseDate && !isReleased && (
+                          <div className="mt-1">
+                            <Countdown
+                              date={new Date(releaseDate)}
+                              renderer={ipodCountdownRenderer}
+                            />
+                          </div>
+                        )}
+
+                        {/* Pre-save button (before release) */}
+                        {!isReleased && preSaveUrl && (
+                          <div className="text-[10px] text-center mt-2 px-2 py-1 bg-black/10 rounded">
+                            {preSaveButtonText}
+                          </div>
+                        )}
+
+                        {/* After countdown action */}
+                        {isReleased && afterCountdownAction === 'custom' && (
+                          <div className="text-[11px] font-bold text-center mt-2">
+                            {afterCountdownText}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()
+                ) : null}
               </div>
             </div>
           </div>
