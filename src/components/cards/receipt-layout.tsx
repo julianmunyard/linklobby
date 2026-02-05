@@ -446,8 +446,8 @@ export function ReceiptLayout({
 
               const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
 
-              // Receipt countdown renderer - compact format
-              const receiptCountdownRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
+              // Receipt countdown renderer - compact format with seconds
+              const receiptCountdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
                 if (completed || isReleased) {
                   if (afterCountdownAction === 'hide' && !completedReleases.has(card.id)) {
                     setCompletedReleases(prev => new Set(prev).add(card.id))
@@ -456,7 +456,7 @@ export function ReceiptLayout({
                 }
                 return (
                   <div className="text-sm font-bold font-mono tabular-nums">
-                    {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}H {String(minutes).padStart(2, '0')}M
+                    {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}H {String(minutes).padStart(2, '0')}M {String(seconds).padStart(2, '0')}S
                   </div>
                 )
               }
@@ -470,11 +470,11 @@ export function ReceiptLayout({
                       {isReleased && afterCountdownAction === 'custom' ? '** NEW RELEASE **' : '** UPCOMING RELEASE **'}
                     </div>
 
-                    {/* Album/artist info only before release */}
+                    {/* Title/artist info only before release */}
                     {!isReleased && (
                       <>
-                        {releaseTitle && <div className="text-xs">ALBUM: {releaseTitle.toUpperCase()}</div>}
-                        {artistName && <div className="text-xs">ARTIST: {artistName.toUpperCase()}</div>}
+                        {releaseTitle && <div className="text-xs">{releaseTitle.toUpperCase()}</div>}
+                        {artistName && <div className="text-xs">{artistName.toUpperCase()}</div>}
                       </>
                     )}
 
