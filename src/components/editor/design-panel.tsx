@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { Camera, User, Upload, Plus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ import { uploadProfileImage, type ProfileImageType } from '@/lib/supabase/storag
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { TitleSize, ProfileLayout } from '@/types/profile'
+import type { ThemeId } from '@/types/theme'
 
 const TABS = [
   { id: 'presets', label: 'Presets' },
@@ -37,8 +38,24 @@ const TABS = [
 
 type TabId = typeof TABS[number]['id']
 
+// Themes with fixed fonts where the Fonts tab should be hidden
+const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
+
 export function DesignPanel() {
   const [activeTab, setActiveTab] = useState<TabId>('presets')
+
+  // Theme store for current theme
+  const themeId = useThemeStore((state) => state.themeId)
+
+  // Compute visible tabs based on theme
+  const visibleTabs = useMemo(() => {
+    return TABS.filter((tab) => {
+      if (tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId)) {
+        return false
+      }
+      return true
+    })
+  }, [themeId])
 
   // Profile store state
   const displayName = useProfileStore((state) => state.displayName)
@@ -140,7 +157,7 @@ export function DesignPanel() {
       {/* Horizontal scrollable tabs */}
       <ScrollArea className="w-full">
         <div className="flex gap-2 pb-2">
-          {TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
