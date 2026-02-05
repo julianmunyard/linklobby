@@ -464,7 +464,7 @@ export function StaticReceiptLayout({
                           href={afterCountdownUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-bold text-sm mt-2 hover:underline inline-block"
+                          className="font-bold text-sm mt-2 underline inline-block"
                         >
                           ({(afterCountdownText || 'LISTEN NOW').toUpperCase()})
                         </a>

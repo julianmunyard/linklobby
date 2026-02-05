@@ -518,7 +518,7 @@ export function ReceiptLayout({
                     {isReleased && afterCountdownAction === 'custom' && (
                       afterCountdownUrl ? (
                         <button
-                          className="font-bold text-sm mt-2 hover:underline"
+                          className="font-bold text-sm mt-2 underline"
                           onClick={() => {
                             if (!isPreview) {
                               window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer')
