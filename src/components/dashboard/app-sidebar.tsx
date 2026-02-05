@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { LayoutDashboard, BarChart3, Settings, ExternalLink } from "lucide-react"
 
 import {
@@ -25,7 +25,7 @@ const navItems = [
   },
   {
     title: "Insights",
-    href: "/insights",
+    href: "/editor?tab=insights",
     icon: BarChart3,
   },
   {
@@ -39,8 +39,22 @@ interface AppSidebarProps {
   username?: string
 }
 
+function isActive(pathname: string, searchParams: URLSearchParams, href: string) {
+  if (href.includes("?")) {
+    const [path, query] = href.split("?")
+    const params = new URLSearchParams(query)
+    return pathname === path && params.get("tab") === searchParams.get("tab")
+  }
+  // Editor is active when on /editor without a tab param (or with links tab)
+  if (href === "/editor") {
+    return pathname === "/editor" && !searchParams.get("tab")
+  }
+  return pathname === href
+}
+
 export function AppSidebar({ username }: AppSidebarProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   return (
     <Sidebar collapsible="icon">
@@ -64,7 +78,7 @@ export function AppSidebar({ username }: AppSidebarProps) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={isActive(pathname, searchParams, item.href)}
                     tooltip={item.title}
                   >
                     <Link href={item.href}>

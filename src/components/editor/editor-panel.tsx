@@ -1,6 +1,7 @@
 "use client"
 
 import { Link2, Palette, Calendar, Settings, BarChart3 } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -36,7 +37,13 @@ function EmptyState({ icon, title, description }: EmptyStateProps) {
   )
 }
 
+const VALID_TABS = ["links", "design", "schedule", "insights", "settings"]
+
 export function EditorPanel() {
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab")
+  const defaultTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
+
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
   const selectCard = usePageStore((state) => state.selectCard)
@@ -68,7 +75,7 @@ export function EditorPanel() {
         />
       ) : (
         // Show tabs when no card selected
-        <Tabs defaultValue="links" className="flex h-full flex-col">
+        <Tabs defaultValue={defaultTab} className="flex h-full flex-col">
           <div className="border-b px-4 py-2">
             <TabsList className="w-full">
               <TabsTrigger value="links" className="flex-1 gap-2">
