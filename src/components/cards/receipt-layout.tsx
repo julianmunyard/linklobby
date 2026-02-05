@@ -408,8 +408,16 @@ export function ReceiptLayout({
             {/* Links as items */}
             <div className="my-4 space-y-2">
               {visibleCards.map((card, index) => {
-                const isFocused = focusedIndex === index
                 const displayText = card.title || card.card_type
+
+                // Text cards render as section dividers
+                if (card.card_type === 'text') {
+                  return (
+                    <div key={card.id} className="text-center py-2 font-bold text-sm">
+                      *** {displayText.toUpperCase()} ***
+                    </div>
+                  )
+                }
 
                 return (
                   <button

@@ -428,6 +428,21 @@ export function StaticIpodClassicLayout({
                         const displayText = card.card_type === 'social-icons' ? 'Socials' : (card.title || card.card_type)
                         const isLongText = displayText.length > 25
 
+                        // Text cards render as non-interactive section dividers
+                        if (card.card_type === 'text') {
+                          return (
+                            <div
+                              key={card.id}
+                              className="ipod-menu-item opacity-60"
+                              style={{ cursor: 'default' }}
+                            >
+                              <span className="flex-1 text-[11px] text-center overflow-hidden whitespace-nowrap">
+                                — {displayText} —
+                              </span>
+                            </div>
+                          )
+                        }
+
                         return (
                           <div
                             key={card.id}

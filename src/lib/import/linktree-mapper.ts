@@ -340,7 +340,14 @@ export async function mapLinktreeToCards(
 
   // Then process regular links, extracting profile URLs as social icons
   for (const link of links) {
-    // Skip links without URLs (shouldn't happen after scraper filtering, but be safe)
+    // Keep HEADER links as text cards (section dividers)
+    if (link.type === 'HEADER') {
+      regularLinks.push(link)
+      console.log(`[LinktreeMapper] Keeping header: "${link.title}"`)
+      continue
+    }
+
+    // Skip links without URLs
     if (!link.url) continue
 
     const platform = detectSocialPlatform(link.url)
@@ -371,6 +378,22 @@ export async function mapLinktreeToCards(
   const settledResults = await Promise.allSettled(
     regularLinks.map(async (link, index) => {
       const layoutItem = layout[index]
+
+      // HEADER links become text cards (section dividers)
+      if (link.type === 'HEADER') {
+        const card: MappedCardData = {
+          card_type: 'text',
+          title: link.title || 'Section',
+          description: null,
+          url: '', // Text cards don't have URLs
+          content: {
+            textAlign: 'center',
+          },
+          size: 'big', // Full width for headers
+          position: 'left' as HorizontalPosition,
+        }
+        return { card, imageBlob: null, index }
+      }
 
       // Download thumbnail if available
       let imageBlob: Blob | null = null

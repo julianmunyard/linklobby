@@ -280,9 +280,27 @@ export function VcrMenuLayout({
         {/* Links list */}
         <div className="flex flex-col items-center gap-2 w-full max-w-full">
           {visibleCards.map((card, index) => {
-            const isFocused = focusedIndex === index
             const displayText = (card.title || card.card_type).toUpperCase()
 
+            // Text cards render as section dividers (non-interactive)
+            if (card.card_type === 'text') {
+              return (
+                <div
+                  key={card.id}
+                  className="w-full text-center py-3 opacity-70"
+                  style={{
+                    fontFamily: 'var(--font-pixter-granular)',
+                    fontSize: linkSize,
+                    letterSpacing: '0.1em',
+                    color: 'var(--theme-text)',
+                  }}
+                >
+                  ----- {displayText} -----
+                </div>
+              )
+            }
+
+            const isFocused = focusedIndex === index
             return (
               <button
                 key={card.id}

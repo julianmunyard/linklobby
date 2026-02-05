@@ -60,8 +60,26 @@ export function generateMoveKey(
   const otherCards = cards.filter((c) => c.id !== movedCardId)
   const sorted = sortCardsBySortKey(otherCards)
 
-  const above = newIndex > 0 ? sorted[newIndex - 1]?.sortKey ?? null : null
-  const below = sorted[newIndex]?.sortKey ?? null
+  // Handle empty list
+  if (sorted.length === 0) {
+    return generateKeyBetween(null, null)
+  }
+
+  // Special case: moving to position 0 (top)
+  if (newIndex === 0) {
+    const firstKey = sorted[0].sortKey
+    return generateKeyBetween(null, firstKey)
+  }
+
+  // Special case: moving to end
+  if (newIndex >= sorted.length) {
+    const lastKey = sorted[sorted.length - 1].sortKey
+    return generateKeyBetween(lastKey, null)
+  }
+
+  // Normal case: insert between two cards
+  const above = sorted[newIndex - 1].sortKey
+  const below = sorted[newIndex].sortKey
 
   return generateKeyBetween(above, below)
 }
