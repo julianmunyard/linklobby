@@ -92,11 +92,18 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
     const pageProps = validated.data.props.pageProps
 
+    // Sort links by position field (Linktree's display order)
+    const sortByPosition = (links: typeof pageProps.links): typeof pageProps.links => {
+      return [...links].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+    }
+
     // Flatten links, keeping headers/groups as section dividers
     const flattenLinks = (links: typeof pageProps.links): typeof pageProps.links => {
+      // Sort by position first to ensure correct display order
+      const sortedLinks = sortByPosition(links)
       const result: typeof pageProps.links = []
 
-      for (const link of links) {
+      for (const link of sortedLinks) {
         // Keep HEADER and GROUP links as section dividers (they become text cards)
         // Linktree uses both 'HEADER' and 'GROUP' for section dividers
         if ((link.type === 'HEADER' || link.type === 'GROUP') && link.title) {
