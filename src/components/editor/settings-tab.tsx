@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { QRCodeDialog } from "@/components/fan-tools/qr-code-dialog"
 import { EmailExport } from "@/components/fan-tools/email-export"
 import { MailchimpSettings } from "@/components/fan-tools/mailchimp-settings"
+import { DataPrivacySection } from "@/components/settings/data-privacy-section"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { QrCode, Mail, ChevronDown, Loader2, Settings } from "lucide-react"
+import { QrCode, Mail, ChevronDown, Loader2, Settings, Shield } from "lucide-react"
 
 interface PageInfo {
   id: string
@@ -24,6 +25,7 @@ export function SettingsTab() {
   const [isLoading, setIsLoading] = useState(true)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
   const [fanToolsOpen, setFanToolsOpen] = useState(true)
+  const [dataPrivacyOpen, setDataPrivacyOpen] = useState(false)
 
   // Fetch page info on mount
   useEffect(() => {
@@ -132,6 +134,28 @@ export function SettingsTab() {
               </h4>
               <MailchimpSettings pageId={pageInfo.id} />
             </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Separator />
+
+        {/* Data & Privacy Section */}
+        <Collapsible open={dataPrivacyOpen} onOpenChange={setDataPrivacyOpen}>
+          <CollapsibleTrigger asChild>
+            <button className="flex w-full items-center justify-between text-sm font-medium py-2">
+              <span className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Data & Privacy
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  dataPrivacyOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2">
+            <DataPrivacySection username={pageInfo.username} />
           </CollapsibleContent>
         </Collapsible>
       </div>
