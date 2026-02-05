@@ -670,46 +670,50 @@ export function IpodClassicLayout({
                     }
 
                     return (
-                      <div className="flex flex-col items-center justify-center h-full gap-2" style={{ color: 'var(--theme-text, #3d3c39)' }}>
-                        {/* Album art - small dithered image */}
-                        {albumArtUrl && (
-                          <img
-                            src={albumArtUrl}
-                            alt={releaseTitle || 'Release'}
-                            className="w-20 h-20 object-cover"
-                            style={{ imageRendering: 'pixelated', filter: 'contrast(1.2) grayscale(1)' }}
-                          />
-                        )}
-
-                        {/* Release title and artist */}
-                        {releaseTitle && (
-                          <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2">
-                            {releaseTitle.length > 30 ? releaseTitle.substring(0, 27) + '...' : releaseTitle}
-                          </div>
-                        )}
-                        {artistName && (
-                          <div className="text-[10px] text-center max-w-full px-2 opacity-70">
-                            {artistName.length > 30 ? artistName.substring(0, 27) + '...' : artistName}
-                          </div>
-                        )}
-
-                        {/* Countdown */}
-                        {releaseDate && (
-                          <div className="mt-1">
-                            <Countdown
-                              date={new Date(releaseDate)}
-                              renderer={ipodCountdownRenderer}
+                      <div className="flex flex-col h-full" style={{ color: 'var(--theme-text, #3d3c39)' }}>
+                        {/* Top section - album art and info */}
+                        <div className="flex-1 flex flex-col items-center justify-center px-3 py-2">
+                          {/* Album art - small dithered image */}
+                          {albumArtUrl && (
+                            <img
+                              src={albumArtUrl}
+                              alt={releaseTitle || 'Release'}
+                              className="w-16 h-16 object-cover mb-2"
+                              style={{ imageRendering: 'pixelated', filter: 'contrast(1.2) grayscale(1)' }}
                             />
-                          </div>
-                        )}
+                          )}
 
-                        {/* Pre-save button - styled like selected menu item, edge to edge */}
+                          {/* Release title and artist */}
+                          {releaseTitle && (
+                            <div className="text-[11px] font-bold text-center leading-tight max-w-full">
+                              {releaseTitle.length > 25 ? releaseTitle.substring(0, 22) + '...' : releaseTitle}
+                            </div>
+                          )}
+                          {artistName && (
+                            <div className="text-[9px] text-center max-w-full opacity-70">
+                              {artistName.length > 25 ? artistName.substring(0, 22) + '...' : artistName}
+                            </div>
+                          )}
+
+                          {/* Countdown with label */}
+                          {releaseDate && (
+                            <div className="mt-3 text-center">
+                              <div className="text-[8px] uppercase tracking-wider opacity-60 mb-1">Drops In</div>
+                              <Countdown
+                                date={new Date(releaseDate)}
+                                renderer={ipodCountdownRenderer}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Pre-save button - styled like selected menu item, at bottom */}
                         {preSaveUrl && (
                           <a
                             href={preSaveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ipod-menu-item selected text-[11px] w-[calc(100%+6px)] -mx-[3px] mt-2 justify-between"
+                            className="ipod-menu-item selected text-[11px] justify-between mt-auto"
                             onClick={(e) => !isPreview && e.preventDefault()}
                           >
                             <span>{preSaveButtonText}</span>
