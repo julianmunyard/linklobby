@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { Card } from '@/types/card'
+import type { Card, ReleaseCardContent } from '@/types/card'
+import { isReleaseContent } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
@@ -15,6 +16,7 @@ import {
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
 import type { ComponentType } from 'react'
+import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 type IconComponent = ComponentType<{ className?: string }>
 
@@ -110,6 +112,7 @@ export function ReceiptLayout({
   selectedCardId
 }: ReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
+  const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [ditheredPhoto, setDitheredPhoto] = useState<string | null>(null)
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
@@ -131,10 +134,23 @@ export function ReceiptLayout({
   const socialIcons = useProfileStore((s) => s.socialIcons)
   const showSocialIcons = useProfileStore((s) => s.showSocialIcons)
 
-  // Filter to only visible cards, exclude social-icons card and social platform URLs (shown as icons)
+  // Filter release cards separately
+  const releaseCards = cards.filter(c => {
+    if (c.is_visible === false || c.card_type !== 'release' || !isReleaseContent(c.content)) return false
+    const content = c.content as ReleaseCardContent
+    if (completedReleases.has(c.id)) return false
+    if (content.releaseDate && content.afterCountdownAction === 'hide') {
+      const isReleased = new Date(content.releaseDate) <= new Date()
+      if (isReleased) return false
+    }
+    return true
+  })
+
+  // Filter to only visible cards, exclude social-icons, release cards, and social platform URLs (shown as icons)
   const visibleCards = cards.filter(c =>
     c.is_visible !== false &&
     c.card_type !== 'social-icons' &&
+    c.card_type !== 'release' &&
     !isSocialUrl(c.url)
   )
 
@@ -412,6 +428,107 @@ export function ReceiptLayout({
                 )
               })}
             </div>
+
+            {/* Release section */}
+            {releaseCards.map((card) => {
+              if (!isReleaseContent(card.content)) return null
+              const content = card.content as ReleaseCardContent
+              const {
+                releaseTitle,
+                artistName,
+                releaseDate,
+                preSaveUrl,
+                preSaveButtonText = 'PRE-SAVE',
+                afterCountdownAction = 'custom',
+                afterCountdownText = 'OUT NOW',
+                afterCountdownUrl
+              } = content
+
+              const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+
+              // Receipt countdown renderer - compact format
+              const receiptCountdownRenderer = ({ days, hours, minutes, completed }: CountdownRenderProps) => {
+                if (completed || isReleased) {
+                  if (afterCountdownAction === 'hide' && !completedReleases.has(card.id)) {
+                    setCompletedReleases(prev => new Set(prev).add(card.id))
+                  }
+                  return null
+                }
+                return (
+                  <div className="text-sm font-bold font-mono tabular-nums">
+                    {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}H {String(minutes).padStart(2, '0')}M
+                  </div>
+                )
+              }
+
+              return (
+                <div key={card.id}>
+                  <div className="receipt-divider">{'-'.repeat(60)}</div>
+                  <div className="my-4 text-center">
+                    <div className="font-bold mb-2">** UPCOMING RELEASE **</div>
+                    {releaseTitle && <div className="text-xs">ALBUM: {releaseTitle.toUpperCase()}</div>}
+                    {artistName && <div className="text-xs">ARTIST: {artistName.toUpperCase()}</div>}
+
+                    {!isReleased && releaseDate && (
+                      <div className="my-2">
+                        <div className="text-xs mb-1">DROPS IN:</div>
+                        <Countdown
+                          date={new Date(releaseDate)}
+                          renderer={receiptCountdownRenderer}
+                          onComplete={() => {
+                            if (afterCountdownAction === 'hide') {
+                              setCompletedReleases(prev => new Set(prev).add(card.id))
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {!isReleased && preSaveUrl && (
+                      <button
+                        className="w-full text-left py-1 px-2 group"
+                        onClick={() => {
+                          if (!isPreview) {
+                            window.open(preSaveUrl, '_blank', 'noopener,noreferrer')
+                          }
+                        }}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="group-hover:underline">[{preSaveButtonText.toUpperCase()}</span>
+                          <span className="receipt-dots flex-shrink-0 mx-2">
+                            {'.' .repeat(15)}
+                          </span>
+                          <span>&gt;]</span>
+                        </div>
+                      </button>
+                    )}
+
+                    {isReleased && afterCountdownAction === 'custom' && (
+                      afterCountdownUrl ? (
+                        <button
+                          className="w-full text-left py-1 px-2 group"
+                          onClick={() => {
+                            if (!isPreview) {
+                              window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer')
+                            }
+                          }}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="group-hover:underline">[{(afterCountdownText || 'OUT NOW').toUpperCase()}</span>
+                            <span className="receipt-dots flex-shrink-0 mx-2">
+                              {'.' .repeat(10)}
+                            </span>
+                            <span>&gt;]</span>
+                          </div>
+                        </button>
+                      ) : (
+                        <div className="font-bold text-sm mt-2">{(afterCountdownText || 'OUT NOW').toUpperCase()}</div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )
+            })}
 
             <div className="receipt-divider">{'-'.repeat(60)}</div>
 
