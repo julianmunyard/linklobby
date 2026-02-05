@@ -71,7 +71,7 @@ export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
               card.card_type === 'gallery' && "overflow-visible"
             )}
           >
-            <CardRenderer card={card} isPreview />
+            <CardRenderer card={card} />
           </div>
         )
       })}

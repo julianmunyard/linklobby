@@ -79,36 +79,43 @@ export function ScheduleCardItem({ card, onUpdate }: ScheduleCardItemProps) {
   const content = card.content as Record<string, unknown>
   const publishAt = content.publishAt as string | undefined
   const expireAt = content.expireAt as string | undefined
+  const cardId = card.id // Store stable reference to card ID
 
   const status = useMemo(() => getScheduleStatus(content), [content])
   const badge = useMemo(() => getStatusBadge(status, content), [status, content])
 
+  // Use stable card ID and content references
   const handlePublishAtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    // Use spread on content from props to ensure we're updating the right card's content
+    const currentContent = card.content as Record<string, unknown>
     onUpdate({
-      ...content,
+      ...currentContent,
       publishAt: value ? parseInputToIso(value) : undefined,
     })
   }
 
   const handleExpireAtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    const currentContent = card.content as Record<string, unknown>
     onUpdate({
-      ...content,
+      ...currentContent,
       expireAt: value ? parseInputToIso(value) : undefined,
     })
   }
 
   const clearPublishAt = () => {
+    const currentContent = card.content as Record<string, unknown>
     onUpdate({
-      ...content,
+      ...currentContent,
       publishAt: undefined,
     })
   }
 
   const clearExpireAt = () => {
+    const currentContent = card.content as Record<string, unknown>
     onUpdate({
-      ...content,
+      ...currentContent,
       expireAt: undefined,
     })
   }

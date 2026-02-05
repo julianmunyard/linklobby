@@ -3,22 +3,24 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { Loader2, Upload, Calendar, Music, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Loader2, Upload, Calendar, AlertCircle, ExternalLink, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { cn } from '@/lib/utils'
 import { uploadCardImageBlob } from '@/lib/supabase/storage'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
 import { compressImageForUpload } from '@/lib/image-compression'
-import { detectPlatform, isMusicPlatform, getPlatformDisplayName } from '@/lib/platform-embed'
 import type { ReleaseCardContent } from '@/types/card'
 
 // Default content for new release cards
 export const DEFAULT_RELEASE_CONTENT: Partial<ReleaseCardContent> = {
   showCountdown: true,
   preSaveButtonText: 'Pre-save',
+  afterCountdownAction: 'custom',
+  afterCountdownText: 'OUT NOW',
 }
 
 interface ReleaseCardFieldsProps {
@@ -111,13 +113,6 @@ export function ReleaseCardFields({ content, onChange, cardId }: ReleaseCardFiel
     onChange({ albumArtUrl: undefined, albumArtStoragePath: undefined })
     toast.success('Album art removed')
   }
-
-  // Validate music URL
-  const musicUrlValid = values.musicUrl
-    ? detectPlatform(values.musicUrl)?.platform && isMusicPlatform(detectPlatform(values.musicUrl)!.platform)
-    : null
-
-  const detectedPlatform = values.musicUrl ? detectPlatform(values.musicUrl) : null
 
   return (
     <div className="space-y-4">
@@ -279,39 +274,76 @@ export function ReleaseCardFields({ content, onChange, cardId }: ReleaseCardFiel
         </div>
       )}
 
-      {/* Music URL (for post-release / auto-conversion) */}
-      <div className="space-y-2">
-        <Label htmlFor="musicUrl">
-          <span className="flex items-center gap-2">
-            <Music className="h-4 w-4" />
-            Streaming URL
-          </span>
-        </Label>
-        <Input
-          id="musicUrl"
-          type="url"
-          placeholder="Spotify, Apple Music, SoundCloud..."
-          value={values.musicUrl || ''}
-          onChange={(e) => onChange({ musicUrl: e.target.value || undefined })}
-        />
-        <p className="text-xs text-muted-foreground">
-          When the release goes live, this card will show &quot;Listen Now&quot; linking here.
-        </p>
+      {/* When Countdown Ends Section */}
+      <div className="space-y-4 pt-4 border-t">
+        <Label className="text-base font-medium">When Countdown Ends</Label>
 
-        {/* Music URL validation feedback */}
-        {values.musicUrl && musicUrlValid && detectedPlatform && (
-          <div className="flex items-center gap-2 text-sm text-green-600">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Detected: {getPlatformDisplayName(detectedPlatform.platform)}</span>
+        <div className="space-y-2">
+          {/* Option: Show Custom Message */}
+          <div
+            className={cn(
+              "p-3 rounded-lg border cursor-pointer transition-colors",
+              (values.afterCountdownAction === 'custom' || !values.afterCountdownAction) ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+            )}
+            onClick={() => onChange({ afterCountdownAction: 'custom' })}
+          >
+            <div className="flex items-center gap-2 font-medium">
+              <ExternalLink className="h-4 w-4" />
+              Show custom message with link
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Album art with custom button text and link
+            </p>
+            {(values.afterCountdownAction === 'custom' || !values.afterCountdownAction) && (
+              <div className="pt-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+                <div className="space-y-1">
+                  <Label htmlFor="afterCountdownText" className="text-xs">Button Text</Label>
+                  <Input
+                    id="afterCountdownText"
+                    placeholder="OUT NOW"
+                    value={values.afterCountdownText || ''}
+                    onChange={(e) => onChange({ afterCountdownText: e.target.value || undefined })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="afterCountdownUrl" className="text-xs">Link URL</Label>
+                  <Input
+                    id="afterCountdownUrl"
+                    type="url"
+                    placeholder="https://linktr.ee/artist or any URL"
+                    value={values.afterCountdownUrl || ''}
+                    onChange={(e) => onChange({ afterCountdownUrl: e.target.value || undefined })}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        {values.musicUrl && !musicUrlValid && (
-          <div className="flex items-center gap-2 text-sm text-amber-600">
-            <AlertCircle className="h-4 w-4" />
-            <span>URL will open as external link. For embeds, use Spotify, Apple Music, etc.</span>
+
+          {/* Option: Hide Card */}
+          <div
+            className={cn(
+              "p-3 rounded-lg border cursor-pointer transition-colors",
+              values.afterCountdownAction === 'hide' ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+            )}
+            onClick={() => onChange({ afterCountdownAction: 'hide' })}
+          >
+            <div className="flex items-center gap-2 font-medium">
+              <EyeOff className="h-4 w-4" />
+              Hide card
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Card disappears when countdown ends
+            </p>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Text Color */}
+      <ColorPicker
+        label="Text Color"
+        color={values.textColor || "#ffffff"}
+        onChange={(color) => onChange({ textColor: color })}
+      />
 
       {/* Crop dialog */}
       {imageToCrop && (

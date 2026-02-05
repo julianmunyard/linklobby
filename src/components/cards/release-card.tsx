@@ -3,29 +3,37 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
-import { Calendar, Music, ExternalLink } from 'lucide-react'
+import { Calendar, Music } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
-import { detectPlatform, isMusicPlatform } from '@/lib/platform-embed'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 
 interface ReleaseCardProps {
   card: Card
   isEditing?: boolean
-  onConvert?: () => void
 }
 
-export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardProps) {
+export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
   const themeId = useThemeStore((state) => state.themeId)
   const [hasCompleted, setHasCompleted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Check if card is small size
+  const isSmall = card.size === 'small'
+
+  // Only render countdown after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Type guard for content
   if (!isReleaseContent(card.content)) {
     return <ReleaseCardPlaceholder />
   }
 
-  const content = card.content as ReleaseCardContent
+  const content = card.content as ReleaseCardContent & { verticalAlign?: string }
   const {
     albumArtUrl,
     releaseTitle,
@@ -34,8 +42,11 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
     releaseDate,
     preSaveUrl,
     preSaveButtonText = 'Pre-save',
-    musicUrl,
     textColor,
+    verticalAlign = 'bottom',
+    afterCountdownAction = 'custom',
+    afterCountdownText = 'OUT NOW',
+    afterCountdownUrl,
   } = content
 
   // Check if release date has passed
@@ -44,17 +55,7 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
   // Handle countdown complete
   const handleCountdownComplete = useCallback(() => {
     setHasCompleted(true)
-    // Only attempt conversion if we have a valid music URL
-    if (musicUrl && onConvert) {
-      const detected = detectPlatform(musicUrl)
-      if (detected && isMusicPlatform(detected.platform)) {
-        // Trigger conversion after a brief delay for user to see "Out Now!"
-        setTimeout(() => {
-          onConvert()
-        }, 2000)
-      }
-    }
-  }, [musicUrl, onConvert])
+  }, [])
 
   // Check on initial render if already past release date
   useEffect(() => {
@@ -68,55 +69,51 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
     return <ReleaseCardPlaceholder />
   }
 
-  // Countdown renderer
+  // Handle post-release state based on afterCountdownAction
+  // Note: Cards with 'hide' action are also filtered server-side in fetchPublicPageData
+  if (isReleased || hasCompleted) {
+    // Action: Hide - return null in both editor preview and public page
+    if (afterCountdownAction === 'hide') {
+      return null
+    }
+
+    // Action: Custom (show album art with custom text) - this is the default
+    // Renders below with the custom text/URL (only hide title/artist on public page)
+  }
+
+  // Countdown renderer - sizes adjust based on card size
   const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
+    // Don't render anything when completed - handled by afterCountdownAction
     if (completed || hasCompleted) {
-      return (
-        <div className="text-center">
-          <span className="text-2xl font-bold tracking-wide">Out Now!</span>
-          {musicUrl && (
-            <a
-              href={musicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm hover:underline"
-              onClick={(e) => isEditing && e.preventDefault()}
-            >
-              <Music className="h-4 w-4" />
-              Listen Now
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
-        </div>
-      )
+      return null
     }
 
     return (
-      <div className="flex gap-3 justify-center">
+      <div className={isSmall ? "flex gap-1.5 justify-center" : "flex gap-3 justify-center"} style={{ fontFamily: 'var(--font-theme-heading)' }}>
         {days > 0 && (
           <div className="text-center">
-            <span className="text-3xl font-bold tabular-nums">{days}</span>
-            <span className="text-xs block uppercase tracking-wide opacity-80">days</span>
+            <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{days}</span>
+            <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>days</span>
           </div>
         )}
         <div className="text-center">
-          <span className="text-3xl font-bold tabular-nums">{String(hours).padStart(2, '0')}</span>
-          <span className="text-xs block uppercase tracking-wide opacity-80">hours</span>
+          <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(hours).padStart(2, '0')}</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>hrs</span>
         </div>
         <div className="text-center">
-          <span className="text-3xl font-bold tabular-nums">{String(minutes).padStart(2, '0')}</span>
-          <span className="text-xs block uppercase tracking-wide opacity-80">min</span>
+          <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(minutes).padStart(2, '0')}</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>min</span>
         </div>
         <div className="text-center">
-          <span className="text-3xl font-bold tabular-nums">{String(seconds).padStart(2, '0')}</span>
-          <span className="text-xs block uppercase tracking-wide opacity-80">sec</span>
+          <span className={isSmall ? "text-lg font-bold tabular-nums" : "text-3xl font-bold tabular-nums"}>{String(seconds).padStart(2, '0')}</span>
+          <span className={isSmall ? "text-[8px] block uppercase tracking-wide opacity-80" : "text-xs block uppercase tracking-wide opacity-80"} style={{ fontFamily: 'var(--font-theme-body)' }}>sec</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg">
+    <div className="relative w-full overflow-hidden">
       {/* Album Art Background */}
       {albumArtUrl ? (
         <div className="relative aspect-square">
@@ -130,31 +127,42 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
 
           {/* Content overlay */}
           <div
-            className="absolute inset-0 flex flex-col justify-end p-4"
+            className={cn(
+              "absolute inset-0 flex flex-col",
+              isSmall ? "p-2" : "p-4",
+              verticalAlign === 'top' && "justify-start",
+              verticalAlign === 'middle' && "justify-center",
+              verticalAlign === 'bottom' && "justify-end"
+            )}
             style={{ color: textColor || '#ffffff' }}
           >
-            {/* Coming Soon / Out Now label */}
-            <div className="mb-auto pt-2">
-              <span className="text-xs uppercase tracking-wider font-medium px-2 py-1 bg-white/20 rounded backdrop-blur-sm">
-                {isReleased || hasCompleted ? 'Out Now' : 'Coming Soon'}
-              </span>
-            </div>
-
             {/* Release info */}
-            <div className="space-y-3">
-              {/* Title and artist */}
-              <div>
-                {releaseTitle && (
-                  <h3 className="text-xl font-bold leading-tight">{releaseTitle}</h3>
-                )}
-                {artistName && (
-                  <p className="text-sm opacity-80">{artistName}</p>
-                )}
-              </div>
+            <div className={isSmall ? "space-y-1 text-center" : "space-y-3 text-center"}>
+              {/* Title and artist - only show before release */}
+              {!isReleased && !hasCompleted && (
+                <div>
+                  {releaseTitle && (
+                    <h3
+                      className={isSmall ? "text-sm font-bold leading-tight break-words" : "text-xl font-bold leading-tight break-words"}
+                      style={{ fontFamily: 'var(--font-theme-heading)' }}
+                    >
+                      {releaseTitle}
+                    </h3>
+                  )}
+                  {artistName && (
+                    <p
+                      className={isSmall ? "text-xs opacity-80 break-words" : "text-sm opacity-80 break-words"}
+                      style={{ fontFamily: 'var(--font-theme-body)' }}
+                    >
+                      {artistName}
+                    </p>
+                  )}
+                </div>
+              )}
 
-              {/* Countdown */}
-              {showCountdown && releaseDate && !isReleased && !hasCompleted && (
-                <div className="py-2">
+              {/* Countdown - only require isMounted on public page to avoid hydration mismatch */}
+              {showCountdown && releaseDate && !isReleased && !hasCompleted && (isEditing || isMounted) && (
+                <div className={isSmall ? "py-1" : "py-2"}>
                   <Countdown
                     date={new Date(releaseDate)}
                     renderer={countdownRenderer}
@@ -163,19 +171,14 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
                 </div>
               )}
 
-              {/* Out Now state */}
-              {(isReleased || hasCompleted) && showCountdown && (
-                <div className="py-2">
-                  {countdownRenderer({ days: 0, hours: 0, minutes: 0, seconds: 0, completed: true } as CountdownRenderProps)}
-                </div>
-              )}
-
               {/* Pre-save button (before release) */}
               {!isReleased && !hasCompleted && preSaveUrl && (
                 <Button
                   asChild
                   variant="secondary"
-                  className="w-full bg-white/90 text-black hover:bg-white"
+                  size={isSmall ? "sm" : "default"}
+                  className={isSmall ? "w-full bg-white/90 text-black hover:bg-white text-xs h-7" : "w-full bg-white/90 text-black hover:bg-white"}
+                  style={{ fontFamily: 'var(--font-theme-body)' }}
                   onClick={(e) => isEditing && e.preventDefault()}
                 >
                   <a
@@ -183,29 +186,40 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Calendar className="h-4 w-4 mr-2" />
+                    <Calendar className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
                     {preSaveButtonText}
                   </a>
                 </Button>
               )}
 
-              {/* Listen button (after release) */}
-              {(isReleased || hasCompleted) && musicUrl && (
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="w-full bg-white/90 text-black hover:bg-white"
-                  onClick={(e) => isEditing && e.preventDefault()}
-                >
-                  <a
-                    href={musicUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              {/* Custom content (after release with custom action) */}
+              {(isReleased || hasCompleted) && afterCountdownAction === 'custom' && (
+                afterCountdownUrl ? (
+                  <Button
+                    asChild
+                    variant="secondary"
+                    size={isSmall ? "sm" : "default"}
+                    className={isSmall ? "w-full bg-white/90 text-black hover:bg-white text-xs h-7" : "w-full bg-white/90 text-black hover:bg-white"}
+                    style={{ fontFamily: 'var(--font-theme-body)' }}
+                    onClick={(e) => isEditing && e.preventDefault()}
                   >
-                    <Music className="h-4 w-4 mr-2" />
-                    Listen Now
-                  </a>
-                </Button>
+                    <a
+                      href={afterCountdownUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Music className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
+                      {afterCountdownText || 'OUT NOW'}
+                    </a>
+                  </Button>
+                ) : (
+                  <span
+                    className={isSmall ? "text-sm font-bold" : "text-lg font-bold"}
+                    style={{ fontFamily: 'var(--font-theme-heading)' }}
+                  >
+                    {afterCountdownText || 'OUT NOW'}
+                  </span>
+                )
               )}
             </div>
           </div>
@@ -213,19 +227,40 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
       ) : (
         // Fallback when no album art - simpler display
         <div
-          className="relative aspect-square bg-muted flex flex-col items-center justify-center p-6"
+          className={cn(
+            "relative aspect-square bg-muted flex flex-col items-center text-center",
+            isSmall ? "p-3" : "p-6",
+            verticalAlign === 'top' && "justify-start",
+            verticalAlign === 'middle' && "justify-center",
+            verticalAlign === 'bottom' && "justify-end"
+          )}
           style={{ color: textColor || 'inherit' }}
         >
-          <Music className="h-12 w-12 mb-4 opacity-50" />
-          {releaseTitle && (
-            <h3 className="text-lg font-bold text-center">{releaseTitle}</h3>
-          )}
-          {artistName && (
-            <p className="text-sm opacity-70 text-center">{artistName}</p>
+          <Music className={isSmall ? "h-6 w-6 mb-2 opacity-50" : "h-12 w-12 mb-4 opacity-50"} />
+          {/* Title and artist - only show before release */}
+          {!isReleased && !hasCompleted && (
+            <>
+              {releaseTitle && (
+                <h3
+                  className={isSmall ? "text-sm font-bold break-words" : "text-lg font-bold break-words"}
+                  style={{ fontFamily: 'var(--font-theme-heading)' }}
+                >
+                  {releaseTitle}
+                </h3>
+              )}
+              {artistName && (
+                <p
+                  className={isSmall ? "text-xs opacity-70 break-words" : "text-sm opacity-70 break-words"}
+                  style={{ fontFamily: 'var(--font-theme-body)' }}
+                >
+                  {artistName}
+                </p>
+              )}
+            </>
           )}
 
-          {showCountdown && releaseDate && !isReleased && !hasCompleted && (
-            <div className="mt-4">
+          {showCountdown && releaseDate && !isReleased && !hasCompleted && (isEditing || isMounted) && (
+            <div className={isSmall ? "mt-2" : "mt-4"}>
               <Countdown
                 date={new Date(releaseDate)}
                 renderer={countdownRenderer}
@@ -238,14 +273,41 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
             <Button
               asChild
               variant="outline"
-              className="mt-4"
+              size={isSmall ? "sm" : "default"}
+              className={isSmall ? "mt-2 text-xs" : "mt-4"}
+              style={{ fontFamily: 'var(--font-theme-body)' }}
               onClick={(e) => isEditing && e.preventDefault()}
             >
               <a href={preSaveUrl} target="_blank" rel="noopener noreferrer">
-                <Calendar className="h-4 w-4 mr-2" />
+                <Calendar className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
                 {preSaveButtonText}
               </a>
             </Button>
+          )}
+
+          {(isReleased || hasCompleted) && afterCountdownAction === 'custom' && (
+            afterCountdownUrl ? (
+              <Button
+                asChild
+                variant="outline"
+                size={isSmall ? "sm" : "default"}
+                className={isSmall ? "mt-2 text-xs" : "mt-4"}
+                style={{ fontFamily: 'var(--font-theme-body)' }}
+                onClick={(e) => isEditing && e.preventDefault()}
+              >
+                <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer">
+                  <Music className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
+                  {afterCountdownText || 'OUT NOW'}
+                </a>
+              </Button>
+            ) : (
+              <span
+                className={isSmall ? "mt-2 text-sm font-bold" : "mt-4 text-lg font-bold"}
+                style={{ fontFamily: 'var(--font-theme-heading)' }}
+              >
+                {afterCountdownText || 'OUT NOW'}
+              </span>
+            )
           )}
         </div>
       )}
@@ -256,7 +318,7 @@ export function ReleaseCard({ card, isEditing = false, onConvert }: ReleaseCardP
 // Placeholder when no release configured
 function ReleaseCardPlaceholder() {
   return (
-    <div className="relative w-full aspect-square overflow-hidden bg-muted flex items-center justify-center rounded-lg">
+    <div className="relative w-full aspect-square overflow-hidden bg-muted flex items-center justify-center">
       <div className="text-center text-muted-foreground p-4">
         <Calendar className="h-12 w-12 mx-auto mb-2" />
         <p className="font-medium">Add Release</p>

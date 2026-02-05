@@ -19,9 +19,11 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
 
   const socialIcons = getSortedSocialIcons()
 
-  // If social icons are hidden or empty, show placeholder in editor
+  // If social icons are hidden or empty, show placeholder in editor only
   if (!showSocialIcons || socialIcons.length === 0) {
-    if (isPreview) return null
+    // On public page (not preview), hide completely
+    if (!isPreview) return null
+    // In editor preview, show placeholder
     return (
       <div className="w-full p-4 rounded-lg border border-dashed bg-muted/50 text-center">
         <p className="text-sm text-muted-foreground">

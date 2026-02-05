@@ -201,6 +201,9 @@ export interface MusicCardContent {
   noBorder?: boolean             // Remove card border/background styling
 }
 
+// After countdown action options
+export type AfterCountdownAction = 'custom' | 'hide'
+
 // Release card content - for pre-release with countdown and auto-conversion to music card
 export interface ReleaseCardContent extends ScheduledContent {
   // Core release info
@@ -217,9 +220,10 @@ export interface ReleaseCardContent extends ScheduledContent {
   preSaveUrl?: string            // Link to pre-save page (feature.fm, smarturl, etc.)
   preSaveButtonText?: string     // Default "Pre-save"
 
-  // Music card conversion
-  musicUrl?: string              // Spotify/Apple Music URL for post-release
-  // When release date passes, card converts to music type using this URL
+  // Post-release / after countdown
+  afterCountdownAction?: AfterCountdownAction  // What to do when countdown ends: 'custom' or 'hide'
+  afterCountdownText?: string    // Custom text to show (e.g., "OUT NOW", "Listen Now")
+  afterCountdownUrl?: string     // URL for custom action button
 
   // Styling
   textColor?: string

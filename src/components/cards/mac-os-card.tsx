@@ -43,8 +43,8 @@ export function MacOSCard({ children, className, transparentBackground = false }
       >
         <MacOSTrafficLights />
       </div>
-      {/* Content */}
-      <div>
+      {/* Content - with rounded bottom corners to match container */}
+      <div className="overflow-hidden" style={{ borderRadius: '0 0 calc(var(--theme-border-radius) - 1px) calc(var(--theme-border-radius) - 1px)' }}>
         {children}
       </div>
     </div>

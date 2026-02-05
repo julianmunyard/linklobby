@@ -8,8 +8,18 @@ import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { MobileSelectCheckbox } from "@/components/editor/mobile-select-mode"
 import { Badge } from "@/components/ui/badge"
-import { getScheduleStatus, type ScheduleStatus } from "@/types/card"
+import { getScheduleStatus, type ScheduleStatus, type ReleaseCardContent } from "@/types/card"
 import type { Card } from "@/types/card"
+
+// Check if a release card should be hidden (countdown ended + hide action)
+function shouldHideReleaseCard(card: Card): boolean {
+  if (card.card_type !== 'release') return false
+  const content = card.content as ReleaseCardContent
+  const releaseDate = content.releaseDate
+  const afterCountdownAction = content.afterCountdownAction
+  if (!releaseDate || afterCountdownAction !== 'hide') return false
+  return new Date(releaseDate) <= new Date()
+}
 
 // Format date for badge display using Intl.DateTimeFormat
 function formatBadgeDate(isoString: string): string {
@@ -70,6 +80,11 @@ const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game']
  * Includes data-selectable-id for box selection integration.
  */
 export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortableCardProps) {
+  // Check if release card should be hidden (countdown ended + hide action)
+  if (shouldHideReleaseCard(card)) {
+    return null
+  }
+
   const {
     attributes,
     listeners,

@@ -30,10 +30,10 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
       >
         <div
           className={cn(
-            "border border-theme-text overflow-hidden",
+            "border border-theme-text",
             !transparentBackground && "bg-theme-accent"
           )}
-          style={{ borderRadius: '4px' }}
+          style={{ borderRadius: '4px', overflow: 'hidden' }}
         >
           {children}
         </div>
@@ -76,10 +76,10 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
       <div className="px-1.5 pb-1.5">
         <div
           className={cn(
-            "border border-theme-text overflow-hidden",
+            "border border-theme-text",
             !transparentBackground && "bg-theme-accent"
           )}
-          style={{ borderRadius: '4px' }}
+          style={{ borderRadius: '4px', overflow: 'hidden' }}
         >
           {children}
         </div>

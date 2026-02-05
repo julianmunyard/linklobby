@@ -15,6 +15,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
+import { useThemeStore } from '@/stores/theme-store'
 import type { Card } from '@/types/card'
 import type { EmailCollectionCardContent } from '@/types/fan-tools'
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
@@ -38,6 +39,9 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
   const [isSuccess, setIsSuccess] = useState(false)
   const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Get theme border color
+  const themeBorderColor = useThemeStore((state) => state.colors.border)
 
   // Merge card content with defaults
   const content: EmailCollectionCardContent = {
@@ -104,7 +108,10 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
       <div className={`w-full p-6 ${textAlignClass}`}>
         <div className="flex flex-col items-center justify-center gap-3">
           <CheckCircle2 className="h-12 w-12 text-green-500" />
-          <p className="text-lg font-medium" style={textStyle}>
+          <p
+            className="text-lg font-medium"
+            style={{ ...textStyle, fontFamily: 'var(--font-theme-heading)' }}
+          >
             {isAlreadySubscribed ? "You're already subscribed!" : content.successMessage}
           </p>
         </div>
@@ -115,13 +122,19 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
   return (
     <div className={`w-full p-6 ${textAlignClass}`}>
       {/* Heading */}
-      <h3 className="text-xl font-semibold mb-2" style={textStyle}>
+      <h3
+        className="text-xl font-semibold mb-2"
+        style={{ ...textStyle, fontFamily: 'var(--font-theme-heading)' }}
+      >
         {content.heading}
       </h3>
 
       {/* Subheading */}
       {content.subheading && (
-        <p className="text-muted-foreground mb-4" style={textStyle}>
+        <p
+          className="text-muted-foreground mb-4"
+          style={{ ...textStyle, fontFamily: 'var(--font-theme-body)' }}
+        >
           {content.subheading}
         </p>
       )}
@@ -131,7 +144,19 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-3 max-w-md mx-auto"
+          style={{ '--email-card-color': content.textColor || 'currentColor' } as React.CSSProperties}
         >
+          <style>{`
+            .email-card-input::placeholder {
+              color: ${content.textColor || 'inherit'} !important;
+              opacity: 1 !important;
+              font-family: var(--font-theme-body) !important;
+            }
+            .email-card-input {
+              background-color: transparent !important;
+              font-family: var(--font-theme-body) !important;
+            }
+          `}</style>
           {/* Name field (optional) */}
           {content.showNameField && (
             <FormField
@@ -143,6 +168,11 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
                     <Input
                       placeholder="Your name"
                       disabled={isSubmitting || isEditing}
+                      className="email-card-input"
+                      style={{
+                        borderColor: themeBorderColor || undefined,
+                        color: content.textColor || undefined,
+                      }}
                       {...field}
                     />
                   </FormControl>
@@ -160,12 +190,19 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Mail
+                      className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
+                      style={{ color: content.textColor || undefined }}
+                    />
                     <Input
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10"
+                      className="pl-10 email-card-input"
                       disabled={isSubmitting || isEditing}
+                      style={{
+                        borderColor: themeBorderColor || undefined,
+                        color: content.textColor || undefined,
+                      }}
                       {...field}
                     />
                   </div>
@@ -178,7 +215,14 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
           {/* Submit button */}
           <Button
             type="submit"
+            variant="outline"
             className="w-full"
+            style={{
+              fontFamily: 'var(--font-theme-body)',
+              borderColor: themeBorderColor || undefined,
+              color: content.textColor || undefined,
+              backgroundColor: 'transparent',
+            }}
             disabled={isSubmitting || isEditing}
           >
             {isSubmitting ? (
@@ -199,12 +243,6 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
             </div>
           )}
 
-          {/* Preview mode indicator */}
-          {isEditing && (
-            <p className="text-xs text-muted-foreground">
-              Form disabled in editor preview
-            </p>
-          )}
         </form>
       </Form>
     </div>

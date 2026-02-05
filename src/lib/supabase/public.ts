@@ -127,6 +127,15 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
     // Check expiry date - if set and in past, hide
     if (expireAt && expireAt < now) return false
 
+    // Check release cards with hide action - if release date passed and action is 'hide', hide the card
+    if (card.card_type === 'release') {
+      const releaseDate = content.releaseDate as string | undefined
+      const afterCountdownAction = content.afterCountdownAction as string | undefined
+      if (releaseDate && afterCountdownAction === 'hide' && releaseDate <= now) {
+        return false
+      }
+    }
+
     return true
   })
 

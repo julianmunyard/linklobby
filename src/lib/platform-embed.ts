@@ -35,10 +35,10 @@ interface PlatformPattern {
 // Regex patterns for each platform
 // Order matters: more specific patterns should come first
 export const PLATFORM_PATTERNS: PlatformPattern[] = [
-  // Spotify: open.spotify.com/(track|album|playlist|artist)/ID
+  // Spotify: open.spotify.com/(intl-XX/)?(track|album|playlist|artist)/ID
   {
     platform: 'spotify',
-    pattern: /^https?:\/\/(?:open\.)?spotify\.com\/(track|album|playlist|artist)\/([a-zA-Z0-9]+)/i,
+    pattern: /^https?:\/\/(?:open\.)?spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist|artist)\/([a-zA-Z0-9]+)/i,
   },
   // Apple Music: (embed.)?music.apple.com/COUNTRY/(album|playlist|artist|song)/NAME/ID
   {
@@ -278,9 +278,11 @@ async function fetchBandcampEmbed(url: string): Promise<EmbedInfo> {
 export function getEmbedUrl(url: string, platform: EmbedPlatform): string {
   switch (platform) {
     case 'spotify': {
-      // open.spotify.com/track/ID -> open.spotify.com/embed/track/ID
+      // open.spotify.com/(intl-XX/)?(track|album|playlist|artist)/ID -> open.spotify.com/embed/(track|album|playlist|artist)/ID
+      // Remove intl-XX segment if present, then add embed
       // Add theme=0 for dark mode to avoid white background in corners
-      const embedUrl = url.replace('open.spotify.com/', 'open.spotify.com/embed/')
+      let cleanUrl = url.replace(/\/intl-[a-z]{2}\//i, '/')
+      const embedUrl = cleanUrl.replace('open.spotify.com/', 'open.spotify.com/embed/')
       const separator = embedUrl.includes('?') ? '&' : '?'
       return `${embedUrl}${separator}theme=0`
     }
