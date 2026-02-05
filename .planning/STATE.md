@@ -10,21 +10,22 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 11 of 18 - Analytics, Pixels & Legal
-Plan: 2 of 4 - Legal Compliance Foundation Complete
-Status: **Phase 11 In Progress - Cookie consent and legal pages built**
-Last activity: 2026-02-05 - Completed 11-02-PLAN.md (Legal Compliance Foundation)
+Plan: 5 of 5 - GDPR Data Export & Account Deletion Complete
+Status: **Phase 11 In Progress - Legal compliance and analytics complete**
+Last activity: 2026-02-06 - Completed 11-05-PLAN.md (GDPR Data Export & Account Deletion)
 
-Progress: [████████████████████████░░░░░░░] ~65%
+Progress: [█████████████████████████░░░░░░] ~67%
 
 ### IN PROGRESS: Phase 11 - Analytics, Pixels & Legal
 
 Building analytics, pixel tracking, and legal compliance:
 - ✓ Plan 01: Analytics Tracking Foundation (privacy-safe visitor tracking, stats API)
 - ✓ Plan 02: Legal Compliance Foundation (cookie consent, privacy policy, terms of service)
-- Plan 03: TBD
-- Plan 04: TBD
+- ✓ Plan 03: Insights Dashboard (Recharts visualization, hero metrics, per-card leaderboard)
+- ✓ Plan 05: GDPR Data Export & Account Deletion (ZIP download, 30-day grace period)
+- Plan 04: TBD (likely pixel tracking integration)
 
-**Latest:** GDPR/CCPA compliance complete with cookie consent banner, auto-generated privacy policy, and terms of service
+**Latest:** GDPR data export and account deletion complete with ZIP download of all user data, 30-day recovery grace period, and Data & Privacy section in Settings
 
 ### COMPLETE: Phase 10 - Fan Tools
 
@@ -548,6 +549,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Auto-generated privacy policy | 11-02 | generatePrivacyPolicy() produces different content based on enabled features (pixels, email) for accurate compliance |
 | Equal prominence buttons | 11-02 | Accept/reject buttons have same visual weight (size, border) to comply with GDPR requirements |
 | Legal footer on all layouts | 11-02 | Footer added to all theme layouts (default, VCR, iPod, Receipt) for consistent compliance |
+| JSZip for data export | 11-05 | Client-side ZIP generation reduces server load, no temporary file storage needed |
+| 30-day deletion grace period | 11-05 | Industry best practice (GitHub, Google) prevents permanent accidental data loss |
+| Username confirmation for deletion | 11-05 | Prevents accidental deletion - user must type exact username in AlertDialog |
+| Analytics export aggregated only | 11-05 | Total counts included, raw visitor hashes excluded for third-party privacy |
+| Immediate unpublish on deletion | 11-05 | Page becomes inaccessible during grace period, account disabled until recovery |
 
 ## Quick Tasks
 
@@ -667,15 +673,15 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Last activity: 2026-02-05 - Completed 11-02-PLAN.md (Legal Compliance Foundation)
-Stopped at: Phase 11 Plan 02 Complete
+Last session: 2026-02-06
+Last activity: 2026-02-06 - Completed 11-05-PLAN.md (GDPR Data Export & Account Deletion)
+Stopped at: Phase 11 Plan 05 Complete
 Resume file: None
 
-**Phase 11 Plan 02 Complete:** GDPR/CCPA-compliant cookie consent banner, auto-generated privacy policy, and terms of service.
-**Key deliverables:** CookieConsentBanner component, privacy policy generator, legal pages, footer links on all layouts.
+**Phase 11 Plan 05 Complete:** GDPR-compliant data export as ZIP download, account deletion with 30-day recovery grace period.
+**Key deliverables:** exportUserData() library, /api/legal/export-data and /api/legal/delete-account endpoints, DataPrivacySection in Settings tab, SQL migration for deletion columns.
 
-**Next:** Phase 11 Plan 03 (TBD - likely Facebook Pixel integration)
+**Next:** Phase 11 Plan 04 (TBD - likely pixel tracking integration) or move to Phase 12
 
 **This session's work (2026-02-03):**
 
