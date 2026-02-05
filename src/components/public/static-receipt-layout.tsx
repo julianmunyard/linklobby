@@ -142,14 +142,13 @@ export function StaticReceiptLayout({
     return true
   })
 
-  // Filter to only visible cards, exclude social-icons, release cards, and social platform URLs (shown as icons)
+  // Filter to only visible cards, exclude social-icons and release cards
   // Sort by sortKey to ensure correct order
   const visibleCards = sortCardsBySortKey(
     cards.filter(c =>
       c.is_visible !== false &&
       c.card_type !== 'social-icons' &&
-      c.card_type !== 'release' &&
-      !isSocialUrl(c.url)
+      c.card_type !== 'release'
     )
   )
 
