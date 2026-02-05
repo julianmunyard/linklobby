@@ -602,7 +602,7 @@ export function StaticIpodClassicLayout({
                     }
 
                     return (
-                      <div className="flex flex-col items-center justify-center h-full p-3 gap-2 text-black">
+                      <div className="flex flex-col items-center justify-center h-full gap-2" style={{ color: 'var(--theme-text, #3d3c39)' }}>
                         {albumArtUrl && (
                           <img
                             src={albumArtUrl}
@@ -613,18 +613,18 @@ export function StaticIpodClassicLayout({
                         )}
 
                         {releaseTitle && (
-                          <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2 text-black">
+                          <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2">
                             {releaseTitle.length > 30 ? releaseTitle.substring(0, 27) + '...' : releaseTitle}
                           </div>
                         )}
                         {artistName && (
-                          <div className="text-[10px] text-center max-w-full px-2 text-black/70">
+                          <div className="text-[10px] text-center max-w-full px-2 opacity-70">
                             {artistName.length > 30 ? artistName.substring(0, 27) + '...' : artistName}
                           </div>
                         )}
 
                         {releaseDate && isMounted && (
-                          <div className="mt-1 text-black">
+                          <div className="mt-1">
                             <Countdown
                               date={new Date(releaseDate)}
                               renderer={ipodCountdownRenderer}
@@ -632,13 +632,13 @@ export function StaticIpodClassicLayout({
                           </div>
                         )}
 
-                        {/* Pre-save button - styled like selected menu item */}
+                        {/* Pre-save button - styled like selected menu item, edge to edge */}
                         {preSaveUrl && (
                           <a
                             href={preSaveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ipod-menu-item selected text-[11px] w-full mt-2 justify-between"
+                            className="ipod-menu-item selected text-[11px] w-[calc(100%+6px)] -mx-[3px] mt-2 justify-between"
                           >
                             <span>{preSaveButtonText}</span>
                             <span className="text-[10px] ml-2">{'>'}</span>
