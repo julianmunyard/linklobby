@@ -92,28 +92,33 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
     const pageProps = validated.data.props.pageProps
 
-    // Flatten nested links from groups, keeping headers as section dividers
+    // Flatten links, keeping headers/groups as section dividers
     const flattenLinks = (links: typeof pageProps.links): typeof pageProps.links => {
       const result: typeof pageProps.links = []
 
       for (const link of links) {
-        // Keep HEADER links as section dividers (they become text cards)
-        if (link.type === 'HEADER' && link.title) {
-          console.log(`[LinktreeScraper] Found header: "${link.title}"`)
-          result.push(link)
+        // Keep HEADER and GROUP links as section dividers (they become text cards)
+        // Linktree uses both 'HEADER' and 'GROUP' for section dividers
+        if ((link.type === 'HEADER' || link.type === 'GROUP') && link.title) {
+          console.log(`[LinktreeScraper] Found header/group: "${link.title}" (type: ${link.type})`)
+          result.push({
+            ...link,
+            type: 'HEADER', // Normalize to HEADER for our mapper
+            url: '', // Headers don't have URLs
+          })
           continue
         }
 
-        // If this link has nested links (it's a group), add group title as header then extract nested links
+        // If this link has nested links, extract them recursively
         if (link.links && Array.isArray(link.links) && link.links.length > 0) {
-          console.log(`[LinktreeScraper] Found group "${link.title}" with ${link.links.length} nested links`)
-          // Add the group title as a header
+          console.log(`[LinktreeScraper] Found nested group "${link.title}" with ${link.links.length} nested links`)
+          // Add the group title as a header if it has a title
           if (link.title) {
             result.push({
               ...link,
               type: 'HEADER',
-              url: '', // Headers don't have URLs
-              links: undefined, // Remove nested links from the header entry
+              url: '',
+              links: undefined,
             })
           }
           // Recursively flatten nested links
