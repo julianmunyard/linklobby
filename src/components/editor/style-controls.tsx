@@ -8,6 +8,10 @@ import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
+import type { ThemeId } from '@/types/theme'
+
+// Themes with list-based layouts where card style controls (border radius, shadows) don't apply
+const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
 
 // Available stickers for receipt theme
 const RECEIPT_STICKERS = [
@@ -31,38 +35,46 @@ export function StyleControls() {
   const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture } = useThemeStore()
   const theme = getTheme(themeId)
 
+  // Hide card style controls for list-layout themes
+  const showCardStyleControls = !LIST_LAYOUT_THEMES.includes(themeId)
+
   return (
     <div className="space-y-5">
-      {/* Border Radius */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium text-muted-foreground">Border Radius</Label>
-          <span className="text-xs text-muted-foreground">{style.borderRadius}px</span>
-        </div>
-        <Slider
-          value={[style.borderRadius]}
-          onValueChange={([value]) => setStyle('borderRadius', value)}
-          min={0}
-          max={32}
-          step={2}
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Sharp</span>
-          <span>Rounded</span>
-        </div>
-      </div>
+      {/* Border Radius and Card Shadows - only for card-layout themes */}
+      {showCardStyleControls && (
+        <>
+          {/* Border Radius */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium text-muted-foreground">Border Radius</Label>
+              <span className="text-xs text-muted-foreground">{style.borderRadius}px</span>
+            </div>
+            <Slider
+              value={[style.borderRadius]}
+              onValueChange={([value]) => setStyle('borderRadius', value)}
+              min={0}
+              max={32}
+              step={2}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Sharp</span>
+              <span>Rounded</span>
+            </div>
+          </div>
 
-      {/* Shadow Toggle */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Label className="text-sm">Card Shadows</Label>
-          <p className="text-xs text-muted-foreground">Add depth to cards</p>
-        </div>
-        <Switch
-          checked={style.shadowEnabled}
-          onCheckedChange={(checked) => setStyle('shadowEnabled', checked)}
-        />
-      </div>
+          {/* Shadow Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm">Card Shadows</Label>
+              <p className="text-xs text-muted-foreground">Add depth to cards</p>
+            </div>
+            <Switch
+              checked={style.shadowEnabled}
+              onCheckedChange={(checked) => setStyle('shadowEnabled', checked)}
+            />
+          </div>
+        </>
+      )}
 
       {/* Glass/Blur Intensity (only for themes that support it) */}
       {theme?.hasGlassEffect && (
