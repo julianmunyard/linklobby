@@ -9,12 +9,22 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 10 of 18 - Fan Tools (COMPLETE)
-Plan: 4 of 4 - Release Card Complete
-Status: **Phase 10 Complete - Fan engagement features done**
-Last activity: 2026-02-06 - Completed quick task 038 (Clean up design tab controls per theme)
+Phase: 11 of 18 - Analytics, Pixels & Legal
+Plan: 1 of 4 - Analytics Tracking Foundation Complete
+Status: **Phase 11 In Progress - Analytics tracking pipeline built**
+Last activity: 2026-02-06 - Completed 11-01-PLAN.md (Analytics Tracking Foundation)
 
-Progress: [██████████████████████░░░░░░░░░░] ~62%
+Progress: [███████████████████████░░░░░░░░░] ~64%
+
+### IN PROGRESS: Phase 11 - Analytics, Pixels & Legal
+
+Building analytics, pixel tracking, and legal compliance:
+- ✓ Plan 01: Analytics Tracking Foundation (privacy-safe visitor tracking, stats API)
+- Plan 02: TBD
+- Plan 03: TBD
+- Plan 04: TBD
+
+**Latest:** Analytics pipeline complete with page views, card clicks, and interaction tracking
 
 ### COMPLETE: Phase 10 - Fan Tools
 
@@ -86,7 +96,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | # | Phase | Status |
 |---|-------|--------|
 | 10 | Fan Tools | Complete ✓ |
-| 11 | Analytics & Pixels & Legal | - |
+| 11 | Analytics & Pixels & Legal | In Progress |
 | 12 | Audio System | - |
 | 12.5 | Billing & Subscriptions | - |
 
@@ -529,6 +539,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Linktree flat array with parent refs | quick-037 | Linktree __NEXT_DATA__ uses flat array where children have parent.id (int) pointing to GROUP.id (string) |
 | JS sorting over DB ORDER BY | quick-037 | Sort cards in JavaScript instead of PostgreSQL to avoid collation mismatches |
 | Custom layouts must sort by sortKey | quick-037 | Receipt/iPod/VCR layouts need explicit sortCardsBySortKey since they filter cards |
+| Standard Postgres over TimescaleDB | 11-01 | TimescaleDB extension may not be enabled on all instances, use standard tables with comment for future scale |
+| Daily-rotating salt for visitor hashing | 11-01 | SHA-256(IP + UA + dailySalt) for privacy-safe unique visitors, no persistent tracking |
+| Document click listener for tracking | 11-01 | Single listener with data-card-id bubbling avoids modifying every card component |
+| Always return 200 from tracking API | 11-01 | Tracking failures should never break user experience, log errors but return success |
+| RLS policies for analytics tables | 11-01 | INSERT for anon (public tracking), SELECT only by page owner (auth.uid() matches page user_id) |
 
 ## Quick Tasks
 
@@ -649,14 +664,14 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-06
-Last activity: 2026-02-06 - Completed quick-038 (Clean up design tab controls per theme)
-Stopped at: Phase 10 Complete + Quick tasks
+Last activity: 2026-02-06 - Completed 11-01-PLAN.md (Analytics Tracking Foundation)
+Stopped at: Phase 11 Plan 01 Complete
 Resume file: None
 
-**Phase 10 Complete:** All 4 plans finished. Email collection, QR codes, scheduling, and release cards.
-**Quick task 038 Complete:** Design tab intelligently hides irrelevant controls per theme.
+**Phase 11 Plan 01 Complete:** Analytics tracking pipeline with page views, card clicks, and interaction tracking.
+**Key deliverables:** Privacy-safe visitor hashing, tracking API, stats API with CTR, ClickTracker component.
 
-**Next phase:** 11 - Analytics, Pixels & Legal
+**Next:** Phase 11 Plan 02 (TBD - likely Insights Dashboard UI)
 
 **This session's work (2026-02-03):**
 
