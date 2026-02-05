@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 10 of 18 - Fan Tools (COMPLETE)
 Plan: 4 of 4 - Release Card Complete
 Status: **Phase 10 Complete - Fan engagement features done**
-Last activity: 2026-02-05 - Completed quick task 036 (Release card theme integration)
+Last activity: 2026-02-06 - Completed quick task 037 (Fix Linktree import ordering)
 
 Progress: [██████████████████████░░░░░░░░░░] ~62%
 
@@ -526,6 +526,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Album art square aspect ratio | 10-04 | Album art uses 1:1 aspect ratio for consistency with album covers
 | Countdown conversion delay | 10-04 | Card auto-converts to music card 2 seconds after countdown ends to show "Out Now!"
 | Card type conversion pattern | 10-04 | Update card_type and content in single updateCard call for atomic conversion
+| Linktree flat array with parent refs | quick-037 | Linktree __NEXT_DATA__ uses flat array where children have parent.id (int) pointing to GROUP.id (string) |
+| JS sorting over DB ORDER BY | quick-037 | Sort cards in JavaScript instead of PostgreSQL to avoid collation mismatches |
+| Custom layouts must sort by sortKey | quick-037 | Receipt/iPod/VCR layouts need explicit sortCardsBySortKey since they filter cards |
 
 ## Quick Tasks
 
@@ -565,6 +568,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 033 | iPod Classic theme with click wheel navigation | Complete | d50f247 |
 | 034 | iPod theme screen polish | Complete | 45e24b4 |
 | 036 | Release card theme integration (iPod, VCR, Receipt) | Complete | 91e9fa5, 513e3f7, 34bbeda |
+| 037 | Fix Linktree import ordering | Complete | 6028dbb, 7c5635e, dd1ab62, 3d8c516 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
