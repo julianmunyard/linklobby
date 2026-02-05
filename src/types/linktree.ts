@@ -13,7 +13,8 @@ export const LinktreeLinkSchema: z.ZodType<LinktreeLinkBase> = z.object({
   position: z.number().optional().nullable().default(0),
   thumbnail: z.string().optional().nullable(),
   locked: z.boolean().optional().nullable(), // Can be null
-  links: z.lazy(() => z.array(LinktreeLinkSchema)).optional(), // Nested links for groups
+  links: z.lazy(() => z.array(LinktreeLinkSchema)).optional(), // Nested links for groups (legacy)
+  parent: z.object({ id: z.union([z.number(), z.string()]) }).optional().nullable(), // Parent GROUP reference
 }).passthrough()
 
 // Base type for recursive schema
@@ -26,6 +27,7 @@ interface LinktreeLinkBase {
   thumbnail?: string | null
   locked?: boolean | null
   links?: LinktreeLinkBase[]
+  parent?: { id: number | string } | null  // Parent GROUP reference (id is int, GROUP.id is string)
   [key: string]: unknown
 }
 

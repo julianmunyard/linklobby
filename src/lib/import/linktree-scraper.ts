@@ -92,13 +92,41 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
     const pageProps = validated.data.props.pageProps
 
-    // Flatten links, keeping headers/groups as section dividers
-    const flattenLinks = (links: typeof pageProps.links): typeof pageProps.links => {
+    // Reconstruct proper order from Linktree's flat structure with parent references
+    // Linktree stores all items in a flat array where children have parent.id pointing to their GROUP
+    // GROUP.id is a string, but parent.id is an integer - need to convert for matching
+    const reconstructOrder = (links: typeof pageProps.links): typeof pageProps.links => {
       const result: typeof pageProps.links = []
 
+      // Build map of children by parent ID (convert to string for matching)
+      const childrenByParent: Record<string, typeof pageProps.links> = {}
       for (const link of links) {
-        // Keep HEADER and GROUP links as section dividers (they become text cards)
-        // Linktree uses both 'HEADER' and 'GROUP' for section dividers
+        const parent = link.parent as { id?: number | string } | undefined
+        if (parent && typeof parent === 'object' && 'id' in parent) {
+          const parentId = String(parent.id)
+          if (!childrenByParent[parentId]) {
+            childrenByParent[parentId] = []
+          }
+          childrenByParent[parentId].push(link)
+        }
+      }
+
+      // Sort children within each group by position
+      for (const parentId of Object.keys(childrenByParent)) {
+        childrenByParent[parentId].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+      }
+
+      // Get top-level items (no parent) and sort by position
+      const topLevel = links
+        .filter(link => {
+          const parent = link.parent as { id?: number | string } | undefined
+          return !parent || typeof parent !== 'object' || !('id' in parent)
+        })
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+
+      // Process top-level items, inserting children after each GROUP
+      for (const link of topLevel) {
+        // Handle HEADER and GROUP types as section dividers
         if ((link.type === 'HEADER' || link.type === 'GROUP') && link.title) {
           console.log(`[LinktreeScraper] Found header/group: "${link.title}" (type: ${link.type})`)
           result.push({
@@ -106,13 +134,22 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
             type: 'HEADER', // Normalize to HEADER for our mapper
             url: '', // Headers don't have URLs
           })
+
+          // Add children of this GROUP
+          const groupId = String(link.id)
+          const children = childrenByParent[groupId] || []
+          console.log(`[LinktreeScraper] Group "${link.title}" has ${children.length} children`)
+          for (const child of children) {
+            if (child.url && !child.locked) {
+              result.push(child)
+            }
+          }
           continue
         }
 
-        // If this link has nested links, extract them recursively
+        // Handle nested links array (legacy format, may still exist)
         if (link.links && Array.isArray(link.links) && link.links.length > 0) {
-          console.log(`[LinktreeScraper] Found nested group "${link.title}" with ${link.links.length} nested links`)
-          // Add the group title as a header if it has a title
+          console.log(`[LinktreeScraper] Found nested group "${link.title}" with ${link.links.length} nested links (legacy format)`)
           if (link.title) {
             result.push({
               ...link,
@@ -121,12 +158,12 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
               links: undefined,
             })
           }
-          // Recursively flatten nested links
-          result.push(...flattenLinks(link.links))
+          // Recursively process nested links
+          result.push(...reconstructOrder(link.links))
           continue
         }
 
-        // Add clickable links (has URL, not locked)
+        // Add regular clickable links (has URL, not locked)
         if (link.url && !link.locked) {
           result.push(link)
         }
@@ -135,7 +172,7 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
       return result
     }
 
-    const allLinks = flattenLinks(pageProps.links)
+    const allLinks = reconstructOrder(pageProps.links)
     const clickableLinks = allLinks.filter(l => l.url && l.type !== 'HEADER')
     const headerCount = allLinks.filter(l => l.type === 'HEADER').length
     console.log(`[LinktreeScraper] Total links: ${allLinks.length} (${clickableLinks.length} clickable, ${headerCount} headers)`)
