@@ -83,11 +83,13 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
   }
 
   // Fetch cards separately (cleaner than nested select)
+  // NOTE: We fetch without DB-level ordering and sort in JavaScript instead.
+  // This ensures the same lexicographic string comparison as the preview,
+  // avoiding collation mismatches between PostgreSQL locale sorting and JS.
   const { data: cardsData, error: cardsError } = await supabase
     .from('cards')
     .select('*')
     .eq('page_id', page.id)
-    .order('sort_key', { ascending: true })
 
   if (cardsError) {
     console.error('Error fetching cards:', cardsError)
@@ -95,7 +97,7 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
   }
 
   // Map database rows to Card type
-  const allCards: Card[] = (cardsData || []).map((row) => ({
+  const mappedCards: Card[] = (cardsData || []).map((row) => ({
     id: row.id,
     page_id: row.page_id,
     card_type: row.card_type as CardType,
@@ -110,6 +112,12 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
     created_at: row.created_at,
     updated_at: row.updated_at,
   }))
+
+  // Sort cards by sortKey using JavaScript's lexicographic comparison
+  // This matches exactly how the preview sorts cards, avoiding collation issues
+  const allCards = [...mappedCards].sort((a, b) =>
+    a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
+  )
 
   // Filter cards by visibility and schedule
   const now = new Date().toISOString()

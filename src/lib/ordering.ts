@@ -6,9 +6,19 @@ import type { Card } from '@/types/card'
  * Sort cards by their sort key using string comparison
  */
 export function sortCardsBySortKey(cards: Card[]): Card[] {
-  return [...cards].sort((a, b) =>
-    a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
-  )
+  // Debug: check for missing sortKeys
+  const missingKeys = cards.filter(c => !c.sortKey)
+  if (missingKeys.length > 0) {
+    console.warn('[sortCardsBySortKey] Cards missing sortKey:', missingKeys.map(c => c.title))
+  }
+
+  return [...cards].sort((a, b) => {
+    // Handle missing sortKeys - put them at the end
+    if (!a.sortKey && !b.sortKey) return 0
+    if (!a.sortKey) return 1
+    if (!b.sortKey) return -1
+    return a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
+  })
 }
 
 /**

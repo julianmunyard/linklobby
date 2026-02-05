@@ -93,6 +93,13 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
 
       // Update store with imported cards
       const newCards = mode === 'replace' ? data.cards : [...cards, ...data.cards]
+
+      // Debug: log sortKeys
+      console.log('[LinktreeImport] Cards from API (first 5):')
+      data.cards.slice(0, 5).forEach((c: Card, i: number) => {
+        console.log(`  ${i}: "${c.title}" sortKey="${c.sortKey}"`)
+      })
+
       setCards(newCards)
 
       // Handle detected social icons

@@ -48,14 +48,20 @@ function mapCardToDb(card: Partial<Card>) {
 export async function fetchCards(pageId: string): Promise<Card[]> {
   const supabase = await createClient()
 
+  // Fetch without DB-level ordering - we sort in JavaScript instead
+  // This ensures consistent lexicographic sorting that matches the preview
   const { data, error } = await supabase
     .from("cards")
     .select("*")
     .eq("page_id", pageId)
-    .order("sort_key", { ascending: true })
 
   if (error) throw error
-  return (data || []).map(mapDbToCard)
+
+  // Map and sort using JavaScript's lexicographic comparison
+  const cards = (data || []).map(mapDbToCard)
+  return cards.sort((a, b) =>
+    a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0
+  )
 }
 
 export async function createCard(
