@@ -115,4 +115,8 @@ export interface ThemeState {
   ipodStickers?: ReceiptSticker[]  // iPod theme: draggable stickers (reuses ReceiptSticker type)
   ipodTexture?: string  // iPod theme: texture overlay image path
   ipodFont?: string  // iPod theme: font choice ('system' or 'pix-chicago')
+  pixels?: {  // Tracking pixel configuration
+    facebookPixelId?: string  // Facebook Pixel ID for ad retargeting
+    gaMeasurementId?: string  // Google Analytics GA4 Measurement ID
+  }
 }

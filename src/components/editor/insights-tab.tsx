@@ -4,9 +4,11 @@ import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Separator } from "@/components/ui/separator"
 import { MetricCard } from "@/components/analytics/metric-card"
 import { InsightsChart } from "@/components/analytics/insights-chart"
 import { CardStatsTable } from "@/components/analytics/card-stats-table"
+import { PixelConfig } from "@/components/analytics/pixel-config"
 import { Users, Eye, Loader2, TrendingUp, Copy, Check } from "lucide-react"
 import { toast } from "sonner"
 
@@ -233,6 +235,12 @@ export function InsightsTab() {
             isLoading={isLoading}
           />
         </div>
+
+        {/* Separator */}
+        <Separator className="my-6" />
+
+        {/* Pixel Configuration */}
+        {pageInfo && <PixelConfig pageId={pageInfo.id} />}
       </div>
     </ScrollArea>
   )

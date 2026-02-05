@@ -5,6 +5,7 @@ import { PublicPageRenderer } from "@/components/public/public-page-renderer"
 import { ThemeInjector } from "@/components/public/theme-injector"
 import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOverlay } from "@/components/public/static-overlays"
 import { ClickTracker } from "@/components/public/click-tracker"
+import { PixelLoader } from "@/components/pixels/pixel-loader"
 
 interface PublicPageProps {
   params: Promise<{
@@ -50,6 +51,11 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const receiptFloatAnimation = themeSettings?.receiptFloatAnimation ?? true
   const ipodStickers = themeSettings?.ipodStickers ?? []
   const ipodTexture = themeSettings?.ipodTexture ?? '/images/metal-texture.jpeg'
+
+  // Pixel configuration
+  const pixels = themeSettings?.pixels ?? {}
+  const facebookPixelId = pixels.facebookPixelId as string | undefined
+  const gaMeasurementId = pixels.gaMeasurementId as string | undefined
 
   // Background config for overlays
   const background = themeSettings?.background ?? { type: 'solid' as const, value: '#000000' }
@@ -101,6 +107,14 @@ export default async function PublicPage({ params }: PublicPageProps) {
 
       {/* Analytics click tracking (client component) */}
       <ClickTracker
+        pageId={page.id}
+        cards={cards.map(card => ({ id: card.id }))}
+      />
+
+      {/* Pixel tracking (loads only after cookie consent) */}
+      <PixelLoader
+        facebookPixelId={facebookPixelId}
+        gaMeasurementId={gaMeasurementId}
         pageId={page.id}
         cards={cards.map(card => ({ id: card.id }))}
       />
