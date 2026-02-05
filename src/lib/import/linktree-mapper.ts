@@ -323,22 +323,22 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
 /**
  * Map Linktree links to LinkLobby cards.
  * Downloads thumbnails and returns them separately from card data.
- * Social platform links are extracted as social icons instead of cards.
+ * Social icons come ONLY from Linktree's explicit socialLinks array.
+ * All main links (including those with social URLs) become cards to preserve grouping.
  * Returns array of {card, imageBlob} objects for clean API handling.
  */
 export async function mapLinktreeToCards(
   links: LinktreeLink[],
   socialLinks?: LinktreeSocialLink[]
 ): Promise<ImportResult> {
-  // First pass: separate social links from regular links
-  const detectedSocialIcons: DetectedSocialIcon[] = []
+  // Get social icons ONLY from Linktree's explicit socialLinks array
+  // We don't extract from main links because that breaks the visual grouping
+  // (e.g., a YouTube channel under "Mac DeMarco" header should stay there)
+  const detectedSocialIcons = mapSocialLinks(socialLinks)
+
+  // Keep all main links as cards (preserves order and grouping)
   const regularLinks: LinktreeLink[] = []
 
-  // Start with socialLinks array (Linktree's explicit social icons)
-  const socialLinksFromArray = mapSocialLinks(socialLinks)
-  detectedSocialIcons.push(...socialLinksFromArray)
-
-  // Then process regular links, extracting profile URLs as social icons
   for (const link of links) {
     // Keep HEADER links as text cards (section dividers)
     if (link.type === 'HEADER') {
@@ -350,25 +350,11 @@ export async function mapLinktreeToCards(
     // Skip links without URLs
     if (!link.url) continue
 
-    const platform = detectSocialPlatform(link.url)
-    if (platform) {
-      // Check if we already have this platform
-      const alreadyHave = detectedSocialIcons.some(s => s.platform === platform)
-      if (!alreadyHave) {
-        // First occurrence becomes a social icon
-        detectedSocialIcons.push({ platform, url: link.url })
-        console.log(`[LinktreeMapper] Detected social icon from URL: ${platform} -> ${link.url}`)
-      } else {
-        // Duplicate social profile URLs become regular cards (e.g., multiple artists)
-        regularLinks.push(link)
-        console.log(`[LinktreeMapper] Keeping duplicate social link as card: "${link.title}" (${platform})`)
-      }
-    } else {
-      regularLinks.push(link)
-    }
+    // Keep ALL links as cards to preserve grouping structure
+    regularLinks.push(link)
   }
 
-  console.log(`[LinktreeMapper] Found ${detectedSocialIcons.length} social icons (${socialLinksFromArray.length} from socialLinks array), ${regularLinks.length} regular links`)
+  console.log(`[LinktreeMapper] Found ${detectedSocialIcons.length} social icons from socialLinks array, ${regularLinks.length} regular links`)
 
   // Generate layout only for regular links
   const layout = generateLayoutPatternRandomized(regularLinks.length)
@@ -430,24 +416,33 @@ export async function mapLinktreeToCards(
     })
   )
 
-  // Separate successes and failures
-  const mappedCards: MappedCardWithImage[] = []
+  // Separate successes and failures, preserving original order
+  const mappedCardsWithIndex: Array<{ index: number; card: MappedCardData; imageBlob: Blob | null }> = []
   const failures: Array<{ index: number; title: string; reason: string }> = []
 
-  for (const result of settledResults) {
+  for (let i = 0; i < settledResults.length; i++) {
+    const result = settledResults[i]
     if (result.status === 'fulfilled') {
-      const { card, imageBlob } = result.value
-      // Return structured object with card data and imageBlob separate
-      mappedCards.push({ card, imageBlob })
+      const { card, imageBlob, index } = result.value
+      // Store with original index for sorting
+      mappedCardsWithIndex.push({ index, card, imageBlob })
     } else {
-      const linkIndex = settledResults.indexOf(result)
       failures.push({
-        index: linkIndex,
-        title: regularLinks[linkIndex]?.title || 'Unknown',
+        index: i,
+        title: regularLinks[i]?.title || 'Unknown',
         reason: result.reason?.message || 'Unknown error',
       })
     }
   }
+
+  // Sort by original index to preserve Linktree order
+  mappedCardsWithIndex.sort((a, b) => a.index - b.index)
+
+  // Extract just the card data without index
+  const mappedCards: MappedCardWithImage[] = mappedCardsWithIndex.map(({ card, imageBlob }) => ({
+    card,
+    imageBlob,
+  }))
 
   return { mappedCards, detectedSocialIcons, failures }
 }
