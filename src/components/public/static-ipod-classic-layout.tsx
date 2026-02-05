@@ -434,6 +434,7 @@ export function StaticIpodClassicLayout({
                           return (
                             <div
                               key={card.id}
+                              data-card-id={card.id}
                               className="ipod-menu-item opacity-60"
                               style={{ cursor: 'default' }}
                             >
@@ -447,6 +448,7 @@ export function StaticIpodClassicLayout({
                         return (
                           <div
                             key={card.id}
+                            data-card-id={card.id}
                             className={cn(
                               'ipod-menu-item',
                               isSelected && 'selected'
@@ -483,6 +485,7 @@ export function StaticIpodClassicLayout({
                         return (
                           <div
                             key={card.id}
+                            data-card-id={card.id}
                             className={cn(
                               'ipod-menu-item',
                               isSelected && 'selected'
@@ -518,6 +521,7 @@ export function StaticIpodClassicLayout({
                         return (
                           <div
                             key={card.id}
+                            data-card-id={card.id}
                             className={cn(
                               'ipod-menu-item',
                               isSelected && 'selected'

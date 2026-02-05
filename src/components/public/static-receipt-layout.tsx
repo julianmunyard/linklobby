@@ -362,7 +362,7 @@ export function StaticReceiptLayout({
                 // Text cards render as section dividers
                 if (card.card_type === 'text') {
                   return (
-                    <div key={card.id} className="text-center py-2 font-bold text-sm">
+                    <div key={card.id} data-card-id={card.id} className="text-center py-2 font-bold text-sm">
                       *** {displayText.toUpperCase()} ***
                     </div>
                   )
@@ -371,6 +371,7 @@ export function StaticReceiptLayout({
                 return (
                   <button
                     key={card.id}
+                    data-card-id={card.id}
                     className="w-full text-left py-1 px-2 cursor-pointer focus:outline-none text-sm font-bold group"
                     onClick={() => handleCardClick(card, index)}
                   >

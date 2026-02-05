@@ -4,6 +4,7 @@ import { fetchPublicPageData } from "@/lib/supabase/public"
 import { PublicPageRenderer } from "@/components/public/public-page-renderer"
 import { ThemeInjector } from "@/components/public/theme-injector"
 import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOverlay } from "@/components/public/static-overlays"
+import { ClickTracker } from "@/components/public/click-tracker"
 
 interface PublicPageProps {
   params: Promise<{
@@ -66,6 +67,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
 
       {/* Render public page */}
       <PublicPageRenderer
+        username={username}
         background={background}
         themeId={themeId}
         displayName={profile.display_name}
@@ -95,6 +97,12 @@ export default async function PublicPage({ params }: PublicPageProps) {
         ipodStickers={ipodStickers}
         ipodTexture={ipodTexture}
         cards={cards}
+      />
+
+      {/* Analytics click tracking (client component) */}
+      <ClickTracker
+        pageId={page.id}
+        cards={cards.map(card => ({ id: card.id }))}
       />
 
       {/* Noise overlay (if enabled) */}

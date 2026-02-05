@@ -63,6 +63,7 @@ export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
         return (
           <div
             key={card.id}
+            data-card-id={card.id}
             className={cn(
               "transition-all",
               widthClass,

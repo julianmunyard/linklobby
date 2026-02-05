@@ -11,6 +11,7 @@ import * as SiIcons from 'react-icons/si'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 interface StaticVcrMenuLayoutProps {
+  username: string
   title: string
   cards: Card[]
   headingSize?: number
@@ -295,6 +296,7 @@ export function StaticVcrMenuLayout({
             return (
               <button
                 key={card.id}
+                data-card-id={card.id}
                 className={cn(
                   "px-4 py-2 text-center uppercase tracking-wider cursor-pointer",
                   "focus:outline-none max-w-full",
