@@ -352,11 +352,16 @@ export async function mapLinktreeToCards(
 
     const platform = detectSocialPlatform(link.url)
     if (platform) {
-      // Check if we already have this platform (avoid duplicates)
+      // Check if we already have this platform
       const alreadyHave = detectedSocialIcons.some(s => s.platform === platform)
       if (!alreadyHave) {
+        // First occurrence becomes a social icon
         detectedSocialIcons.push({ platform, url: link.url })
         console.log(`[LinktreeMapper] Detected social icon from URL: ${platform} -> ${link.url}`)
+      } else {
+        // Duplicate social profile URLs become regular cards (e.g., multiple artists)
+        regularLinks.push(link)
+        console.log(`[LinktreeMapper] Keeping duplicate social link as card: "${link.title}" (${platform})`)
       }
     } else {
       regularLinks.push(link)
