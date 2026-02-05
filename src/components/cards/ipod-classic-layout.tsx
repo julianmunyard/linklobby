@@ -698,7 +698,7 @@ export function IpodClassicLayout({
                           {/* Countdown with label */}
                           {releaseDate && (
                             <div className="mt-3 text-center">
-                              <div className="text-[8px] uppercase tracking-wider opacity-60 mb-1">Drops In</div>
+                              <div className="text-[8px] uppercase tracking-wider mb-1">Drops In</div>
                               <Countdown
                                 date={new Date(releaseDate)}
                                 renderer={ipodCountdownRenderer}
