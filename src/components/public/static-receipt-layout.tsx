@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
@@ -87,6 +88,7 @@ function isSocialUrl(url: string | null): boolean {
 }
 
 interface StaticReceiptLayoutProps {
+  username: string
   title: string
   cards: Card[]
   headingSize?: number
@@ -106,6 +108,7 @@ interface StaticReceiptLayoutProps {
  * Client component for interactivity (navigation, photo dithering)
  */
 export function StaticReceiptLayout({
+  username,
   title,
   cards,
   headingSize = 2.0,
@@ -566,6 +569,28 @@ export function StaticReceiptLayout({
             />
           ))}
         </div>
+
+        {/* Legal Footer */}
+        <footer className="mt-8 pt-6 text-center text-xs text-black" style={{ opacity: 0.4 }}>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href={`/privacy?username=${username}`}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link
+              href="/terms"
+              className="hover:opacity-80 transition-opacity"
+            >
+              Terms of Service
+            </Link>
+          </div>
+          <div className="mt-2">
+            Powered by LinkLobby
+          </div>
+        </footer>
       </div>
     </div>
   )

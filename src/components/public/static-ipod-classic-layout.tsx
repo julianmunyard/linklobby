@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { BackgroundConfig, ReceiptSticker } from '@/types/theme'
@@ -12,6 +13,7 @@ import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 interface StaticIpodClassicLayoutProps {
+  username: string
   title: string
   cards: Card[]
   headingSize?: number
@@ -31,6 +33,7 @@ interface StaticIpodClassicLayoutProps {
  * Client component for interactivity (navigation)
  */
 export function StaticIpodClassicLayout({
+  username,
   title,
   cards,
   headingSize = 1.0,
@@ -785,6 +788,28 @@ export function StaticIpodClassicLayout({
             />
           ))}
         </div>
+
+        {/* Legal Footer - outside iPod device */}
+        <footer className="mt-12 pt-6 text-center text-xs text-white" style={{ opacity: 0.5 }}>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href={`/privacy?username=${username}`}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link
+              href="/terms"
+              className="hover:opacity-80 transition-opacity"
+            >
+              Terms of Service
+            </Link>
+          </div>
+          <div className="mt-2">
+            Powered by LinkLobby
+          </div>
+        </footer>
 
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { SocialIcon } from '@/types/profile'
@@ -25,6 +26,7 @@ interface StaticVcrMenuLayoutProps {
  * Client component for interactivity (flashing, touch nav)
  */
 export function StaticVcrMenuLayout({
+  username,
   title,
   cards,
   headingSize = 1.8,
@@ -316,6 +318,28 @@ export function StaticVcrMenuLayout({
             )
           })}
         </div>
+
+        {/* Legal Footer */}
+        <footer className="mt-12 pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
+          <div className="flex items-center justify-center gap-4" style={{ color: 'var(--theme-text)' }}>
+            <Link
+              href={`/privacy?username=${username}`}
+              className="hover:opacity-80 transition-opacity"
+            >
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link
+              href="/terms"
+              className="hover:opacity-80 transition-opacity"
+            >
+              Terms of Service
+            </Link>
+          </div>
+          <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
+            Powered by LinkLobby
+          </div>
+        </footer>
       </div>
     </div>
   )

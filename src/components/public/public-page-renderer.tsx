@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { StaticProfileHeader } from "./static-profile-header"
 import { StaticFlowGrid } from "./static-flow-grid"
 import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
@@ -17,8 +18,37 @@ const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; 
   },
 }
 
+/**
+ * LegalFooter - Footer with privacy policy and terms of service links
+ */
+function LegalFooter({ username }: { username: string }) {
+  return (
+    <footer className="mt-12 pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
+      <div className="flex items-center justify-center gap-4 text-theme-text">
+        <Link
+          href={`/privacy?username=${username}`}
+          className="hover:opacity-80 transition-opacity"
+        >
+          Privacy Policy
+        </Link>
+        <span>•</span>
+        <Link
+          href="/terms"
+          className="hover:opacity-80 transition-opacity"
+        >
+          Terms of Service
+        </Link>
+      </div>
+      <div className="mt-2 text-theme-text">
+        Powered by LinkLobby
+      </div>
+    </footer>
+  )
+}
+
 interface PublicPageRendererProps {
   // Profile data
+  username: string
   displayName: string | null
   bio: string | null
   avatarUrl: string | null
@@ -68,6 +98,7 @@ interface PublicPageRendererProps {
  * - No client-side interactivity
  */
 export function PublicPageRenderer({
+  username,
   displayName,
   bio,
   avatarUrl,
@@ -105,6 +136,7 @@ export function PublicPageRenderer({
 
     return (
       <StaticVcrMenuLayout
+        username={username}
         title={displayName || 'MENU'}
         cards={cards}
         headingSize={headingSize}
@@ -122,6 +154,7 @@ export function PublicPageRenderer({
 
     return (
       <StaticIpodClassicLayout
+        username={username}
         title={displayName || 'links'}
         cards={cards}
         headingSize={headingSize}
@@ -145,6 +178,7 @@ export function PublicPageRenderer({
 
     return (
       <StaticReceiptLayout
+        username={username}
         title={displayName || 'RECEIPT'}
         cards={cards}
         headingSize={headingSize}
@@ -217,6 +251,9 @@ export function PublicPageRenderer({
           <div className="mt-6">
             <StaticFlowGrid cards={cards} />
           </div>
+
+          {/* Legal Footer */}
+          <LegalFooter username={username} />
         </div>
       </div>
     )
@@ -250,6 +287,9 @@ export function PublicPageRenderer({
       <div className="mt-6">
         <StaticFlowGrid cards={cards} />
       </div>
+
+      {/* Legal Footer */}
+      <LegalFooter username={username} />
     </div>
   )
 }
