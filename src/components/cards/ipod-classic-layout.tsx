@@ -703,16 +703,17 @@ export function IpodClassicLayout({
                           </div>
                         )}
 
-                        {/* Pre-save button */}
+                        {/* Pre-save button - styled like selected menu item */}
                         {preSaveUrl && (
                           <a
                             href={preSaveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[10px] text-center mt-2 px-3 py-1 bg-black/20 rounded text-black font-medium hover:bg-black/30"
+                            className="ipod-menu-item selected text-[11px] w-full mt-2 justify-between"
                             onClick={(e) => !isPreview && e.preventDefault()}
                           >
-                            {preSaveButtonText}
+                            <span>{preSaveButtonText}</span>
+                            <span className="text-[10px] ml-2">{'>'}</span>
                           </a>
                         )}
                       </div>
