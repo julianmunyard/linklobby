@@ -465,10 +465,14 @@ export function ReceiptLayout({
                 <div key={card.id}>
                   <div className="receipt-divider">{'-'.repeat(60)}</div>
                   <div className="my-4 text-center">
-                    <div className="font-bold mb-2">** UPCOMING RELEASE **</div>
+                    {/* Header changes based on release state */}
+                    <div className="font-bold mb-2">
+                      {isReleased && afterCountdownAction === 'custom' ? '** NEW RELEASE **' : '** UPCOMING RELEASE **'}
+                    </div>
                     {releaseTitle && <div className="text-xs">ALBUM: {releaseTitle.toUpperCase()}</div>}
                     {artistName && <div className="text-xs">ARTIST: {artistName.toUpperCase()}</div>}
 
+                    {/* Countdown (only before release) */}
                     {!isReleased && releaseDate && (
                       <div className="my-2">
                         <div className="text-xs mb-1">DROPS IN:</div>
@@ -484,6 +488,7 @@ export function ReceiptLayout({
                       </div>
                     )}
 
+                    {/* Pre-save button (before release) */}
                     {!isReleased && preSaveUrl && (
                       <button
                         className="w-full text-left py-1 px-2 group"
@@ -494,19 +499,20 @@ export function ReceiptLayout({
                         }}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="group-hover:underline">[{preSaveButtonText.toUpperCase()}</span>
+                          <span className="group-hover:underline">({preSaveButtonText.toUpperCase()}</span>
                           <span className="receipt-dots flex-shrink-0 mx-2">
                             {'.' .repeat(15)}
                           </span>
-                          <span>&gt;]</span>
+                          <span>&gt;)</span>
                         </div>
                       </button>
                     )}
 
+                    {/* Custom message link (after release) */}
                     {isReleased && afterCountdownAction === 'custom' && (
                       afterCountdownUrl ? (
                         <button
-                          className="w-full text-left py-1 px-2 group"
+                          className="w-full text-left py-1 px-2 group mt-2"
                           onClick={() => {
                             if (!isPreview) {
                               window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer')
@@ -514,15 +520,15 @@ export function ReceiptLayout({
                           }}
                         >
                           <div className="flex justify-between items-center">
-                            <span className="group-hover:underline">[{(afterCountdownText || 'OUT NOW').toUpperCase()}</span>
+                            <span className="group-hover:underline">({(afterCountdownText || 'LISTEN NOW').toUpperCase()}</span>
                             <span className="receipt-dots flex-shrink-0 mx-2">
-                              {'.' .repeat(10)}
+                              {'.' .repeat(15)}
                             </span>
-                            <span>&gt;]</span>
+                            <span>&gt;)</span>
                           </div>
                         </button>
                       ) : (
-                        <div className="font-bold text-sm mt-2">{(afterCountdownText || 'OUT NOW').toUpperCase()}</div>
+                        <div className="font-bold text-sm mt-2">({(afterCountdownText || 'OUT NOW').toUpperCase()})</div>
                       )
                     )}
                   </div>
