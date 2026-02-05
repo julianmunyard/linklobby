@@ -10,21 +10,21 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 11 of 18 - Analytics, Pixels & Legal
-Plan: 1 of 4 - Analytics Tracking Foundation Complete
-Status: **Phase 11 In Progress - Analytics tracking pipeline built**
-Last activity: 2026-02-06 - Completed 11-01-PLAN.md (Analytics Tracking Foundation)
+Plan: 2 of 4 - Legal Compliance Foundation Complete
+Status: **Phase 11 In Progress - Cookie consent and legal pages built**
+Last activity: 2026-02-05 - Completed 11-02-PLAN.md (Legal Compliance Foundation)
 
-Progress: [███████████████████████░░░░░░░░░] ~64%
+Progress: [████████████████████████░░░░░░░] ~65%
 
 ### IN PROGRESS: Phase 11 - Analytics, Pixels & Legal
 
 Building analytics, pixel tracking, and legal compliance:
 - ✓ Plan 01: Analytics Tracking Foundation (privacy-safe visitor tracking, stats API)
-- Plan 02: TBD
+- ✓ Plan 02: Legal Compliance Foundation (cookie consent, privacy policy, terms of service)
 - Plan 03: TBD
 - Plan 04: TBD
 
-**Latest:** Analytics pipeline complete with page views, card clicks, and interaction tracking
+**Latest:** GDPR/CCPA compliance complete with cookie consent banner, auto-generated privacy policy, and terms of service
 
 ### COMPLETE: Phase 10 - Fan Tools
 
@@ -544,6 +544,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Document click listener for tracking | 11-01 | Single listener with data-card-id bubbling avoids modifying every card component |
 | Always return 200 from tracking API | 11-01 | Tracking failures should never break user experience, log errors but return success |
 | RLS policies for analytics tables | 11-01 | INSERT for anon (public tracking), SELECT only by page owner (auth.uid() matches page user_id) |
+| Cookie banner after 100px scroll | 11-02 | Avoids obstructing page on initial load while ensuring consent collected before significant interaction |
+| Auto-generated privacy policy | 11-02 | generatePrivacyPolicy() produces different content based on enabled features (pixels, email) for accurate compliance |
+| Equal prominence buttons | 11-02 | Accept/reject buttons have same visual weight (size, border) to comply with GDPR requirements |
+| Legal footer on all layouts | 11-02 | Footer added to all theme layouts (default, VCR, iPod, Receipt) for consistent compliance |
 
 ## Quick Tasks
 
@@ -663,15 +667,15 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-06
-Last activity: 2026-02-06 - Completed 11-01-PLAN.md (Analytics Tracking Foundation)
-Stopped at: Phase 11 Plan 01 Complete
+Last session: 2026-02-05
+Last activity: 2026-02-05 - Completed 11-02-PLAN.md (Legal Compliance Foundation)
+Stopped at: Phase 11 Plan 02 Complete
 Resume file: None
 
-**Phase 11 Plan 01 Complete:** Analytics tracking pipeline with page views, card clicks, and interaction tracking.
-**Key deliverables:** Privacy-safe visitor hashing, tracking API, stats API with CTR, ClickTracker component.
+**Phase 11 Plan 02 Complete:** GDPR/CCPA-compliant cookie consent banner, auto-generated privacy policy, and terms of service.
+**Key deliverables:** CookieConsentBanner component, privacy policy generator, legal pages, footer links on all layouts.
 
-**Next:** Phase 11 Plan 02 (TBD - likely Insights Dashboard UI)
+**Next:** Phase 11 Plan 03 (TBD - likely Facebook Pixel integration)
 
 **This session's work (2026-02-03):**
 
