@@ -549,6 +549,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Auto-generated privacy policy | 11-02 | generatePrivacyPolicy() produces different content based on enabled features (pixels, email) for accurate compliance |
 | Equal prominence buttons | 11-02 | Accept/reject buttons have same visual weight (size, border) to comply with GDPR requirements |
 | Legal footer on all layouts | 11-02 | Footer added to all theme layouts (default, VCR, iPod, Receipt) for consistent compliance |
+| Recharts for analytics visualization | 11-03 | React-native integration, good defaults for dashboards, area charts with gradient fills |
+| Unique Visitors as hero metric | 11-03 | Primary metric representing growth and reach, Total Views as secondary context |
+| Top 3 card highlighting | 11-03 | Gold/silver/bronze borders make top performers immediately recognizable in leaderboard |
 | JSZip for data export | 11-05 | Client-side ZIP generation reduces server load, no temporary file storage needed |
 | 30-day deletion grace period | 11-05 | Industry best practice (GitHub, Google) prevents permanent accidental data loss |
 | Username confirmation for deletion | 11-05 | Prevents accidental deletion - user must type exact username in AlertDialog |
@@ -674,12 +677,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-06
-Last activity: 2026-02-06 - Completed 11-05-PLAN.md (GDPR Data Export & Account Deletion)
-Stopped at: Phase 11 Plan 05 Complete
+Last activity: 2026-02-06 - Completed 11-03-PLAN.md (Insights Dashboard)
+Stopped at: Phase 11 Plan 03 Complete
 Resume file: None
 
-**Phase 11 Plan 05 Complete:** GDPR-compliant data export as ZIP download, account deletion with 30-day recovery grace period.
-**Key deliverables:** exportUserData() library, /api/legal/export-data and /api/legal/delete-account endpoints, DataPrivacySection in Settings tab, SQL migration for deletion columns.
+**Phase 11 Plan 03 Complete:** Insights tab in editor with Recharts area chart, unique visitors hero metric, per-card CTR leaderboard, and time period filtering.
+**Key deliverables:** MetricCard, InsightsChart, CardStatsTable components, InsightsTab wired into editor panel, time filter (7d, 30d, all time).
 
 **Next:** Phase 11 Plan 04 (TBD - likely pixel tracking integration) or move to Phase 12
 
