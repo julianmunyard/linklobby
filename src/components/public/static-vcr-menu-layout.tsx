@@ -1,11 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import type { Card } from '@/types/card'
+import type { Card, ReleaseCardContent } from '@/types/card'
+import { isReleaseContent } from '@/types/card'
 import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import * as SiIcons from 'react-icons/si'
+import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 interface StaticVcrMenuLayoutProps {
   title: string
@@ -29,11 +31,24 @@ export function StaticVcrMenuLayout({
   socialIcons = []
 }: StaticVcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
+  const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef<number>(0)
 
-  // Filter to only visible cards, excluding social-icons card type
-  const visibleCards = cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons')
+  // Filter release cards separately
+  const releaseCards = cards.filter(c => {
+    if (c.is_visible === false || c.card_type !== 'release' || !isReleaseContent(c.content)) return false
+    const content = c.content as ReleaseCardContent
+    if (completedReleases.has(c.id)) return false
+    if (content.releaseDate && content.afterCountdownAction === 'hide') {
+      const isReleased = new Date(content.releaseDate) <= new Date()
+      if (isReleased) return false
+    }
+    return true
+  })
+
+  // Filter to only visible cards, excluding social-icons and release card types
+  const visibleCards = cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
 
   // Font sizes
   const titleFontSize = `${headingSize}rem`
@@ -154,6 +169,98 @@ export function StaticVcrMenuLayout({
             })}
           </div>
         )}
+
+        {/* Release OSD - VCR style overlay */}
+        {releaseCards.map((card) => {
+          if (!isReleaseContent(card.content)) return null
+          const content = card.content as ReleaseCardContent
+          const {
+            releaseTitle,
+            releaseDate,
+            preSaveUrl,
+            preSaveButtonText = 'PRE-SAVE',
+            afterCountdownAction = 'custom',
+            afterCountdownText = 'OUT NOW',
+            afterCountdownUrl
+          } = content
+
+          const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+
+          const vcrCountdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
+            if (completed || isReleased) {
+              if (afterCountdownAction === 'hide' && !completedReleases.has(card.id)) {
+                setCompletedReleases(prev => new Set(prev).add(card.id))
+              }
+              return null
+            }
+            return (
+              <div className="text-lg font-mono tracking-wider tabular-nums" style={{ color: 'var(--theme-text)' }}>
+                DROPS IN {days > 0 ? `${days}D : ` : ''}{String(hours).padStart(2, '0')}H : {String(minutes).padStart(2, '0')}M : {String(seconds).padStart(2, '0')}S
+              </div>
+            )
+          }
+
+          return (
+            <div key={card.id} className="mb-6 text-center w-full max-w-2xl">
+              <div
+                className="text-xl font-bold tracking-widest vcr-blink mb-2"
+                style={{ color: 'var(--theme-text)' }}
+              >
+                -- {(releaseTitle || 'UPCOMING RELEASE').toUpperCase()} --
+              </div>
+
+              {!isReleased && releaseDate && (
+                <div className="my-3">
+                  <Countdown
+                    date={new Date(releaseDate)}
+                    renderer={vcrCountdownRenderer}
+                    onComplete={() => {
+                      if (afterCountdownAction === 'hide') {
+                        setCompletedReleases(prev => new Set(prev).add(card.id))
+                      }
+                    }}
+                  />
+                </div>
+              )}
+
+              {!isReleased && preSaveUrl && (
+                <a
+                  href={preSaveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                  style={{
+                    color: 'var(--theme-text)',
+                    borderColor: 'var(--theme-text)'
+                  }}
+                >
+                  [{preSaveButtonText.toUpperCase()}]
+                </a>
+              )}
+
+              {isReleased && afterCountdownAction === 'custom' && (
+                afterCountdownUrl ? (
+                  <a
+                    href={afterCountdownUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-xl font-bold tracking-widest px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                    style={{
+                      color: 'var(--theme-text)',
+                      borderColor: 'var(--theme-text)'
+                    }}
+                  >
+                    [{(afterCountdownText || 'OUT NOW').toUpperCase()}]
+                  </a>
+                ) : (
+                  <div className="text-xl font-bold tracking-widest" style={{ color: 'var(--theme-text)' }}>
+                    {(afterCountdownText || 'OUT NOW').toUpperCase()}
+                  </div>
+                )
+              )}
+            </div>
+          )
+        })}
 
         {/* Links list */}
         <div className="flex flex-col items-center gap-2 w-full max-w-full">
