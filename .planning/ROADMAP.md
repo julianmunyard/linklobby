@@ -398,7 +398,14 @@ Plans:
 12. **Account deletion** - user can delete account and all data
 13. Cookie preferences saved per visitor
 
-**Plans:** 4 plans
+**Plans:** 5 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Analytics database schema, tracking API, and public page click tracking
+- [ ] 11-02-PLAN.md — Cookie consent banner, privacy policy generator, and terms of service
+- [ ] 11-03-PLAN.md — Insights tab dashboard with charts, metrics, and card leaderboard
+- [ ] 11-04-PLAN.md — Facebook Pixel, GA4 integration, Conversions API, and pixel config UI
+- [ ] 11-05-PLAN.md — GDPR data export (ZIP) and account deletion with 30-day grace period
 
 ---
 
