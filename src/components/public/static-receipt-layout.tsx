@@ -121,7 +121,13 @@ export function StaticReceiptLayout({
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [ditheredPhoto, setDitheredPhoto] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Only render countdown after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Filter release cards separately
   const releaseCards = cards.filter(c => {
@@ -417,8 +423,8 @@ export function StaticReceiptLayout({
                       </>
                     )}
 
-                    {/* Countdown (only before release) */}
-                    {!isReleased && releaseDate && (
+                    {/* Countdown (only before release, after mount to avoid hydration mismatch) */}
+                    {!isReleased && releaseDate && isMounted && (
                       <div className="my-2">
                         <div className="text-xs mb-1">DROPS IN:</div>
                         <Countdown

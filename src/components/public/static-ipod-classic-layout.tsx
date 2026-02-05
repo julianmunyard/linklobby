@@ -45,9 +45,15 @@ export function StaticIpodClassicLayout({
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentScreen, setCurrentScreen] = useState<'main' | 'socials' | 'release'>('main')
   const [activeReleaseIndex, setActiveReleaseIndex] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
+
+  // Only render countdown after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Wheel rotation tracking
   const lastAngleRef = useRef<number | null>(null)
@@ -617,7 +623,7 @@ export function StaticIpodClassicLayout({
                           </div>
                         )}
 
-                        {releaseDate && (
+                        {releaseDate && isMounted && (
                           <div className="mt-1 text-black">
                             <Countdown
                               date={new Date(releaseDate)}

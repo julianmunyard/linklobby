@@ -32,8 +32,14 @@ export function StaticVcrMenuLayout({
 }: StaticVcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
+  const [isMounted, setIsMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef<number>(0)
+
+  // Only render countdown after mount to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Filter release cards separately
   const releaseCards = cards.filter(c => {
@@ -209,7 +215,7 @@ export function StaticVcrMenuLayout({
                 -- {(releaseTitle || 'UPCOMING RELEASE').toUpperCase()} --
               </div>
 
-              {!isReleased && releaseDate && (
+              {!isReleased && releaseDate && isMounted && (
                 <div className="my-3">
                   <Countdown
                     date={new Date(releaseDate)}
