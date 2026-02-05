@@ -62,19 +62,28 @@ export function IpodClassicLayout({
   // Filter to only visible cards
   const visibleCards = cards.filter(c => c.is_visible !== false)
 
-  // Filter release cards separately
+  // Filter release cards - only show unreleased ones (they navigate to release screen)
   const releaseCards = visibleCards.filter(c => {
     if (c.card_type !== 'release' || !isReleaseContent(c.content)) return false
     const content = c.content as ReleaseCardContent
-    // Hide releases that have passed and have hide action
-    if (content.releaseDate && content.afterCountdownAction === 'hide') {
-      const isReleased = new Date(content.releaseDate) <= new Date()
-      if (isReleased) return false
-    }
+    if (!content.releaseDate) return true // No date = show as release
+    const isReleased = new Date(content.releaseDate) <= new Date()
+    // If released, don't show in releaseCards (will show as link in main menu if custom action)
+    if (isReleased) return false
     return true
   })
 
-  // Filter releases from main menu
+  // Completed releases with 'custom' action - show as regular links in main menu
+  const completedReleaseLinks = visibleCards.filter(c => {
+    if (c.card_type !== 'release' || !isReleaseContent(c.content)) return false
+    const content = c.content as ReleaseCardContent
+    if (!content.releaseDate) return false
+    const isReleased = new Date(content.releaseDate) <= new Date()
+    // Only include if released AND has custom action (not hide)
+    return isReleased && content.afterCountdownAction !== 'hide'
+  })
+
+  // Filter releases from main menu (non-release cards only)
   const menuCards = visibleCards.filter(c => c.card_type !== 'release')
 
   // Get current menu items based on screen
@@ -122,7 +131,7 @@ export function IpodClassicLayout({
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     let menuLength = 0
     if (currentScreen === 'main') {
-      menuLength = menuCards.length + releaseCards.length
+      menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
     } else if (currentScreen === 'release') {
@@ -146,17 +155,30 @@ export function IpodClassicLayout({
       case 'Enter':
         e.preventDefault()
         if (currentScreen === 'main') {
-          // Check if it's a release card
-          if (selectedIndex >= menuCards.length) {
-            const releaseIndex = selectedIndex - menuCards.length
-            goToRelease(releaseIndex)
-          } else {
+          if (selectedIndex < menuCards.length) {
+            // Regular menu card
             const card = menuCards[selectedIndex]
             if (card?.card_type === 'social-icons') {
               goToSocials()
             } else if (card) {
               activateLink(card)
             }
+          } else if (selectedIndex < menuCards.length + completedReleaseLinks.length) {
+            // Completed release - open URL
+            const linkIndex = selectedIndex - menuCards.length
+            const card = completedReleaseLinks[linkIndex]
+            if (card && isReleaseContent(card.content)) {
+              const content = card.content as ReleaseCardContent
+              if (content.afterCountdownUrl && isPreview) {
+                window.open(content.afterCountdownUrl, '_blank', 'noopener,noreferrer')
+              } else if (onCardClick) {
+                onCardClick(card.id)
+              }
+            }
+          } else {
+            // Unreleased release - navigate to release screen
+            const releaseIndex = selectedIndex - menuCards.length - completedReleaseLinks.length
+            goToRelease(releaseIndex)
           }
         } else {
           // On socials screen, open the URL
@@ -174,7 +196,7 @@ export function IpodClassicLayout({
         }
         break
     }
-  }, [selectedIndex, menuCards, releaseCards, socialIcons, currentScreen, activateLink])
+  }, [selectedIndex, menuCards, completedReleaseLinks, releaseCards, socialIcons, currentScreen, activateLink, isPreview, onCardClick])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -185,7 +207,7 @@ export function IpodClassicLayout({
   const handleWheelClick = (direction: 'up' | 'down' | 'center' | 'menu') => {
     let menuLength = 0
     if (currentScreen === 'main') {
-      menuLength = menuCards.length + releaseCards.length
+      menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
     } else if (currentScreen === 'release') {
@@ -205,17 +227,30 @@ export function IpodClassicLayout({
         break
       case 'center':
         if (currentScreen === 'main') {
-          // Check if it's a release card
-          if (selectedIndex >= menuCards.length) {
-            const releaseIndex = selectedIndex - menuCards.length
-            goToRelease(releaseIndex)
-          } else {
+          if (selectedIndex < menuCards.length) {
+            // Regular menu card
             const card = menuCards[selectedIndex]
             if (card?.card_type === 'social-icons') {
               goToSocials()
             } else if (card) {
               activateLink(card)
             }
+          } else if (selectedIndex < menuCards.length + completedReleaseLinks.length) {
+            // Completed release - open URL
+            const linkIndex = selectedIndex - menuCards.length
+            const card = completedReleaseLinks[linkIndex]
+            if (card && isReleaseContent(card.content)) {
+              const content = card.content as ReleaseCardContent
+              if (content.afterCountdownUrl && isPreview) {
+                window.open(content.afterCountdownUrl, '_blank', 'noopener,noreferrer')
+              } else if (onCardClick) {
+                onCardClick(card.id)
+              }
+            }
+          } else {
+            // Unreleased release - navigate to release screen
+            const releaseIndex = selectedIndex - menuCards.length - completedReleaseLinks.length
+            goToRelease(releaseIndex)
           }
         } else {
           // On socials screen, open the URL
@@ -253,7 +288,7 @@ export function IpodClassicLayout({
 
     let menuLength = 0
     if (currentScreen === 'main') {
-      menuLength = menuCards.length + releaseCards.length
+      menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
     }
@@ -290,7 +325,7 @@ export function IpodClassicLayout({
     }
 
     lastAngleRef.current = currentAngle
-  }, [menuCards.length, releaseCards.length, socialIcons.length, currentScreen])
+  }, [menuCards.length, completedReleaseLinks.length, releaseCards.length, socialIcons.length, currentScreen])
 
   // Mouse handlers for wheel
   const handleWheelMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -484,8 +519,47 @@ export function IpodClassicLayout({
                           </div>
                         )
                       })}
+                      {/* Completed releases show as regular links */}
+                      {completedReleaseLinks.map((card, linkIndex) => {
+                        const index = menuCards.length + linkIndex
+                        const isSelected = selectedIndex === index
+                        const content = card.content as ReleaseCardContent
+                        const displayText = content.afterCountdownText || 'OUT NOW'
+                        const isLongText = displayText.length > 25
+
+                        return (
+                          <div
+                            key={card.id}
+                            className={cn(
+                              'ipod-menu-item',
+                              isSelected && 'selected'
+                            )}
+                            onClick={() => {
+                              if (selectedIndex === index) {
+                                // Already selected - open URL
+                                const url = content.afterCountdownUrl
+                                if (url && isPreview) {
+                                  window.open(url, '_blank', 'noopener,noreferrer')
+                                } else if (onCardClick) {
+                                  onCardClick(card.id)
+                                }
+                              } else {
+                                setSelectedIndex(index)
+                              }
+                            }}
+                          >
+                            <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
+                              <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                                {displayText}
+                              </span>
+                            </span>
+                            <span className="text-[11px] ml-2">{'>'}</span>
+                          </div>
+                        )
+                      })}
+                      {/* Unreleased releases - navigate to release screen */}
                       {releaseCards.map((card, releaseIndex) => {
-                        const index = menuCards.length + releaseIndex
+                        const index = menuCards.length + completedReleaseLinks.length + releaseIndex
                         const isSelected = selectedIndex === index
                         const content = card.content as ReleaseCardContent
                         const displayText = content.releaseTitle || 'Upcoming Release'
@@ -596,36 +670,32 @@ export function IpodClassicLayout({
                     }
 
                     return (
-                      <div className="flex flex-col items-center justify-center h-full p-3 gap-2">
+                      <div className="flex flex-col items-center justify-center h-full p-3 gap-2 text-black">
                         {/* Album art - small dithered image */}
                         {albumArtUrl && (
                           <img
                             src={albumArtUrl}
                             alt={releaseTitle || 'Release'}
                             className="w-20 h-20 object-cover"
-                            style={{ imageRendering: 'pixelated', filter: 'contrast(1.2)' }}
+                            style={{ imageRendering: 'pixelated', filter: 'contrast(1.2) grayscale(1)' }}
                           />
                         )}
 
                         {/* Release title and artist */}
-                        {!isReleased && (
-                          <>
-                            {releaseTitle && (
-                              <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2">
-                                {releaseTitle.length > 30 ? releaseTitle.substring(0, 27) + '...' : releaseTitle}
-                              </div>
-                            )}
-                            {artistName && (
-                              <div className="text-[10px] text-center opacity-80 max-w-full px-2">
-                                {artistName.length > 30 ? artistName.substring(0, 27) + '...' : artistName}
-                              </div>
-                            )}
-                          </>
+                        {releaseTitle && (
+                          <div className="text-[11px] font-bold text-center leading-tight max-w-full px-2 text-black">
+                            {releaseTitle.length > 30 ? releaseTitle.substring(0, 27) + '...' : releaseTitle}
+                          </div>
+                        )}
+                        {artistName && (
+                          <div className="text-[10px] text-center max-w-full px-2 text-black/70">
+                            {artistName.length > 30 ? artistName.substring(0, 27) + '...' : artistName}
+                          </div>
                         )}
 
                         {/* Countdown */}
-                        {releaseDate && !isReleased && (
-                          <div className="mt-1">
+                        {releaseDate && (
+                          <div className="mt-1 text-black">
                             <Countdown
                               date={new Date(releaseDate)}
                               renderer={ipodCountdownRenderer}
@@ -633,18 +703,17 @@ export function IpodClassicLayout({
                           </div>
                         )}
 
-                        {/* Pre-save button (before release) */}
-                        {!isReleased && preSaveUrl && (
-                          <div className="text-[10px] text-center mt-2 px-2 py-1 bg-black/10 rounded">
+                        {/* Pre-save button */}
+                        {preSaveUrl && (
+                          <a
+                            href={preSaveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-center mt-2 px-3 py-1 bg-black/20 rounded text-black font-medium hover:bg-black/30"
+                            onClick={(e) => !isPreview && e.preventDefault()}
+                          >
                             {preSaveButtonText}
-                          </div>
-                        )}
-
-                        {/* After countdown action */}
-                        {isReleased && afterCountdownAction === 'custom' && (
-                          <div className="text-[11px] font-bold text-center mt-2">
-                            {afterCountdownText}
-                          </div>
+                          </a>
                         )}
                       </div>
                     )
