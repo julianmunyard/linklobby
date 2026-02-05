@@ -6,6 +6,7 @@ import { isReleaseContent } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
 import type { ReceiptSticker } from '@/types/theme'
 import { cn } from '@/lib/utils'
+import { sortCardsBySortKey } from '@/lib/ordering'
 import { Globe, Mail, Music } from 'lucide-react'
 import {
   SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiX,
@@ -142,11 +143,14 @@ export function StaticReceiptLayout({
   })
 
   // Filter to only visible cards, exclude social-icons, release cards, and social platform URLs (shown as icons)
-  const visibleCards = cards.filter(c =>
-    c.is_visible !== false &&
-    c.card_type !== 'social-icons' &&
-    c.card_type !== 'release' &&
-    !isSocialUrl(c.url)
+  // Sort by sortKey to ensure correct order
+  const visibleCards = sortCardsBySortKey(
+    cards.filter(c =>
+      c.is_visible !== false &&
+      c.card_type !== 'social-icons' &&
+      c.card_type !== 'release' &&
+      !isSocialUrl(c.url)
+    )
   )
 
   // Font sizes

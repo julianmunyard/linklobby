@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import { cn } from '@/lib/utils'
+import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
@@ -59,7 +60,10 @@ export function VcrMenuLayout({
   })
 
   // Filter to only visible cards, excluding social-icons and release card types
-  const visibleCards = cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
+  // Sort by sortKey to ensure correct order
+  const visibleCards = sortCardsBySortKey(
+    cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
+  )
 
   // Font sizes from Fonts panel
   const titleFontSize = `${(headingSize || 1.8)}rem`

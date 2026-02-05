@@ -6,6 +6,7 @@ import { isReleaseContent } from '@/types/card'
 import type { BackgroundConfig, ReceiptSticker } from '@/types/theme'
 import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
+import { sortCardsBySortKey } from '@/lib/ordering'
 import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
@@ -60,8 +61,8 @@ export function StaticIpodClassicLayout({
   const accumulatedRotation = useRef(0)
   const DEGREES_PER_ITEM = 30 // Rotate 30 degrees to move one item
 
-  // Filter to only visible cards
-  const visibleCards = cards.filter(c => c.is_visible !== false)
+  // Filter to only visible cards and sort by sortKey
+  const visibleCards = sortCardsBySortKey(cards.filter(c => c.is_visible !== false))
 
   // Filter release cards - only show unreleased ones (they navigate to release screen)
   const releaseCards = visibleCards.filter(c => {

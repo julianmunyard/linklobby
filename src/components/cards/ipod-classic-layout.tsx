@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import { cn } from '@/lib/utils'
+import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
@@ -59,8 +60,8 @@ export function IpodClassicLayout({
   const accumulatedRotation = useRef(0)
   const DEGREES_PER_ITEM = 30 // Rotate 30 degrees to move one item
 
-  // Filter to only visible cards
-  const visibleCards = cards.filter(c => c.is_visible !== false)
+  // Filter to only visible cards and sort by sortKey
+  const visibleCards = sortCardsBySortKey(cards.filter(c => c.is_visible !== false))
 
   // Filter release cards - only show unreleased ones (they navigate to release screen)
   const releaseCards = visibleCards.filter(c => {

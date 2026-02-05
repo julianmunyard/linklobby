@@ -5,6 +5,7 @@ import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
+import { sortCardsBySortKey } from '@/lib/ordering'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import * as SiIcons from 'react-icons/si'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
@@ -54,7 +55,10 @@ export function StaticVcrMenuLayout({
   })
 
   // Filter to only visible cards, excluding social-icons and release card types
-  const visibleCards = cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
+  // Sort by sortKey to ensure correct order
+  const visibleCards = sortCardsBySortKey(
+    cards.filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
+  )
 
   // Font sizes
   const titleFontSize = `${headingSize}rem`
