@@ -156,7 +156,7 @@ export function StaticIpodClassicLayout({
       case 'Escape':
       case 'Backspace':
         e.preventDefault()
-        if (currentScreen === 'socials') {
+        if (currentScreen !== 'main') {
           goBack()
         }
         break
@@ -210,7 +210,7 @@ export function StaticIpodClassicLayout({
         }
         break
       case 'menu':
-        if (currentScreen === 'socials' || currentScreen === 'release') {
+        if (currentScreen !== 'main') {
           goBack()
         }
         break

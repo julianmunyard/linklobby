@@ -169,7 +169,7 @@ export function IpodClassicLayout({
       case 'Escape':
       case 'Backspace':
         e.preventDefault()
-        if (currentScreen === 'socials') {
+        if (currentScreen !== 'main') {
           goBack()
         }
         break
@@ -227,7 +227,7 @@ export function IpodClassicLayout({
         break
       case 'menu':
         // Menu button goes back
-        if (currentScreen === 'socials' || currentScreen === 'release') {
+        if (currentScreen !== 'main') {
           goBack()
         }
         break
