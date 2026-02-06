@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 11 of 18 - Analytics, Pixels & Legal
 Plan: 5 of 5 - Complete
 Status: **Phase 11 Complete - Analytics, pixels, and legal compliance built**
-Last activity: 2026-02-06 - Completed 11-04-PLAN.md (Pixel Tracking Integration)
+Last activity: 2026-02-06 - Completed quick task 039: Classic Macintosh theme
 
 Progress: [█████████████████████████░░░░░░] ~67%
 
@@ -557,6 +557,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Username confirmation for deletion | 11-05 | Prevents accidental deletion - user must type exact username in AlertDialog |
 | Analytics export aggregated only | 11-05 | Total counts included, raw visitor hashes excluded for third-party privacy |
 | Immediate unpublish on deletion | 11-05 | Page becomes inaccessible during grace period, account disabled until recovery |
+| VT323 + Courier Prime for Macintosh theme | quick-039 | Authentic pixel font for titles, monospace for body text - loaded from Google Fonts |
+| 3px borders + double box-shadow | quick-039 | Pixel-art 3D depth: 4px cardBg shadow + 6px text shadow for classic Mac window look |
+| MacintoshCard thin/full routing | quick-039 | link/horizontal/mini get slim frames, all others get full title bar with lines and close box |
+| CSS var references in box-shadow | quick-039 | Use var(--theme-text) and var(--theme-card-bg) in inline styles for palette-reactive shadows |
 
 ## Quick Tasks
 
@@ -598,6 +602,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 036 | Release card theme integration (iPod, VCR, Receipt) | Complete | 91e9fa5, 513e3f7, 34bbeda |
 | 037 | Fix Linktree import ordering | Complete | 6028dbb, 7c5635e, dd1ab62, 3d8c516 |
 | 038 | Clean up design tab controls per theme | Complete | 677fcdc, 1e8a1f2 |
+| 039 | Classic Macintosh theme with window chrome | Complete | 259704d |
 
 ## Phase 10 Progress (IN PROGRESS)
 
