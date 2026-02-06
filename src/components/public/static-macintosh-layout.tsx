@@ -9,7 +9,7 @@ const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 const MAC_BORDER = '3px solid #000'
 const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, transparent 2px, transparent 5px)'
 const CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8px 8px'
-const DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
+const DEFAULT_DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
 
 interface StaticMacintoshLayoutProps {
   username: string
@@ -17,6 +17,8 @@ interface StaticMacintoshLayoutProps {
   cards: Card[]
   headingSize?: number
   bodySize?: number
+  macPattern?: string
+  macPatternColor?: string
 }
 
 export function StaticMacintoshLayout({
@@ -25,6 +27,8 @@ export function StaticMacintoshLayout({
   cards,
   headingSize,
   bodySize,
+  macPattern,
+  macPatternColor,
 }: StaticMacintoshLayoutProps) {
   const visibleCards = useMemo(
     () => sortCardsBySortKey(cards.filter((c) => c.is_visible !== false)),
@@ -36,24 +40,25 @@ export function StaticMacintoshLayout({
     const macWindowStyle = content?.macWindowStyle as string | undefined
 
     if (macWindowStyle === 'notepad') {
-      // Notepad links open individually - don't navigate the card itself
       return
     }
     if (macWindowStyle === 'map' || macWindowStyle === 'calculator') {
-      // Decorative - no navigation
       return
     }
-    // Small/large window cards navigate to their URL
     if (card.url) {
       window.open(card.url, '_blank', 'noopener,noreferrer')
     }
   }, [])
 
+  const bgStyle = macPattern
+    ? { backgroundColor: macPatternColor || '#c0c0c0', backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat' as const, backgroundSize: '200px', imageRendering: 'pixelated' as const }
+    : { background: DEFAULT_DESKTOP_BG }
+
   return (
     <div
       style={{
         minHeight: '100vh',
-        background: DESKTOP_BG,
+        ...bgStyle,
         padding: '24px 16px',
       }}
     >
@@ -63,7 +68,7 @@ export function StaticMacintoshLayout({
           textAlign: 'center',
           marginBottom: '24px',
           fontFamily: TITLE_FONT,
-          fontSize: headingSize ? `${24 * headingSize}px` : '24px',
+          fontSize: headingSize ? `${22 * headingSize}px` : '22px',
           letterSpacing: '2px',
           color: '#000',
         }}
@@ -160,10 +165,10 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
       <div className="flex-1" />
       {title && (
         <div
-          className="flex-shrink-0 px-2"
+          className="flex-shrink-0"
           style={{
             fontFamily: TITLE_FONT,
-            fontSize: '18px',
+            fontSize: '16px',
             letterSpacing: '2px',
             lineHeight: '1',
             color: '#000',
@@ -171,6 +176,7 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
             whiteSpace: 'nowrap',
             position: 'relative',
             zIndex: 1,
+            padding: '4px 8px',
           }}
         >
           {title}
@@ -198,7 +204,7 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
           className="flex-shrink-0 px-2"
           style={{
             fontFamily: TITLE_FONT,
-            fontSize: '18px',
+            fontSize: '16px',
             letterSpacing: '2px',
             lineHeight: '1',
             color: '#000',
@@ -244,7 +250,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
   const content = card.content as Record<string, unknown>
   const macLinks = (content?.macLinks as Array<{ title: string; url: string }>) || []
   const title = card.title || 'Note Pad'
-  const fontSize = bodySize ? `${16 * bodySize}px` : '16px'
+  const fontSize = bodySize ? `${14 * bodySize}px` : '14px'
 
   return (
     <div
@@ -291,7 +297,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
         {/* Fold box in bottom-left corner, page number centered */}
         <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 0 0' }}>
           <StaticFoldBox />
-          <div style={{ flex: 1, textAlign: 'center', fontFamily: TITLE_FONT, fontSize: '20px', color: '#000', paddingBottom: '4px' }}>1</div>
+          <div style={{ flex: 1, textAlign: 'center', fontFamily: TITLE_FONT, fontSize: '18px', color: '#000', paddingBottom: '4px' }}>1</div>
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
@@ -332,7 +338,7 @@ function StaticSmallWindow({ card, onClick, bodySize }: { card: Card; onClick: (
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
   const title = card.title || 'Window'
-  const fontSize = bodySize ? `${14 * bodySize}px` : '14px'
+  const fontSize = bodySize ? `${12 * bodySize}px` : '12px'
 
   return (
     <div
@@ -376,7 +382,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
   const title = card.title || 'Window'
-  const fontSize = bodySize ? `${18 * bodySize}px` : '18px'
+  const fontSize = bodySize ? `${16 * bodySize}px` : '16px'
 
   return (
     <div
@@ -391,7 +397,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
               {'\u25B6'} {card.title || 'Video'}
             </p>
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#666', marginTop: '4px' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
               {card.url}
             </p>
           </div>
@@ -401,7 +407,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
               {card.title || card.url || 'Empty window'}
             </p>
             {card.url && card.title && (
-              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
                 {card.url}
               </p>
             )}
@@ -469,7 +475,7 @@ function StaticMap({ card }: { card: Card }) {
               key={label}
               style={{
                 fontFamily: TITLE_FONT,
-                fontSize: '11px',
+                fontSize: '9px',
                 color: '#000',
                 border: '1px solid #000',
                 padding: '2px 6px',
@@ -513,7 +519,7 @@ function StaticCalculator({ card }: { card: Card }) {
             padding: '8px 12px',
             textAlign: 'right',
             fontFamily: TITLE_FONT,
-            fontSize: '24px',
+            fontSize: '22px',
             color: '#000',
             marginBottom: '8px',
           }}
@@ -530,7 +536,7 @@ function StaticCalculator({ card }: { card: Card }) {
                 padding: '6px',
                 textAlign: 'center',
                 fontFamily: TITLE_FONT,
-                fontSize: '16px',
+                fontSize: '14px',
                 color: '#000',
               }}
             >
