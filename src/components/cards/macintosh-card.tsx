@@ -50,8 +50,8 @@ function CloseBox() {
     <div
       className="flex-shrink-0 relative z-10"
       style={{
-        width: '14px',
-        height: '14px',
+        width: '17px',
+        height: '17px',
         border: '2px solid #000',
         background: '#fff',
       }}
