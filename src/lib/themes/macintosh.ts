@@ -5,6 +5,7 @@ export const macintoshTheme: ThemeConfig = {
   id: 'macintosh',
   name: 'Macintosh',
   description: 'Classic 1984 Mac with pixel fonts and window chrome',
+  isListLayout: true,
   hasWindowChrome: true,
 
   defaultColors: {
