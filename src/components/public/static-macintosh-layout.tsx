@@ -5,7 +5,7 @@ import { useMemo, useCallback } from 'react'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import type { Card } from '@/types/card'
 
-const TITLE_FONT = "var(--font-vt323), 'Chicago', monospace"
+const TITLE_FONT = "var(--font-chicago), 'Chicago', monospace"
 const MAC_BORDER = '3px solid #000'
 const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, #fff 2px, #fff 4px)'
 const CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8px 8px'
@@ -135,15 +135,29 @@ function CloseBox() {
 function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: string }) {
   return (
     <div
-      className="flex items-center gap-2 px-2"
+      className="flex items-center px-1"
       style={{
         height: '28px',
         borderBottom: MAC_BORDER,
         background: bgColor,
+        position: 'relative',
       }}
     >
-      <CloseBox />
-      <div className="flex-1 h-full" style={{ backgroundImage: HORIZONTAL_LINES, backgroundPosition: 'center' }} />
+      {/* Lines fill the entire bar behind everything */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: '4px 2px',
+          backgroundImage: HORIZONTAL_LINES,
+          backgroundPosition: 'center',
+        }}
+      />
+      {/* Close box sits on top of lines */}
+      <div style={{ position: 'relative', zIndex: 1, margin: '0 4px', flexShrink: 0 }}>
+        <CloseBox />
+      </div>
+      {/* Spacer to center title */}
+      <div className="flex-1" />
       {title && (
         <div
           className="flex-shrink-0 px-2"
@@ -162,7 +176,7 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
           {title}
         </div>
       )}
-      <div className="flex-1 h-full" style={{ backgroundImage: HORIZONTAL_LINES, backgroundPosition: 'center' }} />
+      <div className="flex-1" />
     </div>
   )
 }
@@ -274,23 +288,38 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
             </ul>
           )}
         </div>
-        {/* Corner fold - bottom left, simple black triangle */}
+      </div>
+      {/* Bottom section: stacked page lines + corner fold */}
+      <div style={{ position: 'relative', background: '#FFF3B0' }}>
+        {/* Stacked page lines - offset left to make room for fold */}
+        <div style={{ marginLeft: '32px' }}>
+          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
+          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
+          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
+          <div style={{ borderTop: '2px solid #000', height: '2px' }} />
+        </div>
+        {/* Corner fold triangle - bottom left */}
         <div
           style={{
             position: 'absolute',
-            bottom: 0,
+            top: 0,
             left: 0,
-            width: '24px',
-            height: '24px',
-            background: 'linear-gradient(315deg, #FFF3B0 50%, #000 50%)',
+            width: '32px',
+            height: '100%',
           }}
-        />
+        >
+          <svg
+            viewBox="0 0 32 16"
+            preserveAspectRatio="none"
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          >
+            {/* Triangle fill */}
+            <polygon points="0,0 32,16 0,16" fill="#000" />
+            {/* Ribbed/dashed diagonal */}
+            <line x1="0" y1="0" x2="32" y2="16" stroke="#FFF3B0" strokeWidth="1.5" strokeDasharray="2,2" />
+          </svg>
+        </div>
       </div>
-      {/* Stacked page lines at bottom */}
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
     </div>
   )
 }
