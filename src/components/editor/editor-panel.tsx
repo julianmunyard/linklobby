@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { Link2, Palette, Calendar, Settings, BarChart3 } from "lucide-react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -41,8 +42,20 @@ const VALID_TABS = ["links", "design", "schedule", "insights", "settings"]
 
 export function EditorPanel() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const tabParam = searchParams.get("tab")
-  const defaultTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
+  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
+  const [activeTab, setActiveTab] = useState(initialTab)
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    // Update URL so reload lands on the correct tab (and "links" clears the param)
+    if (tab === "links") {
+      router.replace("/editor", { scroll: false })
+    } else {
+      router.replace(`/editor?tab=${tab}`, { scroll: false })
+    }
+  }
 
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
@@ -75,7 +88,7 @@ export function EditorPanel() {
         />
       ) : (
         // Show tabs when no card selected
-        <Tabs defaultValue={defaultTab} className="flex h-full flex-col">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex h-full flex-col">
           <div className="border-b px-4 py-2">
             <TabsList className="w-full">
               <TabsTrigger value="links" className="flex-1 gap-2">
