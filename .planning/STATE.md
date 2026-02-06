@@ -607,6 +607,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 038 | Clean up design tab controls per theme | Complete | 677fcdc, 1e8a1f2 |
 | 039 | Classic Macintosh theme with window chrome | Complete | 259704d |
 | 040 | Macintosh background pattern zoom in (8px -> 200px) | Complete | 4f306eb |
+| 041 | System Settings theme colorways (5 presets) | Complete | f7d8838, 3d051a5 |
 | 041 | System Settings colorways (Terminal, Nautical, Amber, Cherry Wave, Red Label) | Complete | f7d8838, 3d051a5 |
 
 ## Phase 10 Progress (IN PROGRESS)
