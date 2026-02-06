@@ -251,9 +251,10 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                     color: '#000',
                     padding: '4px 0',
                     borderBottom: '1px solid rgba(0,0,0,0.1)',
+                    textAlign: link.url ? 'left' : 'center',
                   }}
                 >
-                  <span style={{ marginRight: '8px' }}>{'\u2192'}</span>
+                  {link.url && <span style={{ marginRight: '8px' }}>{'\u2192'}</span>}
                   {link.title || link.url || 'Untitled'}
                 </li>
               ))}
@@ -278,44 +279,72 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
 
 // ─── 2. Small Window ────────────────────────────────────────────────────────
 
+const SMALL_WIN_CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px'
+
+const SMALL_WIN_HALFTONE = [
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 0 0 / 5px 7px',
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 2.5px 3.5px / 5px 7px',
+  'linear-gradient(#fff, #fff)',
+].join(', ')
+
 export function MacintoshSmallWindow({ card, onClick, isSelected }: MacCardProps) {
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
   const title = card.title || 'Window'
+  const checkerBgColor = (content?.macCheckerColor as string) || '#cfffcc'
+  const windowBg = (content?.macWindowBgColor as string) || '#afb3ee'
+  const checkerBg = `repeating-conic-gradient(#000 0% 25%, ${checkerBgColor} 0% 50%) 0 0 / 4px 4px`
 
   return (
-    <WindowWrapper onClick={onClick} isSelected={isSelected}>
-      <CheckerboardTitleBar title={title} />
-      {/* Blue/white content area */}
-      <div style={{ background: '#d0e4ff', minHeight: '80px', position: 'relative' }}>
-        <div style={{ padding: '12px 16px', background: '#fff', margin: '8px', border: '1px solid #000' }}>
-          {macMode === 'video' && card.url ? (
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
-              {'\u25B6'} {card.title || 'Video'}
-            </p>
-          ) : (
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
-              {card.title || card.url || 'Empty window'}
-            </p>
-          )}
-        </div>
-        {/* Scrollbar visual at bottom */}
-        <div
-          style={{
-            height: '16px',
-            borderTop: '1px solid #000',
-            background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 2px',
-          }}
-        >
-          <div style={{ width: '16px', height: '12px', border: '1px solid #000', background: '#fff' }} />
-          <div style={{ flex: 1, height: '12px', background: CHECKERBOARD, margin: '0 2px' }} />
-          <div style={{ width: '16px', height: '12px', border: '1px solid #000', background: '#fff' }} />
+    <div
+      className="overflow-hidden cursor-pointer"
+      onClick={onClick}
+      style={{
+        border: MAC_BORDER,
+        borderRadius: '6px',
+        outline: isSelected ? '2px solid #0066ff' : 'none',
+        outlineOffset: '2px',
+      }}
+    >
+      {/* Halftone title bar */}
+      <div
+        className="flex items-center gap-2 px-2"
+        style={{
+          height: '28px',
+          borderBottom: MAC_BORDER,
+          background: SMALL_WIN_HALFTONE,
+          position: 'relative',
+        }}
+      >
+        <CloseBox />
+      </div>
+      {/* Checkerboard border around content */}
+      <div style={{ background: checkerBg, padding: '6px', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column' }}>
+        {/* Black border inside checkerboard */}
+        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* White content area */}
+          <div style={{ flex: 1, padding: '12px 16px' }}>
+            {macMode === 'video' && card.url ? (
+              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
+                {'\u25B6'} {card.title || 'Video'}
+              </p>
+            ) : (
+              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
+                {card.title || card.url || 'Empty window'}
+              </p>
+            )}
+          </div>
+          {/* Scrollbar at bottom */}
+          <div
+            style={{
+              height: '14px',
+              borderTop: '2px solid #000',
+              background: '#fff',
+            }}
+          />
         </div>
       </div>
-    </WindowWrapper>
+    </div>
   )
 }
 
@@ -331,7 +360,7 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
       <LinesTitleBar title={title} />
       {/* White content area */}
-      <div style={{ background: '#fff', minHeight: '120px', padding: '16px' }}>
+      <div style={{ background: '#fff', minHeight: '180px', padding: '16px' }}>
         {macMode === 'video' && card.url ? (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
@@ -547,61 +576,159 @@ export function MacintoshMap({ card, onClick, isSelected }: MacCardProps) {
 
 // ─── 5. Calculator ──────────────────────────────────────────────────────────
 
-const CALC_BUTTONS = [
-  ['C', '\u00B1', '%', '\u00F7'],
-  ['7', '8', '9', '\u00D7'],
-  ['4', '5', '6', '\u2212'],
-  ['1', '2', '3', '+'],
-  ['0', '0', '.', '='],
+const CALC_HALFTONE = [
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 0 0 / 5px 7px',
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 2.5px 3.5px / 5px 7px',
+  'linear-gradient(#FFA454, #FFA454)',
+].join(', ')
+
+const CALC_BTN: React.CSSProperties = {
+  background: '#79FF8C',
+  border: '2px solid #000',
+  boxShadow: '4px 4px 0 #000',
+  fontFamily: TITLE_FONT,
+  fontSize: '16px',
+  color: '#000',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'default',
+  padding: '6px 0',
+}
+
+// 8-bit jagged rounded border using clip-path
+const CALC_CLIP = `polygon(
+  4px 0%, calc(100% - 4px) 0%,
+  calc(100% - 4px) 2px, calc(100% - 2px) 2px,
+  calc(100% - 2px) 4px, 100% 4px,
+  100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px),
+  calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px),
+  calc(100% - 4px) 100%, 4px 100%,
+  4px calc(100% - 2px), 2px calc(100% - 2px),
+  2px calc(100% - 4px), 0% calc(100% - 4px),
+  0% 4px, 2px 4px,
+  2px 2px, 4px 2px
+)`
+
+const CALC_JOKES = [
+  '5318008',  // BOOBIES
+  '0.208',    // BOZO
 ]
 
 export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps) {
+  const [display, setDisplay] = useState('0')
+  const [prev, setPrev] = useState<number | null>(null)
+  const [op, setOp] = useState<string | null>(null)
+  const [fresh, setFresh] = useState(true)
+  const [flipped, setFlipped] = useState(false)
+
+  const press = (val: string) => {
+    if (val === 'C') {
+      setDisplay('0')
+      setPrev(null)
+      setOp(null)
+      setFresh(true)
+      setFlipped(false)
+      return
+    }
+    if (val === '=') {
+      setDisplay(CALC_JOKES[Math.floor(Math.random() * CALC_JOKES.length)])
+      setPrev(null)
+      setOp(null)
+      setFresh(true)
+      setFlipped(true)
+      return
+    }
+    if (['+', '\u2212', '/', '*'].includes(val)) {
+      setPrev(parseFloat(display))
+      setOp(val)
+      setFresh(true)
+      return
+    }
+    if (val === '.' && display.includes('.') && !fresh) return
+    if (fresh) {
+      setDisplay(val === '.' ? '0.' : val)
+      setFresh(false)
+    } else {
+      setDisplay(display + val)
+    }
+  }
+
+  const B = ({ v, style }: { v: string; style?: React.CSSProperties }) => (
+    <div style={{ ...CALC_BTN, ...style }} onClick={(e) => { e.stopPropagation(); press(v) }}>{v}</div>
+  )
+
   return (
-    <WindowWrapper onClick={onClick} isSelected={isSelected}>
-      <CheckerboardTitleBar title="Calculator" />
-      {/* Orange checkerboard background */}
-      <div
-        style={{
-          background: 'repeating-conic-gradient(#FFB672 0% 25%, #ffc88f 0% 50%) 0 0 / 10px 10px',
-          padding: '12px',
-        }}
-      >
-        {/* Display */}
+    <div
+      className="overflow-hidden cursor-pointer"
+      onClick={onClick}
+      style={{
+        width: '65%',
+        margin: '0 auto',
+        outline: isSelected ? '2px solid #0066ff' : 'none',
+        outlineOffset: '2px',
+      }}
+    >
+      {/* Outer jagged black shell */}
+      <div style={{ background: '#000', clipPath: CALC_CLIP }}>
+        {/* Black title bar */}
         <div
-          style={{
-            background: '#fff',
-            border: '2px solid #000',
-            padding: '8px 12px',
-            textAlign: 'right',
-            fontFamily: TITLE_FONT,
-            fontSize: '22px',
-            color: '#000',
-            marginBottom: '8px',
-          }}
+          className="flex items-center gap-2 px-2"
+          style={{ height: '30px', position: 'relative' }}
         >
-          0
+          <div
+            className="flex-shrink-0"
+            style={{ width: '15px', height: '15px', border: '2px solid #fff' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontFamily: TITLE_FONT,
+              fontSize: '16px',
+              letterSpacing: '2px',
+              lineHeight: '1',
+              color: '#fff',
+              whiteSpace: 'nowrap',
+              zIndex: 10,
+            }}
+          >
+            Calculator
+          </div>
         </div>
-        {/* Button grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-          {CALC_BUTTONS.flat().map((label, i) => (
+        {/* Orange halftone body with its own jagged edge, inset from black */}
+        <div style={{ padding: '0 6px 6px' }}>
+          <div style={{ clipPath: CALC_CLIP, background: CALC_HALFTONE, padding: '12px' }}>
+            {/* Display */}
             <div
-              key={i}
               style={{
-                background: '#fff',
+                background: '#715AFF',
                 border: '2px solid #000',
-                padding: '6px',
-                textAlign: 'center',
+                padding: '6px 10px',
+                textAlign: 'right',
                 fontFamily: TITLE_FONT,
-                fontSize: '14px',
+                fontSize: '20px',
                 color: '#000',
-                cursor: 'default',
+                marginBottom: '10px',
+                overflow: 'hidden',
               }}
             >
-              {label}
+              <span style={flipped ? { display: 'inline-block', transform: 'rotate(180deg)' } : undefined}>{display}</span>
             </div>
-          ))}
+            {/* Button grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(6, auto)', gap: '5px' }}>
+              <B v="C" /><B v="=" /><B v="/" /><B v="*" />
+              <B v="7" /><B v="8" /><B v="9" /><B v={'\u2212'} />
+              <B v="4" /><B v="5" /><B v="6" /><B v="+" />
+              <B v="1" /><B v="2" /><B v="3" />
+              <B v="=" style={{ gridRow: 'span 2' }} />
+              <B v="0" style={{ gridColumn: 'span 2' }} /><B v="." />
+            </div>
+          </div>
         </div>
       </div>
-    </WindowWrapper>
+    </div>
   )
 }

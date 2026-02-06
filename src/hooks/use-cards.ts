@@ -4,7 +4,9 @@
 import { useEffect, useState, useCallback, useMemo } from "react"
 import { toast } from "sonner"
 import { usePageStore } from "@/stores/page-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { sortCardsBySortKey } from "@/lib/ordering"
+import { migrateToMacintosh } from "@/lib/card-migration"
 import type { Card } from "@/types/card"
 
 /**
@@ -57,7 +59,21 @@ export function useCards() {
         }
 
         const { cards: fetchedCards } = await response.json()
-        setCards(fetchedCards)
+
+        // If already on macintosh, migrate any non-mac cards into notepad
+        const currentTheme = useThemeStore.getState().themeId
+        if (currentTheme === 'macintosh') {
+          const hasUnmigrated = fetchedCards.some(
+            (c: Card) => c.is_visible && (c.url || c.title) && !(c.content as Record<string, unknown>)?.macWindowStyle
+          )
+          if (hasUnmigrated) {
+            setCards(migrateToMacintosh(fetchedCards))
+          } else {
+            setCards(fetchedCards)
+          }
+        } else {
+          setCards(fetchedCards)
+        }
         // Mark as saved since we just loaded from DB
         markSaved()
       } catch (err) {

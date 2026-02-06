@@ -91,7 +91,12 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
       <div className="flex-1 p-3 min-w-0">
         <div className="flex items-center gap-2">
           <p className={cn("font-medium truncate", !card.is_visible && "line-through text-muted-foreground")}>
-            {card.title || "Untitled"}
+            {card.title || (() => {
+              const ms = (card.content as Record<string, unknown>)?.macWindowStyle as string | undefined
+              if (ms === 'calculator') return 'Calculator'
+              if (ms === 'map') return 'Map'
+              return 'Untitled'
+            })()}
           </p>
           {/* Schedule indicator */}
           {scheduleStatus && scheduleStatus !== "active" && scheduleTooltip && (
@@ -129,7 +134,21 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
           )}
         </div>
         <p className="text-sm text-muted-foreground capitalize">
-          {card.card_type.replace("_", " ")}
+          {(() => {
+            const macStyle = (card.content as Record<string, unknown>)?.macWindowStyle as string | undefined
+            if (macStyle) {
+              const labels: Record<string, string> = {
+                'notepad': 'Note Pad',
+                'small-window': 'Small Window',
+                'large-window': 'Large Window',
+                'title-link': 'Title Link',
+                'map': 'Map',
+                'calculator': 'Calculator',
+              }
+              return labels[macStyle] || macStyle
+            }
+            return card.card_type.replace("_", " ")
+          })()}
         </p>
         {card.description && (
           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">

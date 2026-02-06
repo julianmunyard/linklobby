@@ -26,9 +26,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { usePageStore } from '@/stores/page-store'
+import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { useCards } from '@/hooks/use-cards'
 import { generateInsertKey } from '@/lib/ordering'
+import { migrateToMacintosh } from '@/lib/card-migration'
 import type { Card } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
 
@@ -89,6 +91,18 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
         console.error('[LinktreeImport] Error - status:', response.status, 'statusText:', response.statusText, 'data:', data)
         toast.error(data.error || `Import failed (${response.status})`)
         return
+      }
+
+      // On list-style themes, force all imported cards to plain link type
+      const currentTheme = useThemeStore.getState().themeId
+      const LINK_ONLY_THEMES = ['macintosh', 'instagram-reels', 'system-settings']
+      if (LINK_ONLY_THEMES.includes(currentTheme)) {
+        for (const card of data.cards as Card[]) {
+          if (card.card_type !== 'text' && card.card_type !== 'social-icons') {
+            card.card_type = 'link'
+            card.size = 'big'
+          }
+        }
       }
 
       // Update store with imported cards
@@ -153,6 +167,12 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
             console.error('Failed to save profile with social icons:', err)
           }
         }
+      }
+
+      // If on macintosh, migrate imported cards into notepad + spawn calc/map
+      if (useThemeStore.getState().themeId === 'macintosh') {
+        const current = usePageStore.getState().cards
+        setCards(migrateToMacintosh(current))
       }
 
       // Show success toast

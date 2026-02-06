@@ -50,23 +50,74 @@ export function StaticMacintoshLayout({
     }
   }, [])
 
+  const bgColor = macPatternColor || '#c0c0c0'
   const bgStyle = macPattern
-    ? { backgroundColor: macPatternColor || '#c0c0c0', backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
+    ? { backgroundColor: bgColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        ...bgStyle,
-        padding: '24px 16px',
-      }}
-    >
+    <>
+      {/* Fixed background that extends beyond viewport to cover overscroll */}
+      <div
+        className="fixed -z-10"
+        style={{
+          top: '-50vh',
+          left: '-50vw',
+          right: '-50vw',
+          bottom: '-50vh',
+          ...bgStyle,
+        }}
+      />
+      <div
+        style={{
+          minHeight: '100vh',
+          padding: '0 0 0 0',
+          position: 'relative',
+        }}
+      >
+      {/* Mac Menu Bar */}
+      <div
+        style={{
+          background: '#fff',
+          borderBottom: '2px solid #000',
+          padding: '0 8px',
+          height: '28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontFamily: TITLE_FONT,
+          fontSize: '12px',
+          color: '#000',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+          <span style={{ fontSize: '14px', flexShrink: 0 }}>{'\uF8FF'}</span>
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span>Label</span>
+          <span>Special</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>?</div>
+          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '10px', height: '8px', border: '1.5px solid #000', borderRadius: '1px' }} />
+          </div>
+        </div>
+      </div>
+
       {/* Desktop title */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: '24px',
+          margin: '0 16px 24px',
+          paddingTop: '52px',
           fontFamily: TITLE_FONT,
           fontSize: headingSize ? `${22 * headingSize}px` : '22px',
           letterSpacing: '2px',
@@ -81,19 +132,25 @@ export function StaticMacintoshLayout({
         style={{
           maxWidth: '400px',
           margin: '0 auto',
+          padding: '0 16px',
           display: 'flex',
-          flexDirection: 'column',
+          flexWrap: 'wrap',
           gap: '20px',
         }}
       >
-        {visibleCards.map((card) => (
-          <StaticMacCard
-            key={card.id}
-            card={card}
-            onClick={() => handleCardClick(card)}
-            bodySize={bodySize}
-          />
-        ))}
+        {visibleCards.map((card) => {
+          const style = (card.content as Record<string, unknown>)?.macWindowStyle as string | undefined
+          const isSmall = style === 'small-window'
+          return (
+            <div key={card.id} style={{ width: isSmall ? 'calc(50% - 10px)' : '100%' }}>
+              <StaticMacCard
+                card={card}
+                onClick={() => handleCardClick(card)}
+                bodySize={bodySize}
+              />
+            </div>
+          )
+        })}
       </div>
 
       {/* Legal footer */}
@@ -118,6 +175,7 @@ export function StaticMacintoshLayout({
         </div>
       </footer>
     </div>
+    </>
   )
 }
 
@@ -270,7 +328,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {macLinks.map((link, i) => (
-                <li key={i} style={{ padding: '4px 0', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                <li key={i} style={{ padding: '4px 0', borderBottom: '1px solid rgba(0,0,0,0.1)', textAlign: link.url ? 'left' : 'center' }}>
                   {link.url ? (
                     <a
                       href={link.url}
@@ -289,7 +347,6 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                     </a>
                   ) : (
                     <span style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-                      <span style={{ marginRight: '8px' }}>{'\u2192'}</span>
                       {link.title || 'Untitled'}
                     </span>
                   )}
@@ -337,44 +394,67 @@ function StaticFoldBox() {
   )
 }
 
+const STATIC_SMALL_WIN_CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px'
+
+const STATIC_SMALL_WIN_HALFTONE = [
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 0 0 / 5px 7px',
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 2.5px 3.5px / 5px 7px',
+  'linear-gradient(#fff, #fff)',
+].join(', ')
+
 function StaticSmallWindow({ card, onClick, bodySize }: { card: Card; onClick: () => void; bodySize?: number }) {
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
-  const title = card.title || 'Window'
   const fontSize = bodySize ? `${12 * bodySize}px` : '12px'
+  const checkerBgColor = (content?.macCheckerColor as string) || '#cfffcc'
+  const windowBg = (content?.macWindowBgColor as string) || '#afb3ee'
+  const checkerBg = `repeating-conic-gradient(#000 0% 25%, ${checkerBgColor} 0% 50%) 0 0 / 4px 4px`
 
   return (
     <div
       data-card-id={card.id}
       onClick={onClick}
-      style={{ border: MAC_BORDER, overflow: 'hidden', cursor: card.url ? 'pointer' : 'default' }}
+      style={{ border: MAC_BORDER, borderRadius: '6px', overflow: 'hidden', cursor: card.url ? 'pointer' : 'default' }}
     >
-      <CheckerboardTitleBar title={title} />
-      <div style={{ background: '#d0e4ff', minHeight: '80px', position: 'relative' }}>
-        <div style={{ padding: '12px 16px', background: '#fff', margin: '8px', border: '1px solid #000' }}>
-          {macMode === 'video' && card.url ? (
-            <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-              {'\u25B6'} {card.title || 'Video'}
-            </p>
-          ) : (
-            <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-              {card.title || card.url || 'Empty window'}
-            </p>
-          )}
-        </div>
-        <div
-          style={{
-            height: '16px',
-            borderTop: '1px solid #000',
-            background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 2px',
-          }}
-        >
-          <div style={{ width: '16px', height: '12px', border: '1px solid #000', background: '#fff' }} />
-          <div style={{ flex: 1, height: '12px', background: CHECKERBOARD, margin: '0 2px' }} />
-          <div style={{ width: '16px', height: '12px', border: '1px solid #000', background: '#fff' }} />
+      {/* Halftone title bar */}
+      <div
+        style={{
+          height: '28px',
+          borderBottom: MAC_BORDER,
+          background: STATIC_SMALL_WIN_HALFTONE,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '0 8px',
+        }}
+      >
+        <div style={{ width: '15px', height: '15px', border: '2px solid #000', background: '#fff', flexShrink: 0 }} />
+      </div>
+      {/* Checkerboard border around content */}
+      <div style={{ background: checkerBg, padding: '6px', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column' }}>
+        {/* Black border inside checkerboard */}
+        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* White content area */}
+          <div style={{ flex: 1, padding: '12px 16px' }}>
+            {macMode === 'video' && card.url ? (
+              <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
+                {'\u25B6'} {card.title || 'Video'}
+              </p>
+            ) : (
+              <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
+                {card.title || card.url || 'Empty window'}
+              </p>
+            )}
+          </div>
+          {/* Scrollbar at bottom */}
+          <div
+            style={{
+              height: '14px',
+              borderTop: '2px solid #000',
+              background: '#fff',
+            }}
+          />
         </div>
       </div>
     </div>
@@ -395,7 +475,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
       style={{ border: MAC_BORDER, overflow: 'hidden', cursor: card.url ? 'pointer' : 'default' }}
     >
       <LinesTitleBar title={title} />
-      <div style={{ background: '#fff', minHeight: '120px', padding: '16px' }}>
+      <div style={{ background: '#fff', minHeight: '180px', padding: '16px' }}>
         {macMode === 'video' && card.url ? (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
@@ -601,58 +681,152 @@ function StaticMap({ card }: { card: Card }) {
   )
 }
 
-const CALC_BUTTONS = [
-  ['C', '\u00B1', '%', '\u00F7'],
-  ['7', '8', '9', '\u00D7'],
-  ['4', '5', '6', '\u2212'],
-  ['1', '2', '3', '+'],
-  ['0', '0', '.', '='],
+const STATIC_CALC_HALFTONE = [
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 0 0 / 5px 7px',
+  'radial-gradient(circle, #000 1.3px, transparent 1.3px) 2.5px 3.5px / 5px 7px',
+  'linear-gradient(#FFA454, #FFA454)',
+].join(', ')
+
+const STATIC_CALC_BTN: React.CSSProperties = {
+  background: '#79FF8C',
+  border: '2px solid #000',
+  boxShadow: '4px 4px 0 #000',
+  fontFamily: TITLE_FONT,
+  fontSize: '16px',
+  color: '#000',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '6px 0',
+}
+
+const STATIC_CALC_CLIP = `polygon(
+  4px 0%, calc(100% - 4px) 0%,
+  calc(100% - 4px) 2px, calc(100% - 2px) 2px,
+  calc(100% - 2px) 4px, 100% 4px,
+  100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px),
+  calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px),
+  calc(100% - 4px) 100%, 4px 100%,
+  4px calc(100% - 2px), 2px calc(100% - 2px),
+  2px calc(100% - 4px), 0% calc(100% - 4px),
+  0% 4px, 2px 4px,
+  2px 2px, 4px 2px
+)`
+
+const STATIC_CALC_JOKES = [
+  '5318008',  // BOOBIES
+  '0.208',    // BOZO
 ]
 
 function StaticCalculator({ card }: { card: Card }) {
+  const [display, setDisplay] = useState('0')
+  const [prev, setPrev] = useState<number | null>(null)
+  const [op, setOp] = useState<string | null>(null)
+  const [fresh, setFresh] = useState(true)
+  const [flipped, setFlipped] = useState(false)
+
+  const press = (val: string) => {
+    if (val === 'C') {
+      setDisplay('0')
+      setPrev(null)
+      setOp(null)
+      setFresh(true)
+      setFlipped(false)
+      return
+    }
+    if (val === '=') {
+      setDisplay(STATIC_CALC_JOKES[Math.floor(Math.random() * STATIC_CALC_JOKES.length)])
+      setPrev(null)
+      setOp(null)
+      setFresh(true)
+      setFlipped(true)
+      return
+    }
+    if (['+', '\u2212', '/', '*'].includes(val)) {
+      setPrev(parseFloat(display))
+      setOp(val)
+      setFresh(true)
+      return
+    }
+    if (val === '.' && display.includes('.') && !fresh) return
+    if (fresh) {
+      setDisplay(val === '.' ? '0.' : val)
+      setFresh(false)
+    } else {
+      setDisplay(display + val)
+    }
+  }
+
+  const B = ({ v, style }: { v: string; style?: React.CSSProperties }) => (
+    <div style={{ ...STATIC_CALC_BTN, cursor: 'pointer', ...style }} onClick={() => press(v)}>{v}</div>
+  )
+
   return (
     <div
       data-card-id={card.id}
-      style={{ border: MAC_BORDER, overflow: 'hidden' }}
+      style={{ width: '65%', margin: '0 auto' }}
     >
-      <CheckerboardTitleBar title="Calculator" />
-      <div
-        style={{
-          background: 'repeating-conic-gradient(#FFB672 0% 25%, #ffc88f 0% 50%) 0 0 / 10px 10px',
-          padding: '12px',
-        }}
-      >
+      {/* Outer jagged black shell */}
+      <div style={{ background: '#000', clipPath: STATIC_CALC_CLIP }}>
+        {/* Black title bar */}
         <div
           style={{
-            background: '#fff',
-            border: '2px solid #000',
-            padding: '8px 12px',
-            textAlign: 'right',
-            fontFamily: TITLE_FONT,
-            fontSize: '22px',
-            color: '#000',
-            marginBottom: '8px',
+            height: '30px',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '0 8px',
           }}
         >
-          0
+          <div
+            style={{ width: '15px', height: '15px', border: '2px solid #fff', flexShrink: 0 }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontFamily: TITLE_FONT,
+              fontSize: '16px',
+              letterSpacing: '2px',
+              lineHeight: '1',
+              color: '#fff',
+              whiteSpace: 'nowrap',
+              zIndex: 10,
+            }}
+          >
+            Calculator
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-          {CALC_BUTTONS.flat().map((label, i) => (
+        {/* Orange halftone body with its own jagged edge, inset from black */}
+        <div style={{ padding: '0 6px 6px' }}>
+          <div style={{ clipPath: STATIC_CALC_CLIP, background: STATIC_CALC_HALFTONE, padding: '12px' }}>
             <div
-              key={i}
               style={{
-                background: '#fff',
+                background: '#715AFF',
                 border: '2px solid #000',
-                padding: '6px',
-                textAlign: 'center',
+                padding: '6px 10px',
+                textAlign: 'right',
                 fontFamily: TITLE_FONT,
-                fontSize: '14px',
+                fontSize: '20px',
                 color: '#000',
+                marginBottom: '10px',
+                overflow: 'hidden',
               }}
             >
-              {label}
+              <span style={flipped ? { display: 'inline-block', transform: 'rotate(180deg)' } : undefined}>{display}</span>
             </div>
-          ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(6, auto)', gap: '5px' }}>
+              <B v="C" /><B v="=" /><B v="/" /><B v="*" />
+              <B v="7" /><B v="8" /><B v="9" /><B v={'\u2212'} />
+              <B v="4" /><B v="5" /><B v="6" /><B v="+" />
+              <B v="1" /><B v="2" /><B v="3" />
+              <B v="=" style={{ gridRow: 'span 2' }} />
+              <B v="0" style={{ gridColumn: 'span 2' }} /><B v="." />
+            </div>
+          </div>
         </div>
       </div>
     </div>

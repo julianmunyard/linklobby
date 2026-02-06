@@ -41,14 +41,53 @@ export function MacintoshLayout({
       style={{
         minHeight: '100vh',
         ...bgStyle,
-        padding: '24px 16px',
+        padding: 0,
+        overscrollBehavior: 'none',
       }}
     >
+      {/* Mac Menu Bar */}
+      <div
+        style={{
+          background: '#fff',
+          borderBottom: '2px solid #000',
+          padding: '0 8px',
+          height: '28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontFamily: TITLE_FONT,
+          fontSize: '12px',
+          color: '#000',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+          <span style={{ fontSize: '14px', flexShrink: 0 }}>{'\uF8FF'}</span>
+          <span>File</span>
+          <span>Edit</span>
+          <span>View</span>
+          <span>Label</span>
+          <span>Special</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>?</div>
+          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '10px', height: '8px', border: '1.5px solid #000', borderRadius: '1px' }} />
+          </div>
+        </div>
+      </div>
+
       {/* Desktop title bar */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: '24px',
+          margin: '0 16px 24px',
+          paddingTop: '52px',
           fontFamily: TITLE_FONT,
           fontSize: '22px',
           letterSpacing: '2px',
@@ -91,20 +130,26 @@ export function MacintoshLayout({
           style={{
             maxWidth: '400px',
             margin: '0 auto',
+            padding: '0 16px',
             display: 'flex',
-            flexDirection: 'column',
+            flexWrap: 'wrap',
             gap: '20px',
           }}
         >
-          {visibleCards.map((card) => (
-            <MacintoshCard
-              key={card.id}
-              card={card}
-              isPreview={isPreview}
-              onClick={onCardClick ? () => onCardClick(card.id) : undefined}
-              isSelected={selectedCardId === card.id}
-            />
-          ))}
+          {visibleCards.map((card) => {
+            const style = (card.content as Record<string, unknown>)?.macWindowStyle as string | undefined
+            const isSmall = style === 'small-window'
+            return (
+              <div key={card.id} style={{ width: isSmall ? 'calc(50% - 10px)' : '100%' }}>
+                <MacintoshCard
+                  card={card}
+                  isPreview={isPreview}
+                  onClick={onCardClick ? () => onCardClick(card.id) : undefined}
+                  isSelected={selectedCardId === card.id}
+                />
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

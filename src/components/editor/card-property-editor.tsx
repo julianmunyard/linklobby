@@ -356,6 +356,9 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               <MacWindowFields
                 macMode={(currentContent.macMode as string) || 'link'}
                 macBodyText={(currentContent.macBodyText as string) || ''}
+                macWindowStyle={macWindowStyle}
+                macCheckerColor={(currentContent.macCheckerColor as string) || ''}
+                macWindowBgColor={(currentContent.macWindowBgColor as string) || ''}
                 onChange={handleContentChange}
               />
             )}

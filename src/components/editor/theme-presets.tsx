@@ -3,6 +3,7 @@
 import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
 import { THEMES, getThemeDefaults } from '@/lib/themes'
+import { migrateToMacintosh, migrateFromMacintosh } from '@/lib/card-migration'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
 
@@ -11,8 +12,18 @@ export function ThemePresets() {
   const clearCardColorOverrides = usePageStore((state) => state.clearCardColorOverrides)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
 
-  const handleThemeSelect = (themeId: Parameters<typeof setTheme>[0]) => {
-    setTheme(themeId)
+  const handleThemeSelect = (newThemeId: Parameters<typeof setTheme>[0]) => {
+    const currentThemeId = themeId
+    const cards = usePageStore.getState().cards
+
+    // Migrate cards between macintosh and other themes
+    if (newThemeId === 'macintosh' && currentThemeId !== 'macintosh') {
+      usePageStore.getState().setCards(migrateToMacintosh(cards))
+    } else if (newThemeId !== 'macintosh' && currentThemeId === 'macintosh') {
+      usePageStore.getState().setCards(migrateFromMacintosh(cards))
+    }
+
+    setTheme(newThemeId)
     clearCardColorOverrides()
   }
 
