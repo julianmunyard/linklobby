@@ -514,7 +514,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             </div>}
 
             {/* Title - hidden for notepad, map, calculator Mac cards */}
-            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window') && (
+            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link') && (
             <>
             {/* Title */}
             <FormField

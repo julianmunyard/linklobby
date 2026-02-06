@@ -237,6 +237,8 @@ function StaticMacCard({ card, onClick, bodySize }: { card: Card; onClick: () =>
       return <StaticSmallWindow card={card} onClick={onClick} bodySize={bodySize} />
     case 'large-window':
       return <StaticLargeWindow card={card} onClick={onClick} bodySize={bodySize} />
+    case 'title-link':
+      return <StaticTitleLink card={card} onClick={onClick} />
     case 'map':
       return <StaticMap card={card} />
     case 'calculator':
@@ -413,6 +415,56 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
                 {card.url}
               </p>
             )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function StaticTitleLink({ card, onClick }: { card: Card; onClick: () => void }) {
+  const title = card.title || 'Link'
+
+  return (
+    <div
+      data-card-id={card.id}
+      onClick={onClick}
+      style={{ border: MAC_BORDER, overflow: 'hidden', cursor: card.url ? 'pointer' : 'default' }}
+    >
+      <div
+        style={{
+          height: '28px',
+          background: '#fff',
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            inset: '4px 2px',
+            backgroundImage: HORIZONTAL_LINES,
+            backgroundPosition: 'center',
+          }}
+        />
+        {title && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontFamily: TITLE_FONT,
+              fontSize: '16px',
+              letterSpacing: '2px',
+              lineHeight: '1',
+              color: '#000',
+              background: '#fff',
+              whiteSpace: 'nowrap',
+              padding: '4px 8px',
+              zIndex: 10,
+            }}
+          >
+            {title}
           </div>
         )}
       </div>

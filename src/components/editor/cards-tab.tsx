@@ -37,12 +37,13 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'map' | 'calculator'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator'
 
 const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
   { label: "Note Pad", macWindowStyle: "notepad" },
   { label: "Small Window", macWindowStyle: "small-window" },
   { label: "Large Window", macWindowStyle: "large-window" },
+  { label: "Title Link", macWindowStyle: "title-link" },
   { label: "Map", macWindowStyle: "map" },
   { label: "Calculator", macWindowStyle: "calculator" },
 ]
@@ -105,6 +106,8 @@ export function CardsTab() {
             case 'small-window':
             case 'large-window':
               return { macWindowStyle, macMode: 'link' }
+            case 'title-link':
+              return { macWindowStyle }
             case 'map':
             case 'calculator':
               return { macWindowStyle }

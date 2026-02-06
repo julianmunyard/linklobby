@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import type { Card } from '@/types/card'
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'map' | 'calculator'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator'
 
 interface MacCardProps {
   card: Card
@@ -33,6 +33,8 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
       return <MacintoshSmallWindow card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'large-window':
       return <MacintoshLargeWindow card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+    case 'title-link':
+      return <MacintoshTitleLink card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'map':
       return <MacintoshMap card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'calculator':
@@ -348,6 +350,56 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
                 {card.url}
               </p>
             )}
+          </div>
+        )}
+      </div>
+    </WindowWrapper>
+  )
+}
+
+// ─── 3b. Title Link ─────────────────────────────────────────────────────────
+
+export function MacintoshTitleLink({ card, onClick, isSelected }: MacCardProps) {
+  const title = card.title || 'Link'
+
+  return (
+    <WindowWrapper onClick={onClick} isSelected={isSelected}>
+      <div
+        style={{
+          height: '28px',
+          background: '#fff',
+          position: 'relative',
+        }}
+      >
+        {/* Lines fill the entire bar */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: '4px 2px',
+            backgroundImage: HORIZONTAL_LINES,
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Title centered */}
+        {title && (
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontFamily: TITLE_FONT,
+              fontSize: '16px',
+              letterSpacing: '2px',
+              lineHeight: '1',
+              color: '#000',
+              background: '#fff',
+              whiteSpace: 'nowrap',
+              padding: '4px 8px',
+              zIndex: 10,
+            }}
+          >
+            {title}
           </div>
         )}
       </div>
