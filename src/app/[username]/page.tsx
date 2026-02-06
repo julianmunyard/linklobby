@@ -51,6 +51,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const receiptFloatAnimation = themeSettings?.receiptFloatAnimation ?? true
   const ipodStickers = themeSettings?.ipodStickers ?? []
   const ipodTexture = themeSettings?.ipodTexture ?? '/images/metal-texture.jpeg'
+  const macPattern = themeSettings?.macPattern ?? ''
+  const macPatternColor = themeSettings?.macPatternColor ?? '#c0c0c0'
 
   // Pixel configuration
   const pixels = themeSettings?.pixels ?? {}
@@ -102,6 +104,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
         receiptFloatAnimation={receiptFloatAnimation}
         ipodStickers={ipodStickers}
         ipodTexture={ipodTexture}
+        macPattern={macPattern}
+        macPatternColor={macPatternColor}
         cards={cards}
       />
 

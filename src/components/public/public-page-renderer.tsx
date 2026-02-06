@@ -85,6 +85,9 @@ interface PublicPageRendererProps {
   // iPod theme
   ipodStickers?: ReceiptSticker[]
   ipodTexture?: string
+  // Macintosh theme
+  macPattern?: string
+  macPatternColor?: string
   // Cards
   cards: Card[]
 }
@@ -128,6 +131,8 @@ export function PublicPageRenderer({
   receiptFloatAnimation,
   ipodStickers,
   ipodTexture,
+  macPattern,
+  macPatternColor,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -205,6 +210,8 @@ export function PublicPageRenderer({
         cards={cards}
         headingSize={headingSize}
         bodySize={bodySize}
+        macPattern={macPattern}
+        macPatternColor={macPatternColor}
       />
     )
   }

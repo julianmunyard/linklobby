@@ -18,8 +18,22 @@ const FRAME_OPTIONS = [
   { id: 'awge-tv', label: 'AWGE TV', path: '/frames/awge-tv.png' },
 ] as const
 
+// Macintosh desktop patterns
+const MAC_PATTERN_OPTIONS = [
+  { id: '', label: 'Default', path: '', preview: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px' },
+  { id: 'pattern-1', label: 'Checker', path: '/images/mac-patterns/pattern-1.png' },
+  { id: 'pattern-2', label: 'Cross', path: '/images/mac-patterns/pattern-2.png' },
+  { id: 'pattern-3', label: 'Grid', path: '/images/mac-patterns/pattern-3.png' },
+  { id: 'pattern-4', label: 'Scale', path: '/images/mac-patterns/pattern-4.png' },
+] as const
+
 export function BackgroundControls() {
   const { background, setBackground } = useThemeStore()
+  const themeId = useThemeStore((s) => s.themeId)
+  const macPattern = useThemeStore((s) => s.macPattern)
+  const macPatternColor = useThemeStore((s) => s.macPatternColor)
+  const setMacPattern = useThemeStore((s) => s.setMacPattern)
+  const setMacPatternColor = useThemeStore((s) => s.setMacPatternColor)
   const [isUploading, setIsUploading] = useState(false)
   const [isVideoUploading, setIsVideoUploading] = useState(false)
   const [videoUrl, setVideoUrl] = useState(background.type === 'video' ? background.value : '')
@@ -130,6 +144,51 @@ export function BackgroundControls() {
 
   const handleDimIntensityChange = (value: number[]) => {
     setBackground({ ...background, dimIntensity: value[0] })
+  }
+
+  // Macintosh theme has its own background system
+  if (themeId === 'macintosh') {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Label className="text-xs font-medium text-muted-foreground mb-3 block">Desktop Pattern</Label>
+          <div className="grid grid-cols-5 gap-2">
+            {MAC_PATTERN_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => setMacPattern(opt.path)}
+                className={`aspect-square rounded border-2 overflow-hidden transition-all ${
+                  macPattern === opt.path
+                    ? 'border-primary ring-2 ring-primary/30'
+                    : 'border-border hover:border-muted-foreground'
+                }`}
+                title={opt.label}
+              >
+                {opt.path ? (
+                  <img
+                    src={opt.path}
+                    alt={opt.label}
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full"
+                    style={{ background: opt.preview }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <ColorPicker
+          label="Background Color"
+          color={macPatternColor}
+          onChange={setMacPatternColor}
+        />
+      </div>
+    )
   }
 
   return (

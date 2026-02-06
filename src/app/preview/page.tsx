@@ -122,6 +122,8 @@ function PreviewContent() {
             receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
             ipodStickers: ts.ipodStickers ?? [],
             ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
+            macPattern: ts.macPattern ?? '',
+            macPatternColor: ts.macPatternColor ?? '#c0c0c0',
           })
         }
       }

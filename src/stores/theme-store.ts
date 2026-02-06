@@ -24,6 +24,8 @@ interface ThemeStore extends ThemeState {
   ipodStickers: ReceiptSticker[]  // iPod theme: draggable stickers
   ipodTexture: string  // iPod theme: texture overlay path
   ipodFont: string  // iPod theme: font choice ('system' or 'pix-chicago')
+  macPattern: string  // Macintosh theme: pattern image path ('' = default CSS checkerboard)
+  macPatternColor: string  // Macintosh theme: background color behind pattern
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -46,6 +48,8 @@ interface ThemeStore extends ThemeState {
   removeIpodSticker: (id: string) => void
   setIpodTexture: (texture: string) => void
   setIpodFont: (font: string) => void
+  setMacPattern: (pattern: string) => void
+  setMacPatternColor: (color: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -110,6 +114,8 @@ export const useThemeStore = create<ThemeStore>()(
       ipodStickers: [],
       ipodTexture: '/images/metal-texture.jpeg',
       ipodFont: 'system',
+      macPattern: '',
+      macPatternColor: '#c0c0c0',
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -294,6 +300,14 @@ export const useThemeStore = create<ThemeStore>()(
         set({ ipodFont: font, hasChanges: true })
       },
 
+      setMacPattern: (pattern: string) => {
+        set({ macPattern: pattern, hasChanges: true })
+      },
+
+      setMacPatternColor: (color: string) => {
+        set({ macPatternColor: color, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -336,6 +350,8 @@ export const useThemeStore = create<ThemeStore>()(
           ipodStickers: theme.ipodStickers ?? [],
           ipodTexture: theme.ipodTexture ?? '/images/metal-texture.jpeg',
           ipodFont: theme.ipodFont ?? 'system',
+          macPattern: theme.macPattern ?? '',
+          macPatternColor: theme.macPatternColor ?? '#c0c0c0',
           hasChanges: false,
         })
       },
@@ -357,6 +373,8 @@ export const useThemeStore = create<ThemeStore>()(
           ipodStickers: state.ipodStickers,
           ipodTexture: state.ipodTexture,
           ipodFont: state.ipodFont,
+          macPattern: state.macPattern,
+          macPatternColor: state.macPatternColor,
         }
       },
     }),
