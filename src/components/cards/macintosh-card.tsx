@@ -92,12 +92,13 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
           className="flex-shrink-0 px-2 relative z-10"
           style={{
             fontFamily: TITLE_FONT,
-            fontSize: '18px',
+            fontSize: '16px',
             letterSpacing: '2px',
             lineHeight: '1',
             color: '#000',
             background: bgColor,
             whiteSpace: 'nowrap',
+            padding: '4px 8px',
           }}
         >
           {title}
@@ -125,7 +126,7 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
           className="flex-shrink-0 px-2 relative z-10"
           style={{
             fontFamily: TITLE_FONT,
-            fontSize: '18px',
+            fontSize: '16px',
             letterSpacing: '2px',
             lineHeight: '1',
             color: '#000',
@@ -224,7 +225,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             <p
               style={{
                 fontFamily: TITLE_FONT,
-                fontSize: '16px',
+                fontSize: '14px',
                 color: '#666',
               }}
             >
@@ -237,7 +238,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                   key={i}
                   style={{
                     fontFamily: TITLE_FONT,
-                    fontSize: '16px',
+                    fontSize: '14px',
                     color: '#000',
                     padding: '4px 0',
                     borderBottom: '1px solid rgba(0,0,0,0.1)',
@@ -250,21 +251,9 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             </ul>
           )}
         </div>
-        {/* Bottom area: fold box in bottom-left corner, page number centered */}
+        {/* Bottom area: fold box in bottom-left corner */}
         <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 0 0' }}>
           <NotepadFoldBox />
-          <div
-            style={{
-              flex: 1,
-              textAlign: 'center',
-              fontFamily: TITLE_FONT,
-              fontSize: '20px',
-              color: '#000',
-              paddingBottom: '4px',
-            }}
-          >
-            1
-          </div>
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
@@ -292,11 +281,11 @@ export function MacintoshSmallWindow({ card, onClick, isSelected }: MacCardProps
       <div style={{ background: '#d0e4ff', minHeight: '80px', position: 'relative' }}>
         <div style={{ padding: '12px 16px', background: '#fff', margin: '8px', border: '1px solid #000' }}>
           {macMode === 'video' && card.url ? (
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#000' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
               {'\u25B6'} {card.title || 'Video'}
             </p>
           ) : (
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#000' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
               {card.title || card.url || 'Empty window'}
             </p>
           )}
@@ -335,20 +324,20 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
       <div style={{ background: '#fff', minHeight: '120px', padding: '16px' }}>
         {macMode === 'video' && card.url ? (
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '18px', color: '#000' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
               {'\u25B6'} {card.title || 'Video'}
             </p>
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#666', marginTop: '4px' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
               {card.url}
             </p>
           </div>
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontFamily: TITLE_FONT, fontSize: '18px', color: '#000' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
               {card.title || card.url || 'Empty window'}
             </p>
             {card.url && card.title && (
-              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
                 {card.url}
               </p>
             )}
@@ -431,7 +420,7 @@ export function MacintoshMap({ card, onClick, isSelected }: MacCardProps) {
               key={label}
               style={{
                 fontFamily: TITLE_FONT,
-                fontSize: '11px',
+                fontSize: '9px',
                 color: '#000',
                 border: '1px solid #000',
                 padding: '2px 6px',
@@ -476,7 +465,7 @@ export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps)
             padding: '8px 12px',
             textAlign: 'right',
             fontFamily: TITLE_FONT,
-            fontSize: '24px',
+            fontSize: '22px',
             color: '#000',
             marginBottom: '8px',
           }}
@@ -494,7 +483,7 @@ export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps)
                 padding: '6px',
                 textAlign: 'center',
                 fontFamily: TITLE_FONT,
-                fontSize: '16px',
+                fontSize: '14px',
                 color: '#000',
                 cursor: 'default',
               }}

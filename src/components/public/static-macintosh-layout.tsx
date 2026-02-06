@@ -294,10 +294,9 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
             </ul>
           )}
         </div>
-        {/* Fold box in bottom-left corner, page number centered */}
+        {/* Fold box in bottom-left corner */}
         <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 0 0' }}>
           <StaticFoldBox />
-          <div style={{ flex: 1, textAlign: 'center', fontFamily: TITLE_FONT, fontSize: '18px', color: '#000', paddingBottom: '4px' }}>1</div>
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
