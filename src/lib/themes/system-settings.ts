@@ -79,5 +79,75 @@ export const systemSettingsTheme: ThemeConfig = {
         link: 'oklch(0.55 0.20 330)',
       },
     },
+    {
+      id: 'terminal',
+      name: 'Terminal',
+      transparent: true,
+      colors: {
+        background: '#133e09',
+        cardBg: '#133e09',        // Same as bg (transparent cards)
+        text: '#dada19',
+        accent: '#133e09',
+        border: '#dada19',
+        link: '#dada19',
+        titleBarLine: '#dada19',
+      },
+    },
+    {
+      id: 'nautical',
+      name: 'Nautical',
+      transparent: true,
+      colors: {
+        background: '#122d81',
+        cardBg: '#122d81',        // Same as bg (transparent cards)
+        text: '#dedec7',
+        accent: '#122d81',
+        border: '#dedec7',
+        link: '#dedec7',
+        titleBarLine: '#dedec7',
+      },
+    },
+    {
+      id: 'amber',
+      name: 'Amber',
+      transparent: true,
+      colors: {
+        background: '#cd8e0e',
+        cardBg: '#cd8e0e',        // Same as bg (transparent cards)
+        text: '#e8ead2',
+        accent: '#cd8e0e',
+        border: '#e8ead2',
+        link: '#e8ead2',
+        titleBarLine: '#e8ead2',
+      },
+    },
+    {
+      id: 'cherry-wave',
+      name: 'Cherry Wave',
+      transparent: false,
+      colors: {
+        background: '#a70000',
+        cardBg: '#9bdde0',
+        text: '#ffffff',
+        accent: '#9bdde0',        // Inner box same as card
+        border: '#ffffff',
+        link: '#ffffff',
+        titleBarLine: '#ffffff',
+      },
+    },
+    {
+      id: 'red-label',
+      name: 'Red Label',
+      transparent: false,
+      colors: {
+        background: '#ffffff',
+        cardBg: '#ac0000',
+        text: '#ffffff',
+        accent: '#a70000',        // Slightly different red for inner box
+        border: '#ffffff',
+        link: '#a70000',
+        titleBarLine: '#ffffff',
+      },
+    },
   ],
 }

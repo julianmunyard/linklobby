@@ -89,7 +89,7 @@ export interface ThemeConfig {
   defaultColors: ColorPalette
   defaultFonts: FontConfig
   defaultStyle: StyleConfig
-  palettes: Array<{ id: string; name: string; colors: ColorPalette }>
+  palettes: Array<{ id: string; name: string; colors: ColorPalette; transparent?: boolean }>
   // Theme-specific features
   hasTrafficLights?: boolean   // Mac OS only
   hasGlassEffect?: boolean     // For glass-style themes
