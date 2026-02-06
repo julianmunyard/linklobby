@@ -181,15 +181,17 @@ function NotepadFoldBox() {
       style={{
         width: `${FOLD_SIZE}px`,
         height: `${FOLD_SIZE}px`,
-        border: '2px solid #000',
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
       <svg
         viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
-        style={{ width: '100%', height: '100%', display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block', overflow: 'visible' }}
       >
+        {/* Top border line – extends past to meet outer edge of right line */}
+        <line x1="0" y1="0" x2={FOLD_SIZE + 1} y2="0" stroke="#000" strokeWidth="2" />
+        {/* Right border line – extends up to meet outer edge of top line */}
+        <line x1={FOLD_SIZE} y1={-1} x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" />
         {/* Dashed diagonal from top-left to bottom-right */}
         <line
           x1="0" y1="0"
@@ -248,8 +250,8 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             </ul>
           )}
         </div>
-        {/* Bottom area: fold box on left, page number centered */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 4px' }}>
+        {/* Bottom area: fold box in bottom-left corner, page number centered */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 0 0' }}>
           <NotepadFoldBox />
           <div
             style={{
@@ -265,8 +267,10 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
           </div>
         </div>
       </div>
-      {/* 4 full-width stacked page lines */}
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      {/* 4 stacked page lines – first one starts after the fold triangle */}
+      <div style={{ background: '#FFF3B0', height: '3px' }}>
+        <div style={{ borderTop: '2px solid #000', marginLeft: `${FOLD_SIZE}px`, height: '100%' }} />
+      </div>
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />

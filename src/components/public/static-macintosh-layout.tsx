@@ -288,14 +288,16 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
             </ul>
           )}
         </div>
-        {/* Fold box + page number */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 4px' }}>
+        {/* Fold box in bottom-left corner, page number centered */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 0 0' }}>
           <StaticFoldBox />
           <div style={{ flex: 1, textAlign: 'center', fontFamily: TITLE_FONT, fontSize: '20px', color: '#000', paddingBottom: '4px' }}>1</div>
         </div>
       </div>
-      {/* 4 full-width stacked page lines */}
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      {/* 4 stacked page lines – first one starts after the fold triangle */}
+      <div style={{ background: '#FFF3B0', height: '3px' }}>
+        <div style={{ borderTop: '2px solid #000', marginLeft: `${FOLD_SIZE}px`, height: '100%' }} />
+      </div>
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
       <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
@@ -311,15 +313,15 @@ function StaticFoldBox() {
       style={{
         width: `${FOLD_SIZE}px`,
         height: `${FOLD_SIZE}px`,
-        border: '2px solid #000',
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
       <svg
         viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
-        style={{ width: '100%', height: '100%', display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block', overflow: 'visible' }}
       >
+        <line x1="0" y1="0" x2={FOLD_SIZE + 1} y2="0" stroke="#000" strokeWidth="2" />
+        <line x1={FOLD_SIZE} y1={-1} x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" />
         <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" strokeDasharray="3,3" />
       </svg>
     </div>
