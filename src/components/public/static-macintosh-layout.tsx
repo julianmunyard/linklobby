@@ -380,7 +380,9 @@ function StaticSmallWindow({ card, onClick, bodySize }: { card: Card; onClick: (
 function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: () => void; bodySize?: number }) {
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
+  const macBodyText = (content?.macBodyText as string) || ''
   const title = card.title || 'Window'
+  const bodyText = macBodyText || card.title || card.url || 'Empty window'
   const fontSize = bodySize ? `${16 * bodySize}px` : '16px'
 
   return (
@@ -394,7 +396,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
         {macMode === 'video' && card.url ? (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-              {'\u25B6'} {card.title || 'Video'}
+              {'\u25B6'} {macBodyText || card.title || 'Video'}
             </p>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
               {card.url}
@@ -403,9 +405,9 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
         ) : (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-              {card.title || card.url || 'Empty window'}
+              {bodyText}
             </p>
-            {card.url && card.title && (
+            {card.url && (
               <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
                 {card.url}
               </p>

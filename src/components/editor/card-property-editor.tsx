@@ -355,6 +355,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {(macWindowStyle === 'small-window' || macWindowStyle === 'large-window') && (
               <MacWindowFields
                 macMode={(currentContent.macMode as string) || 'link'}
+                macBodyText={(currentContent.macBodyText as string) || ''}
                 onChange={handleContentChange}
               />
             )}

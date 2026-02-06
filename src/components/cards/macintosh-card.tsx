@@ -315,7 +315,9 @@ export function MacintoshSmallWindow({ card, onClick, isSelected }: MacCardProps
 export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps) {
   const content = card.content as Record<string, unknown>
   const macMode = (content?.macMode as string) || 'link'
+  const macBodyText = (content?.macBodyText as string) || ''
   const title = card.title || 'Window'
+  const bodyText = macBodyText || card.title || card.url || 'Empty window'
 
   return (
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
@@ -325,7 +327,7 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
         {macMode === 'video' && card.url ? (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
-              {'\u25B6'} {card.title || 'Video'}
+              {'\u25B6'} {macBodyText || card.title || 'Video'}
             </p>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
               {card.url}
@@ -334,9 +336,9 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
         ) : (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
-              {card.title || card.url || 'Empty window'}
+              {bodyText}
             </p>
-            {card.url && card.title && (
+            {card.url && (
               <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
                 {card.url}
               </p>
