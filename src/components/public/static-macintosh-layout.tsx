@@ -161,12 +161,14 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
       <div style={{ position: 'relative', zIndex: 1, margin: '0 4px', flexShrink: 0 }}>
         <CloseBox />
       </div>
-      {/* Spacer to center title */}
-      <div className="flex-1" />
+      {/* Title centered absolutely relative to full bar width */}
       {title && (
         <div
-          className="flex-shrink-0"
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             fontFamily: TITLE_FONT,
             fontSize: '16px',
             letterSpacing: '2px',
@@ -174,15 +176,13 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
             color: '#000',
             background: bgColor,
             whiteSpace: 'nowrap',
-            position: 'relative',
-            zIndex: 1,
             padding: '4px 8px',
+            zIndex: 10,
           }}
         >
           {title}
         </div>
       )}
-      <div className="flex-1" />
     </div>
   )
 }
@@ -195,14 +195,17 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
         height: '28px',
         borderBottom: MAC_BORDER,
         background: CHECKERBOARD,
+        position: 'relative',
       }}
     >
       <CloseBox />
-      <div className="flex-1" />
       {title && (
         <div
-          className="flex-shrink-0 px-2"
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             fontFamily: TITLE_FONT,
             fontSize: '16px',
             letterSpacing: '2px',
@@ -210,14 +213,13 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
             color: '#000',
             background: '#fff',
             whiteSpace: 'nowrap',
-            position: 'relative',
-            zIndex: 1,
+            padding: '4px 8px',
+            zIndex: 10,
           }}
         >
           {title}
         </div>
       )}
-      <div className="flex-1" />
     </div>
   )
 }

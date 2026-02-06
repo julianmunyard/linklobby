@@ -85,12 +85,14 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
       <div className="relative z-10 mx-1">
         <CloseBox />
       </div>
-      {/* Spacer to center title */}
-      <div className="flex-1" />
+      {/* Title centered absolutely relative to full bar width */}
       {title && (
         <div
-          className="flex-shrink-0 px-2 relative z-10"
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             fontFamily: TITLE_FONT,
             fontSize: '16px',
             letterSpacing: '2px',
@@ -99,12 +101,12 @@ function LinesTitleBar({ title, bgColor = '#fff' }: { title?: string; bgColor?: 
             background: bgColor,
             whiteSpace: 'nowrap',
             padding: '4px 8px',
+            zIndex: 10,
           }}
         >
           {title}
         </div>
       )}
-      <div className="flex-1" />
     </div>
   )
 }
@@ -117,14 +119,17 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
         height: '28px',
         borderBottom: MAC_BORDER,
         background: CHECKERBOARD,
+        position: 'relative',
       }}
     >
       <CloseBox />
-      <div className="flex-1" />
       {title && (
         <div
-          className="flex-shrink-0 px-2 relative z-10"
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             fontFamily: TITLE_FONT,
             fontSize: '16px',
             letterSpacing: '2px',
@@ -132,12 +137,13 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
             color: '#000',
             background: '#fff',
             whiteSpace: 'nowrap',
+            padding: '4px 8px',
+            zIndex: 10,
           }}
         >
           {title}
         </div>
       )}
-      <div className="flex-1" />
     </div>
   )
 }
