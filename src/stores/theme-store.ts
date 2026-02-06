@@ -134,11 +134,11 @@ export const useThemeStore = create<ThemeStore>()(
             value: '/images/receipt-bg-default.jpeg',
           }
         } else {
-          // Other themes: sync background if solid
-          const state = get()
-          newBackground = state.background.type === 'solid'
-            ? { ...state.background, value: defaults.colors.background }
-            : state.background
+          // Always reset to solid background with theme's default color
+          newBackground = {
+            type: 'solid',
+            value: defaults.colors.background,
+          }
         }
 
         set({
@@ -163,10 +163,11 @@ export const useThemeStore = create<ThemeStore>()(
         set({
           paletteId,
           colors: palette.colors,
-          // Sync background if solid
-          background: state.background.type === 'solid'
-            ? { ...state.background, value: palette.colors.background }
-            : state.background,
+          // Always sync background to palette color (reset to solid)
+          background: {
+            type: 'solid',
+            value: palette.colors.background,
+          },
           hasChanges: true,
         })
       },
@@ -319,10 +320,11 @@ export const useThemeStore = create<ThemeStore>()(
           colors: defaults.colors,
           fonts: defaults.fonts,
           style: defaults.style,
-          // Sync background if solid
-          background: state.background.type === 'solid'
-            ? { ...state.background, value: defaults.colors.background }
-            : state.background,
+          // Always reset background to solid with default color
+          background: {
+            type: 'solid',
+            value: defaults.colors.background,
+          },
           hasChanges: true,
         })
       },
