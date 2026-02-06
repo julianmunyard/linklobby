@@ -253,7 +253,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
     >
       {/* White title bar */}
       <LinesTitleBar title={title} bgColor="#fff" />
-      <div style={{ background: '#FFF3B0', position: 'relative', minHeight: '100px' }}>
+      <div style={{ background: '#FFF3B0', minHeight: '100px' }}>
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#666' }}>No links yet...</p>
@@ -288,55 +288,40 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
             </ul>
           )}
         </div>
+        {/* Fold box + page number */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 4px' }}>
+          <StaticFoldBox />
+          <div style={{ flex: 1, textAlign: 'center', fontFamily: TITLE_FONT, fontSize: '20px', color: '#000', paddingBottom: '4px' }}>1</div>
+        </div>
       </div>
-      {/* Bottom section: 3 page lines + corner fold */}
-      <StaticNotepadPageFold />
+      {/* 4 full-width stacked page lines */}
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
     </div>
   )
 }
 
-const FOLD_SIZE = 28
+const FOLD_SIZE = 36
 
-function StaticNotepadPageFold() {
+function StaticFoldBox() {
   return (
-    <div style={{ background: '#FFF3B0' }}>
-      {/* Line 3 (top): stops short on left, then right-angle fold */}
-      <div style={{ position: 'relative', height: `${FOLD_SIZE}px` }}>
-        {/* The fold triangle in the bottom-left */}
-        <svg
-          width={FOLD_SIZE}
-          height={FOLD_SIZE}
-          viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
-          style={{ position: 'absolute', bottom: 0, left: 0, display: 'block' }}
-        >
-          <polygon points={`0,0 ${FOLD_SIZE},${FOLD_SIZE} 0,${FOLD_SIZE}`} fill="#000" />
-          <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#FFF3B0" strokeWidth="2" strokeDasharray="3,3" />
-        </svg>
-        {/* Top line: starts after fold box, goes to right edge */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: `${FOLD_SIZE}px`,
-            right: 0,
-            borderTop: '2px solid #000',
-          }}
-        />
-        {/* Vertical line: right edge of fold box, from top line down */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: `${FOLD_SIZE}px`,
-            bottom: 0,
-            borderLeft: '2px solid #000',
-          }}
-        />
-      </div>
-      {/* Line 2: full width */}
-      <div style={{ borderTop: '2px solid #000', height: '3px' }} />
-      {/* Line 1: full width (card border acts as the bottom line) */}
-      <div style={{ borderTop: '2px solid #000', height: '2px' }} />
+    <div
+      style={{
+        width: `${FOLD_SIZE}px`,
+        height: `${FOLD_SIZE}px`,
+        border: '2px solid #000',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <svg
+        viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      >
+        <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" strokeDasharray="3,3" />
+      </svg>
     </div>
   )
 }

@@ -169,55 +169,36 @@ function WindowWrapper({
   )
 }
 
-// ─── Notepad Page Fold ──────────────────────────────────────────────────────
-// 3 lines at the bottom. Bottom 2 span full width. Top line (3rd) stops
-// short on left, goes up then left forming a right-angle box with a dashed
-// diagonal inside (torn paper effect).
+// ─── Notepad Page Fold Box ──────────────────────────────────────────────────
+// Square box with dashed diagonal inside, sits in bottom-left of content area.
+// Separate from the 4 full-width stacked page lines below.
 
-const FOLD_SIZE = 28 // px - size of the fold box
+const FOLD_SIZE = 36
 
-function NotepadPageFold() {
+function NotepadFoldBox() {
   return (
-    <div style={{ background: '#FFF3B0' }}>
-      {/* Line 3 (top): stops short on left, then right-angle fold */}
-      <div style={{ position: 'relative', height: `${FOLD_SIZE}px` }}>
-        {/* The fold box in the bottom-left */}
-        <svg
-          width={FOLD_SIZE}
-          height={FOLD_SIZE}
-          viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
-          style={{ position: 'absolute', bottom: 0, left: 0, display: 'block' }}
-        >
-          {/* Triangle fill */}
-          <polygon points={`0,0 ${FOLD_SIZE},${FOLD_SIZE} 0,${FOLD_SIZE}`} fill="#000" />
-          {/* Ribbed dashed diagonal */}
-          <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#FFF3B0" strokeWidth="2" strokeDasharray="3,3" />
-        </svg>
-        {/* Top line: starts after fold box, goes to right edge */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: `${FOLD_SIZE}px`,
-            right: 0,
-            borderTop: '2px solid #000',
-          }}
+    <div
+      style={{
+        width: `${FOLD_SIZE}px`,
+        height: `${FOLD_SIZE}px`,
+        border: '2px solid #000',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <svg
+        viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      >
+        {/* Dashed diagonal from top-left to bottom-right */}
+        <line
+          x1="0" y1="0"
+          x2={FOLD_SIZE} y2={FOLD_SIZE}
+          stroke="#000"
+          strokeWidth="2"
+          strokeDasharray="3,3"
         />
-        {/* Vertical line: right edge of fold box, from top line down */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: `${FOLD_SIZE}px`,
-            bottom: 0,
-            borderLeft: '2px solid #000',
-          }}
-        />
-      </div>
-      {/* Line 2: full width */}
-      <div style={{ borderTop: '2px solid #000', height: '3px' }} />
-      {/* Line 1: full width (card border acts as the bottom line) */}
-      <div style={{ borderTop: '2px solid #000', height: '2px' }} />
+      </svg>
     </div>
   )
 }
@@ -234,7 +215,8 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
       {/* White title bar */}
       <LinesTitleBar title={title} bgColor="#fff" />
       {/* Yellow content area */}
-      <div style={{ background: '#FFF3B0', position: 'relative', minHeight: '100px' }}>
+      <div style={{ background: '#FFF3B0', minHeight: '100px' }}>
+        {/* Links */}
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
             <p
@@ -266,9 +248,28 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             </ul>
           )}
         </div>
+        {/* Bottom area: fold box on left, page number centered */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 8px 4px' }}>
+          <NotepadFoldBox />
+          <div
+            style={{
+              flex: 1,
+              textAlign: 'center',
+              fontFamily: TITLE_FONT,
+              fontSize: '20px',
+              color: '#000',
+              paddingBottom: '4px',
+            }}
+          >
+            1
+          </div>
+        </div>
       </div>
-      {/* Bottom section: 3 page lines + corner fold */}
-      <NotepadPageFold />
+      {/* 4 full-width stacked page lines */}
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
     </WindowWrapper>
   )
 }
