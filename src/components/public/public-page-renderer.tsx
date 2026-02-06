@@ -4,6 +4,7 @@ import { StaticFlowGrid } from "./static-flow-grid"
 import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import { StaticReceiptLayout } from "./static-receipt-layout"
+import { StaticMacintoshLayout } from "./static-macintosh-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -191,6 +192,19 @@ export function PublicPageRenderer({
         receiptPrice={receiptPrice}
         receiptStickers={receiptStickers}
         receiptFloatAnimation={receiptFloatAnimation}
+      />
+    )
+  }
+
+  // Macintosh theme uses Mac desktop layout
+  if (themeId === 'macintosh') {
+    return (
+      <StaticMacintoshLayout
+        username={username}
+        title={displayName || ''}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
       />
     )
   }

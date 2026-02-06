@@ -8,6 +8,7 @@ import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/compon
 import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
 import { ReceiptLayout } from "@/components/cards/receipt-layout"
+import { MacintoshLayout } from "@/components/cards/macintosh-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -212,6 +213,21 @@ function PreviewContent() {
 
         {/* Noise overlay */}
         <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Macintosh theme uses Mac desktop layout
+  if (themeId === 'macintosh') {
+    return (
+      <>
+        <MacintoshLayout
+          title={displayName || ''}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
       </>
     )
   }
