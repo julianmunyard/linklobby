@@ -5,7 +5,7 @@ import { MacintoshCard } from './macintosh-card'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import type { Card } from '@/types/card'
 
-const TITLE_FONT = "var(--font-chicago), 'Chicago', monospace"
+const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 const DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
 
 interface MacintoshLayoutProps {

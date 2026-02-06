@@ -15,9 +15,10 @@ interface MacCardProps {
 // ─── Shared Styles ──────────────────────────────────────────────────────────
 
 const MAC_BORDER = '3px solid #000'
-const TITLE_FONT = "var(--font-chicago), 'Chicago', monospace"
+const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 
-const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, #fff 2px, #fff 4px)'
+// 6 equal lines: each line is 2px tall, spaced 3px apart within the bar area
+const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, transparent 2px, transparent 5px)'
 const CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8px 8px'
 
 // ─── Router Component ───────────────────────────────────────────────────────
@@ -168,6 +169,59 @@ function WindowWrapper({
   )
 }
 
+// ─── Notepad Page Fold ──────────────────────────────────────────────────────
+// 3 lines at the bottom. Bottom 2 span full width. Top line (3rd) stops
+// short on left, goes up then left forming a right-angle box with a dashed
+// diagonal inside (torn paper effect).
+
+const FOLD_SIZE = 28 // px - size of the fold box
+
+function NotepadPageFold() {
+  return (
+    <div style={{ background: '#FFF3B0' }}>
+      {/* Line 3 (top): stops short on left, then right-angle fold */}
+      <div style={{ position: 'relative', height: `${FOLD_SIZE}px` }}>
+        {/* The fold box in the bottom-left */}
+        <svg
+          width={FOLD_SIZE}
+          height={FOLD_SIZE}
+          viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
+          style={{ position: 'absolute', bottom: 0, left: 0, display: 'block' }}
+        >
+          {/* Triangle fill */}
+          <polygon points={`0,0 ${FOLD_SIZE},${FOLD_SIZE} 0,${FOLD_SIZE}`} fill="#000" />
+          {/* Ribbed dashed diagonal */}
+          <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#FFF3B0" strokeWidth="2" strokeDasharray="3,3" />
+        </svg>
+        {/* Top line: starts after fold box, goes to right edge */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: `${FOLD_SIZE}px`,
+            right: 0,
+            borderTop: '2px solid #000',
+          }}
+        />
+        {/* Vertical line: right edge of fold box, from top line down */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: `${FOLD_SIZE}px`,
+            bottom: 0,
+            borderLeft: '2px solid #000',
+          }}
+        />
+      </div>
+      {/* Line 2: full width */}
+      <div style={{ borderTop: '2px solid #000', height: '3px' }} />
+      {/* Line 1: full width (card border acts as the bottom line) */}
+      <div style={{ borderTop: '2px solid #000', height: '2px' }} />
+    </div>
+  )
+}
+
 // ─── 1. NotePad ─────────────────────────────────────────────────────────────
 
 export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
@@ -213,37 +267,8 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
           )}
         </div>
       </div>
-      {/* Bottom section: stacked page lines + corner fold */}
-      <div style={{ position: 'relative', background: '#FFF3B0' }}>
-        {/* Stacked page lines - offset left to make room for fold */}
-        <div style={{ marginLeft: '32px' }}>
-          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
-          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
-          <div style={{ borderTop: '2px solid #000', height: '3px' }} />
-          <div style={{ borderTop: '2px solid #000', height: '2px' }} />
-        </div>
-        {/* Corner fold triangle - bottom left */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '32px',
-            height: '100%',
-          }}
-        >
-          <svg
-            viewBox="0 0 32 16"
-            preserveAspectRatio="none"
-            style={{ width: '100%', height: '100%', display: 'block' }}
-          >
-            {/* Triangle fill */}
-            <polygon points="0,0 32,16 0,16" fill="#000" />
-            {/* Ribbed/dashed diagonal */}
-            <line x1="0" y1="0" x2="32" y2="16" stroke="#FFF3B0" strokeWidth="1.5" strokeDasharray="2,2" />
-          </svg>
-        </div>
-      </div>
+      {/* Bottom section: 3 page lines + corner fold */}
+      <NotepadPageFold />
     </WindowWrapper>
   )
 }
