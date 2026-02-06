@@ -58,7 +58,6 @@ export function MacintoshLayout({
             margin: '40px auto',
             background: '#fff',
             border: '3px solid #000',
-            boxShadow: '4px 4px 0px 0px #fff, 6px 6px 0px 0px #000',
           }}
         >
           <div

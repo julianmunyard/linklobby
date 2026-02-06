@@ -15,7 +15,6 @@ interface MacCardProps {
 // ─── Shared Styles ──────────────────────────────────────────────────────────
 
 const MAC_BORDER = '3px solid #000'
-const MAC_SHADOW = '4px 4px 0px 0px #fff, 6px 6px 0px 0px #000'
 const TITLE_FONT = "var(--font-vt323), 'Chicago', monospace"
 
 const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, #fff 2px, #fff 4px)'
@@ -146,7 +145,6 @@ function WindowWrapper({
       onClick={onClick}
       style={{
         border: MAC_BORDER,
-        boxShadow: MAC_SHADOW,
         outline: isSelected ? '2px solid #0066ff' : 'none',
         outlineOffset: '2px',
       }}
@@ -165,9 +163,10 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
 
   return (
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
-      <LinesTitleBar title={title} bgColor="#FFF3B0" />
+      {/* White title bar */}
+      <LinesTitleBar title={title} bgColor="#fff" />
       {/* Yellow content area */}
-      <div style={{ background: '#FFF3B0', position: 'relative', minHeight: '120px' }}>
+      <div style={{ background: '#FFF3B0', position: 'relative', minHeight: '100px' }}>
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
             <p
@@ -199,30 +198,23 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             </ul>
           )}
         </div>
-        {/* Page number */}
-        <div
-          style={{
-            textAlign: 'center',
-            fontFamily: TITLE_FONT,
-            fontSize: '14px',
-            color: '#999',
-            padding: '4px 0 8px',
-          }}
-        >
-          Page 1
-        </div>
-        {/* Corner fold */}
+        {/* Corner fold - bottom left, simple black triangle */}
         <div
           style={{
             position: 'absolute',
             bottom: 0,
-            right: 0,
-            width: '20px',
-            height: '20px',
-            background: 'linear-gradient(135deg, #FFF3B0 50%, #e6d98a 50%)',
+            left: 0,
+            width: '24px',
+            height: '24px',
+            background: 'linear-gradient(315deg, #FFF3B0 50%, #000 50%)',
           }}
         />
       </div>
+      {/* Stacked page lines at bottom */}
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
     </WindowWrapper>
   )
 }
