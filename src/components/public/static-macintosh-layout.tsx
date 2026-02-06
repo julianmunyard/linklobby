@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useState, useRef } from 'react'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import type { Card } from '@/types/card'
 
@@ -263,7 +263,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
     >
       {/* White title bar */}
       <LinesTitleBar title={title} bgColor="#fff" />
-      <div style={{ background: '#FFF3B0', minHeight: '100px' }}>
+      <div style={{ background: '#F2FFA4', minHeight: '100px' }}>
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#666' }}>No links yet...</p>
@@ -304,12 +304,12 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
-      <div style={{ background: '#FFF3B0', height: '3px' }}>
+      <div style={{ background: '#F2FFA4', height: '3px' }}>
         <div style={{ borderTop: '2px solid #000', marginLeft: `${FOLD_SIZE}px`, height: '100%' }} />
       </div>
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#FFF3B0', borderTop: '2px solid #000', height: '2px' }} />
+      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '2px' }} />
     </div>
   )
 }
@@ -473,6 +473,67 @@ function StaticTitleLink({ card, onClick }: { card: Card; onClick: () => void })
 }
 
 function StaticMap({ card }: { card: Card }) {
+  const ZOOM_LEVELS = [1, 1.5, 2, 3]
+  const [zoomIdx, setZoomIdx] = useState(0)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const dragRef = useRef<{ startX: number; startY: number; startPanX: number; startPanY: number } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const zoom = ZOOM_LEVELS[zoomIdx]
+
+  const clampPan = useCallback((x: number, y: number, scale: number) => {
+    if (scale <= 1) return { x: 0, y: 0 }
+    const maxX = ((scale - 1) / (2 * scale)) * 100
+    const maxY = ((scale - 1) / (2 * scale)) * 100
+    return {
+      x: Math.max(-maxX, Math.min(maxX, x)),
+      y: Math.max(-maxY, Math.min(maxY, y)),
+    }
+  }, [])
+
+  function handleZoomIn(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (zoomIdx < ZOOM_LEVELS.length - 1) {
+      const newIdx = zoomIdx + 1
+      setZoomIdx(newIdx)
+      setPan(clampPan(pan.x, pan.y, ZOOM_LEVELS[newIdx]))
+    }
+  }
+
+  function handleZoomOut(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (zoomIdx > 0) {
+      const newIdx = zoomIdx - 1
+      setZoomIdx(newIdx)
+      setPan(clampPan(pan.x, pan.y, ZOOM_LEVELS[newIdx]))
+    }
+  }
+
+  function handleReset(e: React.MouseEvent) {
+    e.stopPropagation()
+    setZoomIdx(0)
+    setPan({ x: 0, y: 0 })
+  }
+
+  function handlePointerDown(e: React.PointerEvent) {
+    if (zoom <= 1) return
+    e.stopPropagation()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPanX: pan.x, startPanY: pan.y }
+  }
+
+  function handlePointerMove(e: React.PointerEvent) {
+    if (!dragRef.current || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const dx = ((e.clientX - dragRef.current.startX) / rect.width) * 100
+    const dy = ((e.clientY - dragRef.current.startY) / rect.height) * 100
+    setPan(clampPan(dragRef.current.startPanX + dx / zoom, dragRef.current.startPanY + dy / zoom, zoom))
+  }
+
+  function handlePointerUp() {
+    dragRef.current = null
+  }
+
   return (
     <div
       data-card-id={card.id}
@@ -481,52 +542,45 @@ function StaticMap({ card }: { card: Card }) {
       <LinesTitleBar title="Map" />
       <div style={{ background: '#fff', padding: '8px', position: 'relative' }}>
         <div
+          ref={containerRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
           style={{
-            height: '140px',
-            background: '#fff',
+            height: '180px',
+            background: '#9EFFD5',
             border: '1px solid #000',
             position: 'relative',
             overflow: 'hidden',
+            cursor: zoom > 1 ? 'grab' : 'default',
+            touchAction: 'none',
           }}
         >
-          <svg viewBox="0 0 200 100" style={{ width: '100%', height: '100%' }}>
-            <rect x="20" y="15" width="30" height="5" fill="#000" />
-            <rect x="15" y="20" width="40" height="5" fill="#000" />
-            <rect x="18" y="25" width="35" height="5" fill="#000" />
-            <rect x="20" y="30" width="30" height="5" fill="#000" />
-            <rect x="25" y="35" width="20" height="5" fill="#000" />
-            <rect x="28" y="40" width="12" height="5" fill="#000" />
-            <rect x="42" y="50" width="15" height="5" fill="#000" />
-            <rect x="45" y="55" width="12" height="5" fill="#000" />
-            <rect x="44" y="60" width="10" height="5" fill="#000" />
-            <rect x="43" y="65" width="8" height="5" fill="#000" />
-            <rect x="44" y="70" width="6" height="5" fill="#000" />
-            <rect x="45" y="75" width="4" height="3" fill="#000" />
-            <rect x="90" y="15" width="15" height="5" fill="#000" />
-            <rect x="88" y="20" width="18" height="5" fill="#000" />
-            <rect x="85" y="25" width="20" height="5" fill="#000" />
-            <rect x="88" y="35" width="18" height="5" fill="#000" />
-            <rect x="90" y="40" width="16" height="5" fill="#000" />
-            <rect x="92" y="45" width="14" height="5" fill="#000" />
-            <rect x="93" y="50" width="12" height="5" fill="#000" />
-            <rect x="94" y="55" width="10" height="5" fill="#000" />
-            <rect x="95" y="60" width="8" height="5" fill="#000" />
-            <rect x="96" y="65" width="5" height="3" fill="#000" />
-            <rect x="110" y="10" width="35" height="5" fill="#000" />
-            <rect x="108" y="15" width="45" height="5" fill="#000" />
-            <rect x="110" y="20" width="50" height="5" fill="#000" />
-            <rect x="115" y="25" width="40" height="5" fill="#000" />
-            <rect x="120" y="30" width="30" height="5" fill="#000" />
-            <rect x="125" y="35" width="20" height="5" fill="#000" />
-            <rect x="150" y="60" width="15" height="5" fill="#000" />
-            <rect x="148" y="65" width="18" height="5" fill="#000" />
-            <rect x="150" y="70" width="12" height="5" fill="#000" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/mac-pixel-map.png"
+            alt="Pixel art world map"
+            draggable={false}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              imageRendering: 'pixelated',
+              transform: `scale(${zoom}) translate(${pan.x}%, ${pan.y}%)`,
+              transformOrigin: 'center center',
+              transition: dragRef.current ? 'none' : 'transform 0.15s ease-out',
+            }}
+          />
         </div>
         <div style={{ display: 'flex', gap: '4px', marginTop: '6px', justifyContent: 'flex-end' }}>
-          {['Zoom In', 'Zoom Out', 'Scroll'].map((label) => (
+          {[
+            { label: 'Zoom In', handler: handleZoomIn },
+            { label: 'Zoom Out', handler: handleZoomOut },
+            { label: 'Reset', handler: handleReset },
+          ].map(({ label, handler }) => (
             <div
               key={label}
+              onClick={handler}
               style={{
                 fontFamily: TITLE_FONT,
                 fontSize: '9px',
@@ -534,6 +588,8 @@ function StaticMap({ card }: { card: Card }) {
                 border: '1px solid #000',
                 padding: '2px 6px',
                 background: '#fff',
+                cursor: 'pointer',
+                userSelect: 'none',
               }}
             >
               {label}

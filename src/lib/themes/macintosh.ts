@@ -61,9 +61,9 @@ export const macintoshTheme: ThemeConfig = {
       name: 'Notepad Yellow',
       colors: {
         background: '#aaaaaa',
-        cardBg: '#FFF3B0',
+        cardBg: '#F2FFA4',
         text: '#000000',
-        accent: '#FFF3B0',
+        accent: '#F2FFA4',
         border: '#000000',
         link: '#000000',
       },
