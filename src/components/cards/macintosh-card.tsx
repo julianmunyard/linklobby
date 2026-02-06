@@ -317,7 +317,6 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
   const macMode = (content?.macMode as string) || 'link'
   const macBodyText = (content?.macBodyText as string) || ''
   const title = card.title || 'Window'
-  const bodyText = macBodyText || card.title || card.url || 'Empty window'
 
   return (
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
@@ -336,7 +335,7 @@ export function MacintoshLargeWindow({ card, onClick, isSelected }: MacCardProps
         ) : (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '16px', color: '#000' }}>
-              {bodyText}
+              {macBodyText || '\u00A0'}
             </p>
             {card.url && (
               <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>

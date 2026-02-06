@@ -382,7 +382,6 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
   const macMode = (content?.macMode as string) || 'link'
   const macBodyText = (content?.macBodyText as string) || ''
   const title = card.title || 'Window'
-  const bodyText = macBodyText || card.title || card.url || 'Empty window'
   const fontSize = bodySize ? `${16 * bodySize}px` : '16px'
 
   return (
@@ -405,7 +404,7 @@ function StaticLargeWindow({ card, onClick, bodySize }: { card: Card; onClick: (
         ) : (
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-              {bodyText}
+              {macBodyText || '\u00A0'}
             </p>
             {card.url && (
               <p style={{ fontFamily: TITLE_FONT, fontSize: '10px', color: '#666', marginTop: '4px' }}>
