@@ -12,6 +12,7 @@ import {
 import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 import { generateAppendKey, generatePrependKey, sortCardsBySortKey } from "@/lib/ordering"
 import type { CardType } from "@/types/card"
@@ -36,6 +37,16 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'map' | 'calculator'
+
+const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
+  { label: "Note Pad", macWindowStyle: "notepad" },
+  { label: "Small Window", macWindowStyle: "small-window" },
+  { label: "Large Window", macWindowStyle: "large-window" },
+  { label: "Map", macWindowStyle: "map" },
+  { label: "Calculator", macWindowStyle: "calculator" },
+]
+
 export function CardsTab() {
   const [importDialogOpen, setImportDialogOpen] = useState(false)
 
@@ -44,6 +55,7 @@ export function CardsTab() {
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const themeId = useThemeStore((state) => state.themeId)
 
   // Sort cards in useMemo to avoid infinite loop
   const cards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
@@ -74,7 +86,7 @@ export function CardsTab() {
   }
 
   // Create card in DB first, then add to store with DB-generated id
-  const handleAddCard = async (type: CardType) => {
+  const handleAddCard = async (type: CardType, macWindowStyle?: MacWindowStyle) => {
     try {
       // Social icons go to top by default, others to bottom
       const sortKey = type === "social-icons"
@@ -85,6 +97,21 @@ export function CardsTab() {
 
       // Type-specific default content (text and vertical alignment)
       const defaultContent: Record<string, unknown> = (() => {
+        // Mac window style cards
+        if (macWindowStyle) {
+          switch (macWindowStyle) {
+            case 'notepad':
+              return { macWindowStyle: 'notepad', macLinks: [] }
+            case 'small-window':
+            case 'large-window':
+              return { macWindowStyle, macMode: 'link' }
+            case 'map':
+            case 'calculator':
+              return { macWindowStyle }
+            default:
+              return { macWindowStyle }
+          }
+        }
         switch (type) {
           case "hero":
           case "square":
@@ -110,7 +137,7 @@ export function CardsTab() {
       const position = (type === "mini" || type === "text") ? "center" : "left"
 
       const newCard = await createCard({
-        card_type: type,
+        card_type: macWindowStyle ? "hero" : type,
         title: null,
         description: null,
         url: null,
@@ -170,20 +197,32 @@ export function CardsTab() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="touch-pan-y">
-              {CARD_TYPES.map(({ type, label, singleton }) => {
-                const alreadyExists = singleton && cards.some(c => c.card_type === type)
-                return (
+              {themeId === 'macintosh' ? (
+                MAC_CARD_TYPES.map(({ label, macWindowStyle }) => (
                   <DropdownMenuItem
-                    key={type}
-                    onClick={() => handleAddCard(type)}
-                    disabled={alreadyExists}
-                    className="min-h-11" // 44px minimum touch target
+                    key={macWindowStyle}
+                    onClick={() => handleAddCard("hero", macWindowStyle)}
+                    className="min-h-11"
                   >
                     {label}
-                    {alreadyExists && " (added)"}
                   </DropdownMenuItem>
-                )
-              })}
+                ))
+              ) : (
+                CARD_TYPES.map(({ type, label, singleton }) => {
+                  const alreadyExists = singleton && cards.some(c => c.card_type === type)
+                  return (
+                    <DropdownMenuItem
+                      key={type}
+                      onClick={() => handleAddCard(type)}
+                      disabled={alreadyExists}
+                      className="min-h-11" // 44px minimum touch target
+                    >
+                      {label}
+                      {alreadyExists && " (added)"}
+                    </DropdownMenuItem>
+                  )
+                })
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

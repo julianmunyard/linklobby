@@ -34,6 +34,8 @@ import { EmailCollectionFields } from "./email-collection-fields"
 import { ReleaseCardFields } from "./release-card-fields"
 import { SocialIconsCardFields } from "./social-icons-card-fields"
 import { LinkCardFields } from "./link-card-fields"
+import { MacNotepadFields } from "./mac-notepad-fields"
+import { MacWindowFields } from "./mac-window-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
@@ -130,6 +132,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
 
   const currentContent = card.content as Record<string, unknown>
   const imageUrl = currentContent.imageUrl as string | undefined
+  const macWindowStyle = currentContent.macWindowStyle as string | undefined
+  const isMacCard = !!macWindowStyle
 
   // Handle card type change
   function handleTypeChange(newType: CardType) {
@@ -278,8 +282,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               />
             </div>
 
-            {/* Card Type Picker - only for convertible types */}
-            {isConvertibleType(card.card_type) && (
+            {/* Card Type Picker - only for convertible types, hidden for Mac cards */}
+            {!isMacCard && isConvertibleType(card.card_type) && (
               <div className="space-y-2">
                 <Label>Card Type</Label>
                 <CardTypePicker
@@ -341,8 +345,27 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               />
             )}
 
-            {/* Image upload - hidden for card types that don't support images */}
-            {!CARD_TYPES_NO_IMAGE.includes(card.card_type) && (
+            {/* Mac-specific fields */}
+            {macWindowStyle === 'notepad' && (
+              <MacNotepadFields
+                macLinks={(currentContent.macLinks as Array<{ title: string; url: string }>) || []}
+                onChange={handleContentChange}
+              />
+            )}
+            {(macWindowStyle === 'small-window' || macWindowStyle === 'large-window') && (
+              <MacWindowFields
+                macMode={(currentContent.macMode as string) || 'link'}
+                onChange={handleContentChange}
+              />
+            )}
+            {(macWindowStyle === 'map' || macWindowStyle === 'calculator') && (
+              <div className="rounded-lg bg-muted/50 px-3 py-2">
+                <p className="text-sm text-muted-foreground">Decorative window — no editable content.</p>
+              </div>
+            )}
+
+            {/* Image upload - hidden for card types that don't support images and Mac cards */}
+            {!isMacCard && !CARD_TYPES_NO_IMAGE.includes(card.card_type) && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Image</label>
                 <ImageUpload
@@ -354,8 +377,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Card Size - visual toggle with SVG icons */}
-            {CARD_TYPE_SIZING[card.card_type] && (
+            {/* Card Size - visual toggle with SVG icons, hidden for Mac cards */}
+            {!isMacCard && CARD_TYPE_SIZING[card.card_type] && (
               <div className="space-y-2">
                 <Label>Card Size</Label>
                 <ToggleGroup
@@ -384,8 +407,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Card Position - for w-fit cards (mini, text) */}
-            {POSITIONABLE_CARD_TYPES.includes(card.card_type) && (
+            {/* Card Position - for w-fit cards (mini, text), hidden for Mac cards */}
+            {!isMacCard && POSITIONABLE_CARD_TYPES.includes(card.card_type) && (
               <div className="space-y-2">
                 <Label>Position</Label>
                 <ToggleGroup
@@ -410,8 +433,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Text Alignment */}
-            <div className="space-y-2">
+            {/* Text Alignment - hidden for Mac cards */}
+            {!isMacCard && <div className="space-y-2">
               <Label>Text Align</Label>
               <ToggleGroup
                 type="single"
@@ -432,10 +455,10 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   <AlignRight className="h-4 w-4" />
                 </ToggleGroupItem>
               </ToggleGroup>
-            </div>
+            </div>}
 
-            {/* Vertical Alignment */}
-            <div className="space-y-2">
+            {/* Vertical Alignment - hidden for Mac cards */}
+            {!isMacCard && <div className="space-y-2">
               <Label>Vertical Align</Label>
               <ToggleGroup
                 type="single"
@@ -456,10 +479,10 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   <AlignVerticalJustifyEnd className="h-4 w-4" />
                 </ToggleGroupItem>
               </ToggleGroup>
-            </div>
+            </div>}
 
-            {/* Transparent Background */}
-            <div className="space-y-2">
+            {/* Transparent Background - hidden for Mac cards */}
+            {!isMacCard && <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Switch
@@ -487,8 +510,11 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   Apply to All
                 </Button>
               </div>
-            </div>
+            </div>}
 
+            {/* Title - hidden for notepad, map, calculator Mac cards */}
+            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window') && (
+            <>
             {/* Title */}
             <FormField
               control={form.control}
@@ -508,8 +534,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               )}
             />
 
-            {/* Description - hidden for square cards */}
-            {card.card_type !== "square" && (
+            {/* Description - hidden for square cards and Mac cards */}
+            {!isMacCard && card.card_type !== "square" && (
               <FormField
                 control={form.control}
                 name="description"
@@ -553,9 +579,11 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 </FormItem>
               )}
             />
+            </>
+            )}
 
             {/* Type-specific fields */}
-            {card.card_type === "hero" && (
+            {!isMacCard && card.card_type === "hero" && (
               <HeroCardFields
                 content={currentContent as HeroCardContent}
                 onChange={handleContentChange}
