@@ -51,7 +51,7 @@ export function StaticMacintoshLayout({
   }, [])
 
   const bgStyle = macPattern
-    ? { backgroundColor: macPatternColor || '#c0c0c0', backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const }
+    ? { backgroundColor: macPatternColor || '#c0c0c0', backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
   return (
