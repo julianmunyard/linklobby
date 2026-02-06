@@ -33,7 +33,7 @@ export function MacintoshLayout({
   )
 
   const bgStyle = macPattern
-    ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat' as const, backgroundSize: '200px', imageRendering: 'pixelated' as const }
+    ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
   return (
