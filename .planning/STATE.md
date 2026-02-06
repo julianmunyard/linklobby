@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 11 of 18 - Analytics, Pixels & Legal
 Plan: 5 of 5 - Complete
 Status: **Phase 11 Complete - Analytics, pixels, and legal compliance built**
-Last activity: 2026-02-06 - Completed quick task 040: Macintosh background pattern zoom in
+Last activity: 2026-02-06 - Completed quick task 041: System Settings colorways
 
 Progress: [█████████████████████████░░░░░░] ~67%
 
@@ -561,6 +561,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 3px borders + double box-shadow | quick-039 | Pixel-art 3D depth: 4px cardBg shadow + 6px text shadow for classic Mac window look |
 | MacintoshCard thin/full routing | quick-039 | link/horizontal/mini get slim frames, all others get full title bar with lines and close box |
 | CSS var references in box-shadow | quick-039 | Use var(--theme-text) and var(--theme-card-bg) in inline styles for palette-reactive shadows |
+| Colorway UI for any theme with palettes | quick-041 | Show colorway swatches below selected theme card when palettes.length > 0, reusable for all themes |
+| Transparent flag on palettes | quick-041 | Optional transparent?: boolean on palette entries controls card transparency when colorway selected |
+| handleColorwaySelect side effects | quick-041 | setPalette + clearCardColorOverrides + setAllCardsTransparency in one action for clean state |
 
 ## Quick Tasks
 
@@ -604,6 +607,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 038 | Clean up design tab controls per theme | Complete | 677fcdc, 1e8a1f2 |
 | 039 | Classic Macintosh theme with window chrome | Complete | 259704d |
 | 040 | Macintosh background pattern zoom in (8px -> 200px) | Complete | 4f306eb |
+| 041 | System Settings colorways (Terminal, Nautical, Amber, Cherry Wave, Red Label) | Complete | f7d8838, 3d051a5 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -683,8 +687,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-06
-Last activity: 2026-02-06 - Completed quick task 040: Macintosh background pattern zoom in
-Stopped at: Quick task 040 complete
+Last activity: 2026-02-06 - Completed quick task 041: System Settings colorways
+Stopped at: Quick task 041 complete
 Resume file: None
 
 **Phase 11 Complete & Verified:** All 5 plans executed across 2 waves. Verifier confirmed 33/33 must-haves, 26/26 artifacts, 16/16 key links.
