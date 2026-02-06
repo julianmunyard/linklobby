@@ -3,6 +3,7 @@
 import { useThemeStore } from '@/stores/theme-store'
 import { MacOSCard } from './mac-os-card'
 import { SystemSettingsCard } from './system-settings-card'
+import { MacintoshCard } from './macintosh-card'
 import { cn } from '@/lib/utils'
 import type { CardType } from '@/types/card'
 
@@ -75,6 +76,13 @@ export function ThemedCardWrapper({ children, cardType, className, content }: Th
         <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent}>
           {children}
         </SystemSettingsCard>
+      )
+
+    case 'macintosh':
+      return (
+        <MacintoshCard className={className} cardType={cardType} transparentBackground={isTransparent}>
+          {children}
+        </MacintoshCard>
       )
 
     case 'instagram-reels':

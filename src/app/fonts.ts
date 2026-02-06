@@ -19,6 +19,9 @@ import {
   Archivo_Black,
   Syne,
   Krona_One,
+  // Retro/Pixel
+  VT323,
+  Courier_Prime,
 } from 'next/font/google'
 import localFont from 'next/font/local'
 
@@ -124,6 +127,21 @@ export const kronaOne = Krona_One({
   subsets: ['latin'],
   weight: ['400'],
   variable: '--font-krona',
+  display: 'swap',
+})
+
+// Macintosh theme fonts (Google Fonts)
+export const vt323 = VT323({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-vt323',
+  display: 'swap',
+})
+
+export const courierPrime = Courier_Prime({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-courier-prime',
   display: 'swap',
 })
 
@@ -243,6 +261,9 @@ export const fontVariables = [
   // Receipt fonts
   ticketDeCaisse.variable,
   hypermarket.variable,
+  // Macintosh fonts
+  vt323.variable,
+  courierPrime.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -280,6 +301,8 @@ export const CURATED_FONTS = [
   { id: 'chicago', name: 'Chicago', variable: 'var(--font-chicago)', category: 'retro' as const },
   { id: 'ticket-de-caisse', name: 'Ticket De Caisse', variable: 'var(--font-ticket-de-caisse)', category: 'retro' as const },
   { id: 'hypermarket', name: 'Hypermarket', variable: 'var(--font-hypermarket)', category: 'retro' as const },
+  { id: 'vt323', name: 'VT323', variable: 'var(--font-vt323)', category: 'retro' as const },
+  { id: 'courier-prime', name: 'Courier Prime', variable: 'var(--font-courier-prime)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
