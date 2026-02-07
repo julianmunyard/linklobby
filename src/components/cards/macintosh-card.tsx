@@ -4,9 +4,13 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 import { Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useProfileStore } from '@/stores/profile-store'
+import { useThemeStore } from '@/stores/theme-store'
+import { PLATFORM_ICONS } from '@/components/editor/social-icon-picker'
+import { GalleryCard } from './gallery-card'
 import type { Card, ReleaseCardContent } from '@/types/card'
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
 
 interface MacCardProps {
   card: Card
@@ -27,6 +31,16 @@ const CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8
 // ─── Router Component ───────────────────────────────────────────────────────
 
 export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardProps) {
+  // Social icons card gets special treatment regardless of macWindowStyle
+  if (card.card_type === 'social-icons') {
+    return <MacintoshSocials card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+  }
+
+  // Gallery card gets special treatment
+  if (card.card_type === 'gallery') {
+    return <MacintoshGallery card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+  }
+
   const style = (card.content as Record<string, unknown>)?.macWindowStyle as MacWindowStyle | undefined
 
   switch (style) {
@@ -38,6 +52,8 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
       return <MacintoshLargeWindow card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'title-link':
       return <MacintoshTitleLink card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+    case 'gallery':
+      return <MacintoshGallery card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'map':
       return <MacintoshMap card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'calculator':
@@ -827,6 +843,68 @@ export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps)
   )
 }
 
+// ─── 7. Socials ─────────────────────────────────────────────────────────────
+
+export function MacintoshSocials({ card, onClick, isSelected }: MacCardProps) {
+  const getSortedSocialIcons = useProfileStore((state) => state.getSortedSocialIcons)
+  const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
+  const socialIconSize = useThemeStore((state) => state.socialIconSize)
+  const socialIcons = getSortedSocialIcons()
+  const content = card.content as Record<string, unknown>
+  const windowBgColor = (content?.socialWindowBgColor as string) || '#fff'
+
+  if (!showSocialIcons || socialIcons.length === 0) {
+    return (
+      <WindowWrapper onClick={onClick} isSelected={isSelected}>
+        <LinesTitleBar title="Socials" />
+        <div style={{ background: windowBgColor, padding: '16px', textAlign: 'center' }}>
+          <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#666' }}>
+            No social icons added
+          </p>
+        </div>
+      </WindowWrapper>
+    )
+  }
+
+  return (
+    <WindowWrapper onClick={onClick} isSelected={isSelected}>
+      <LinesTitleBar title="Socials" />
+      <div style={{ background: windowBgColor, padding: '12px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+          {socialIcons.map((icon) => {
+            const Icon = PLATFORM_ICONS[icon.platform]
+            return (
+              <div
+                key={icon.id}
+                style={{
+                  background: '#000',
+                  clipPath: PIXEL_BTN_CLIP,
+                  padding: '2px',
+                }}
+              >
+                <div
+                  style={{
+                    background: windowBgColor,
+                    clipPath: PIXEL_BTN_CLIP,
+                    padding: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div style={{ color: '#000', width: socialIconSize, height: socialIconSize }}>
+                    <Icon className="w-full h-full" />
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </WindowWrapper>
+  )
+}
+
 // ─── 6. Presave ─────────────────────────────────────────────────────────────
 
 export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
@@ -970,5 +1048,29 @@ export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
         </div>
       </div>
     </WindowWrapper>
+  )
+}
+
+// ─── 8. Gallery (Photos) ────────────────────────────────────────────────────
+
+export function MacintoshGallery({ card, isPreview, onClick, isSelected }: MacCardProps) {
+  const title = card.title || 'Photos'
+
+  return (
+    <div
+      className="cursor-pointer"
+      onClick={onClick}
+      style={{
+        border: MAC_BORDER,
+        outline: isSelected ? '2px solid #0066ff' : 'none',
+        outlineOffset: '2px',
+      }}
+    >
+      <LinesTitleBar title={title} />
+      {/* White content area with gallery inside */}
+      <div style={{ background: '#fff', overflow: 'hidden' }}>
+        <GalleryCard card={card} isPreview={isPreview} />
+      </div>
+    </div>
   )
 }

@@ -223,6 +223,9 @@ function PreviewContent() {
 
   // Macintosh theme uses Mac desktop layout
   if (themeId === 'macintosh') {
+    const macFrameFitContent = background.frameFitContent ?? true
+    const macFrameInsets = background.frameOverlay && macFrameFitContent ? FRAME_INSETS[background.frameOverlay] : null
+
     return (
       <>
         <MacintoshLayout
@@ -231,7 +234,16 @@ function PreviewContent() {
           isPreview={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
+          frameInsets={macFrameInsets}
+          frameZoom={background.frameZoom ?? 1}
+          framePosX={background.framePositionX ?? 0}
+          framePosY={background.framePositionY ?? 0}
         />
+
+        {/* Noise overlay */}
+        <NoiseOverlay />
+        {/* Frame overlay */}
+        <FrameOverlay />
       </>
     )
   }

@@ -9,12 +9,23 @@ import type { Card } from '@/types/card'
 const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 const DEFAULT_DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
 
+interface FrameInsets {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
 interface MacintoshLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
+  frameInsets?: FrameInsets | null
+  frameZoom?: number
+  framePosX?: number
+  framePosY?: number
 }
 
 export function MacintoshLayout({
@@ -23,6 +34,10 @@ export function MacintoshLayout({
   isPreview,
   onCardClick,
   selectedCardId,
+  frameInsets,
+  frameZoom = 1,
+  framePosX = 0,
+  framePosY = 0,
 }: MacintoshLayoutProps) {
   const macPattern = useThemeStore((s) => s.macPattern)
   const macPatternColor = useThemeStore((s) => s.macPatternColor)
@@ -36,9 +51,30 @@ export function MacintoshLayout({
     ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
+  // When frame is active, constrain content inside frame bounds
+  const hasFrame = !!frameInsets
+  const contentStyle: React.CSSProperties = hasFrame
+    ? {
+        position: 'fixed',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        width: `${100 - frameInsets.left - frameInsets.right}vw`,
+        left: `${frameInsets.left}vw`,
+        top: `${frameInsets.top}vh`,
+        bottom: `${frameInsets.bottom}vh`,
+        transform: `scale(${frameZoom}) translate(${framePosX}%, ${framePosY}%)`,
+        transformOrigin: 'center center',
+      }
+    : {
+        minHeight: '100vh',
+        padding: 0,
+        overscrollBehavior: 'none',
+        position: 'relative',
+      }
+
   return (
     <>
-    {/* Fixed background layer */}
+    {/* Fixed background layer - always viewport-level */}
     <div
       style={{
         position: 'fixed',
@@ -50,14 +86,7 @@ export function MacintoshLayout({
         ...bgStyle,
       }}
     />
-    <div
-      style={{
-        minHeight: '100vh',
-        padding: 0,
-        overscrollBehavior: 'none',
-        position: 'relative',
-      }}
-    >
+    <div style={contentStyle}>
       {/* Mac Menu Bar */}
       <div
         style={{
@@ -71,7 +100,7 @@ export function MacintoshLayout({
           fontFamily: TITLE_FONT,
           fontSize: '12px',
           color: '#000',
-          position: 'fixed',
+          position: hasFrame ? 'sticky' : 'fixed',
           top: 0,
           left: 0,
           right: 0,
@@ -100,7 +129,7 @@ export function MacintoshLayout({
         style={{
           textAlign: 'center',
           margin: '0 16px 24px',
-          paddingTop: '52px',
+          paddingTop: hasFrame ? '24px' : '52px',
           fontFamily: TITLE_FONT,
           fontSize: '22px',
           letterSpacing: '2px',

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
+import { usePageStore } from "@/stores/page-store"
+import { ColorPicker } from "@/components/ui/color-picker"
 import { PLATFORM_ICONS } from "./social-icon-picker"
 import { SOCIAL_PLATFORMS, type SocialPlatform, type SocialIcon } from "@/types/profile"
 
@@ -30,6 +32,16 @@ export function SocialIconsCardFields() {
   const removeSocialIcon = useProfileStore((state) => state.removeSocialIcon)
   const socialIconSize = useThemeStore((state) => state.socialIconSize)
   const setSocialIconSize = useThemeStore((state) => state.setSocialIconSize)
+  const socialIconColor = useProfileStore((state) => state.socialIconColor)
+  const setSocialIconColor = useProfileStore((state) => state.setSocialIconColor)
+  const themeTextColor = useThemeStore((state) => state.colors.text)
+  const headerTextColor = useProfileStore((state) => state.headerTextColor)
+  const themeId = useThemeStore((state) => state.themeId)
+  const selectedCardId = usePageStore((state) => state.selectedCardId)
+  const cards = usePageStore((state) => state.cards)
+  const updateCard = usePageStore((state) => state.updateCard)
+  const selectedCard = cards.find((c) => c.id === selectedCardId)
+  const socialWindowBgColor = (selectedCard?.content as Record<string, unknown>)?.socialWindowBgColor as string | undefined
 
   const [newPlatform, setNewPlatform] = useState<SocialPlatform | "">("")
   const [newUrl, setNewUrl] = useState("")
@@ -87,6 +99,56 @@ export function SocialIconsCardFields() {
           className="w-full"
         />
       </div>
+
+      {/* Icon Color (hidden for macintosh theme - icons are always black) */}
+      {themeId !== 'macintosh' && (
+        <div className="space-y-2">
+          <ColorPicker
+            color={socialIconColor || headerTextColor || themeTextColor}
+            onChange={setSocialIconColor}
+            label="Icon Color"
+          />
+          {socialIconColor && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSocialIconColor(null)}
+              className="text-xs text-muted-foreground"
+            >
+              Reset to text color
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Window Background Color (Macintosh theme only) */}
+      {themeId === 'macintosh' && selectedCard && (
+        <div className="space-y-2">
+          <ColorPicker
+            color={socialWindowBgColor || '#ffffff'}
+            onChange={(color) => {
+              updateCard(selectedCard.id, {
+                content: { ...selectedCard.content, socialWindowBgColor: color },
+              })
+            }}
+            label="Window Color"
+          />
+          {socialWindowBgColor && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const content = { ...selectedCard.content }
+                delete (content as Record<string, unknown>).socialWindowBgColor
+                updateCard(selectedCard.id, { content })
+              }}
+              className="text-xs text-muted-foreground"
+            >
+              Reset to white
+            </Button>
+          )}
+        </div>
+      )}
 
       <Label>Social Icons</Label>
 

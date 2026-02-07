@@ -3,15 +3,62 @@
 import Link from 'next/link'
 import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
-import { Calendar } from 'lucide-react'
+import { Calendar, Globe, Mail, Music } from 'lucide-react'
+import {
+  SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiX,
+  SiSoundcloud, SiApplemusic, SiBandcamp, SiAmazonmusic,
+  SiFacebook, SiThreads, SiBluesky, SiSnapchat, SiPinterest, SiLinkedin, SiWhatsapp,
+  SiTwitch, SiKick, SiDiscord,
+  SiPatreon, SiVenmo, SiCashapp, SiPaypal
+} from 'react-icons/si'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import type { Card, ReleaseCardContent } from '@/types/card'
+import type { SocialIcon, SocialPlatform } from '@/types/profile'
+import type { ComponentType } from 'react'
+
+type IconComponent = ComponentType<{ className?: string; style?: React.CSSProperties }>
+
+const STATIC_PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
+  instagram: SiInstagram,
+  tiktok: SiTiktok,
+  youtube: SiYoutube,
+  spotify: SiSpotify,
+  twitter: SiX,
+  soundcloud: SiSoundcloud,
+  applemusic: SiApplemusic,
+  bandcamp: SiBandcamp,
+  deezer: Music,
+  amazonmusic: SiAmazonmusic,
+  facebook: SiFacebook,
+  threads: SiThreads,
+  bluesky: SiBluesky,
+  snapchat: SiSnapchat,
+  pinterest: SiPinterest,
+  linkedin: SiLinkedin,
+  whatsapp: SiWhatsapp,
+  twitch: SiTwitch,
+  kick: SiKick,
+  discord: SiDiscord,
+  website: Globe,
+  email: Mail,
+  patreon: SiPatreon,
+  venmo: SiVenmo,
+  cashapp: SiCashapp,
+  paypal: SiPaypal,
+}
 
 const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 const MAC_BORDER = '3px solid #000'
 const HORIZONTAL_LINES = 'repeating-linear-gradient(0deg, #000 0px, #000 2px, transparent 2px, transparent 5px)'
 const CHECKERBOARD = 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8px 8px'
 const DEFAULT_DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
+
+interface FrameInsets {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
 
 interface StaticMacintoshLayoutProps {
   username: string
@@ -21,6 +68,12 @@ interface StaticMacintoshLayoutProps {
   bodySize?: number
   macPattern?: string
   macPatternColor?: string
+  socialIconsJson?: string | null
+  socialIconSize?: number
+  frameInsets?: FrameInsets | null
+  frameZoom?: number
+  framePosX?: number
+  framePosY?: number
 }
 
 export function StaticMacintoshLayout({
@@ -31,7 +84,19 @@ export function StaticMacintoshLayout({
   bodySize,
   macPattern,
   macPatternColor,
+  socialIconsJson,
+  socialIconSize = 24,
+  frameInsets,
+  frameZoom = 1,
+  framePosX = 0,
+  framePosY = 0,
 }: StaticMacintoshLayoutProps) {
+  const socialIcons: SocialIcon[] = socialIconsJson
+    ? JSON.parse(socialIconsJson)
+    : []
+  const sortedSocialIcons = [...socialIcons].sort((a, b) =>
+    a.sortKey.localeCompare(b.sortKey)
+  )
   const visibleCards = useMemo(
     () => sortCardsBySortKey(cards.filter((c) => c.is_visible !== false)),
     [cards]
@@ -41,6 +106,9 @@ export function StaticMacintoshLayout({
     const content = card.content as Record<string, unknown>
     const macWindowStyle = content?.macWindowStyle as string | undefined
 
+    if (card.card_type === 'social-icons') {
+      return
+    }
     if (macWindowStyle === 'notepad') {
       return
     }
@@ -57,6 +125,25 @@ export function StaticMacintoshLayout({
     ? { backgroundColor: bgColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
+  const hasFrame = !!frameInsets
+  const contentStyle: React.CSSProperties = hasFrame
+    ? {
+        position: 'fixed',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        width: `${100 - frameInsets.left - frameInsets.right}vw`,
+        left: `${frameInsets.left}vw`,
+        top: `${frameInsets.top}vh`,
+        bottom: `${frameInsets.bottom}vh`,
+        transform: `scale(${frameZoom}) translate(${framePosX}%, ${framePosY}%)`,
+        transformOrigin: 'center center',
+      }
+    : {
+        minHeight: '100vh',
+        padding: '0 0 0 0',
+        position: 'relative' as const,
+      }
+
   return (
     <>
       {/* Fixed background that extends slightly beyond viewport to cover overscroll */}
@@ -70,13 +157,7 @@ export function StaticMacintoshLayout({
           ...bgStyle,
         }}
       />
-      <div
-        style={{
-          minHeight: '100vh',
-          padding: '0 0 0 0',
-          position: 'relative',
-        }}
-      >
+      <div style={contentStyle}>
       {/* Mac Menu Bar */}
       <div
         style={{
@@ -90,7 +171,7 @@ export function StaticMacintoshLayout({
           fontFamily: TITLE_FONT,
           fontSize: '12px',
           color: '#000',
-          position: 'fixed',
+          position: hasFrame ? 'sticky' : 'fixed',
           top: 0,
           left: 0,
           right: 0,
@@ -119,7 +200,7 @@ export function StaticMacintoshLayout({
         style={{
           textAlign: 'center',
           margin: '0 16px 24px',
-          paddingTop: '52px',
+          paddingTop: hasFrame ? '24px' : '52px',
           fontFamily: TITLE_FONT,
           fontSize: headingSize ? `${22 * headingSize}px` : '22px',
           letterSpacing: '2px',
@@ -149,6 +230,7 @@ export function StaticMacintoshLayout({
                 card={card}
                 onClick={() => handleCardClick(card)}
                 bodySize={bodySize}
+                socialIcons={sortedSocialIcons}
               />
             </div>
           )
@@ -286,7 +368,12 @@ function CheckerboardTitleBar({ title }: { title?: string }) {
 
 // ─── Static Mac Card Router ─────────────────────────────────────────────────
 
-function StaticMacCard({ card, onClick, bodySize }: { card: Card; onClick: () => void; bodySize?: number }) {
+function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; onClick: () => void; bodySize?: number; socialIcons?: SocialIcon[] }) {
+  // Social icons card gets special treatment
+  if (card.card_type === 'social-icons') {
+    return <StaticMacSocials card={card} socialIcons={socialIcons || []} />
+  }
+
   const content = card.content as Record<string, unknown>
   const macWindowStyle = content?.macWindowStyle as string | undefined
 
@@ -308,6 +395,61 @@ function StaticMacCard({ card, onClick, bodySize }: { card: Card; onClick: () =>
     default:
       return <StaticLargeWindow card={card} onClick={onClick} bodySize={bodySize} />
   }
+}
+
+// ─── Static Socials Window ──────────────────────────────────────────────────
+
+function StaticMacSocials({ card, socialIcons }: { card: Card; socialIcons: SocialIcon[] }) {
+  if (socialIcons.length === 0) return null
+  const content = card.content as Record<string, unknown>
+  const windowBgColor = (content?.socialWindowBgColor as string) || '#fff'
+
+  return (
+    <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
+      <LinesTitleBar title="Socials" />
+      <div style={{ background: windowBgColor, padding: '12px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+          {socialIcons.map((icon) => {
+            const Icon = STATIC_PLATFORM_ICONS[icon.platform]
+            if (!Icon) return null
+            return (
+              <a
+                key={icon.id}
+                href={icon.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none' }}
+                data-card-id={card.id}
+              >
+                <div
+                  style={{
+                    background: '#000',
+                    clipPath: PIXEL_BTN_CLIP,
+                    padding: '2px',
+                  }}
+                >
+                  <div
+                    style={{
+                      background: windowBgColor,
+                      clipPath: PIXEL_BTN_CLIP,
+                      padding: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <div style={{ color: '#000', width: 20, height: 20 }}>
+                      <Icon className="w-full h-full" />
+                    </div>
+                  </div>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ─── Static Window Components ───────────────────────────────────────────────

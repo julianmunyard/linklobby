@@ -62,6 +62,7 @@ interface PublicPageRendererProps {
   logoScale: number
   profileLayout: "classic" | "hero"
   headerTextColor: string | null
+  socialIconColor: string | null
   showSocialIcons: boolean
   socialIconsJson?: string | null
   // Theme fonts
@@ -71,6 +72,7 @@ interface PublicPageRendererProps {
   // Font sizes (for VCR theme)
   headingSize?: number
   bodySize?: number
+  centerCards?: boolean
   vcrCenterContent?: boolean
   // Theme colors
   accentColor?: string
@@ -88,6 +90,8 @@ interface PublicPageRendererProps {
   // Macintosh theme
   macPattern?: string
   macPatternColor?: string
+  // Social icon size
+  socialIconSize?: number
   // Cards
   cards: Card[]
 }
@@ -115,6 +119,7 @@ export function PublicPageRenderer({
   logoScale,
   profileLayout,
   headerTextColor,
+  socialIconColor,
   showSocialIcons,
   socialIconsJson,
   fuzzyEnabled,
@@ -122,6 +127,7 @@ export function PublicPageRenderer({
   fuzzySpeed,
   headingSize,
   bodySize,
+  centerCards,
   vcrCenterContent,
   accentColor,
   background,
@@ -133,6 +139,7 @@ export function PublicPageRenderer({
   ipodTexture,
   macPattern,
   macPatternColor,
+  socialIconSize,
   cards,
 }: PublicPageRendererProps) {
   // VCR Menu theme uses completely different layout
@@ -203,6 +210,10 @@ export function PublicPageRenderer({
 
   // Macintosh theme uses Mac desktop layout
   if (themeId === 'macintosh') {
+    const macFrameOverlay = background?.frameOverlay
+    const macFrameFitContent = background?.frameFitContent ?? true
+    const macFrameInsets = macFrameOverlay && macFrameFitContent ? FRAME_INSETS[macFrameOverlay] : null
+
     return (
       <StaticMacintoshLayout
         username={username}
@@ -212,6 +223,12 @@ export function PublicPageRenderer({
         bodySize={bodySize}
         macPattern={macPattern}
         macPatternColor={macPatternColor}
+        socialIconsJson={socialIconsJson}
+        socialIconSize={socialIconSize}
+        frameInsets={macFrameInsets}
+        frameZoom={background?.frameZoom ?? 1}
+        framePosX={background?.framePositionX ?? 0}
+        framePosY={background?.framePositionY ?? 0}
       />
     )
   }
@@ -230,7 +247,7 @@ export function PublicPageRenderer({
   if (frameInsets) {
     return (
       <div
-        className="fixed overflow-y-auto overflow-x-hidden text-theme-text"
+        className={`fixed overflow-y-auto overflow-x-hidden text-theme-text${centerCards ? ' flex flex-col items-center justify-center' : ''}`}
         style={{
           // Horizontal: sized to frame's screen area and centered
           width: `${100 - frameInsets.left - frameInsets.right}vw`,
@@ -261,6 +278,7 @@ export function PublicPageRenderer({
             logoScale={logoScale}
             profileLayout={profileLayout}
             headerTextColor={headerTextColor}
+            socialIconColor={socialIconColor}
             showSocialIcons={showSocialIcons}
             socialIconsJson={socialIconsJson}
             fuzzyEnabled={fuzzyEnabled}
@@ -282,7 +300,7 @@ export function PublicPageRenderer({
 
   // Default layout (no frame or frame without fit content)
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-8">
+    <div className={`w-full max-w-2xl mx-auto px-4 py-8${centerCards ? ' min-h-screen flex flex-col items-center justify-center' : ''}`}>
       {/* Profile Header */}
       <StaticProfileHeader
         displayName={displayName}
@@ -297,6 +315,7 @@ export function PublicPageRenderer({
         logoScale={logoScale}
         profileLayout={profileLayout}
         headerTextColor={headerTextColor}
+        socialIconColor={socialIconColor}
         showSocialIcons={showSocialIcons}
         socialIconsJson={socialIconsJson}
         fuzzyEnabled={fuzzyEnabled}

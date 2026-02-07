@@ -187,6 +187,114 @@ export function BackgroundControls() {
           color={macPatternColor}
           onChange={setMacPatternColor}
         />
+
+        {/* Divider */}
+        <div className="h-px bg-border" />
+
+        {/* Frame Overlay Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Frame className="w-4 h-4 text-muted-foreground" />
+            <Label className="text-xs font-medium text-muted-foreground">Frame Overlay</Label>
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            {FRAME_OPTIONS.map((frame) => (
+              <Button
+                key={frame.id}
+                variant={background.frameOverlay === frame.path || (!background.frameOverlay && !frame.path) ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleFrameChange(frame.path)}
+              >
+                {frame.label}
+              </Button>
+            ))}
+          </div>
+
+          {background.frameOverlay && (
+            <div className="space-y-4 pl-4 border-l-2 border-border">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Fit Content Inside Frame</Label>
+                <Switch
+                  checked={background.frameFitContent ?? true}
+                  onCheckedChange={handleFrameFitContentChange}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Frame Zoom</Label>
+                  <span className="text-xs text-muted-foreground">{(background.frameZoom ?? 1).toFixed(2)}x</span>
+                </div>
+                <Slider
+                  value={[background.frameZoom ?? 1]}
+                  onValueChange={handleFrameZoomChange}
+                  min={0.5}
+                  max={2}
+                  step={0.05}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Position X</Label>
+                  <span className="text-xs text-muted-foreground">{background.framePositionX ?? 0}%</span>
+                </div>
+                <Slider
+                  value={[background.framePositionX ?? 0]}
+                  onValueChange={handleFramePositionXChange}
+                  min={-50}
+                  max={50}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Position Y</Label>
+                  <span className="text-xs text-muted-foreground">{background.framePositionY ?? 0}%</span>
+                </div>
+                <Slider
+                  value={[background.framePositionY ?? 0]}
+                  onValueChange={handleFramePositionYChange}
+                  min={-50}
+                  max={50}
+                  step={1}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border" />
+
+        {/* Noise Overlay Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <Label className="text-xs font-medium text-muted-foreground">Noise Overlay</Label>
+            </div>
+            <Switch
+              checked={background.noiseOverlay ?? false}
+              onCheckedChange={handleNoiseToggle}
+            />
+          </div>
+
+          {background.noiseOverlay && (
+            <div className="space-y-2 pl-4 border-l-2 border-border">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Intensity</Label>
+                <span className="text-xs text-muted-foreground">{background.noiseIntensity ?? 15}%</span>
+              </div>
+              <Slider
+                value={[background.noiseIntensity ?? 15]}
+                onValueChange={handleNoiseIntensityChange}
+                min={5}
+                max={50}
+                step={1}
+              />
+            </div>
+          )}
+        </div>
       </div>
     )
   }
