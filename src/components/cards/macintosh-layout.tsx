@@ -37,12 +37,25 @@ export function MacintoshLayout({
     : { background: DEFAULT_DESKTOP_BG }
 
   return (
+    <>
+    {/* Fixed background layer */}
+    <div
+      style={{
+        position: 'fixed',
+        top: '-5vh',
+        left: '-5vw',
+        right: '-5vw',
+        bottom: '-5vh',
+        zIndex: -1,
+        ...bgStyle,
+      }}
+    />
     <div
       style={{
         minHeight: '100vh',
-        ...bgStyle,
         padding: 0,
         overscrollBehavior: 'none',
+        position: 'relative',
       }}
     >
       {/* Mac Menu Bar */}
@@ -153,5 +166,6 @@ export function MacintoshLayout({
         </div>
       )}
     </div>
+    </>
   )
 }

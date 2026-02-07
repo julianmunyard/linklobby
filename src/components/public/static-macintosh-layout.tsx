@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useCallback, useState, useRef } from 'react'
+import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
+import Countdown, { CountdownRenderProps } from 'react-countdown'
+import { Calendar } from 'lucide-react'
 import { sortCardsBySortKey } from '@/lib/ordering'
-import type { Card } from '@/types/card'
+import type { Card, ReleaseCardContent } from '@/types/card'
 
 const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
 const MAC_BORDER = '3px solid #000'
@@ -57,14 +59,14 @@ export function StaticMacintoshLayout({
 
   return (
     <>
-      {/* Fixed background that extends beyond viewport to cover overscroll */}
+      {/* Fixed background that extends slightly beyond viewport to cover overscroll */}
       <div
         className="fixed -z-10"
         style={{
-          top: '-50vh',
-          left: '-50vw',
-          right: '-50vw',
-          bottom: '-50vh',
+          top: '-5vh',
+          left: '-5vw',
+          right: '-5vw',
+          bottom: '-5vh',
           ...bgStyle,
         }}
       />
@@ -301,6 +303,8 @@ function StaticMacCard({ card, onClick, bodySize }: { card: Card; onClick: () =>
       return <StaticMap card={card} />
     case 'calculator':
       return <StaticCalculator card={card} />
+    case 'presave':
+      return <StaticPresave card={card} bodySize={bodySize} />
     default:
       return <StaticLargeWindow card={card} onClick={onClick} bodySize={bodySize} />
   }
@@ -311,6 +315,8 @@ function StaticMacCard({ card, onClick, bodySize }: { card: Card; onClick: () =>
 function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
   const content = card.content as Record<string, unknown>
   const macLinks = (content?.macLinks as Array<{ title: string; url: string }>) || []
+  const notepadStyle = (content?.notepadStyle as string) || 'list'
+  const notepadBgColor = (content?.notepadBgColor as string) || '#F2FFA4'
   const title = card.title || 'Note Pad'
   const fontSize = bodySize ? `${14 * bodySize}px` : '14px'
 
@@ -321,10 +327,60 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
     >
       {/* White title bar */}
       <LinesTitleBar title={title} bgColor="#fff" />
-      <div style={{ background: '#F2FFA4', minHeight: '100px' }}>
+      <div style={{ background: notepadBgColor, minHeight: '100px' }}>
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
             <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#666' }}>No links yet...</p>
+          ) : notepadStyle === 'buttons' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              {macLinks.map((link, i) => (
+                link.url ? (
+                  <div
+                    key={i}
+                    style={{
+                      background: '#000',
+                      clipPath: PIXEL_BTN_CLIP,
+                      padding: '2px',
+                      width: '100%',
+                    }}
+                  >
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontFamily: TITLE_FONT,
+                        fontSize,
+                        color: '#000',
+                        background: notepadBgColor,
+                        clipPath: PIXEL_BTN_CLIP,
+                        padding: '8px 16px',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        display: 'block',
+                      }}
+                      data-card-id={card.id}
+                    >
+                      {link.title || link.url}
+                    </a>
+                  </div>
+                ) : (
+                  <div
+                    key={i}
+                    style={{
+                      fontFamily: TITLE_FONT,
+                      fontSize,
+                      color: '#000',
+                      padding: '8px 16px',
+                      textAlign: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    {link.title || 'Untitled'}
+                  </div>
+                )
+              ))}
+            </div>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {macLinks.map((link, i) => (
@@ -361,12 +417,12 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
-      <div style={{ background: '#F2FFA4', height: '3px' }}>
+      <div style={{ background: notepadBgColor, height: '3px' }}>
         <div style={{ borderTop: '2px solid #000', marginLeft: `${FOLD_SIZE}px`, height: '100%' }} />
       </div>
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '2px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '2px' }} />
     </div>
   )
 }
@@ -374,6 +430,17 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
 const FOLD_SIZE = 36
 
 function StaticFoldBox() {
+  // 8-bit staircase diagonal: 12 steps of 3px each across 36px
+  const steps = 12
+  const stepSize = FOLD_SIZE / steps
+  const points: string[] = []
+  for (let i = 0; i <= steps; i++) {
+    const x = i * stepSize
+    const y = i * stepSize
+    if (i > 0) points.push(`${x},${y - stepSize}`)
+    points.push(`${x},${y}`)
+  }
+
   return (
     <div
       style={{
@@ -388,7 +455,12 @@ function StaticFoldBox() {
       >
         <line x1="0" y1="0" x2={FOLD_SIZE + 1} y2="0" stroke="#000" strokeWidth="2" />
         <line x1={FOLD_SIZE} y1={-1} x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" />
-        <line x1="0" y1="0" x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" strokeDasharray="3,3" />
+        <polyline
+          points={points.join(' ')}
+          fill="none"
+          stroke="#000"
+          strokeWidth="2"
+        />
       </svg>
     </div>
   )
@@ -408,6 +480,9 @@ function StaticSmallWindow({ card, onClick, bodySize }: { card: Card; onClick: (
   const fontSize = bodySize ? `${12 * bodySize}px` : '12px'
   const checkerBgColor = (content?.macCheckerColor as string) || '#cfffcc'
   const windowBg = (content?.macWindowBgColor as string) || '#afb3ee'
+  const textAlign = ((content?.macTextAlign as string) || 'left') as 'left' | 'center'
+  const textColor = (content?.macTextColor as string) || '#000'
+  const macVideoUrl = (content?.macVideoUrl as string) || ''
   const checkerBg = `repeating-conic-gradient(#000 0% 25%, ${checkerBgColor} 0% 50%) 0 0 / 4px 4px`
 
   return (
@@ -434,27 +509,43 @@ function StaticSmallWindow({ card, onClick, bodySize }: { card: Card; onClick: (
       {/* Checkerboard border around content */}
       <div style={{ background: checkerBg, padding: '6px', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column' }}>
         {/* Black border inside checkerboard */}
-        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* White content area */}
-          <div style={{ flex: 1, padding: '12px 16px' }}>
-            {macMode === 'video' && card.url ? (
-              <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-                {'\u25B6'} {card.title || 'Video'}
-              </p>
-            ) : (
-              <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
-                {card.title || card.url || 'Empty window'}
-              </p>
-            )}
-          </div>
-          {/* Scrollbar at bottom */}
-          <div
-            style={{
-              height: '14px',
-              borderTop: '2px solid #000',
-              background: '#fff',
-            }}
-          />
+        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+          {macMode === 'video' && macVideoUrl ? (
+            <>
+              <video
+                src={macVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+              {card.title && (
+                <div style={{ position: 'absolute', inset: 0, padding: '12px 16px', textAlign }}>
+                  <p style={{ fontFamily: TITLE_FONT, fontSize, color: textColor }}>
+                    {card.title}
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Text content area */}
+              <div style={{ flex: 1, padding: '12px 16px', textAlign }}>
+                <p style={{ fontFamily: TITLE_FONT, fontSize, color: textColor }}>
+                  {card.title || card.url || 'Empty window'}
+                </p>
+              </div>
+              {/* Scrollbar at bottom */}
+              <div
+                style={{
+                  height: '14px',
+                  borderTop: '2px solid #000',
+                  background: '#fff',
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -700,6 +791,20 @@ const STATIC_CALC_BTN: React.CSSProperties = {
   padding: '6px 0',
 }
 
+// 8-bit jagged rounded border for buttons
+const PIXEL_BTN_CLIP = `polygon(
+  6px 0%, calc(100% - 6px) 0%,
+  calc(100% - 6px) 3px, calc(100% - 3px) 3px,
+  calc(100% - 3px) 6px, 100% 6px,
+  100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px),
+  calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
+  calc(100% - 6px) 100%, 6px 100%,
+  6px calc(100% - 3px), 3px calc(100% - 3px),
+  3px calc(100% - 6px), 0% calc(100% - 6px),
+  0% 6px, 3px 6px,
+  3px 3px, 6px 3px
+)`
+
 const STATIC_CALC_CLIP = `polygon(
   4px 0%, calc(100% - 4px) 0%,
   calc(100% - 4px) 2px, calc(100% - 2px) 2px,
@@ -827,6 +932,158 @@ function StaticCalculator({ card }: { card: Card }) {
               <B v="0" style={{ gridColumn: 'span 2' }} /><B v="." />
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── 6. Static Presave ──────────────────────────────────────────────────────
+
+function StaticPresave({ card, bodySize }: { card: Card; bodySize?: number }) {
+  const content = card.content as Partial<ReleaseCardContent> & { dropsInText?: string; presaveBgColor?: string }
+  const {
+    albumArtUrl,
+    releaseDate,
+    preSaveUrl,
+    preSaveButtonText = 'PRE-SAVE',
+    afterCountdownAction = 'custom',
+    afterCountdownText = 'OUT NOW',
+    afterCountdownUrl,
+    dropsInText = 'Drops in',
+    presaveBgColor = '#ad7676',
+    textColor = '#000000',
+  } = content
+
+  const [hasCompleted, setHasCompleted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+  const title = (isReleased || hasCompleted) ? 'NEW RELEASE' : (card.title || 'Pre-save')
+
+  const handleComplete = useCallback(() => setHasCompleted(true), [])
+
+  useEffect(() => { setIsMounted(true) }, [])
+  useEffect(() => {
+    if (isReleased && !hasCompleted) handleComplete()
+  }, [isReleased, hasCompleted, handleComplete])
+
+  if ((isReleased || hasCompleted) && afterCountdownAction === 'hide') return null
+
+  const titleFontSize = bodySize ? `${16 * bodySize}px` : '16px'
+  const dropsInFontSize = bodySize ? `${14 * bodySize}px` : '14px'
+  const countdownFontSize = bodySize ? `${24 * bodySize}px` : '24px'
+  const countdownLabelSize = bodySize ? `${9 * bodySize}px` : '9px'
+
+  const renderCountdown = (days: number, hours: number, minutes: number, seconds: number) => (
+    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+      {days > 0 && (
+        <div style={{ textAlign: 'center' }}>
+          <span style={{ fontFamily: TITLE_FONT, fontSize: countdownFontSize }}>{days}</span>
+          <span style={{ fontFamily: TITLE_FONT, fontSize: countdownLabelSize, display: 'block', opacity: 0.7 }}>DAYS</span>
+        </div>
+      )}
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownFontSize }}>{String(hours).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownLabelSize, display: 'block', opacity: 0.7 }}>HRS</span>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownFontSize }}>{String(minutes).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownLabelSize, display: 'block', opacity: 0.7 }}>MIN</span>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownFontSize }}>{String(seconds).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: countdownLabelSize, display: 'block', opacity: 0.7 }}>SEC</span>
+      </div>
+    </div>
+  )
+
+  const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
+    if (completed || hasCompleted) return null
+    return renderCountdown(days, hours, minutes, seconds)
+  }
+
+  const macBtnInner: React.CSSProperties = {
+    fontFamily: TITLE_FONT,
+    fontSize: '14px',
+    color: textColor,
+    background: presaveBgColor,
+    clipPath: PIXEL_BTN_CLIP,
+    padding: '6px 16px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'block',
+    textAlign: 'center',
+  }
+
+  const macBtnOuter: React.CSSProperties = {
+    background: textColor,
+    clipPath: PIXEL_BTN_CLIP,
+    padding: '2px',
+    display: 'inline-block',
+  }
+
+  return (
+    <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
+      <LinesTitleBar title={title} />
+      <div style={{ background: presaveBgColor, padding: '16px', color: textColor }}>
+        {/* Album art */}
+        {albumArtUrl && (
+          <div style={{ border: '2px solid #000', marginBottom: '12px', overflow: 'hidden' }}>
+            <img
+              src={albumArtUrl}
+              alt={title}
+              style={{ width: '100%', display: 'block' }}
+            />
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center' }}>
+          {/* Pre-release state */}
+          {!isReleased && !hasCompleted && (
+            <>
+              {/* Drops in label */}
+              <p style={{ fontFamily: TITLE_FONT, fontSize: dropsInFontSize, marginBottom: '8px' }}>
+                {dropsInText}
+              </p>
+
+              {/* Countdown - live if date set, static zeros if not */}
+              <div style={{ margin: '12px 0' }}>
+                {releaseDate && isMounted ? (
+                  <Countdown date={new Date(releaseDate)} renderer={countdownRenderer} onComplete={handleComplete} />
+                ) : (
+                  renderCountdown(0, 0, 0, 0)
+                )}
+              </div>
+
+              {/* Pre-save button */}
+              <div style={macBtnOuter}>
+                {preSaveUrl ? (
+                  <a href={preSaveUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner}>
+                    {preSaveButtonText}
+                  </a>
+                ) : (
+                  <div style={macBtnInner}>
+                    {preSaveButtonText}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Post-release */}
+          {(isReleased || hasCompleted) && afterCountdownAction === 'custom' && (
+            <div style={macBtnOuter}>
+              {afterCountdownUrl ? (
+                <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner}>
+                  {afterCountdownText || 'OUT NOW'}
+                </a>
+              ) : (
+                <div style={macBtnInner}>
+                  {afterCountdownText || 'OUT NOW'}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

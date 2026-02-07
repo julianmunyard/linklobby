@@ -37,13 +37,14 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave'
 
 const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
   { label: "Note Pad", macWindowStyle: "notepad" },
   { label: "Small Window", macWindowStyle: "small-window" },
   { label: "Large Window", macWindowStyle: "large-window" },
   { label: "Title Link", macWindowStyle: "title-link" },
+  { label: "Pre-save", macWindowStyle: "presave" },
   { label: "Map", macWindowStyle: "map" },
   { label: "Calculator", macWindowStyle: "calculator" },
 ]
@@ -58,8 +59,16 @@ export function CardsTab() {
   const selectCard = usePageStore((state) => state.selectCard)
   const themeId = useThemeStore((state) => state.themeId)
 
-  // Sort cards in useMemo to avoid infinite loop
-  const cards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
+  // Sort cards and filter out theme-incompatible hidden cards
+  const allCards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
+  const cards = useMemo(() => allCards.filter((c) => {
+    const content = c.content as Record<string, unknown>
+    const hasMacStyle = !!content?.macWindowStyle
+    const hiddenForMac = !!content?._hiddenForMac
+    if (themeId === 'macintosh' && hiddenForMac && !c.is_visible) return false
+    if (themeId !== 'macintosh' && hasMacStyle && !c.is_visible) return false
+    return true
+  }), [allCards, themeId])
 
   const removeCardFromStore = usePageStore((state) => state.removeCard)
 

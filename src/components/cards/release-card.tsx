@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
-import { Calendar, Music } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useThemeStore } from '@/stores/theme-store'
@@ -208,7 +208,6 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Music className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
                       {afterCountdownText || 'OUT NOW'}
                     </a>
                   </Button>
@@ -228,7 +227,7 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
         // Fallback when no album art - simpler display
         <div
           className={cn(
-            "relative aspect-square bg-muted flex flex-col items-center text-center",
+            "relative aspect-square flex flex-col items-center text-center",
             isSmall ? "p-3" : "p-6",
             verticalAlign === 'top' && "justify-start",
             verticalAlign === 'middle' && "justify-center",
@@ -236,7 +235,6 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
           )}
           style={{ color: textColor || 'inherit' }}
         >
-          <Music className={isSmall ? "h-6 w-6 mb-2 opacity-50" : "h-12 w-12 mb-4 opacity-50"} />
           {/* Title and artist - only show before release */}
           {!isReleased && !hasCompleted && (
             <>
@@ -296,7 +294,6 @@ export function ReleaseCard({ card, isEditing = false }: ReleaseCardProps) {
                 onClick={(e) => isEditing && e.preventDefault()}
               >
                 <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer">
-                  <Music className={isSmall ? "h-3 w-3 mr-1" : "h-4 w-4 mr-2"} />
                   {afterCountdownText || 'OUT NOW'}
                 </a>
               </Button>

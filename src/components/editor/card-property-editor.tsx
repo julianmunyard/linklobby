@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { ColorPicker } from "@/components/ui/color-picker"
 import { Switch } from "@/components/ui/switch"
 import { ImageUpload } from "@/components/cards/image-upload"
 import { HeroCardFields } from "./hero-card-fields"
@@ -349,6 +350,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             {macWindowStyle === 'notepad' && (
               <MacNotepadFields
                 macLinks={(currentContent.macLinks as Array<{ title: string; url: string }>) || []}
+                notepadStyle={(currentContent.notepadStyle as string) || 'list'}
+                notepadBgColor={(currentContent.notepadBgColor as string) || '#F2FFA4'}
                 onChange={handleContentChange}
               />
             )}
@@ -359,8 +362,43 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 macWindowStyle={macWindowStyle}
                 macCheckerColor={(currentContent.macCheckerColor as string) || ''}
                 macWindowBgColor={(currentContent.macWindowBgColor as string) || ''}
+                macTextAlign={(currentContent.macTextAlign as string) || ''}
+                macTextColor={(currentContent.macTextColor as string) || ''}
+                macVideoUrl={(currentContent.macVideoUrl as string) || ''}
+                cardId={card.id}
                 onChange={handleContentChange}
               />
+            )}
+            {macWindowStyle === 'presave' && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">&quot;Drops in&quot; Text</label>
+                  <Input
+                    placeholder="Drops in"
+                    value={(currentContent.dropsInText as string) || ''}
+                    onChange={(e) => handleContentChange({ dropsInText: e.target.value || undefined })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Text shown above the countdown timer
+                  </p>
+                </div>
+                <ColorPicker
+                  label="Window Background"
+                  color={(currentContent.presaveBgColor as string) || '#ad7676'}
+                  onChange={(color) => handleContentChange({ presaveBgColor: color })}
+                />
+                <ColorPicker
+                  label="Text Color"
+                  color={(currentContent.textColor as string) || '#000000'}
+                  onChange={(color) => handleContentChange({ textColor: color })}
+                />
+                <ReleaseCardFields
+                  content={currentContent as Partial<ReleaseCardContent>}
+                  onChange={handleContentChange}
+                  cardId={card.id}
+                  hideNameFields
+                />
+              </>
             )}
             {(macWindowStyle === 'map' || macWindowStyle === 'calculator') && (
               <div className="rounded-lg bg-muted/50 px-3 py-2">
@@ -517,7 +555,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
             </div>}
 
             {/* Title - hidden for notepad, map, calculator Mac cards */}
-            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link') && (
+            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link' || macWindowStyle === 'presave') && (
             <>
             {/* Title */}
             <FormField

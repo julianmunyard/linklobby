@@ -21,7 +21,7 @@ export function migrateToMacintosh(cards: Card[]): Card[] {
   for (let i = 0; i < result.length; i++) {
     const c = result[i]
     const hasMacStyle = !!(c.content as Record<string, unknown>)?.macWindowStyle
-    if (c.is_visible && !hasMacStyle && (c.url || c.title)) {
+    if (c.is_visible && !hasMacStyle && c.card_type !== 'social-icons' && (c.url || c.title)) {
       macLinks.push({ title: c.title || '', url: c.url || '' })
       // Hide and tag for later restoration
       result[i] = {
@@ -45,14 +45,12 @@ export function migrateToMacintosh(cards: Card[]): Card[] {
     )
     if (hiddenNotepadIdx >= 0) {
       const existing = result[hiddenNotepadIdx]
-      const existingLinks =
-        ((existing.content as Record<string, unknown>)?.macLinks as MacLink[]) || []
       result[hiddenNotepadIdx] = {
         ...existing,
         is_visible: true,
         content: {
           ...existing.content,
-          macLinks: [...existingLinks, ...macLinks],
+          macLinks,
         },
         updated_at: now,
       }
@@ -228,6 +226,14 @@ export function migrateFromMacintosh(cards: Card[]): Card[] {
       | undefined
     if (style && result[i].is_visible) {
       result[i] = { ...result[i], is_visible: false, updated_at: now }
+    }
+  }
+
+  // 5. Ensure social-icons card is always visible
+  for (let i = 0; i < result.length; i++) {
+    if (result[i].card_type === 'social-icons' && !result[i].is_visible) {
+      const { _hiddenForMac, ...restContent } = result[i].content as Record<string, unknown>
+      result[i] = { ...result[i], is_visible: true, content: restContent, updated_at: now }
     }
   }
 

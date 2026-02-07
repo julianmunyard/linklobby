@@ -4,6 +4,8 @@ import { Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { ColorPicker } from '@/components/ui/color-picker'
 
 interface MacLink {
   title: string
@@ -12,10 +14,12 @@ interface MacLink {
 
 interface MacNotepadFieldsProps {
   macLinks: MacLink[]
+  notepadStyle: string
+  notepadBgColor: string
   onChange: (updates: Record<string, unknown>) => void
 }
 
-export function MacNotepadFields({ macLinks, onChange }: MacNotepadFieldsProps) {
+export function MacNotepadFields({ macLinks, notepadStyle, notepadBgColor, onChange }: MacNotepadFieldsProps) {
   const links = macLinks || []
 
   function addLink() {
@@ -35,6 +39,31 @@ export function MacNotepadFields({ macLinks, onChange }: MacNotepadFieldsProps) 
 
   return (
     <div className="space-y-3">
+      <div className="space-y-2">
+        <Label>Link Style</Label>
+        <ToggleGroup
+          type="single"
+          value={notepadStyle || 'list'}
+          onValueChange={(value) => {
+            if (value) onChange({ notepadStyle: value })
+          }}
+          className="justify-start"
+        >
+          <ToggleGroupItem value="list" className="h-9 px-4">
+            List
+          </ToggleGroupItem>
+          <ToggleGroupItem value="buttons" className="h-9 px-4">
+            Buttons
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      <ColorPicker
+        label="Window Color"
+        color={notepadBgColor || '#F2FFA4'}
+        onChange={(color) => onChange({ notepadBgColor: color })}
+      />
+
       <div className="flex items-center justify-between">
         <Label>Note Pad Links</Label>
         <Button type="button" variant="outline" size="sm" onClick={addLink} className="h-8">

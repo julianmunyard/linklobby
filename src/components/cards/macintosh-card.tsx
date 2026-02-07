@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import Countdown, { CountdownRenderProps } from 'react-countdown'
+import { Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Card } from '@/types/card'
+import type { Card, ReleaseCardContent } from '@/types/card'
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave'
 
 interface MacCardProps {
   card: Card
@@ -40,6 +42,8 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
       return <MacintoshMap card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     case 'calculator':
       return <MacintoshCalculator card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+    case 'presave':
+      return <MacintoshPresave card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
     default:
       // Fallback: render as large window
       return <MacintoshLargeWindow card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
@@ -186,6 +190,17 @@ function WindowWrapper({
 const FOLD_SIZE = 36
 
 function NotepadFoldBox() {
+  // 8-bit staircase diagonal: 12 steps of 3px each across 36px
+  const steps = 12
+  const stepSize = FOLD_SIZE / steps
+  const points: string[] = []
+  for (let i = 0; i <= steps; i++) {
+    const x = i * stepSize
+    const y = i * stepSize
+    if (i > 0) points.push(`${x},${y - stepSize}`)
+    points.push(`${x},${y}`)
+  }
+
   return (
     <div
       style={{
@@ -198,17 +213,16 @@ function NotepadFoldBox() {
         viewBox={`0 0 ${FOLD_SIZE} ${FOLD_SIZE}`}
         style={{ width: '100%', height: '100%', display: 'block', overflow: 'visible' }}
       >
-        {/* Top border line – extends past to meet outer edge of right line */}
+        {/* Top border line */}
         <line x1="0" y1="0" x2={FOLD_SIZE + 1} y2="0" stroke="#000" strokeWidth="2" />
-        {/* Right border line – extends up to meet outer edge of top line */}
+        {/* Right border line */}
         <line x1={FOLD_SIZE} y1={-1} x2={FOLD_SIZE} y2={FOLD_SIZE} stroke="#000" strokeWidth="2" />
-        {/* Dashed diagonal from top-left to bottom-right */}
-        <line
-          x1="0" y1="0"
-          x2={FOLD_SIZE} y2={FOLD_SIZE}
+        {/* 8-bit staircase diagonal */}
+        <polyline
+          points={points.join(' ')}
+          fill="none"
           stroke="#000"
           strokeWidth="2"
-          strokeDasharray="3,3"
         />
       </svg>
     </div>
@@ -220,14 +234,16 @@ function NotepadFoldBox() {
 export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
   const content = card.content as Record<string, unknown>
   const macLinks = (content?.macLinks as Array<{ title: string; url: string }>) || []
+  const notepadStyle = (content?.notepadStyle as string) || 'list'
+  const notepadBgColor = (content?.notepadBgColor as string) || '#F2FFA4'
   const title = card.title || 'Note Pad'
 
   return (
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
       {/* White title bar */}
       <LinesTitleBar title={title} bgColor="#fff" />
-      {/* Yellow content area */}
-      <div style={{ background: '#F2FFA4', minHeight: '100px' }}>
+      {/* Content area */}
+      <div style={{ background: notepadBgColor, minHeight: '100px' }}>
         {/* Links */}
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
@@ -240,6 +256,51 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
             >
               No links yet...
             </p>
+          ) : notepadStyle === 'buttons' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              {macLinks.map((link, i) => (
+                link.url ? (
+                  <div
+                    key={i}
+                    style={{
+                      background: '#000',
+                      clipPath: PIXEL_BTN_CLIP,
+                      padding: '2px',
+                      display: 'inline-block',
+                      width: '100%',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: TITLE_FONT,
+                        fontSize: '14px',
+                        color: '#000',
+                        background: notepadBgColor,
+                        clipPath: PIXEL_BTN_CLIP,
+                        padding: '8px 16px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {link.title || link.url}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    key={i}
+                    style={{
+                      fontFamily: TITLE_FONT,
+                      fontSize: '14px',
+                      color: '#000',
+                      padding: '8px 16px',
+                      textAlign: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    {link.title || 'Untitled'}
+                  </div>
+                )
+              ))}
+            </div>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {macLinks.map((link, i) => (
@@ -267,12 +328,12 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
         </div>
       </div>
       {/* 4 stacked page lines – first one starts after the fold triangle */}
-      <div style={{ background: '#F2FFA4', height: '3px' }}>
+      <div style={{ background: notepadBgColor, height: '3px' }}>
         <div style={{ borderTop: '2px solid #000', marginLeft: `${FOLD_SIZE}px`, height: '100%' }} />
       </div>
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '3px' }} />
-      <div style={{ background: '#F2FFA4', borderTop: '2px solid #000', height: '2px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '3px' }} />
+      <div style={{ background: notepadBgColor, borderTop: '2px solid #000', height: '2px' }} />
     </WindowWrapper>
   )
 }
@@ -293,6 +354,9 @@ export function MacintoshSmallWindow({ card, onClick, isSelected }: MacCardProps
   const title = card.title || 'Window'
   const checkerBgColor = (content?.macCheckerColor as string) || '#cfffcc'
   const windowBg = (content?.macWindowBgColor as string) || '#afb3ee'
+  const textAlign = ((content?.macTextAlign as string) || 'left') as 'left' | 'center'
+  const textColor = (content?.macTextColor as string) || '#000'
+  const macVideoUrl = (content?.macVideoUrl as string) || ''
   const checkerBg = `repeating-conic-gradient(#000 0% 25%, ${checkerBgColor} 0% 50%) 0 0 / 4px 4px`
 
   return (
@@ -321,27 +385,43 @@ export function MacintoshSmallWindow({ card, onClick, isSelected }: MacCardProps
       {/* Checkerboard border around content */}
       <div style={{ background: checkerBg, padding: '6px', aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column' }}>
         {/* Black border inside checkerboard */}
-        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* White content area */}
-          <div style={{ flex: 1, padding: '12px 16px' }}>
-            {macMode === 'video' && card.url ? (
-              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
-                {'\u25B6'} {card.title || 'Video'}
-              </p>
-            ) : (
-              <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: '#000' }}>
-                {card.title || card.url || 'Empty window'}
-              </p>
-            )}
-          </div>
-          {/* Scrollbar at bottom */}
-          <div
-            style={{
-              height: '14px',
-              borderTop: '2px solid #000',
-              background: '#fff',
-            }}
-          />
+        <div style={{ border: '2px solid #000', background: windowBg, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+          {macMode === 'video' && macVideoUrl ? (
+            <>
+              <video
+                src={macVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+              {card.title && (
+                <div style={{ position: 'absolute', inset: 0, padding: '12px 16px', textAlign }}>
+                  <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: textColor }}>
+                    {card.title}
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Text content area */}
+              <div style={{ flex: 1, padding: '12px 16px', textAlign }}>
+                <p style={{ fontFamily: TITLE_FONT, fontSize: '12px', color: textColor }}>
+                  {card.title || card.url || 'Empty window'}
+                </p>
+              </div>
+              {/* Scrollbar at bottom */}
+              <div
+                style={{
+                  height: '14px',
+                  borderTop: '2px solid #000',
+                  background: '#fff',
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -596,6 +676,20 @@ const CALC_BTN: React.CSSProperties = {
   padding: '6px 0',
 }
 
+// 8-bit jagged rounded border for buttons
+const PIXEL_BTN_CLIP = `polygon(
+  6px 0%, calc(100% - 6px) 0%,
+  calc(100% - 6px) 3px, calc(100% - 3px) 3px,
+  calc(100% - 3px) 6px, 100% 6px,
+  100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px),
+  calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
+  calc(100% - 6px) 100%, 6px 100%,
+  6px calc(100% - 3px), 3px calc(100% - 3px),
+  3px calc(100% - 6px), 0% calc(100% - 6px),
+  0% 6px, 3px 6px,
+  3px 3px, 6px 3px
+)`
+
 // 8-bit jagged rounded border using clip-path
 const CALC_CLIP = `polygon(
   4px 0%, calc(100% - 4px) 0%,
@@ -730,5 +824,151 @@ export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps)
         </div>
       </div>
     </div>
+  )
+}
+
+// ─── 6. Presave ─────────────────────────────────────────────────────────────
+
+export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
+  const content = card.content as Record<string, unknown>
+  const release = content as Partial<ReleaseCardContent> & { dropsInText?: string }
+  const {
+    albumArtUrl,
+    releaseDate,
+    preSaveUrl,
+    preSaveButtonText = 'PRE-SAVE',
+    afterCountdownAction = 'custom',
+    afterCountdownText = 'OUT NOW',
+    afterCountdownUrl,
+    dropsInText = 'Drops in',
+    textColor = '#000000',
+  } = release
+  const presaveBgColor = (content?.presaveBgColor as string) || '#ad7676'
+
+  const [hasCompleted, setHasCompleted] = useState(false)
+  const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+  const title = (isReleased || hasCompleted) ? 'NEW RELEASE' : (card.title || 'Pre-save')
+
+  const handleComplete = useCallback(() => setHasCompleted(true), [])
+
+  useEffect(() => {
+    if (isReleased && !hasCompleted) handleComplete()
+  }, [isReleased, hasCompleted, handleComplete])
+
+  if ((isReleased || hasCompleted) && afterCountdownAction === 'hide') return null
+
+  const renderCountdown = (days: number, hours: number, minutes: number, seconds: number) => (
+    <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+      {days > 0 && (
+        <div style={{ textAlign: 'center' }}>
+          <span style={{ fontFamily: TITLE_FONT, fontSize: '24px' }}>{days}</span>
+          <span style={{ fontFamily: TITLE_FONT, fontSize: '9px', display: 'block', opacity: 0.7 }}>DAYS</span>
+        </div>
+      )}
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '24px' }}>{String(hours).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '9px', display: 'block', opacity: 0.7 }}>HRS</span>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '24px' }}>{String(minutes).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '9px', display: 'block', opacity: 0.7 }}>MIN</span>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '24px' }}>{String(seconds).padStart(2, '0')}</span>
+        <span style={{ fontFamily: TITLE_FONT, fontSize: '9px', display: 'block', opacity: 0.7 }}>SEC</span>
+      </div>
+    </div>
+  )
+
+  const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
+    if (completed || hasCompleted) return null
+    return renderCountdown(days, hours, minutes, seconds)
+  }
+
+  const macBtnInner: React.CSSProperties = {
+    fontFamily: TITLE_FONT,
+    fontSize: '14px',
+    color: textColor,
+    background: presaveBgColor,
+    clipPath: PIXEL_BTN_CLIP,
+    padding: '6px 16px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    display: 'block',
+    textAlign: 'center',
+  }
+
+  const macBtnOuter: React.CSSProperties = {
+    background: textColor,
+    clipPath: PIXEL_BTN_CLIP,
+    padding: '2px',
+    display: 'inline-block',
+  }
+
+  return (
+    <WindowWrapper onClick={onClick} isSelected={isSelected}>
+      <LinesTitleBar title={title} />
+      <div style={{ background: presaveBgColor, padding: '16px', color: textColor }}>
+        {/* Album art */}
+        {albumArtUrl && (
+          <div style={{ border: '2px solid #000', marginBottom: '12px', overflow: 'hidden' }}>
+            <img
+              src={albumArtUrl}
+              alt={title}
+              style={{ width: '100%', display: 'block' }}
+            />
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center' }}>
+          {/* Pre-release state */}
+          {!isReleased && !hasCompleted && (
+            <>
+              {/* Drops in label */}
+              <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', marginBottom: '8px' }}>
+                {dropsInText}
+              </p>
+
+              {/* Countdown - live if date set, static zeros if not */}
+              <div style={{ margin: '12px 0' }}>
+                {releaseDate ? (
+                  <Countdown date={new Date(releaseDate)} renderer={countdownRenderer} onComplete={handleComplete} />
+                ) : (
+                  renderCountdown(0, 0, 0, 0)
+                )}
+              </div>
+
+              {/* Pre-save button */}
+              <div style={macBtnOuter}>
+                {preSaveUrl ? (
+                  <a href={preSaveUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => e.stopPropagation()}>
+                    {preSaveButtonText}
+                  </a>
+                ) : (
+                  <div style={macBtnInner}>
+                    {preSaveButtonText}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Post-release */}
+          {(isReleased || hasCompleted) && afterCountdownAction === 'custom' && (
+            <div style={macBtnOuter}>
+              {afterCountdownUrl ? (
+                <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => e.stopPropagation()}>
+                  {afterCountdownText || 'OUT NOW'}
+                </a>
+              ) : (
+                <div style={macBtnInner}>
+                  {afterCountdownText || 'OUT NOW'}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </WindowWrapper>
   )
 }

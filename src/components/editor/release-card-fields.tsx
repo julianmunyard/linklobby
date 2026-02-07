@@ -27,9 +27,10 @@ interface ReleaseCardFieldsProps {
   content: Partial<ReleaseCardContent>
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
+  hideNameFields?: boolean
 }
 
-export function ReleaseCardFields({ content, onChange, cardId }: ReleaseCardFieldsProps) {
+export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }: ReleaseCardFieldsProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
@@ -191,26 +192,30 @@ export function ReleaseCardFields({ content, onChange, cardId }: ReleaseCardFiel
       </div>
 
       {/* Release Title */}
-      <div className="space-y-2">
-        <Label htmlFor="releaseTitle">Release Title</Label>
-        <Input
-          id="releaseTitle"
-          placeholder="Album or single name"
-          value={values.releaseTitle || ''}
-          onChange={(e) => onChange({ releaseTitle: e.target.value || undefined })}
-        />
-      </div>
+      {!hideNameFields && (
+        <div className="space-y-2">
+          <Label htmlFor="releaseTitle">Release Title</Label>
+          <Input
+            id="releaseTitle"
+            placeholder="Album or single name"
+            value={values.releaseTitle || ''}
+            onChange={(e) => onChange({ releaseTitle: e.target.value || undefined })}
+          />
+        </div>
+      )}
 
       {/* Artist Name */}
-      <div className="space-y-2">
-        <Label htmlFor="artistName">Artist Name (optional)</Label>
-        <Input
-          id="artistName"
-          placeholder="Leave blank to use profile name"
-          value={values.artistName || ''}
-          onChange={(e) => onChange({ artistName: e.target.value || undefined })}
-        />
-      </div>
+      {!hideNameFields && (
+        <div className="space-y-2">
+          <Label htmlFor="artistName">Artist Name (optional)</Label>
+          <Input
+            id="artistName"
+            placeholder="Leave blank to use profile name"
+            value={values.artistName || ''}
+            onChange={(e) => onChange({ artistName: e.target.value || undefined })}
+          />
+        </div>
+      )}
 
       {/* Release Date */}
       <div className="space-y-2">
@@ -339,11 +344,13 @@ export function ReleaseCardFields({ content, onChange, cardId }: ReleaseCardFiel
       </div>
 
       {/* Text Color */}
-      <ColorPicker
-        label="Text Color"
-        color={values.textColor || "#ffffff"}
-        onChange={(color) => onChange({ textColor: color })}
-      />
+      {!hideNameFields && (
+        <ColorPicker
+          label="Text Color"
+          color={values.textColor || "#ffffff"}
+          onChange={(color) => onChange({ textColor: color })}
+        />
+      )}
 
       {/* Crop dialog */}
       {imageToCrop && (

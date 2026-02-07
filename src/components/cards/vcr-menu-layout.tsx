@@ -294,12 +294,17 @@ export function VcrMenuLayout({
                   className="w-full text-center py-3 opacity-70"
                   style={{
                     fontFamily: 'var(--font-pixter-granular)',
-                    fontSize: linkSize,
+                    fontSize: `clamp(0.9rem, ${parseFloat(linkSize) * 0.65}rem, ${linkSize})`,
                     letterSpacing: '0.1em',
                     color: 'var(--theme-text)',
+                    wordBreak: 'break-word',
                   }}
                 >
-                  ----- {displayText} -----
+                  <span className="hidden sm:inline">----- </span>
+                  <span className="sm:hidden">-- </span>
+                  {displayText}
+                  <span className="sm:hidden"> --</span>
+                  <span className="hidden sm:inline"> -----</span>
                 </div>
               )
             }
@@ -315,10 +320,11 @@ export function VcrMenuLayout({
                 )}
                 style={{
                   fontFamily: 'var(--font-pixter-granular)',
-                  fontSize: linkSize,
+                  fontSize: `clamp(0.9rem, ${parseFloat(linkSize) * 0.65}rem, ${linkSize})`,
                   letterSpacing: '0.05em',
                   backgroundColor: isFocused ? 'var(--theme-text)' : 'transparent',
                   color: isFocused ? 'var(--theme-background)' : 'var(--theme-text)',
+                  wordBreak: 'break-word',
                 }}
                 onClick={() => handleCardClick(card, index)}
               >
