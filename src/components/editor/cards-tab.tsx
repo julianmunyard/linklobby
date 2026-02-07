@@ -37,7 +37,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
-type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave'
+type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
 
 const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
   { label: "Note Pad", macWindowStyle: "notepad" },
@@ -45,6 +45,7 @@ const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
   { label: "Large Window", macWindowStyle: "large-window" },
   { label: "Title Link", macWindowStyle: "title-link" },
   { label: "Pre-save", macWindowStyle: "presave" },
+  { label: "Photos", macWindowStyle: "gallery" },
   { label: "Map", macWindowStyle: "map" },
   { label: "Calculator", macWindowStyle: "calculator" },
 ]
@@ -117,6 +118,8 @@ export function CardsTab() {
               return { macWindowStyle, macMode: 'link' }
             case 'title-link':
               return { macWindowStyle }
+            case 'gallery':
+              return { macWindowStyle: 'gallery', galleryStyle: 'circular', images: [] }
             case 'map':
             case 'calculator':
               return { macWindowStyle }
@@ -149,7 +152,7 @@ export function CardsTab() {
       const position = (type === "mini" || type === "text") ? "center" : "left"
 
       const newCard = await createCard({
-        card_type: macWindowStyle ? "hero" : type,
+        card_type: macWindowStyle === 'gallery' ? "gallery" : (macWindowStyle ? "hero" : type),
         title: null,
         description: null,
         url: null,
