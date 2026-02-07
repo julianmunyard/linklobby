@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 11 of 18 - Analytics, Pixels & Legal
 Plan: 5 of 5 - Complete
 Status: **Phase 11 Complete - Analytics, pixels, and legal compliance built**
-Last activity: 2026-02-07 - Completed quick task 043: Macintosh gallery card in large window
+Last activity: 2026-02-07 - Completed quick task 044: Mac gallery full-bleed with 8-bit arrows
 
 Progress: [█████████████████████████░░░░░░] ~67%
 
@@ -610,6 +610,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 041 | System Settings theme colorways (5 presets) | Complete | f7d8838, 3d051a5 |
 | 042 | Fix card drag reorder (IDs not indices) | Complete | 979a8cb |
 | 043 | Macintosh gallery card in large window | Complete | fd68b8c, f2ae195 |
+| 044 | Mac gallery full-bleed with 8-bit arrows | Complete | facd477 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -689,7 +690,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-07
-Last activity: 2026-02-07 - Completed quick task 043: Macintosh gallery card in large window
+Last activity: 2026-02-07 - Completed quick task 044: Mac gallery full-bleed with 8-bit arrows
 Stopped at: Quick task 042 complete
 Resume file: None
 
