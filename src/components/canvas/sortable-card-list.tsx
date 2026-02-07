@@ -21,7 +21,7 @@ import type { Card } from "@/types/card"
 
 interface SortableCardListProps {
   cards: Card[]
-  onReorder: (oldIndex: number, newIndex: number) => void
+  onReorder: (activeId: string, overId: string) => void
   selectedCardId?: string | null
   onSelectCard?: (id: string) => void
   onDeleteCard?: (id: string) => void
@@ -64,9 +64,7 @@ export function SortableCardList({
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      const oldIndex = cards.findIndex((c) => c.id === active.id)
-      const newIndex = cards.findIndex((c) => c.id === over.id)
-      onReorder(oldIndex, newIndex)
+      onReorder(active.id as string, over.id as string)
     }
   }
 

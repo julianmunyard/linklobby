@@ -27,7 +27,7 @@ import type { Card } from "@/types/card"
 interface PreviewFlowGridProps {
   cards: Card[]
   selectedCardId?: string | null
-  onReorder: (oldIndex: number, newIndex: number) => void
+  onReorder: (activeId: string, overId: string) => void
   onCardClick?: (cardId: string) => void
 }
 
@@ -82,11 +82,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
 
     // Reorder drop
     if (active.id !== over.id) {
-      const oldIndex = cards.findIndex((c) => c.id === active.id)
-      const newIndex = cards.findIndex((c) => c.id === over.id)
-      if (oldIndex !== -1 && newIndex !== -1) {
-        onReorder(oldIndex, newIndex)
-      }
+      onReorder(active.id as string, over.id as string)
     }
   }
 

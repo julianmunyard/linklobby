@@ -5,7 +5,7 @@ import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent, Re
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
-import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey } from '@/lib/ordering'
+import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey, hasDuplicateSortKeys, normalizeSortKeys } from '@/lib/ordering'
 
 interface Theme {
   id: string
@@ -33,7 +33,7 @@ interface PageState {
   updateCard: (id: string, updates: Partial<Card>) => void
   removeCard: (id: string) => void
   duplicateCard: (id: string) => void
-  reorderCards: (oldIndex: number, newIndex: number) => void
+  reorderCards: (activeId: string, overId: string) => void
   reorderMultipleCards: (cardIds: string[], targetIndex: number) => void
   updateCardPosition: (id: string, position: HorizontalPosition) => void
   selectCard: (id: string | null) => void
@@ -164,17 +164,30 @@ export const usePageStore = create<PageState>()(
     }
   }),
 
-  reorderCards: (oldIndex, newIndex) => set((state) => {
-    const sorted = sortCardsBySortKey(state.cards)
-    const movedCard = sorted[oldIndex]
+  reorderCards: (activeId, overId) => set((state) => {
+    if (activeId === overId) return state
+
+    // Sort cards to find positions
+    let cards = state.cards
+    if (hasDuplicateSortKeys(cards)) {
+      const keyMap = normalizeSortKeys(cards)
+      cards = cards.map((c) => ({ ...c, sortKey: keyMap.get(c.id)! }))
+    }
+
+    const sorted = sortCardsBySortKey(cards)
+    const movedCard = sorted.find((c) => c.id === activeId)
     if (!movedCard) return state
 
-    // Generate new sort key for the moved card
-    const newSortKey = generateMoveKey(state.cards, movedCard.id, newIndex)
+    // Find the target index: where overId currently sits in the sorted list
+    const newIndex = sorted.findIndex((c) => c.id === overId)
+    if (newIndex === -1) return state
+
+    // Generate new sort key for the moved card at the target position
+    const newSortKey = generateMoveKey(cards, activeId, newIndex)
 
     return {
-      cards: state.cards.map((c) =>
-        c.id === movedCard.id
+      cards: cards.map((c) =>
+        c.id === activeId
           ? { ...c, sortKey: newSortKey, updated_at: new Date().toISOString() }
           : c
       ),

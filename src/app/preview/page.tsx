@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
+import { cn } from "@/lib/utils"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
@@ -63,7 +64,7 @@ function PreviewContent() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
   const { clearSelection } = useMultiSelectContext()
-  const { background, themeId } = useThemeStore()
+  const { background, themeId, centerCards } = useThemeStore()
   const displayName = useProfileStore((s) => s.displayName)
 
   // Send SELECT_CARD message to parent editor
@@ -116,6 +117,7 @@ function PreviewContent() {
             background: ts.background,
             cardTypeFontSizes: ts.cardTypeFontSizes,
             socialIconSize: ts.socialIconSize,
+            centerCards: ts.centerCards ?? false,
             vcrCenterContent: ts.vcrCenterContent ?? false,
             receiptPrice: ts.receiptPrice ?? 'PRICELESS',
             receiptStickers: ts.receiptStickers ?? [],
@@ -259,7 +261,10 @@ function PreviewContent() {
 
         {/* Content container - sized horizontally to frame, full height so content scrolls behind */}
         <div
-          className="fixed overflow-y-auto overflow-x-hidden pointer-events-auto text-theme-text"
+          className={cn(
+            "fixed overflow-y-auto overflow-x-hidden pointer-events-auto text-theme-text",
+            centerCards && "flex flex-col items-center justify-center"
+          )}
           onClick={handleBackgroundClick}
           style={{
             // Horizontal: sized to frame's screen area and centered
@@ -294,9 +299,9 @@ function PreviewContent() {
               <SelectableFlowGrid
                 cards={state.cards}
                 selectedCardId={state.selectedCardId}
-                onReorder={(oldIndex, newIndex) => {
+                onReorder={(activeId, overId) => {
                   if (window.parent !== window) {
-                    window.parent.postMessage({ type: "REORDER_CARDS", payload: { oldIndex, newIndex } }, window.location.origin)
+                    window.parent.postMessage({ type: "REORDER_CARDS", payload: { activeId, overId } }, window.location.origin)
                   }
                 }}
                 onReorderMultiple={(cardIds, targetIndex) => {
@@ -323,7 +328,10 @@ function PreviewContent() {
   return (
     <>
       <div
-        className="min-h-screen text-theme-text overflow-x-hidden"
+        className={cn(
+          "min-h-screen text-theme-text overflow-x-hidden",
+          centerCards && "flex flex-col items-center justify-center"
+        )}
         onClick={handleBackgroundClick}
         style={frameInsets ? {
           // Padding pushes content into the "screen" area
@@ -375,11 +383,11 @@ function PreviewContent() {
           <SelectableFlowGrid
             cards={state.cards}
             selectedCardId={state.selectedCardId}
-            onReorder={(oldIndex, newIndex) => {
+            onReorder={(activeId, overId) => {
               // Send reorder message to parent editor
               if (window.parent !== window) {
                 window.parent.postMessage(
-                  { type: "REORDER_CARDS", payload: { oldIndex, newIndex } },
+                  { type: "REORDER_CARDS", payload: { activeId, overId } },
                   window.location.origin
                 )
               }

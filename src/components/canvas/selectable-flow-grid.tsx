@@ -27,7 +27,7 @@ import type { Card } from "@/types/card"
 interface SelectableFlowGridProps {
   cards: Card[]
   selectedCardId?: string | null
-  onReorder: (oldIndex: number, newIndex: number) => void
+  onReorder: (activeId: string, overId: string) => void
   onReorderMultiple?: (cardIds: string[], targetIndex: number) => void
   onCardClick?: (cardId: string) => void
 }
@@ -110,20 +110,17 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
 
     // Reordering on main canvas
     if (active.id !== over.id) {
-      const newIndex = visibleCards.findIndex((c) => c.id === over.id)
-
-      if (newIndex !== -1) {
-        // Multi-drag: move all selected cards
-        if (cardIdsToDrag.length > 1 && onReorderMultiple) {
-          onReorderMultiple(cardIdsToDrag, newIndex)
-          multiSelect.clearSelection()
-        } else {
-          // Single drag
-          const oldIndex = visibleCards.findIndex((c) => c.id === active.id)
-          if (oldIndex !== -1) {
-            onReorder(oldIndex, newIndex)
-          }
+      // Multi-drag: move all selected cards
+      if (cardIdsToDrag.length > 1 && onReorderMultiple) {
+        // Multi-drag uses the over card's index in visible cards for targetIndex
+        const targetIndex = visibleCards.findIndex((c) => c.id === over.id)
+        if (targetIndex !== -1) {
+          onReorderMultiple(cardIdsToDrag, targetIndex)
         }
+        multiSelect.clearSelection()
+      } else {
+        // Single drag - pass IDs
+        onReorder(active.id as string, over.id as string)
       }
     }
   }
