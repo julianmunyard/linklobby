@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 import { Calendar, Globe, Mail, Music } from 'lucide-react'
@@ -11,10 +12,17 @@ import {
   SiTwitch, SiKick, SiDiscord,
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
+import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { sortCardsBySortKey } from '@/lib/ordering'
-import type { Card, ReleaseCardContent } from '@/types/card'
+import type { Card, ReleaseCardContent, GalleryCardContent, GalleryImage } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
 import type { ComponentType } from 'react'
+
+// Dynamic import for CircularGallery (uses WebGL - must be client-only)
+const CircularGallery = dynamic(
+  () => import('@/components/CircularGallery'),
+  { ssr: false, loading: () => <div style={{ width: '100%', height: '300px', background: '#f0f0f0' }} /> }
+)
 
 type IconComponent = ComponentType<{ className?: string; style?: React.CSSProperties }>
 
@@ -107,6 +115,9 @@ export function StaticMacintoshLayout({
     const macWindowStyle = content?.macWindowStyle as string | undefined
 
     if (card.card_type === 'social-icons') {
+      return
+    }
+    if (card.card_type === 'gallery') {
       return
     }
     if (macWindowStyle === 'notepad') {
@@ -374,6 +385,11 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     return <StaticMacSocials card={card} socialIcons={socialIcons || []} />
   }
 
+  // Gallery card gets special treatment
+  if (card.card_type === 'gallery') {
+    return <StaticMacGallery card={card} />
+  }
+
   const content = card.content as Record<string, unknown>
   const macWindowStyle = content?.macWindowStyle as string | undefined
 
@@ -386,6 +402,8 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
       return <StaticLargeWindow card={card} onClick={onClick} bodySize={bodySize} />
     case 'title-link':
       return <StaticTitleLink card={card} onClick={onClick} />
+    case 'gallery':
+      return <StaticMacGallery card={card} />
     case 'map':
       return <StaticMap card={card} />
     case 'calculator':
@@ -1227,6 +1245,45 @@ function StaticPresave({ card, bodySize }: { card: Card; bodySize?: number }) {
             </div>
           )}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── 7. Static Mac Gallery ──────────────────────────────────────────────────
+
+function StaticMacGallery({ card }: { card: Card }) {
+  const content = card.content as Partial<GalleryCardContent>
+  const title = card.title || 'Photos'
+  const images = content.images || []
+
+  if (images.length === 0) return null
+
+  return (
+    <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
+      <LinesTitleBar title={title} />
+      <div style={{ background: '#fff' }}>
+        {content.galleryStyle === 'carousel' ? (
+          <EmblaCarouselGallery images={images} />
+        ) : (
+          <div style={{ height: '350px', position: 'relative' }}>
+            <CircularGallery
+              items={images.map(img => ({
+                image: img.url,
+                text: img.caption || '',
+                link: img.link || null,
+              }))}
+              bend={content.bend ?? 1.5}
+              borderRadius={content.borderRadius ?? 0.05}
+              scrollSpeed={content.scrollSpeed ?? 1.5}
+              scrollEase={content.scrollEase ?? 0.03}
+              spacing={content.spacing ?? 2.5}
+              textColor={content.captionColor || "#ffffff"}
+              font="16px sans-serif"
+              showCaptions={content.showCaptions !== false}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
