@@ -309,6 +309,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 content={currentContent as Partial<GalleryCardContent>}
                 onChange={handleContentChange}
                 cardId={card.id}
+                isMacCard={isMacCard}
               />
             )}
 

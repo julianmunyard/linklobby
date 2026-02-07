@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 import { Calendar, Globe, Mail, Music } from 'lucide-react'
@@ -12,17 +11,10 @@ import {
   SiTwitch, SiKick, SiDiscord,
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
-import { EmblaCarouselGallery } from '@/components/ui/embla-carousel'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import type { Card, ReleaseCardContent, GalleryCardContent, GalleryImage } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
 import type { ComponentType } from 'react'
-
-// Dynamic import for CircularGallery (uses WebGL - must be client-only)
-const CircularGallery = dynamic(
-  () => import('@/components/CircularGallery'),
-  { ssr: false, loading: () => <div style={{ width: '100%', height: '300px', background: '#f0f0f0' }} /> }
-)
 
 type IconComponent = ComponentType<{ className?: string; style?: React.CSSProperties }>
 
@@ -1250,38 +1242,112 @@ function StaticPresave({ card, bodySize }: { card: Card; bodySize?: number }) {
   )
 }
 
+// ─── 8-bit pixel arrows (SVG) ────────────────────────────────────────────────
+
+function StaticPixelArrowLeft({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect x="8" y="0" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="2" width="2" height="2" fill="currentColor" />
+      <rect x="4" y="4" width="2" height="2" fill="currentColor" />
+      <rect x="2" y="6" width="2" height="2" fill="currentColor" />
+      <rect x="4" y="8" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="10" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="12" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
+function StaticPixelArrowRight({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect x="6" y="0" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="2" width="2" height="2" fill="currentColor" />
+      <rect x="10" y="4" width="2" height="2" fill="currentColor" />
+      <rect x="12" y="6" width="2" height="2" fill="currentColor" />
+      <rect x="10" y="8" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="10" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="12" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
 // ─── 7. Static Mac Gallery ──────────────────────────────────────────────────
 
 function StaticMacGallery({ card }: { card: Card }) {
   const content = card.content as Partial<GalleryCardContent>
   const title = card.title || 'Photos'
   const images = content.images || []
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   if (images.length === 0) return null
 
   return (
     <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
       <LinesTitleBar title={title} />
-      <div style={{ background: '#fff' }}>
-        {content.galleryStyle === 'carousel' ? (
-          <EmblaCarouselGallery images={images} />
-        ) : (
-          <div style={{ height: '350px', position: 'relative' }}>
-            <CircularGallery
-              items={images.map(img => ({
-                image: img.url,
-                text: img.caption || '',
-                link: img.link || null,
-              }))}
-              bend={content.bend ?? 1.5}
-              borderRadius={content.borderRadius ?? 0.05}
-              scrollSpeed={content.scrollSpeed ?? 1.5}
-              scrollEase={content.scrollEase ?? 0.03}
-              spacing={content.spacing ?? 2.5}
-              textColor={content.captionColor || "#ffffff"}
-              font="16px sans-serif"
-              showCaptions={content.showCaptions !== false}
-            />
+      <div style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={images[currentIndex]?.url}
+          alt={images[currentIndex]?.alt || 'Photo'}
+          style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '4/3' }}
+        />
+        {/* 8-bit pixel arrows */}
+        {images.length > 1 && (
+          <>
+            <div
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev - 1 + images.length) % images.length) }}
+              style={{
+                position: 'absolute',
+                left: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: '#fff',
+                border: '2px solid #000',
+                padding: '4px',
+                cursor: 'pointer',
+                color: '#000',
+                lineHeight: 0,
+              }}
+            >
+              <StaticPixelArrowLeft size={20} />
+            </div>
+            <div
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev + 1) % images.length) }}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: '#fff',
+                border: '2px solid #000',
+                padding: '4px',
+                cursor: 'pointer',
+                color: '#000',
+                lineHeight: 0,
+              }}
+            >
+              <StaticPixelArrowRight size={20} />
+            </div>
+          </>
+        )}
+        {/* Image counter */}
+        {images.length > 1 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '8px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontFamily: TITLE_FONT,
+              fontSize: '11px',
+              color: '#000',
+              background: '#fff',
+              border: '2px solid #000',
+              padding: '2px 8px',
+            }}
+          >
+            {currentIndex + 1} / {images.length}
           </div>
         )}
       </div>

@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import { useProfileStore } from '@/stores/profile-store'
 import { useThemeStore } from '@/stores/theme-store'
 import { PLATFORM_ICONS } from '@/components/editor/social-icon-picker'
-import { GalleryCard } from './gallery-card'
 import type { Card, ReleaseCardContent } from '@/types/card'
 
 type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
@@ -1051,10 +1050,53 @@ export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
   )
 }
 
+// ─── 8-bit pixel arrows (SVG) ────────────────────────────────────────────────
+
+function PixelArrowLeft({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect x="8" y="0" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="2" width="2" height="2" fill="currentColor" />
+      <rect x="4" y="4" width="2" height="2" fill="currentColor" />
+      <rect x="2" y="6" width="2" height="2" fill="currentColor" />
+      <rect x="4" y="8" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="10" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="12" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
+function PixelArrowRight({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ imageRendering: 'pixelated' }}>
+      <rect x="6" y="0" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="2" width="2" height="2" fill="currentColor" />
+      <rect x="10" y="4" width="2" height="2" fill="currentColor" />
+      <rect x="12" y="6" width="2" height="2" fill="currentColor" />
+      <rect x="10" y="8" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="10" width="2" height="2" fill="currentColor" />
+      <rect x="6" y="12" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
 // ─── 8. Gallery (Photos) ────────────────────────────────────────────────────
 
-export function MacintoshGallery({ card, isPreview, onClick, isSelected }: MacCardProps) {
+export function MacintoshGallery({ card, onClick, isSelected }: MacCardProps) {
   const title = card.title || 'Photos'
+  const content = card.content as Record<string, unknown>
+  const images = (content?.images as Array<{ id: string; url: string; alt: string }>) || []
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const goPrev = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+  }, [images.length])
+
+  const goNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCurrentIndex((prev) => (prev + 1) % images.length)
+  }, [images.length])
 
   return (
     <div
@@ -1067,9 +1109,80 @@ export function MacintoshGallery({ card, isPreview, onClick, isSelected }: MacCa
       }}
     >
       <LinesTitleBar title={title} />
-      {/* White content area with gallery inside */}
-      <div style={{ background: '#fff', overflow: 'hidden' }}>
-        <GalleryCard card={card} isPreview={isPreview} />
+      {/* Full-bleed image area */}
+      <div style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>
+        {images.length === 0 ? (
+          <div style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+            <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#666' }}>No photos yet</p>
+          </div>
+        ) : (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[currentIndex]?.url}
+              alt={images[currentIndex]?.alt || 'Photo'}
+              style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '4/3' }}
+            />
+            {/* 8-bit pixel arrows */}
+            {images.length > 1 && (
+              <>
+                <div
+                  onClick={goPrev}
+                  style={{
+                    position: 'absolute',
+                    left: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: '#fff',
+                    border: '2px solid #000',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: '#000',
+                    lineHeight: 0,
+                  }}
+                >
+                  <PixelArrowLeft size={20} />
+                </div>
+                <div
+                  onClick={goNext}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: '#fff',
+                    border: '2px solid #000',
+                    padding: '4px',
+                    cursor: 'pointer',
+                    color: '#000',
+                    lineHeight: 0,
+                  }}
+                >
+                  <PixelArrowRight size={20} />
+                </div>
+              </>
+            )}
+            {/* Image counter */}
+            {images.length > 1 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontFamily: TITLE_FONT,
+                  fontSize: '11px',
+                  color: '#000',
+                  background: '#fff',
+                  border: '2px solid #000',
+                  padding: '2px 8px',
+                }}
+              >
+                {currentIndex + 1} / {images.length}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

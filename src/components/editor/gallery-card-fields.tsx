@@ -23,6 +23,7 @@ interface GalleryCardFieldsProps {
   content: Partial<GalleryCardContent>
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
+  isMacCard?: boolean
 }
 
 // Separate component to avoid hooks in conditional
@@ -126,7 +127,7 @@ function SortableImage({
   )
 }
 
-export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFieldsProps) {
+export function GalleryCardFields({ content, onChange, cardId, isMacCard }: GalleryCardFieldsProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Crop dialog state
@@ -257,28 +258,30 @@ export function GalleryCardFields({ content, onChange, cardId }: GalleryCardFiel
 
   return (
     <div className="space-y-4">
-      {/* Gallery Style Toggle */}
-      <div className="space-y-2">
-        <Label>Gallery Style</Label>
-        <ToggleGroup
-          type="single"
-          value={content.galleryStyle || 'circular'}
-          onValueChange={(value) => {
-            if (value) onChange({ galleryStyle: value })
-          }}
-          className="justify-start"
-        >
-          <ToggleGroupItem value="circular" aria-label="Circular gallery">
-            <Circle className="h-4 w-4 mr-2" /> Circular
-          </ToggleGroupItem>
-          <ToggleGroupItem value="carousel" aria-label="Carousel">
-            <Rows3 className="h-4 w-4 mr-2" /> Carousel
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
+      {/* Gallery Style Toggle - hidden on Macintosh theme (carousel only) */}
+      {!isMacCard && (
+        <div className="space-y-2">
+          <Label>Gallery Style</Label>
+          <ToggleGroup
+            type="single"
+            value={content.galleryStyle || 'circular'}
+            onValueChange={(value) => {
+              if (value) onChange({ galleryStyle: value })
+            }}
+            className="justify-start"
+          >
+            <ToggleGroupItem value="circular" aria-label="Circular gallery">
+              <Circle className="h-4 w-4 mr-2" /> Circular
+            </ToggleGroupItem>
+            <ToggleGroupItem value="carousel" aria-label="Carousel">
+              <Rows3 className="h-4 w-4 mr-2" /> Carousel
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
 
-      {/* Circular Gallery Settings - only show when circular style selected (default) */}
-      {content.galleryStyle !== 'carousel' && (
+      {/* Circular Gallery Settings - only show when circular style selected (default) and not Mac */}
+      {!isMacCard && content.galleryStyle !== 'carousel' && (
         <div className="space-y-4 p-3 bg-muted/50 rounded-lg">
           <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Circular Settings</Label>
 

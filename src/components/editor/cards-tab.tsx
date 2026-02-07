@@ -119,7 +119,7 @@ export function CardsTab() {
             case 'title-link':
               return { macWindowStyle }
             case 'gallery':
-              return { macWindowStyle: 'gallery', galleryStyle: 'circular', images: [] }
+              return { macWindowStyle: 'gallery', galleryStyle: 'carousel', images: [] }
             case 'map':
             case 'calculator':
               return { macWindowStyle }
