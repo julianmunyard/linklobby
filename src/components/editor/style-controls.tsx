@@ -31,8 +31,11 @@ const IPOD_TEXTURES = [
   { id: 'none', src: '', label: 'None' },
 ]
 
+// Basic card-layout themes that support centering
+const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+
 export function StyleControls() {
-  const { themeId, style, setStyle, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture } = useThemeStore()
   const theme = getTheme(themeId)
 
   // Hide card style controls for list-layout themes
@@ -97,6 +100,20 @@ export function StyleControls() {
           <p className="text-xs text-muted-foreground">
             Blur effect for glass-style cards. Keep under 16px for best mobile performance.
           </p>
+        </div>
+      )}
+
+      {/* Basic Themes: Center Cards Toggle */}
+      {BASIC_THEMES.includes(themeId) && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Center Cards</Label>
+            <p className="text-xs text-muted-foreground">Vertically center on screen</p>
+          </div>
+          <Switch
+            checked={centerCards}
+            onCheckedChange={setCenterCards}
+          />
         </div>
       )}
 

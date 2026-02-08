@@ -1,6 +1,6 @@
 // src/lib/import/linktree-mapper.ts
 import axios from 'axios'
-import { generateLayoutPatternRandomized, type LayoutItem } from './layout-generator'
+import type { LayoutItem } from './layout-generator'
 import type { LinktreeLink, LinktreeSocialLink } from '@/types/linktree'
 import type { CardType, CardSize, HorizontalPosition } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
@@ -356,8 +356,11 @@ export async function mapLinktreeToCards(
 
   console.log(`[LinktreeMapper] Found ${detectedSocialIcons.length} social icons from socialLinks array, ${regularLinks.length} regular links`)
 
-  // Generate layout only for regular links
-  const layout = generateLayoutPatternRandomized(regularLinks.length)
+  // Use horizontal card type for links with thumbnails (supports images), link type otherwise
+  const layout: LayoutItem[] = regularLinks.map((link) => ({
+    type: (link.type === 'HEADER' ? 'text' : link.thumbnail ? 'horizontal' : 'link') as CardType,
+    size: 'big' as CardSize,
+  }))
 
   // Log what we're processing
   console.log('[LinktreeMapper] Processing', regularLinks.length, 'regular links')

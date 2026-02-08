@@ -56,6 +56,31 @@ export function generateInsertKey(cards: Card[], targetIndex: number): string {
 }
 
 /**
+ * Check if any sorted cards have duplicate sort keys
+ */
+export function hasDuplicateSortKeys(cards: Card[]): boolean {
+  const sorted = sortCardsBySortKey(cards)
+  return sorted.some(
+    (c, i) => i > 0 && c.sortKey === sorted[i - 1].sortKey
+  )
+}
+
+/**
+ * Re-generate all sort keys with even spacing, preserving current order.
+ * Returns a map of cardId -> newSortKey.
+ */
+export function normalizeSortKeys(cards: Card[]): Map<string, string> {
+  const sorted = sortCardsBySortKey(cards)
+  const keyMap = new Map<string, string>()
+  let key = generateKeyBetween(null, null)
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0) key = generateKeyBetween(key, null)
+    keyMap.set(sorted[i].id, key)
+  }
+  return keyMap
+}
+
+/**
  * Generate a new sort key after moving a card to a new position
  * @param cards All cards (including the one being moved)
  * @param movedCardId The ID of the card being moved
@@ -68,7 +93,13 @@ export function generateMoveKey(
 ): string {
   // Filter out the moved card, then find neighbors at new position
   const otherCards = cards.filter((c) => c.id !== movedCardId)
-  const sorted = sortCardsBySortKey(otherCards)
+  let sorted = sortCardsBySortKey(otherCards)
+
+  // Fix duplicate sort keys before computing position
+  if (hasDuplicateSortKeys(otherCards)) {
+    const keyMap = normalizeSortKeys(otherCards)
+    sorted = sorted.map((c) => ({ ...c, sortKey: keyMap.get(c.id)! }))
+  }
 
   // Handle empty list
   if (sorted.length === 0) {

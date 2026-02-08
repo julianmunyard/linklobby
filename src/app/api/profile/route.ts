@@ -42,6 +42,7 @@ export async function GET() {
     showSocialIcons: profile.show_social_icons,
     socialIcons: profile.social_icons || [],
     headerTextColor: profile.header_text_color,
+    socialIconColor: null,
   })
 }
 

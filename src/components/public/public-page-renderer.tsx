@@ -24,7 +24,7 @@ const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; 
  */
 function LegalFooter({ username }: { username: string }) {
   return (
-    <footer className="mt-12 pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
+    <footer className="py-6 text-center text-xs" style={{ opacity: 0.5 }}>
       <div className="flex items-center justify-center gap-4 text-theme-text">
         <Link
           href={`/privacy?username=${username}`}
@@ -243,6 +243,10 @@ export function PublicPageRenderer({
   const framePosX = background?.framePositionX ?? 0
   const framePosY = background?.framePositionY ?? 0
 
+  // If there's a social-icons card, render icons at card position (not in header)
+  const hasSocialIconsCard = cards.some(c => c.card_type === 'social-icons')
+  const showSocialIconsInHeader = showSocialIcons && !hasSocialIconsCard
+
   // When frame is active with fit content, position content within frame bounds
   if (frameInsets) {
     return (
@@ -263,35 +267,44 @@ export function PublicPageRenderer({
           paddingBottom: `${frameInsets.bottom}vh`,
         }}
       >
-        <div className="w-full max-w-2xl mx-auto px-4">
-          {/* Profile Header */}
-          <StaticProfileHeader
-            displayName={displayName}
-            bio={bio}
-            avatarUrl={avatarUrl}
-            avatarFeather={avatarFeather}
-            showAvatar={showAvatar}
-            showTitle={showTitle}
-            titleSize={titleSize}
-            showLogo={showLogo}
-            logoUrl={logoUrl}
-            logoScale={logoScale}
-            profileLayout={profileLayout}
-            headerTextColor={headerTextColor}
-            socialIconColor={socialIconColor}
-            showSocialIcons={showSocialIcons}
-            socialIconsJson={socialIconsJson}
-            fuzzyEnabled={fuzzyEnabled}
-            fuzzyIntensity={fuzzyIntensity}
-            fuzzySpeed={fuzzySpeed}
-          />
+        <div className="w-full max-w-2xl mx-auto px-4 flex flex-col min-h-full">
+          <div className="flex-1">
+            {/* Profile Header */}
+            <StaticProfileHeader
+              displayName={displayName}
+              bio={bio}
+              avatarUrl={avatarUrl}
+              avatarFeather={avatarFeather}
+              showAvatar={showAvatar}
+              showTitle={showTitle}
+              titleSize={titleSize}
+              showLogo={showLogo}
+              logoUrl={logoUrl}
+              logoScale={logoScale}
+              profileLayout={profileLayout}
+              headerTextColor={headerTextColor}
+              socialIconColor={socialIconColor}
+              showSocialIcons={showSocialIconsInHeader}
+              socialIconsJson={socialIconsJson}
+              socialIconSize={socialIconSize}
+              fuzzyEnabled={fuzzyEnabled}
+              fuzzyIntensity={fuzzyIntensity}
+              fuzzySpeed={fuzzySpeed}
+            />
 
-          {/* Card Grid */}
-          <div className="mt-6">
-            <StaticFlowGrid cards={cards} />
+            {/* Card Grid */}
+            <div className="mt-2">
+              <StaticFlowGrid
+                cards={cards}
+                socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
+                socialIconSize={socialIconSize}
+                socialIconColor={socialIconColor}
+                headerTextColor={headerTextColor}
+              />
+            </div>
           </div>
 
-          {/* Legal Footer */}
+          {/* Legal Footer - always at bottom */}
           <LegalFooter username={username} />
         </div>
       </div>
@@ -300,35 +313,44 @@ export function PublicPageRenderer({
 
   // Default layout (no frame or frame without fit content)
   return (
-    <div className={`w-full max-w-2xl mx-auto px-4 py-8${centerCards ? ' min-h-screen flex flex-col items-center justify-center' : ''}`}>
-      {/* Profile Header */}
-      <StaticProfileHeader
-        displayName={displayName}
-        bio={bio}
-        avatarUrl={avatarUrl}
-        avatarFeather={avatarFeather}
-        showAvatar={showAvatar}
-        showTitle={showTitle}
-        titleSize={titleSize}
-        showLogo={showLogo}
-        logoUrl={logoUrl}
-        logoScale={logoScale}
-        profileLayout={profileLayout}
-        headerTextColor={headerTextColor}
-        socialIconColor={socialIconColor}
-        showSocialIcons={showSocialIcons}
-        socialIconsJson={socialIconsJson}
-        fuzzyEnabled={fuzzyEnabled}
-        fuzzyIntensity={fuzzyIntensity}
-        fuzzySpeed={fuzzySpeed}
-      />
+    <div className="min-h-screen flex flex-col">
+      <div className={`w-full max-w-2xl mx-auto px-4 py-8 flex-1${centerCards ? ' flex flex-col items-center justify-center' : ''}`}>
+        {/* Profile Header */}
+        <StaticProfileHeader
+          displayName={displayName}
+          bio={bio}
+          avatarUrl={avatarUrl}
+          avatarFeather={avatarFeather}
+          showAvatar={showAvatar}
+          showTitle={showTitle}
+          titleSize={titleSize}
+          showLogo={showLogo}
+          logoUrl={logoUrl}
+          logoScale={logoScale}
+          profileLayout={profileLayout}
+          headerTextColor={headerTextColor}
+          socialIconColor={socialIconColor}
+          showSocialIcons={showSocialIconsInHeader}
+          socialIconsJson={socialIconsJson}
+          socialIconSize={socialIconSize}
+          fuzzyEnabled={fuzzyEnabled}
+          fuzzyIntensity={fuzzyIntensity}
+          fuzzySpeed={fuzzySpeed}
+        />
 
-      {/* Card Grid */}
-      <div className="mt-6">
-        <StaticFlowGrid cards={cards} />
+        {/* Card Grid */}
+        <div className="mt-2">
+          <StaticFlowGrid
+            cards={cards}
+            socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
+            socialIconSize={socialIconSize}
+            socialIconColor={socialIconColor}
+            headerTextColor={headerTextColor}
+          />
+        </div>
       </div>
 
-      {/* Legal Footer */}
+      {/* Legal Footer - always at bottom */}
       <LegalFooter username={username} />
     </div>
   )

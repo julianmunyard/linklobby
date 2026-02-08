@@ -241,4 +241,5 @@ export interface Profile {
   showSocialIcons: boolean
   socialIcons: SocialIcon[]
   headerTextColor: string | null  // Custom color for title, bio, icons (null = use theme text color)
+  socialIconColor: string | null  // Custom color for social icons (null = use text color)
 }

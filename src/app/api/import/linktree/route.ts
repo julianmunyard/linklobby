@@ -64,20 +64,56 @@ export async function POST(request: Request) {
     // Create cards in database using batch insert (single query)
     const supabase = await createClient()
 
-    // Prepare all card records for batch insert
-    const cardRecords = mappedCards.map(({ card: cardData }, index) => ({
-      id: crypto.randomUUID(),
-      page_id: page.id,
-      card_type: cardData.card_type,
-      title: cardData.title,
-      description: cardData.description,
-      url: cardData.url,
-      content: cardData.content,
-      size: cardData.size,
-      position_x: POSITION_MAP[cardData.position as HorizontalPosition] ?? 0,
-      sort_key: sortKeys[index],
-      is_visible: true,
-    }))
+    // Upload images to Supabase storage and prepare card records
+    const cardRecords = await Promise.all(
+      mappedCards.map(async ({ card: cardData, imageBlob }, index) => {
+        const cardId = crypto.randomUUID()
+        let content = { ...cardData.content }
+
+        // Upload image blob to storage if available
+        if (imageBlob && imageBlob.size > 0) {
+          try {
+            const contentType = imageBlob.type || 'image/jpeg'
+            const ext = contentType.split('/')[1] || 'jpg'
+            const fileName = `${cardId}/${crypto.randomUUID()}.${ext}`
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from(BUCKET_NAME)
+              .upload(fileName, imageBlob, {
+                contentType,
+                upsert: false,
+              })
+
+            if (!uploadError && uploadData) {
+              const { data: urlData } = supabase.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(uploadData.path)
+
+              content.imageUrl = urlData.publicUrl
+              console.log(`[API /import/linktree] Uploaded image for "${cardData.title}": ${urlData.publicUrl}`)
+            } else if (uploadError) {
+              console.warn(`[API /import/linktree] Image upload failed for "${cardData.title}":`, uploadError.message)
+            }
+          } catch (err) {
+            console.warn(`[API /import/linktree] Image upload error for "${cardData.title}":`, err)
+          }
+        }
+
+        return {
+          id: cardId,
+          page_id: page.id,
+          card_type: cardData.card_type,
+          title: cardData.title,
+          description: cardData.description,
+          url: cardData.url,
+          content,
+          size: cardData.size,
+          position_x: POSITION_MAP[cardData.position as HorizontalPosition] ?? 0,
+          sort_key: sortKeys[index],
+          is_visible: true,
+        }
+      })
+    )
 
     // Log first 5 card records with sortKeys
     console.log('[API /import/linktree] First 5 card records with sortKeys:')

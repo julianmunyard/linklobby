@@ -648,6 +648,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               <LinkCardFields
                 content={currentContent as LinkCardContent}
                 onChange={handleContentChange}
+                cardType={card.card_type}
               />
             )}
             {/* Action buttons */}

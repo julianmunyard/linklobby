@@ -44,6 +44,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const fuzzySpeed = themeSettings?.fonts?.fuzzySpeed ?? 12
   const headingSize = themeSettings?.fonts?.headingSize ?? 1.8
   const bodySize = themeSettings?.fonts?.bodySize ?? 1.5
+  const centerCards = themeSettings?.centerCards ?? false
   const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
   const accentColor = themeSettings?.colors?.accent ?? '#2a6eff'
   const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
@@ -53,6 +54,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const ipodTexture = themeSettings?.ipodTexture ?? '/images/metal-texture.jpeg'
   const macPattern = themeSettings?.macPattern ?? ''
   const macPatternColor = themeSettings?.macPatternColor ?? '#c0c0c0'
+  const socialIconSize = themeSettings?.socialIconSize ?? 24
 
   // Pixel configuration
   const pixels = themeSettings?.pixels ?? {}
@@ -90,6 +92,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         logoScale={profile.logo_scale}
         profileLayout={profile.profile_layout}
         headerTextColor={profile.header_text_color}
+        socialIconColor={profile.social_icon_color}
         showSocialIcons={profile.show_social_icons}
         socialIconsJson={profile.social_icons}
         fuzzyEnabled={fuzzyEnabled}
@@ -97,6 +100,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         fuzzySpeed={fuzzySpeed}
         headingSize={headingSize}
         bodySize={bodySize}
+        centerCards={centerCards}
         vcrCenterContent={vcrCenterContent}
         accentColor={accentColor}
         receiptPrice={receiptPrice}
@@ -106,6 +110,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         ipodTexture={ipodTexture}
         macPattern={macPattern}
         macPatternColor={macPatternColor}
+        socialIconSize={socialIconSize}
         cards={cards}
       />
 

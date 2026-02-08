@@ -57,6 +57,7 @@ interface StaticProfileHeaderProps {
   logoScale: number
   profileLayout: "classic" | "hero"
   headerTextColor: string | null
+  socialIconColor: string | null
   // Social icons
   showSocialIcons: boolean
   socialIconsJson?: string | null
@@ -90,6 +91,7 @@ export function StaticProfileHeader({
   logoScale,
   profileLayout,
   headerTextColor,
+  socialIconColor,
   showSocialIcons,
   socialIconsJson,
   socialIconSize = 24,
@@ -123,9 +125,9 @@ export function StaticProfileHeader({
               href={icon.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-opacity hover:opacity-70"
+              className="text-theme-text transition-opacity hover:opacity-70"
               aria-label={icon.platform}
-              style={headerTextColor ? { color: headerTextColor } : undefined}
+              style={(socialIconColor || headerTextColor) ? { color: socialIconColor || headerTextColor! } : undefined}
             >
               <div style={{ width: socialIconSize, height: socialIconSize }}>
                 <IconComponent className="w-full h-full" />
@@ -213,7 +215,7 @@ export function StaticProfileHeader({
   // Classic layout: centered circle avatar, title below
   if (profileLayout === "classic") {
     return (
-      <div className="flex flex-col items-center gap-4 p-6 transition-opacity duration-200">
+      <div className="flex flex-col items-center gap-4 px-6 pt-6 pb-2 transition-opacity duration-200">
         {/* Avatar - small circle (only if showAvatar is true) */}
         {/* When feather > 0, we remove the hard clip and let mask-image handle the soft edge */}
         {showAvatar && (
@@ -286,7 +288,7 @@ export function StaticProfileHeader({
       )}
 
       {/* Logo, Title, Bio, Social Icons below banner */}
-      <div className="flex flex-col items-center gap-4 p-4">
+      <div className="flex flex-col items-center gap-4 px-4 pt-4 pb-2">
         {renderLogo()}
         {renderTitle()}
         {renderBio()}

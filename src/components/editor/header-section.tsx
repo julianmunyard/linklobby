@@ -85,6 +85,7 @@ export function HeaderSection() {
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
   const socialIconSize = useThemeStore((state) => state.socialIconSize)
+  const themeId = useThemeStore((state) => state.themeId)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -513,20 +514,22 @@ export function HeaderSection() {
               </Button>
             </SocialIconPicker>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs text-muted-foreground">Icon Size</Label>
-                <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+            {(themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'system-settings') && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Icon Size</Label>
+                  <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+                </div>
+                <Slider
+                  value={[socialIconSize]}
+                  onValueChange={(value) => setSocialIconSize(value[0])}
+                  min={16}
+                  max={48}
+                  step={4}
+                  className="w-full"
+                />
               </div>
-              <Slider
-                value={[socialIconSize]}
-                onValueChange={(value) => setSocialIconSize(value[0])}
-                min={16}
-                max={48}
-                step={4}
-                className="w-full"
-              />
-            </div>
+            )}
           </div>
         )}
           </CollapsibleSection>

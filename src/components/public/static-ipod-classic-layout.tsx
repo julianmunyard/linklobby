@@ -382,7 +382,7 @@ export function StaticIpodClassicLayout({
       <StaticBackground background={background} />
       <StaticNoiseOverlay background={background} />
 
-      <div className="relative min-h-screen flex items-center justify-center p-4">
+      <div className="relative min-h-screen flex flex-col items-center justify-center p-4">
         {/* iPod Container */}
         <div className="ipod-container">
           {/* Texture overlay */}
@@ -789,29 +789,28 @@ export function StaticIpodClassicLayout({
           ))}
         </div>
 
-        {/* Legal Footer - outside iPod device */}
-        <footer className="mt-12 pt-6 text-center text-xs text-white" style={{ opacity: 0.5 }}>
-          <div className="flex items-center justify-center gap-4">
-            <Link
-              href={`/privacy?username=${username}`}
-              className="hover:opacity-80 transition-opacity"
-            >
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link
-              href="/terms"
-              className="hover:opacity-80 transition-opacity"
-            >
-              Terms of Service
-            </Link>
-          </div>
-          <div className="mt-2">
-            Powered by LinkLobby
-          </div>
-        </footer>
-
       </div>
+
+      {/* Legal Footer - fixed to bottom of screen, single row */}
+      <footer className="fixed bottom-0 inset-x-0 py-3 text-center text-xs text-white z-20" style={{ opacity: 0.4 }}>
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href={`/privacy?username=${username}`}
+            className="hover:opacity-80 transition-opacity"
+          >
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link
+            href="/terms"
+            className="hover:opacity-80 transition-opacity"
+          >
+            Terms of Service
+          </Link>
+          <span>•</span>
+          <span>Powered by LinkLobby</span>
+        </div>
+      </footer>
     </div>
   )
 }

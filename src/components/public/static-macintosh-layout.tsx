@@ -198,6 +198,7 @@ export function StaticMacintoshLayout({
         </div>
       </div>
 
+      <div>
       {/* Desktop title */}
       <div
         style={{
@@ -261,6 +262,7 @@ export function StaticMacintoshLayout({
           Powered by LinkLobby
         </div>
       </footer>
+      </div>
     </div>
     </>
   )

@@ -166,6 +166,7 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
         ? profile.social_icons
         : JSON.stringify(profile.social_icons || []),
       header_text_color: profile.header_text_color,
+      social_icon_color: null,
     },
     page,
     cards,

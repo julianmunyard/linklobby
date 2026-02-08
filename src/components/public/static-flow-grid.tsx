@@ -1,9 +1,15 @@
 import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
+import { StaticSocialIconsInline } from "./static-social-icons-inline"
 import type { Card } from "@/types/card"
 
 interface StaticFlowGridProps {
   cards: Card[]
+  // Social icons data for inline rendering at card position
+  socialIconsJson?: string | null
+  socialIconSize?: number
+  socialIconColor?: string | null
+  headerTextColor?: string | null
 }
 
 /**
@@ -21,7 +27,7 @@ interface StaticFlowGridProps {
  * - Relies on database sort order (cards pre-sorted by sort_key)
  * - Flow layout: small cards 50% width, big cards 100% width
  */
-export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
+export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialIconColor, headerTextColor }: StaticFlowGridProps) {
   // Filter out hidden cards
   // NOTE: Cards are already sorted by sort_key from the database query
   // We don't re-sort here because the DB ordering matches fractional-indexing expectations
@@ -59,6 +65,20 @@ export function StaticFlowGrid({ cards }: StaticFlowGridProps) {
               ? "mx-auto"
               : ""
           : ""
+
+        // Social-icons card: render static version with actual data
+        if (card.card_type === 'social-icons' && socialIconsJson) {
+          return (
+            <div key={card.id} data-card-id={card.id} className="w-full">
+              <StaticSocialIconsInline
+                socialIconsJson={socialIconsJson}
+                socialIconSize={socialIconSize}
+                socialIconColor={socialIconColor}
+                headerTextColor={headerTextColor}
+              />
+            </div>
+          )
+        }
 
         return (
           <div

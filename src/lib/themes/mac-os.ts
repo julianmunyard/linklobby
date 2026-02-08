@@ -8,17 +8,18 @@ export const macOsTheme: ThemeConfig = {
   hasTrafficLights: true,
 
   defaultColors: {
-    background: 'oklch(0.20 0 0)',        // Dark gray background
-    cardBg: 'oklch(0.28 0 0)',            // Slightly lighter card bg
-    text: 'oklch(0.95 0 0)',              // Off-white text
+    background: 'oklch(0.89 0.04 10)',    // Light pink background
+    cardBg: 'oklch(0.95 0.02 70)',        // Warm cream card bg
+    text: 'oklch(0 0 0)',                 // Black text
     accent: 'oklch(0.65 0.15 250)',       // Blue accent
-    border: 'oklch(0.35 0 0)',            // Subtle gray border
-    link: 'oklch(0.70 0.15 230)',         // Light blue links
+    border: 'oklch(0.20 0 0)',            // Dark border
+    link: 'oklch(0.35 0.12 250)',         // Dark blue links
+    titleBarLine: 'oklch(0.20 0 0)',      // Line under traffic lights
   },
 
   defaultFonts: {
-    heading: 'var(--font-geist-sans)',
-    body: 'var(--font-geist-sans)',
+    heading: 'var(--font-chicago)',
+    body: 'var(--font-chicago)',
     headingSize: 1,
     bodySize: 1,
     headingWeight: 'bold',
@@ -32,15 +33,16 @@ export const macOsTheme: ThemeConfig = {
 
   palettes: [
     {
-      id: 'monterey-dark',
-      name: 'Monterey Dark',
+      id: 'mac-poolsuite-pink',
+      name: 'Poolsuite Pink',
       colors: {
-        background: 'oklch(0.20 0 0)',
-        cardBg: 'oklch(0.28 0 0)',
-        text: 'oklch(0.95 0 0)',
+        background: 'oklch(0.89 0.04 10)',
+        cardBg: 'oklch(0.95 0.02 70)',
+        text: 'oklch(0 0 0)',
         accent: 'oklch(0.65 0.15 250)',
-        border: 'oklch(0.35 0 0)',
-        link: 'oklch(0.70 0.15 230)',
+        border: 'oklch(0.20 0 0)',
+        link: 'oklch(0.35 0.12 250)',
+        titleBarLine: 'oklch(0.20 0 0)',
       },
     },
     {
@@ -53,6 +55,7 @@ export const macOsTheme: ThemeConfig = {
         accent: 'oklch(0.55 0.20 250)',
         border: 'oklch(0.85 0 0)',
         link: 'oklch(0.50 0.20 230)',
+        titleBarLine: 'oklch(0.85 0 0)',
       },
     },
     {
@@ -65,6 +68,114 @@ export const macOsTheme: ThemeConfig = {
         accent: 'oklch(0.60 0.12 280)',
         border: 'oklch(0.30 0 0)',
         link: 'oklch(0.65 0.12 260)',
+        titleBarLine: 'oklch(0.30 0 0)',
+      },
+    },
+    {
+      id: 'mac-classic-cream',
+      name: 'Classic Cream',
+      colors: {
+        background: 'oklch(0.92 0.02 70)',
+        cardBg: 'oklch(0.96 0.01 70)',
+        text: 'oklch(0.15 0 0)',
+        accent: 'oklch(0.55 0.20 250)',
+        border: 'oklch(0.20 0 0)',
+        link: 'oklch(0.35 0.15 250)',
+        titleBarLine: 'oklch(0.20 0 0)',
+      },
+    },
+    {
+      id: 'mac-platinum',
+      name: 'Platinum',
+      colors: {
+        background: 'oklch(0.85 0 0)',
+        cardBg: 'oklch(0.92 0 0)',
+        text: 'oklch(0.10 0 0)',
+        accent: 'oklch(0.55 0.20 250)',
+        border: 'oklch(0.20 0 0)',
+        link: 'oklch(0.35 0.15 250)',
+        titleBarLine: 'oklch(0.20 0 0)',
+      },
+    },
+    {
+      id: 'mac-miami-vice',
+      name: 'Miami Vice',
+      colors: {
+        background: 'oklch(0.75 0.12 200)',
+        cardBg: 'oklch(0.92 0.04 180)',
+        text: 'oklch(0.15 0 0)',
+        accent: 'oklch(0.55 0.20 250)',
+        border: 'oklch(0.20 0.05 200)',
+        link: 'oklch(0.55 0.20 330)',
+        titleBarLine: 'oklch(0.20 0.05 200)',
+      },
+    },
+    {
+      id: 'mac-terminal',
+      name: 'Terminal',
+      transparent: true,
+      colors: {
+        background: '#133e09',
+        cardBg: '#133e09',
+        text: '#dada19',
+        accent: '#133e09',
+        border: '#dada19',
+        link: '#dada19',
+        titleBarLine: '#dada19',
+      },
+    },
+    {
+      id: 'mac-nautical',
+      name: 'Nautical',
+      transparent: true,
+      colors: {
+        background: '#122d81',
+        cardBg: '#122d81',
+        text: '#dedec7',
+        accent: '#122d81',
+        border: '#dedec7',
+        link: '#dedec7',
+        titleBarLine: '#dedec7',
+      },
+    },
+    {
+      id: 'mac-amber',
+      name: 'Amber',
+      transparent: true,
+      colors: {
+        background: '#cd8e0e',
+        cardBg: '#cd8e0e',
+        text: '#e8ead2',
+        accent: '#cd8e0e',
+        border: '#e8ead2',
+        link: '#e8ead2',
+        titleBarLine: '#e8ead2',
+      },
+    },
+    {
+      id: 'mac-cherry-wave',
+      name: 'Cherry Wave',
+      colors: {
+        background: '#a70000',
+        cardBg: '#9bdde0',
+        text: '#ffffff',
+        accent: '#9bdde0',
+        border: '#ffffff',
+        link: '#ffffff',
+        titleBarLine: '#ffffff',
+      },
+    },
+    {
+      id: 'mac-red-label',
+      name: 'Red Label',
+      colors: {
+        background: '#ffffff',
+        cardBg: '#ac0000',
+        text: '#ffffff',
+        accent: '#a70000',
+        border: '#ffffff',
+        link: '#a70000',
+        titleBarLine: '#ffffff',
       },
     },
   ],

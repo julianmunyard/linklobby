@@ -13,10 +13,22 @@ import type {
 } from '@/types/theme'
 import type { CardType } from '@/types/card'
 import { getTheme, getThemeDefaults } from '@/lib/themes'
+import { useProfileStore } from '@/stores/profile-store'
+
+// Themes where text color auto-syncs to header title and social icon color
+const SYNC_TEXT_COLOR_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+
+function syncHeaderColors(themeId: ThemeId, textColor: string) {
+  if (!SYNC_TEXT_COLOR_THEMES.includes(themeId)) return
+  const profileStore = useProfileStore.getState()
+  profileStore.setHeaderTextColor(textColor)
+  profileStore.setSocialIconColor(textColor)
+}
 
 interface ThemeStore extends ThemeState {
   // Additional state (not in ThemeState type)
   socialIconSize: number  // Icon size in pixels (16-48), default 24
+  centerCards: boolean  // Basic themes: vertically center cards on screen
   vcrCenterContent: boolean  // VCR theme: center content vertically
   receiptPrice: string  // Receipt theme: custom price text
   receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
@@ -37,6 +49,7 @@ interface ThemeStore extends ThemeState {
   setBackground: (background: BackgroundConfig) => void
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
   setSocialIconSize: (size: number) => void
+  setCenterCards: (center: boolean) => void
   setVcrCenterContent: (center: boolean) => void
   setReceiptPrice: (price: string) => void
   addReceiptSticker: (sticker: ReceiptSticker) => void
@@ -107,6 +120,7 @@ export const useThemeStore = create<ThemeStore>()(
     (set, get) => ({
       ...initialState,
       socialIconSize: 24,
+      centerCards: false,
       vcrCenterContent: false,
       receiptPrice: 'PRICELESS',
       receiptStickers: [],
@@ -141,6 +155,10 @@ export const useThemeStore = create<ThemeStore>()(
           }
         }
 
+        // Basic themes default to centered cards
+        const basicThemes: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+        const shouldCenter = basicThemes.includes(themeId)
+
         set({
           themeId,
           paletteId: theme.palettes[0]?.id ?? null,
@@ -148,8 +166,11 @@ export const useThemeStore = create<ThemeStore>()(
           fonts: defaults.fonts,
           style: defaults.style,
           background: newBackground,
+          centerCards: shouldCenter,
           hasChanges: true,
         })
+        // Sync default text color to header title and social icon color
+        syncHeaderColors(themeId, defaults.colors.text)
       },
 
       setPalette: (paletteId: string) => {
@@ -170,6 +191,8 @@ export const useThemeStore = create<ThemeStore>()(
           },
           hasChanges: true,
         })
+        // Sync palette text color to header title and social icon color
+        syncHeaderColors(state.themeId, palette.colors.text)
       },
 
       setColor: (key: keyof ColorPalette, value: string) => {
@@ -185,6 +208,10 @@ export const useThemeStore = create<ThemeStore>()(
           // Sync background color with background.value when type is solid
           if (key === 'background' && state.background.type === 'solid') {
             newState.background = { ...state.background, value }
+          }
+          // Sync text color to header title and social icon color
+          if (key === 'text') {
+            syncHeaderColors(state.themeId, value)
           }
           return newState
         })
@@ -233,6 +260,10 @@ export const useThemeStore = create<ThemeStore>()(
 
       setSocialIconSize: (size: number) => {
         set({ socialIconSize: size, hasChanges: true })
+      },
+
+      setCenterCards: (center: boolean) => {
+        set({ centerCards: center, hasChanges: true })
       },
 
       setVcrCenterContent: (center: boolean) => {
@@ -327,6 +358,8 @@ export const useThemeStore = create<ThemeStore>()(
           },
           hasChanges: true,
         })
+        // Sync default text color to header title and social icon color
+        syncHeaderColors(state.themeId, defaults.colors.text)
       },
 
       // Database sync methods
@@ -344,7 +377,8 @@ export const useThemeStore = create<ThemeStore>()(
           fonts: theme.fonts,
           style: theme.style,
           background: theme.background,
-          cardTypeFontSizes: theme.cardTypeFontSizes || initialState.cardTypeFontSizes,
+          cardTypeFontSizes: { ...initialState.cardTypeFontSizes, ...theme.cardTypeFontSizes },
+          centerCards: theme.centerCards ?? false,
           vcrCenterContent: theme.vcrCenterContent ?? false,
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
           receiptStickers: theme.receiptStickers ?? [],
@@ -368,6 +402,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: state.style,
           background: state.background,
           cardTypeFontSizes: state.cardTypeFontSizes,
+          centerCards: state.centerCards,
           vcrCenterContent: state.vcrCenterContent,
           receiptPrice: state.receiptPrice,
           receiptStickers: state.receiptStickers,

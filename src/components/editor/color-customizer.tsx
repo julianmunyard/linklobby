@@ -116,15 +116,25 @@ export function ColorCustomizer() {
               />
             ))
           ) : (
-            // All other themes: show all colors
-            REQUIRED_COLOR_KEYS.map((key) => (
-              <ColorPicker
-                key={key}
-                label={COLOR_LABELS[key]}
-                color={colors[key]}
-                onChange={(value) => setColor(key, value)}
-              />
-            ))
+            // All other themes: show all colors + theme-specific extras
+            <>
+              {REQUIRED_COLOR_KEYS.map((key) => (
+                <ColorPicker
+                  key={key}
+                  label={COLOR_LABELS[key]}
+                  color={colors[key]}
+                  onChange={(value) => setColor(key, value)}
+                />
+              ))}
+              {/* Title bar line color for Mac OS and System Settings */}
+              {(themeId === 'mac-os' || themeId === 'system-settings') && (
+                <ColorPicker
+                  label="Title Bar Line"
+                  color={colors.titleBarLine || '#000000'}
+                  onChange={(value) => setColor('titleBarLine', value)}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

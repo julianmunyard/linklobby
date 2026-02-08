@@ -115,6 +115,7 @@ export interface ThemeState {
   ipodStickers?: ReceiptSticker[]  // iPod theme: draggable stickers (reuses ReceiptSticker type)
   ipodTexture?: string  // iPod theme: texture overlay image path
   ipodFont?: string  // iPod theme: font choice ('system' or 'pix-chicago')
+  centerCards?: boolean      // Basic themes (mac-os, instagram, poolsuite): vertically center cards on screen
   macPattern?: string       // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor?: string  // Macintosh theme: background color behind pattern (default '#c0c0c0')
   pixels?: {  // Tracking pixel configuration

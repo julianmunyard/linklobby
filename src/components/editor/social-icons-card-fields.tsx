@@ -84,21 +84,23 @@ export function SocialIconsCardFields() {
 
   return (
     <div className="space-y-4">
-      {/* Icon Size Slider */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm">Icon Size</Label>
-          <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+      {/* Icon Size Slider - only for basic themes */}
+      {(themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'system-settings') && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Icon Size</Label>
+            <span className="text-xs text-muted-foreground">{socialIconSize}px</span>
+          </div>
+          <Slider
+            value={[socialIconSize]}
+            onValueChange={(value) => setSocialIconSize(value[0])}
+            min={16}
+            max={48}
+            step={4}
+            className="w-full"
+          />
         </div>
-        <Slider
-          value={[socialIconSize]}
-          onValueChange={(value) => setSocialIconSize(value[0])}
-          min={16}
-          max={48}
-          step={4}
-          className="w-full"
-        />
-      </div>
+      )}
 
       {/* Icon Color (hidden for macintosh theme - icons are always black) */}
       {themeId !== 'macintosh' && (

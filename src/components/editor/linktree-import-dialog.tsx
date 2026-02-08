@@ -93,18 +93,6 @@ export function LinktreeImportDialog({ open, onOpenChange }: LinktreeImportDialo
         return
       }
 
-      // On list-style themes, force all imported cards to plain link type
-      const currentTheme = useThemeStore.getState().themeId
-      const LINK_ONLY_THEMES = ['macintosh', 'instagram-reels', 'system-settings']
-      if (LINK_ONLY_THEMES.includes(currentTheme)) {
-        for (const card of data.cards as Card[]) {
-          if (card.card_type !== 'text' && card.card_type !== 'social-icons') {
-            card.card_type = 'link'
-            card.size = 'big'
-          }
-        }
-      }
-
       // Update store with imported cards
       const newCards = mode === 'replace' ? data.cards : [...cards, ...data.cards]
 

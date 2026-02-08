@@ -35,6 +35,7 @@ export interface PublicPageData {
     show_social_icons: boolean
     social_icons: string | null  // JSON string from DB
     header_text_color: string | null
+    social_icon_color: string | null
   }
   page: Page
   cards: Card[]

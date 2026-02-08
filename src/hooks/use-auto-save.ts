@@ -148,19 +148,23 @@ export function useAutoSave(debounceMs = 1000) {
       const themeChanges = useThemeStore.getState().hasChanges
 
       // Try to save using sendBeacon (no dialog, just best-effort save)
+      // Must use Blob with application/json content type for proper parsing
       if (cardChanges) {
         const cards = usePageStore.getState().cards
-        navigator.sendBeacon('/api/cards', JSON.stringify({ cards }))
+        const blob = new Blob([JSON.stringify({ cards })], { type: 'application/json' })
+        navigator.sendBeacon('/api/cards/bulk', blob)
       }
 
       if (profileChanges) {
         const profile = useProfileStore.getState().getSnapshot()
-        navigator.sendBeacon('/api/profile', JSON.stringify(profile))
+        const blob = new Blob([JSON.stringify(profile)], { type: 'application/json' })
+        navigator.sendBeacon('/api/profile', blob)
       }
 
       if (themeChanges) {
         const theme = useThemeStore.getState().getSnapshot()
-        navigator.sendBeacon('/api/theme', JSON.stringify({ theme }))
+        const blob = new Blob([JSON.stringify({ theme })], { type: 'application/json' })
+        navigator.sendBeacon('/api/theme', blob)
       }
     }
 

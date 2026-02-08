@@ -570,28 +570,29 @@ export function StaticReceiptLayout({
           ))}
         </div>
 
-        {/* Legal Footer */}
-        <footer className="mt-8 pt-6 text-center text-xs text-black" style={{ opacity: 0.4 }}>
-          <div className="flex items-center justify-center gap-4">
-            <Link
-              href={`/privacy?username=${username}`}
-              className="hover:opacity-80 transition-opacity"
-            >
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link
-              href="/terms"
-              className="hover:opacity-80 transition-opacity"
-            >
-              Terms of Service
-            </Link>
-          </div>
-          <div className="mt-2">
-            Powered by LinkLobby
-          </div>
-        </footer>
       </div>
+
+      {/* Legal Footer - outside flex row so it sits below the receipt */}
+      <footer className="pb-8 text-center text-xs text-black" style={{ opacity: 0.4 }}>
+        <div className="flex items-center justify-center gap-4">
+          <Link
+            href={`/privacy?username=${username}`}
+            className="hover:opacity-80 transition-opacity"
+          >
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link
+            href="/terms"
+            className="hover:opacity-80 transition-opacity"
+          >
+            Terms of Service
+          </Link>
+        </div>
+        <div className="mt-2">
+          Powered by LinkLobby
+        </div>
+      </footer>
     </div>
   )
 }
