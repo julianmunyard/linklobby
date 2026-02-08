@@ -421,7 +421,14 @@ Plans:
 5. Optional varispeed and reverb controls
 6. Audio plays tracked for analytics
 
-**Plans:** 3-4 plans
+**Plans:** 5 plans
+
+Plans:
+- [ ] 12-01-PLAN.md -- Audio types, upload API, storage, and webpack config
+- [ ] 12-02-PLAN.md -- Audio engine port (Superpowered SDK, AudioWorklet, iOS unlock)
+- [ ] 12-03-PLAN.md -- Audio player UI components (controls, varispeed, reverb, waveform, track list)
+- [ ] 12-04-PLAN.md -- Audio card component, editor fields, and card system wiring
+- [ ] 12-05-PLAN.md -- Theme-specific player styling, analytics tracking, and verification
 
 ---
 
