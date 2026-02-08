@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 11 of 18 - Analytics, Pixels & Legal
 Plan: 5 of 5 - Complete
 Status: **Phase 11 Complete - Analytics, pixels, and legal compliance built**
-Last activity: 2026-02-08 - Completed quick task 045: Macintosh menu bar simplified to File Edit View [username]
+Last activity: 2026-02-08 - Completed quick task 046: Lobby Pro theme with framer-motion animated list
 
 Progress: [█████████████████████████░░░░░░] ~67%
 
@@ -562,6 +562,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | MacintoshCard thin/full routing | quick-039 | link/horizontal/mini get slim frames, all others get full title bar with lines and close box |
 | CSS var references in box-shadow | quick-039 | Use var(--theme-text) and var(--theme-card-bg) in inline styles for palette-reactive shadows |
 | Colorway UI for any theme with palettes | quick-041 | Show colorway swatches below selected theme card when palettes.length > 0, reusable for all themes |
+| framer-motion for scroll animations | quick-046 | useInView + motion.div for per-card scroll-triggered scale/fade/slide animations in Lobby Pro theme |
+| Glassmorphism card items pattern | quick-046 | backdrop-filter blur + semi-transparent cardBg + border from CSS variables for glass effect |
+| AnimatedListItem sub-component | quick-046 | Reusable pattern: useRef + useInView + motion.div with staggered delay for animated list items |
 | Transparent flag on palettes | quick-041 | Optional transparent?: boolean on palette entries controls card transparency when colorway selected |
 | handleColorwaySelect side effects | quick-041 | setPalette + clearCardColorOverrides + setAllCardsTransparency in one action for clean state |
 
@@ -612,6 +615,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 043 | Macintosh gallery card in large window | Complete | fd68b8c, f2ae195 |
 | 044 | Mac gallery full-bleed with 8-bit arrows | Complete | facd477 |
 | 045 | Macintosh menu bar: File Edit View [username] | Complete | 1153a0b |
+| 046 | Lobby Pro theme with framer-motion animated list | Complete | 54ae7c9, 3ca616f, e8b4db4 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -690,9 +694,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-07
-Last activity: 2026-02-08 - Completed quick task 045: Macintosh menu bar simplified to File Edit View [username]
-Stopped at: Quick task 042 complete
+Last session: 2026-02-08
+Last activity: 2026-02-08 - Completed quick task 046: Lobby Pro theme with framer-motion animated list
+Stopped at: Quick task 046 complete
 Resume file: None
 
 **Phase 11 Complete & Verified:** All 5 plans executed across 2 waves. Verifier confirmed 33/33 must-haves, 26/26 artifacts, 16/16 key links.
