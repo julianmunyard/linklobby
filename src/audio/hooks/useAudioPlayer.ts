@@ -59,22 +59,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
   const engineRef = useRef(getAudioEngine())
   const isInitializedRef = useRef(false)
 
-  // CRITICAL: Store callbacks and context in refs to prevent effect re-runs.
-  // Without refs, inline callbacks (onEnded) and context value changes (embedPlayback)
-  // cause effect cleanup to run on every re-render, which calls engine.pause() →
-  // audioContext.suspend(), immediately undoing the audioContext.resume() from play().
-  const onPlayRef = useRef(onPlay)
-  const onPauseRef = useRef(onPause)
-  const onEndedRef = useRef(onEnded)
-  const embedPlaybackRef = useRef(embedPlayback)
-
-  // Keep refs current (synchronous assignment during render)
-  onPlayRef.current = onPlay
-  onPauseRef.current = onPause
-  onEndedRef.current = onEnded
-  embedPlaybackRef.current = embedPlayback
-
-  // Initialize engine and set up callbacks — runs once per cardId
+  // Initialize engine
   useEffect(() => {
     const engine = engineRef.current
 
@@ -85,7 +70,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       isInitializedRef.current = true
     }
 
-    // Set up callbacks (messages from AudioWorklet processor)
+    // Set up callbacks
     engine.setCallbacks({
       onProgress: (time, dur) => {
         setCurrentTime(time)
@@ -100,8 +85,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       onEnded: () => {
         setIsPlaying(false)
         setProgress(1)
-        embedPlaybackRef.current?.clearActiveEmbed(cardId)
-        onEndedRef.current?.()
+        if (embedPlayback) {
+          embedPlayback.clearActiveEmbed(cardId)
+        }
+        if (onEnded) {
+          onEnded()
+        }
       },
       onError: (error) => {
         console.error('AudioEngine error:', error)
@@ -109,21 +98,25 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       }
     })
 
-    // Clean up on unmount (or cardId change)
+    // Clean up on unmount
     return () => {
+      // Pause playback
       if (engine.isPlaying()) {
         engine.pause()
       }
-      embedPlaybackRef.current?.unregisterEmbed(cardId)
-    }
-  }, [cardId])
 
-  // Register with EmbedPlaybackProvider — runs once per cardId
+      // Unregister from EmbedPlaybackProvider
+      if (embedPlayback) {
+        embedPlayback.unregisterEmbed(cardId)
+      }
+    }
+  }, [cardId, embedPlayback, onEnded])
+
+  // Register with EmbedPlaybackProvider
   useEffect(() => {
-    const ep = embedPlaybackRef.current
-    if (ep) {
-      ep.registerEmbed(cardId, () => {
-        // Pause callback — called when another embed starts playing
+    if (embedPlayback) {
+      embedPlayback.registerEmbed(cardId, () => {
+        // Pause callback for coordination
         const engine = engineRef.current
         if (engine.isPlaying()) {
           engine.pause()
@@ -133,59 +126,84 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
 
     return () => {
-      embedPlaybackRef.current?.unregisterEmbed(cardId)
+      if (embedPlayback) {
+        embedPlayback.unregisterEmbed(cardId)
+      }
     }
-  }, [cardId])
+  }, [cardId, embedPlayback])
 
   // Load track when URL changes
   useEffect(() => {
     if (trackUrl) {
-      const engine = engineRef.current
-      setIsLoading(true)
-      setIsLoaded(false)
-      engine.loadTrack(trackUrl).catch((error) => {
-        console.error('Failed to load track:', error)
-        setIsLoading(false)
-      })
+      loadTrack(trackUrl)
     }
   }, [trackUrl])
 
   // Apply looping setting
   useEffect(() => {
-    engineRef.current.setLooping(looping)
+    const engine = engineRef.current
+    engine.setLooping(looping)
   }, [looping])
 
   // Apply reverb config when it changes
   useEffect(() => {
     if (reverbConfig) {
-      engineRef.current.setReverbConfig(reverbConfig)
+      const engine = engineRef.current
+      engine.setReverbConfig(reverbConfig)
     }
   }, [reverbConfig])
 
-  // Play
+  // Load track function
+  const loadTrack = useCallback((url: string) => {
+    const engine = engineRef.current
+    setIsLoading(true)
+    setIsLoaded(false)
+    engine.loadTrack(url).catch((error) => {
+      console.error('Failed to load track:', error)
+      setIsLoading(false)
+    })
+  }, [])
+
+  // Play function
   const play = useCallback(() => {
     const engine = engineRef.current
-    if (!engine.isLoaded()) return
 
-    // iOS unlock
+    if (!engine.isLoaded()) {
+      console.warn('Cannot play: No track loaded')
+      return
+    }
+
+    // Unlock iOS audio on first play
     engine.ensureUnlocked()
 
     // Set active embed (pauses all others)
-    embedPlaybackRef.current?.setActiveEmbed(cardId)
+    if (embedPlayback) {
+      embedPlayback.setActiveEmbed(cardId)
+    }
 
     engine.play()
     setIsPlaying(true)
-    onPlayRef.current?.()
-  }, [cardId])
 
-  // Pause
+    if (onPlay) {
+      onPlay()
+    }
+  }, [cardId, embedPlayback, onPlay])
+
+  // Pause function
   const pause = useCallback(() => {
     const engine = engineRef.current
     engine.pause()
     setIsPlaying(false)
-    embedPlaybackRef.current?.clearActiveEmbed(cardId)
-    onPauseRef.current?.()
-  }, [cardId])
+
+    // Clear active embed
+    if (embedPlayback) {
+      embedPlayback.clearActiveEmbed(cardId)
+    }
+
+    if (onPause) {
+      onPause()
+    }
+  }, [cardId, embedPlayback, onPause])
 
   // Toggle play/pause
   const togglePlay = useCallback(() => {
@@ -196,28 +214,34 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [isPlaying, play, pause])
 
-  // Seek (0-1)
+  // Seek function (0-1)
   const seek = useCallback((position: number) => {
-    if (duration > 0) {
-      engineRef.current.seek(position * duration)
+    const engine = engineRef.current
+    const dur = engine.getDuration()
+    if (dur > 0) {
+      const timeInSeconds = position * dur
+      engine.seek(timeInSeconds)
     }
-  }, [duration])
+  }, [])
 
-  // Set speed
+  // Set speed function
   const setSpeed = useCallback((newSpeed: number) => {
-    engineRef.current.setVarispeed(newSpeed, varispeedMode === 'natural')
+    const engine = engineRef.current
+    engine.setVarispeed(newSpeed, varispeedMode)
     setSpeedState(newSpeed)
   }, [varispeedMode])
 
-  // Set varispeed mode
+  // Set varispeed mode function
   const setVarispeedMode = useCallback((mode: VarispeedMode) => {
-    engineRef.current.setVarispeed(speed, mode === 'natural')
+    const engine = engineRef.current
+    engine.setVarispeed(speed, mode)
     setVarispeedModeState(mode)
   }, [speed])
 
-  // Set reverb mix
+  // Set reverb mix function
   const setReverbMix = useCallback((mix: number) => {
-    engineRef.current.setReverbMix(mix)
+    const engine = engineRef.current
+    engine.setReverbMix(mix)
     setReverbMixState(mix)
   }, [])
 
@@ -238,13 +262,6 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     setSpeed,
     setVarispeedMode,
     setReverbMix,
-    loadTrack: useCallback((url: string) => {
-      setIsLoading(true)
-      setIsLoaded(false)
-      engineRef.current.loadTrack(url).catch((error) => {
-        console.error('Failed to load track:', error)
-        setIsLoading(false)
-      })
-    }, [])
+    loadTrack
   }
 }
