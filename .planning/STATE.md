@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12 of 18 - Audio System
-Plan: 1 of 5 - In progress
+Plan: 2 of 5 - Complete
 Status: **Phase 12 In Progress - Building audio card system**
-Last activity: 2026-02-08 - Completed 12-01-PLAN.md (Audio Infrastructure Foundation)
+Last activity: 2026-02-08 - Completed 12-02-PLAN.md (Audio Engine & Hooks)
 
 Progress: [████████████████████████████░░░░] ~69%
 
@@ -20,12 +20,12 @@ Progress: [███████████████████████
 
 Building custom audio player with Superpowered Web Audio:
 - ✓ Plan 01: Audio Infrastructure Foundation (types, upload API, storage, webpack config)
-- Plan 02: Audio Upload UI & Track Management
-- Plan 03: Superpowered Audio Engine Integration
+- ✓ Plan 02: Audio Engine & Hooks (AudioEngine singleton, useAudioPlayer, useWaveform, iOS unlock)
+- Plan 03: Audio Upload UI & Track Management
 - Plan 04: Custom Audio Player UI
 - Plan 05: Audio Card Editor
 
-**Current status:** Audio card types defined, upload API built, Supabase storage configured
+**Current status:** AudioEngine ported from Munyard Mixer with Web Audio fallback, React hooks functional
 
 ### COMPLETE: Phase 11 - Analytics, Pixels & Legal
 
@@ -497,6 +497,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 15 curated Google Fonts | 07-02 | Hand-picked fonts covering sans, serif, display categories - loaded via next/font/google |
 | display: swap for fonts | 07-02 | Prevents FOUT/FOIT - fonts swap smoothly without blocking render |
 | Dark theme as default | 07-02 | Per CONTEXT.md - "Dark by default for artist aesthetic" |
+| Web Audio fallback for AudioEngine | 12-02 | Superpowered SDK requires license - Web Audio fallback allows development without blocking |
+| iOS silent audio unlock pattern | 12-02 | Looping silent MP3 at 0.001 volume keeps iOS media channel active during playback |
+| useOptionalEmbedPlayback for audio | 12-02 | Graceful degradation - audio player works outside EmbedPlaybackProvider context |
+| Client-side waveform generation | 12-02 | Decode audio buffer and extract 128 peaks, cache results to avoid re-generation |
+| Singleton AudioEngine pattern | 12-02 | getAudioEngine() returns shared instance to prevent memory leaks from multiple instances |
 | Glassmorphism support | 07-02 | backdrop-filter blur effects for sleek-modern theme with @supports fallback |
 | On-demand font loading | 07-02 | next/font only downloads fonts actually rendered - no 15-font bundle penalty |
 | Sleek Modern default theme | 07-01 | Per research recommendation - transparent, glass texture, modern aesthetic |
@@ -726,13 +731,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-08
-Last activity: 2026-02-08 - Completed 12-01-PLAN.md (Audio Infrastructure Foundation)
-Stopped at: Completed Phase 12 Plan 01
+Last activity: 2026-02-08 - Completed 12-02-PLAN.md (Audio Engine & Hooks)
+Stopped at: Completed Phase 12 Plan 02
 Resume file: None
 
-**Phase 12 In Progress:** Plan 01 complete (audio types, upload API, storage). Next: Plan 02 (Audio Upload UI & Track Management).
+**Phase 12 In Progress:** Plan 02 complete (AudioEngine, useAudioPlayer, useWaveform, iOS unlock). Next: Plan 03 (Audio Upload UI & Track Management).
 
-**Next plan:** 12-02 - Audio Upload UI & Track Management
+**Next plan:** 12-03 - Audio Upload UI & Track Management
 
 **This session's work (2026-02-03):**
 
