@@ -35,6 +35,9 @@ export interface Card {
   updated_at: string
 }
 
+import type { AudioCardContent } from './audio'
+import { DEFAULT_AUDIO_CONTENT } from './audio'
+
 // Card size configuration for flow layout
 export const CARD_SIZES = {
   big: {
@@ -253,7 +256,7 @@ export interface ScheduledContent {
 
 // Union type for all card content
 // Note: All content types can optionally include ScheduledContent fields (publishAt, expireAt)
-export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | MusicCardContent | EmailCollectionCardContent | ReleaseCardContent | Record<string, unknown>
+export type CardContent = HeroCardContent | HorizontalLinkContent | SquareCardContent | VideoCardContent | GalleryCardContent | GameCardContent | AudioCardContent | MusicCardContent | EmailCollectionCardContent | ReleaseCardContent | Record<string, unknown>
 
 // Scheduling helper functions
 export function isScheduled(content: Record<string, unknown>): boolean {
@@ -311,3 +314,10 @@ export function isEmailCollectionContent(content: unknown): content is EmailColl
 export function isReleaseContent(content: unknown): content is ReleaseCardContent {
   return typeof content === 'object' && content !== null
 }
+
+export function isAudioContent(content: unknown): content is AudioCardContent {
+  return typeof content === 'object' && content !== null && 'tracks' in content && Array.isArray((content as any).tracks)
+}
+
+// Re-export AudioCardContent for convenience
+export type { AudioCardContent } from './audio'

@@ -3,6 +3,7 @@ import { temporal } from 'zundo'
 import throttle from 'lodash.throttle'
 import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent, ReleaseCardContent } from '@/types/card'
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
+import { DEFAULT_AUDIO_CONTENT } from '@/types/audio'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey, hasDuplicateSortKeys, normalizeSortKeys } from '@/lib/ordering'
@@ -74,6 +75,8 @@ export const usePageStore = create<PageState>()(
           return { textAlign: 'center', verticalAlign: 'center' }
         case 'game':
           return { gameType: 'snake' }
+        case 'audio':
+          return { ...DEFAULT_AUDIO_CONTENT }
         case 'music':
           return {
             platform: undefined,
