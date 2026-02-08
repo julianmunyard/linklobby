@@ -4,8 +4,10 @@ import { createClient } from "./client"
 const BUCKET_NAME = "card-images"
 const PROFILE_BUCKET = "profile-images"
 const VIDEO_BUCKET = "card-videos"
+const AUDIO_BUCKET = "card-audio"
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
+const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
 
 export interface UploadResult {
   url: string
@@ -225,5 +227,63 @@ export async function deleteCardVideo(path: string): Promise<void> {
   if (error) {
     console.error("Video delete error:", error)
     throw new Error(error.message || "Failed to delete video")
+  }
+}
+
+// ============================================
+// AUDIO STORAGE
+// ============================================
+
+export async function uploadAudioFile(
+  file: File | Blob,
+  cardId: string,
+  trackId: string
+): Promise<UploadResult> {
+  // Validate file size
+  if (file.size > MAX_AUDIO_SIZE) {
+    throw new Error("Audio file must be less than 100MB")
+  }
+
+  const supabase = createClient()
+
+  // Generate filename: cardId/trackId.mp3
+  const fileName = `${cardId}/${trackId}.mp3`
+
+  // Determine content type
+  const contentType = file instanceof File ? file.type : 'audio/mpeg'
+
+  const { data, error } = await supabase.storage
+    .from(AUDIO_BUCKET)
+    .upload(fileName, file, {
+      contentType,
+      upsert: false,
+    })
+
+  if (error) {
+    console.error("Audio upload error:", error)
+    throw new Error(error.message || "Failed to upload audio")
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from(AUDIO_BUCKET)
+    .getPublicUrl(data.path)
+
+  return {
+    url: urlData.publicUrl,
+    path: data.path,
+  }
+}
+
+export async function deleteAudioFile(path: string): Promise<void> {
+  const supabase = createClient()
+
+  const { error } = await supabase.storage
+    .from(AUDIO_BUCKET)
+    .remove([path])
+
+  if (error) {
+    console.error("Audio delete error:", error)
+    throw new Error(error.message || "Failed to delete audio")
   }
 }

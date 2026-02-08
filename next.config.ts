@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.output.globalObject = "(typeof self !== 'undefined' ? self : this)"
+    }
+    return config
+  },
 };
 
 export default nextConfig;
