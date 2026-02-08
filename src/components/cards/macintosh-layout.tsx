@@ -108,19 +108,13 @@ export function MacintoshLayout({
           overflow: 'hidden',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-          <span style={{ fontSize: '14px', flexShrink: 0 }}>{'\uF8FF'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
           <span>File</span>
           <span>Edit</span>
           <span>View</span>
-          <span>Label</span>
-          <span>Special</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold' }}>?</div>
-          <div style={{ width: '18px', height: '16px', border: '2px solid #000', borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: '10px', height: '8px', border: '1.5px solid #000', borderRadius: '1px' }} />
-          </div>
+        <div style={{ flexShrink: 0 }}>
+          <span>{title}</span>
         </div>
       </div>
 
