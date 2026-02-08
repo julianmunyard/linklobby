@@ -118,20 +118,8 @@ export function MacintoshLayout({
         </div>
       </div>
 
-      {/* Desktop title bar */}
-      <div
-        style={{
-          textAlign: 'center',
-          margin: '0 16px 24px',
-          paddingTop: hasFrame ? '24px' : '52px',
-          fontFamily: TITLE_FONT,
-          fontSize: '22px',
-          letterSpacing: '2px',
-          color: '#000',
-        }}
-      >
-        {title}
-      </div>
+      {/* Spacer for fixed menu bar */}
+      <div style={{ height: hasFrame ? '24px' : '52px' }} />
 
       {visibleCards.length === 0 ? (
         /* Empty state: Mac dialog */

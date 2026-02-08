@@ -193,20 +193,8 @@ export function StaticMacintoshLayout({
       </div>
 
       <div>
-      {/* Desktop title */}
-      <div
-        style={{
-          textAlign: 'center',
-          margin: '0 16px 24px',
-          paddingTop: hasFrame ? '24px' : '52px',
-          fontFamily: TITLE_FONT,
-          fontSize: headingSize ? `${22 * headingSize}px` : '22px',
-          letterSpacing: '2px',
-          color: '#000',
-        }}
-      >
-        {title}
-      </div>
+      {/* Spacer for fixed menu bar */}
+      <div style={{ height: hasFrame ? '24px' : '52px' }} />
 
       {/* Stack Mac windows vertically */}
       <div
