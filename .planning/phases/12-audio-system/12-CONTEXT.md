@@ -33,10 +33,14 @@ Artists can upload audio files and display them as themed audio cards on their p
 - Theme provides defaults; artist overrides with color pickers
 
 ### Theme-Adapted Controls
-- **Instagram Reels**: Clean, simple controls within standard Reels card border style
-- **Macintosh**: Pixel-art controls, Pix Chicago font for time/labels, rendered inside the large window card (existing MacintoshCard component)
-- **System Settings**: Full Poolsuite treatment — Ishmeria/ChiKareGo fonts, cream inner box, thin borders, retro aesthetic — with 3 color customization fields
-- Each theme applies its own default control styling (pixel-art buttons, glass controls, retro knobs) while keeping the same layout
+- **Instagram Reels**: Clean, simple controls within standard Reels card border style. Simple play/pause toggle, slider, knob — minimal and sharp.
+- **Macintosh**: Pixel-art controls, **Pix Chicago font** for time/labels, rendered inside the **large window card** (existing MacintoshCard component). Pixelated play button, chunky slider, full retro Mac commitment.
+- **System Settings**: Full **Poolsuite treatment** — Ishmeria/ChiKareGo fonts, cream inner box, thin borders, retro aesthetic. All 3 color customization fields apply.
+- **Receipt**: Uses the existing **receipt monospace font**. Simple black controls (buttons, slider, knob) on paper-like background. Clean, minimal, monochrome. Same layout, just rendered in receipt's black-on-white mono aesthetic.
+- **iPod Classic**: Player renders **inside the iPod LCD screen area**. **Click wheel is functional** — scroll wheel adjusts varispeed, play/pause button works, forward/back buttons navigate tracks in multi-track cards. Like the real iPod Now Playing screen.
+- **VCR**: **VHS tape deck look** — chunky transport-style buttons, **LED counter** for time display, tape-style progress bar. Simpler retro controls (not full hardware skeuomorphism) — chunky buttons and sliders in VCR color scheme.
+- Each theme applies its own default control styling while keeping the same base layout
+- All themes support the 3 color customization fields (border, element background, foreground/accent)
 
 ### Playback Behavior
 - **Never autoplays** — visitor must press play
@@ -90,6 +94,9 @@ Artists can upload audio files and display them as themed audio cards on their p
 - The reverb knob on the card should have a simple knob look with ticked lines around it
 - The play button transforms into a pause button when pressed (toggle icon)
 - Macintosh theme player goes inside the existing large window card component (MacintoshCard)
+- iPod click wheel should actually control the audio player — scroll for varispeed, play/pause, forward/back for tracks
+- VCR player should have an LED-style counter (like a real VCR display) for time, not a normal font
+- Receipt player keeps everything in the receipt's monospace font — no fancy styling, just simple black on white
 - "No chunking bullshit" — Superpowered handles mobile audio directly, no StreamingAudioManager fallback
 
 </specifics>
