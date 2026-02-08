@@ -43,7 +43,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
   }
 
   return (
-    <div className="flex flex-wrap gap-4 min-h-[100px]">
+    <div className="flex flex-wrap gap-4 min-h-[100px] w-full">
       {visibleCards.map((card) => {
         // Mini cards use w-fit with margin positioning
         const isPositionableCard = card.card_type === "mini"
@@ -53,7 +53,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
           ? "w-fit"
           : card.card_type === "link" || card.card_type === "horizontal"
             ? "w-full"
-            : card.size === "big"
+            : card.size !== "small"
               ? "w-full"
               : "w-[calc(50%-0.5rem)]"
 

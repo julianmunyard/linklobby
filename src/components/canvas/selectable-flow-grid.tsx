@@ -143,13 +143,13 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
   // Show loading placeholder during SSR
   if (!mounted) {
     return (
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 w-full">
         {visibleCards.map((card) => (
           <div
             key={card.id}
             className={cn(
               "h-24 bg-muted rounded-lg animate-pulse",
-              card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"
+              card.size !== "small" ? "w-full" : "w-[calc(50%-0.5rem)]"
             )}
           />
         ))}
@@ -180,7 +180,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
         {/* Click on empty space clears selection */}
         <div
-          className="flex flex-wrap gap-4 min-h-[100px]"
+          className="flex flex-wrap gap-4 min-h-[100px] w-full"
           onClick={(e) => {
             // Only clear if clicking the container itself, not a card
             if (e.target === e.currentTarget) {
@@ -205,7 +205,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
           <div className="relative">
             <div className={cn(
               "shadow-xl pointer-events-none",
-              activeCard.size === "big" ? "w-80" : "w-40",
+              activeCard.size !== "small" ? "w-80" : "w-40",
             )}>
               <CardRenderer card={activeCard} isPreview />
             </div>

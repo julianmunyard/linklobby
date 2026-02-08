@@ -719,47 +719,50 @@ const CALC_CLIP = `polygon(
   2px 2px, 4px 2px
 )`
 
-const CALC_JOKES = [
-  '5318008',  // BOOBIES
-  '0.208',    // BOZO
-]
-
 export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps) {
-  const [display, setDisplay] = useState('0')
-  const [prev, setPrev] = useState<number | null>(null)
-  const [op, setOp] = useState<string | null>(null)
+  const content = card.content as Record<string, unknown>
+  const calcMessage = (content?.calcMessage as string) || ''
+  const [expression, setExpression] = useState('')
+  const [current, setCurrent] = useState('0')
   const [fresh, setFresh] = useState(true)
-  const [flipped, setFlipped] = useState(false)
+  const [showingMessage, setShowingMessage] = useState(false)
+
+  const display = showingMessage ? current : (expression + (fresh ? '' : current)) || '0'
 
   const press = (val: string) => {
     if (val === 'C') {
-      setDisplay('0')
-      setPrev(null)
-      setOp(null)
+      setExpression('')
+      setCurrent('0')
       setFresh(true)
-      setFlipped(false)
+      setShowingMessage(false)
       return
     }
-    if (val === '=') {
-      setDisplay(CALC_JOKES[Math.floor(Math.random() * CALC_JOKES.length)])
-      setPrev(null)
-      setOp(null)
+    if (showingMessage) {
+      setExpression('')
+      setCurrent('0')
       setFresh(true)
-      setFlipped(true)
+      setShowingMessage(false)
+      if (val === '=') return
+    }
+    if (val === '=' && calcMessage) {
+      setCurrent(calcMessage)
+      setExpression('')
+      setFresh(true)
+      setShowingMessage(true)
       return
     }
     if (['+', '\u2212', '/', '*'].includes(val)) {
-      setPrev(parseFloat(display))
-      setOp(val)
+      setExpression((expression || current) + val)
+      setCurrent('0')
       setFresh(true)
       return
     }
-    if (val === '.' && display.includes('.') && !fresh) return
+    if (val === '.' && current.includes('.') && !fresh) return
     if (fresh) {
-      setDisplay(val === '.' ? '0.' : val)
+      setCurrent(val === '.' ? '0.' : val)
       setFresh(false)
     } else {
-      setDisplay(display + val)
+      setCurrent(current + val)
     }
   }
 
@@ -824,7 +827,7 @@ export function MacintoshCalculator({ card, onClick, isSelected }: MacCardProps)
                 overflow: 'hidden',
               }}
             >
-              <span style={flipped ? { display: 'inline-block', transform: 'rotate(180deg)' } : undefined}>{display}</span>
+              <span style={showingMessage ? { display: 'inline-block', textAlign: 'center', width: '100%', fontSize: '14px', wordBreak: 'break-word', animation: 'calcFlash 0.9s steps(1) infinite' } : undefined}>{display}</span>
             </div>
             {/* Button grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(6, auto)', gap: '5px' }}>
@@ -1112,7 +1115,7 @@ export function MacintoshGallery({ card, onClick, isSelected }: MacCardProps) {
       {/* Full-bleed image area */}
       <div style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>
         {images.length === 0 ? (
-          <div style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+          <div style={{ aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#666' }}>No photos yet</p>
           </div>
         ) : (
@@ -1121,7 +1124,7 @@ export function MacintoshGallery({ card, onClick, isSelected }: MacCardProps) {
             <img
               src={images[currentIndex]?.url}
               alt={images[currentIndex]?.alt || 'Photo'}
-              style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '4/3' }}
+              style={{ width: '100%', display: 'block', objectFit: 'cover', aspectRatio: '1/1' }}
             />
             {/* 8-bit pixel arrows */}
             {images.length > 1 && (

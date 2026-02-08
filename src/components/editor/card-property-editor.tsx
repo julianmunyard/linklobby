@@ -401,9 +401,22 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 />
               </>
             )}
-            {(macWindowStyle === 'map' || macWindowStyle === 'calculator') && (
+            {macWindowStyle === 'map' && (
               <div className="rounded-lg bg-muted/50 px-3 py-2">
                 <p className="text-sm text-muted-foreground">Decorative window — no editable content.</p>
+              </div>
+            )}
+            {macWindowStyle === 'calculator' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Display Message</label>
+                <Input
+                  placeholder="Type a message..."
+                  value={(currentContent.calcMessage as string) || ''}
+                  onChange={(e) => handleContentChange({ calcMessage: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Shown on the calculator display when = is pressed
+                </p>
               </div>
             )}
 

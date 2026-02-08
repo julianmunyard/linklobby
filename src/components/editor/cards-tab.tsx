@@ -108,21 +108,25 @@ export function CardsTab() {
 
       // Type-specific default content (text and vertical alignment)
       const defaultContent: Record<string, unknown> = (() => {
-        // Mac window style cards
+        // Mac window style cards — explicit defaults matching migration/renderer expectations
         if (macWindowStyle) {
           switch (macWindowStyle) {
             case 'notepad':
-              return { macWindowStyle: 'notepad', macLinks: [] }
+              return { macWindowStyle: 'notepad', macLinks: [], notepadStyle: 'list', notepadBgColor: '#F2FFA4' }
             case 'small-window':
+              return { macWindowStyle: 'small-window', macMode: 'link', macCheckerColor: '#cfffcc', macWindowBgColor: '#afb3ee', macTextAlign: 'left', macTextColor: '#000' }
             case 'large-window':
-              return { macWindowStyle, macMode: 'link' }
+              return { macWindowStyle: 'large-window', macMode: 'link', macBodyText: '' }
             case 'title-link':
-              return { macWindowStyle }
+              return { macWindowStyle: 'title-link' }
             case 'gallery':
               return { macWindowStyle: 'gallery', galleryStyle: 'carousel', images: [] }
+            case 'presave':
+              return { macWindowStyle: 'presave', presaveBgColor: '#ad7676', textColor: '#000000', dropsInText: 'Drops in', ...DEFAULT_RELEASE_CONTENT }
             case 'map':
+              return { macWindowStyle: 'map' }
             case 'calculator':
-              return { macWindowStyle }
+              return { macWindowStyle: 'calculator', calcMessage: '' }
             default:
               return { macWindowStyle }
           }

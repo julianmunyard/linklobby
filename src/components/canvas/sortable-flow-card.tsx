@@ -29,7 +29,7 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
     WebkitBackfaceVisibility: 'hidden' as const,
   }
 
-  const widthClass = card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"
+  const widthClass = card.size !== "small" ? "w-full" : "w-[calc(50%-0.5rem)]"
 
   // Gallery cards need overflow visible for full-bleed effect
   const allowOverflow = card.card_type === 'gallery'

@@ -119,7 +119,7 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
     ? "w-fit" // Compact width, positioned via margins
     : card.card_type === "link" || card.card_type === "horizontal"
       ? "w-full"
-      : card.size === "big"
+      : card.size !== "small"
         ? "w-full"
         : "w-[calc(50%-0.5rem)]"
 

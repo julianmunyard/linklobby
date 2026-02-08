@@ -5,9 +5,8 @@ import { POSITION_REVERSE, POSITION_MAP } from "@/types/card"
 
 // Helper to migrate legacy size values
 function mapLegacySize(size: string | null | undefined): CardSize {
-  if (size === 'large') return 'big'
-  if (size === 'small' || size === 'medium') return 'small'
-  return 'big' // Default to big
+  if (size === 'small') return 'small'
+  return 'big' // 'big', 'large', 'medium', null all map to full width
 }
 
 // Map database row to Card type

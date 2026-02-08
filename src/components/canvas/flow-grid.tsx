@@ -78,13 +78,13 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
   // Show loading placeholder during SSR
   if (!mounted) {
     return (
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 w-full">
         {cards.map((card) => (
           <div
             key={card.id}
             className={cn(
               "h-24 bg-muted rounded-lg animate-pulse",
-              card.size === "big" ? "w-full" : "w-[calc(50%-0.5rem)]"
+              card.size !== "small" ? "w-full" : "w-[calc(50%-0.5rem)]"
             )}
           />
         ))}
@@ -113,7 +113,7 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 w-full">
           {cards.map((card) => (
             <SortableFlowCard
               key={card.id}
@@ -129,7 +129,7 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
         {activeCard && (
           <div className={cn(
             "shadow-xl pointer-events-none",
-            activeCard.size === "big" ? "w-80" : "w-40",
+            activeCard.size !== "small" ? "w-80" : "w-40",
           )}>
             <CardRenderer card={activeCard} isPreview />
           </div>

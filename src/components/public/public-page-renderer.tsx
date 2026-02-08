@@ -339,7 +339,7 @@ export function PublicPageRenderer({
         />
 
         {/* Card Grid */}
-        <div className="mt-2">
+        <div className="mt-2 w-full">
           <StaticFlowGrid
             cards={cards}
             socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
