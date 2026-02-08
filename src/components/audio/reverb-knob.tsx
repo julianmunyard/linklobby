@@ -2,11 +2,14 @@
 
 import { useRef, useEffect, useState } from 'react'
 
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+
 interface ReverbKnobProps {
   mix: number               // 0-1
   onMixChange: (mix: number) => void
   foregroundColor?: string
   elementBgColor?: string
+  themeVariant?: ThemeVariant
   className?: string
 }
 
@@ -15,6 +18,7 @@ export function ReverbKnob({
   onMixChange,
   foregroundColor,
   elementBgColor,
+  themeVariant,
   className = ''
 }: ReverbKnobProps) {
   const knobRef = useRef<HTMLDivElement>(null)
@@ -22,6 +26,7 @@ export function ReverbKnob({
   const dragStartY = useRef<number>(0)
   const dragStartValue = useRef<number>(0)
 
+  const isReceipt = themeVariant === 'receipt'
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
@@ -79,31 +84,35 @@ export function ReverbKnob({
   const maxAngle = 135
   const angle = minAngle + (maxAngle - minAngle) * mix
 
+  // Receipt uses a smaller knob
+  const knobSize = isReceipt ? 40 : 64
+  const knobCenter = knobSize / 2
+  const knobRadius = isReceipt ? 12 : 20
+  const innerTickR = isReceipt ? 15 : 24
+  const outerTickR = isReceipt ? 18 : 28
+  const indicatorEnd = knobCenter - knobRadius + 2
+
   return (
-    <div className={`flex flex-col items-center gap-2 ${className}`}>
+    <div className={`flex flex-col items-center ${isReceipt ? 'gap-0.5' : 'gap-2'} ${className}`}>
       {/* Knob */}
       <div
         ref={knobRef}
         className="relative cursor-pointer select-none"
-        style={{ width: 64, height: 64 }}
+        style={{ width: knobSize, height: knobSize }}
         onMouseDown={(e) => handleStart(e.clientY)}
         onTouchStart={(e) => handleStart(e.touches[0].clientY)}
       >
-        {/* SVG for tick marks and knob */}
-        <svg width="64" height="64" viewBox="0 0 64 64">
+        <svg width={knobSize} height={knobSize} viewBox={`0 0 ${knobSize} ${knobSize}`}>
           {/* Tick marks around circumference */}
-          {Array.from({ length: 11 }).map((_, i) => {
-            const tickAngle = minAngle + ((maxAngle - minAngle) / 10) * i
-            const tickRad = (tickAngle * Math.PI) / 180
-            const cx = 32
-            const cy = 32
-            const innerRadius = 24
-            const outerRadius = 28
+          {Array.from({ length: isReceipt ? 7 : 11 }).map((_, i) => {
+            const tickCount = isReceipt ? 6 : 10
+            const tickAngle = minAngle + ((maxAngle - minAngle) / tickCount) * i
+            const tickRad = ((tickAngle - 90) * Math.PI) / 180
 
-            const x1 = cx + innerRadius * Math.cos(tickRad)
-            const y1 = cy + innerRadius * Math.sin(tickRad)
-            const x2 = cx + outerRadius * Math.cos(tickRad)
-            const y2 = cy + outerRadius * Math.sin(tickRad)
+            const x1 = knobCenter + innerTickR * Math.cos(tickRad)
+            const y1 = knobCenter + innerTickR * Math.sin(tickRad)
+            const x2 = knobCenter + outerTickR * Math.cos(tickRad)
+            const y2 = knobCenter + outerTickR * Math.sin(tickRad)
 
             return (
               <line
@@ -113,7 +122,7 @@ export function ReverbKnob({
                 x2={x2}
                 y2={y2}
                 stroke={activeColor}
-                strokeWidth="1.5"
+                strokeWidth={isReceipt ? '1' : '1.5'}
                 strokeLinecap="round"
               />
             )
@@ -121,22 +130,22 @@ export function ReverbKnob({
 
           {/* Knob circle background */}
           <circle
-            cx="32"
-            cy="32"
-            r="20"
-            fill={bgColor}
+            cx={knobCenter}
+            cy={knobCenter}
+            r={knobRadius}
+            fill={isReceipt ? 'transparent' : bgColor}
             stroke={activeColor}
-            strokeWidth="2"
+            strokeWidth={isReceipt ? '1.5' : '2'}
           />
 
           {/* Indicator line (rotates with value) */}
           <line
-            x1="32"
-            y1="32"
-            x2="32"
-            y2="18"
+            x1={knobCenter}
+            y1={knobCenter}
+            x2={knobCenter}
+            y2={indicatorEnd}
             stroke={activeColor}
-            strokeWidth="3"
+            strokeWidth={isReceipt ? '2' : '3'}
             strokeLinecap="round"
             style={{
               transformOrigin: 'center',
@@ -147,11 +156,11 @@ export function ReverbKnob({
       </div>
 
       {/* Label and value */}
-      <div className="flex flex-col items-center">
-        <span className="text-xs font-mono font-bold" style={{ color: activeColor }}>
+      <div className={`flex items-center ${isReceipt ? 'gap-1' : 'flex-col'}`}>
+        <span className={`font-mono font-bold ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
           REVERB
         </span>
-        <span className="text-xs font-mono" style={{ color: activeColor }}>
+        <span className={`font-mono ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
           {Math.round(mix * 100)}%
         </span>
       </div>

@@ -2,6 +2,8 @@
 
 import { Play, Pause, Loader2 } from 'lucide-react'
 
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+
 interface PlayerControlsProps {
   isPlaying: boolean
   isLoaded: boolean
@@ -9,6 +11,7 @@ interface PlayerControlsProps {
   onTogglePlay: () => void
   foregroundColor?: string    // Icon color (from PlayerColors)
   elementBgColor?: string     // Button background (from PlayerColors)
+  themeVariant?: ThemeVariant
   className?: string
 }
 
@@ -19,8 +22,10 @@ export function PlayerControls({
   onTogglePlay,
   foregroundColor,
   elementBgColor,
+  themeVariant,
   className = ''
 }: PlayerControlsProps) {
+  const isReceipt = themeVariant === 'receipt'
   const iconColor = foregroundColor || 'var(--player-foreground, currentColor)'
   const bgColor = elementBgColor || 'var(--player-element-bg, rgba(0, 0, 0, 0.1))'
 
@@ -28,7 +33,7 @@ export function PlayerControls({
     <button
       onClick={onTogglePlay}
       disabled={!isLoaded && !isLoading}
-      className={`h-11 w-11 rounded-full flex items-center justify-center transition-all ${className}`}
+      className={`flex items-center justify-center transition-all relative z-10 ${isReceipt ? 'h-8 w-8 rounded-none' : 'h-11 w-11 rounded-full'} ${className}`}
       style={{
         backgroundColor: bgColor,
         opacity: !isLoaded && !isLoading ? 0.5 : 1,
@@ -37,11 +42,11 @@ export function PlayerControls({
       aria-label={isPlaying ? 'Pause' : 'Play'}
     >
       {isLoading ? (
-        <Loader2 className="h-5 w-5 animate-spin" style={{ color: iconColor }} />
+        <Loader2 className={isReceipt ? "h-4 w-4 animate-spin" : "h-5 w-5 animate-spin"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       ) : isPlaying ? (
-        <Pause className="h-5 w-5" style={{ color: iconColor }} />
+        <Pause className={isReceipt ? "h-4 w-4" : "h-5 w-5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       ) : (
-        <Play className="h-5 w-5 ml-0.5" style={{ color: iconColor }} />
+        <Play className={isReceipt ? "h-4 w-4 ml-0.5" : "h-5 w-5 ml-0.5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       )}
     </button>
   )

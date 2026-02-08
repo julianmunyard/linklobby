@@ -2,6 +2,8 @@
 
 import { useRef, useEffect, useState } from 'react'
 
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+
 interface WaveformDisplayProps {
   showWaveform: boolean       // true = waveform, false = progress bar
   waveformData?: number[]     // Array of 0-1 peak values
@@ -11,6 +13,7 @@ interface WaveformDisplayProps {
   onSeek: (position: number) => void  // 0-1
   foregroundColor?: string    // Active/played color
   elementBgColor?: string     // Inactive/unplayed color
+  themeVariant?: ThemeVariant
   className?: string
 }
 
@@ -29,11 +32,13 @@ export function WaveformDisplay({
   onSeek,
   foregroundColor,
   elementBgColor,
+  themeVariant,
   className = ''
 }: WaveformDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
+  const isReceipt = themeVariant === 'receipt'
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const inactiveColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
@@ -86,11 +91,11 @@ export function WaveformDisplay({
   }, [isDragging])
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`${isReceipt ? 'space-y-1' : 'space-y-2'} ${className}`}>
       {/* Waveform or Progress Bar */}
       <div
         ref={containerRef}
-        className="relative h-16 cursor-pointer select-none"
+        className={`relative cursor-pointer select-none ${isReceipt ? 'h-8' : 'h-16'}`}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         style={{ touchAction: 'none' }}
@@ -109,7 +114,7 @@ export function WaveformDisplay({
                   className="flex-1 flex items-center justify-center transition-colors duration-100"
                 >
                   <div
-                    className="w-full rounded-sm transition-all duration-100"
+                    className={`w-full transition-all duration-100 ${isReceipt ? 'rounded-none' : 'rounded-sm'}`}
                     style={{
                       height: `${height}%`,
                       backgroundColor: isPlayed ? activeColor : inactiveColor
@@ -122,31 +127,49 @@ export function WaveformDisplay({
         ) : (
           // Progress Bar Mode
           <div className="h-full flex items-center">
-            <div className="relative w-full h-2 rounded-full" style={{ backgroundColor: inactiveColor }}>
-              {/* Filled portion */}
+            {isReceipt ? (
+              /* Receipt: clean bordered rectangle, no handle — drag anywhere on the bar */
               <div
-                className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
-                style={{
-                  width: `${progress * 100}%`,
-                  backgroundColor: activeColor
-                }}
-              />
-              {/* Scrub handle */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md transition-all duration-100"
-                style={{
-                  left: `${progress * 100}%`,
-                  transform: `translate(-50%, -50%)`,
-                  backgroundColor: activeColor
-                }}
-              />
-            </div>
+                className="relative w-full p-[3px]"
+                style={{ border: `1px solid ${activeColor}` }}
+              >
+                <div className="relative w-full h-1.5">
+                  <div
+                    className="absolute top-0 left-0 h-full rounded-none transition-all duration-100"
+                    style={{
+                      width: `${progress * 100}%`,
+                      backgroundColor: activeColor
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="relative w-full h-2 rounded-full" style={{ backgroundColor: inactiveColor }}>
+                {/* Filled portion */}
+                <div
+                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
+                  style={{
+                    width: `${progress * 100}%`,
+                    backgroundColor: activeColor
+                  }}
+                />
+                {/* Scrub handle */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md transition-all duration-100"
+                  style={{
+                    left: `${progress * 100}%`,
+                    transform: `translate(-50%, -50%)`,
+                    backgroundColor: activeColor
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Time Display */}
-      <div className="flex justify-between text-xs font-mono" style={{ color: activeColor }}>
+      <div className={`flex justify-between font-mono ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
         <span>{formatTime(currentTime)}</span>
         <span>{formatTime(duration)}</span>
       </div>

@@ -104,9 +104,15 @@ export function AudioPlayer({
   // Get waveform data from current track
   const waveformData = currentTrack?.waveformData
 
+  // Receipt theme: force black colors so all sub-components render in monochrome
+  const isReceipt = themeVariant === 'receipt'
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : playerColors?.foregroundColor
+  const effectiveElementBgColor = isReceipt ? 'transparent' : playerColors?.elementBgColor
+
   // Theme-specific class names and styling
   const themeClasses = cn(
-    'flex flex-col gap-4',
+    'flex flex-col',
+    isReceipt ? 'gap-2' : 'gap-4',
     {
       // Macintosh: Pix Chicago font, pixel-art style
       'audio-player-macintosh': themeVariant === 'mac-os',
@@ -154,9 +160,9 @@ export function AudioPlayer({
 
       <div className={themeClasses} style={themeStyle}>
         {/* Top row: Album art, Play/Pause, Track info */}
-        <div className="flex items-start gap-3">
-        {/* Album Art */}
-        {albumArtUrl && (
+        <div className={cn("flex items-start", isReceipt ? "gap-2 items-center" : "gap-3")}>
+        {/* Album Art — receipt: shown behind play button; other themes: separate */}
+        {albumArtUrl && !isReceipt && (
           <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
             <Image
               src={albumArtUrl}
@@ -167,15 +173,27 @@ export function AudioPlayer({
           </div>
         )}
 
-        {/* Play/Pause Control */}
-        <div className="flex-shrink-0">
+        {/* Play/Pause Control — receipt: album art as background */}
+        <div className="flex-shrink-0 relative">
+          {isReceipt && albumArtUrl && (
+            <div className="absolute inset-0 overflow-hidden">
+              <Image
+                src={albumArtUrl}
+                alt=""
+                fill
+                className="object-cover"
+                style={{ filter: 'grayscale(100%) contrast(1.2)' }}
+              />
+            </div>
+          )}
           <PlayerControls
             isPlaying={player.isPlaying}
             isLoaded={player.isLoaded}
             isLoading={player.isLoading}
             onTogglePlay={handlePlay}
-            foregroundColor={playerColors?.foregroundColor}
-            elementBgColor={playerColors?.elementBgColor}
+            foregroundColor={effectiveForegroundColor}
+            elementBgColor={isReceipt ? (albumArtUrl ? 'rgba(0,0,0,0.5)' : '#1a1a1a') : effectiveElementBgColor}
+            themeVariant={themeVariant}
           />
         </div>
 
@@ -183,36 +201,29 @@ export function AudioPlayer({
         {currentTrack && (
           <div className="flex-1 min-w-0 flex flex-col justify-center">
             <h3
-              className="text-base font-semibold truncate"
-              style={{ color: playerColors?.foregroundColor || 'inherit' }}
+              className={cn("font-semibold truncate", isReceipt ? "text-sm" : "text-base")}
+              style={{ color: effectiveForegroundColor || 'inherit' }}
             >
               {currentTrack.title}
             </h3>
-            <p
-              className="text-sm truncate"
-              style={{ color: playerColors?.foregroundColor || 'inherit', opacity: 0.7 }}
-            >
-              {currentTrack.artist}
-            </p>
+            {!isReceipt && (
+              <p
+                className="text-sm truncate"
+                style={{ color: effectiveForegroundColor || 'inherit', opacity: 0.7 }}
+              >
+                {currentTrack.artist}
+              </p>
+            )}
             <p
               className="text-xs font-mono"
-              style={{ color: playerColors?.foregroundColor || 'inherit', opacity: 0.5 }}
+              style={{ color: effectiveForegroundColor || 'inherit', opacity: 0.5 }}
             >
+              {currentTrack.artist && isReceipt ? `${currentTrack.artist} · ` : ''}
               {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
             </p>
           </div>
         )}
       </div>
-
-      {/* Varispeed Slider with mode toggle */}
-      <VarispeedSlider
-        speed={player.speed}
-        mode={player.varispeedMode}
-        onSpeedChange={player.setSpeed}
-        onModeChange={player.setVarispeedMode}
-        foregroundColor={playerColors?.foregroundColor}
-        elementBgColor={playerColors?.elementBgColor}
-      />
 
       {/* Waveform/Progress Bar with time display */}
       <WaveformDisplay
@@ -222,47 +233,103 @@ export function AudioPlayer({
         currentTime={player.currentTime}
         duration={player.duration}
         onSeek={player.seek}
-        foregroundColor={playerColors?.foregroundColor}
-        elementBgColor={playerColors?.elementBgColor}
+        foregroundColor={effectiveForegroundColor}
+        elementBgColor={effectiveElementBgColor}
+        themeVariant={themeVariant}
       />
 
-      {/* Reverb Knob with optional config button (editor only) */}
-      <div className="flex items-center justify-center gap-2">
-        <ReverbKnob
-          mix={player.reverbMix}
-          onMixChange={player.setReverbMix}
-          foregroundColor={playerColors?.foregroundColor}
-          elementBgColor={playerColors?.elementBgColor}
-        />
-
-        {/* Reverb Config Modal (Editor Only) */}
-        {isEditing && reverbConfig && (
-          <ReverbConfigModal
-            config={reverbConfig}
-            onSave={handleReverbConfigChange}
-            trigger={
-              <button
-                className="p-2 rounded-full transition-colors"
-                style={{
-                  backgroundColor: playerColors?.elementBgColor || 'rgba(0, 0, 0, 0.1)',
-                  color: playerColors?.foregroundColor || 'currentColor'
-                }}
-                aria-label="Configure reverb"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
-            }
+      {isReceipt ? (
+        /* Receipt: Varispeed + Reverb side by side in a compact row */
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <VarispeedSlider
+              speed={player.speed}
+              mode={player.varispeedMode}
+              onSpeedChange={player.setSpeed}
+              onModeChange={player.setVarispeedMode}
+              foregroundColor={effectiveForegroundColor}
+              elementBgColor={effectiveElementBgColor}
+              themeVariant={themeVariant}
+            />
+          </div>
+          <div className="flex flex-col items-center gap-1 flex-shrink-0">
+            <ReverbKnob
+              mix={player.reverbMix}
+              onMixChange={player.setReverbMix}
+              foregroundColor={effectiveForegroundColor}
+              elementBgColor={effectiveElementBgColor}
+              themeVariant={themeVariant}
+            />
+            {isEditing && reverbConfig && (
+              <ReverbConfigModal
+                config={reverbConfig}
+                onSave={handleReverbConfigChange}
+                trigger={
+                  <button
+                    className="p-1 rounded-none transition-colors"
+                    style={{
+                      backgroundColor: effectiveElementBgColor || 'rgba(0, 0, 0, 0.1)',
+                      color: effectiveForegroundColor || 'currentColor'
+                    }}
+                    aria-label="Configure reverb"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Default layout: Varispeed full width, then Reverb below */
+        <>
+          <VarispeedSlider
+            speed={player.speed}
+            mode={player.varispeedMode}
+            onSpeedChange={player.setSpeed}
+            onModeChange={player.setVarispeedMode}
+            foregroundColor={effectiveForegroundColor}
+            elementBgColor={effectiveElementBgColor}
+            themeVariant={themeVariant}
           />
-        )}
-      </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <ReverbKnob
+              mix={player.reverbMix}
+              onMixChange={player.setReverbMix}
+              foregroundColor={effectiveForegroundColor}
+              elementBgColor={effectiveElementBgColor}
+              themeVariant={themeVariant}
+            />
+            {isEditing && reverbConfig && (
+              <ReverbConfigModal
+                config={reverbConfig}
+                onSave={handleReverbConfigChange}
+                trigger={
+                  <button
+                    className="p-2 rounded-full transition-colors"
+                    style={{
+                      backgroundColor: effectiveElementBgColor || 'rgba(0, 0, 0, 0.1)',
+                      color: effectiveForegroundColor || 'currentColor'
+                    }}
+                    aria-label="Configure reverb"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </>
+      )}
 
       {/* Track List (multi-track only) */}
       <TrackList
         tracks={tracks}
         currentTrackIndex={currentTrackIndex}
         onTrackSelect={handleTrackSelect}
-        foregroundColor={playerColors?.foregroundColor}
-        elementBgColor={playerColors?.elementBgColor}
+        foregroundColor={effectiveForegroundColor}
+        elementBgColor={effectiveElementBgColor}
       />
     </div>
 

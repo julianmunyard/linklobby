@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
+import { isAudioContent } from '@/types/card'
+import type { AudioCardContent } from '@/types/audio'
+import { AudioPlayer } from '@/components/audio/audio-player'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
@@ -418,6 +421,27 @@ export function ReceiptLayout({
                   return (
                     <div key={card.id} className="text-center py-2 font-bold text-sm">
                       *** {displayText.toUpperCase()} ***
+                    </div>
+                  )
+                }
+
+                // Audio cards render the full player inline
+                if (card.card_type === 'audio' && isAudioContent(card.content)) {
+                  const audioContent = card.content as AudioCardContent
+                  return (
+                    <div key={card.id} onClick={() => onCardClick?.(card.id)}>
+                      <AudioPlayer
+                        tracks={audioContent.tracks || []}
+                        albumArtUrl={audioContent.albumArtUrl}
+                        showWaveform={audioContent.showWaveform ?? true}
+                        looping={audioContent.looping ?? false}
+                        reverbConfig={audioContent.reverbConfig}
+                        playerColors={audioContent.playerColors}
+                        cardId={card.id}
+                        pageId={card.page_id}
+                        isEditing={isPreview}
+                        themeVariant="receipt"
+                      />
                     </div>
                   )
                 }
