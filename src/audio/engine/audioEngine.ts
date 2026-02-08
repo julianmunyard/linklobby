@@ -1,52 +1,70 @@
 // src/audio/engine/audioEngine.ts
-import type { AudioEngineCallbacks, VarispeedMode } from './types'
+// Web Audio API Audio Engine for LinkLobby
+// Replaces Superpowered SDK with standard browser Audio API
+//
+// KEY PATTERN:
+// - play() = audioContext.resume() + create AudioBufferSourceNode + start playback
+// - pause() = stop source node, calculate and store current position
+// - Uses fetch + decodeAudioData + AudioBufferSourceNode for playback
+
+import type { AudioEngineCallbacks } from './types'
 import type { ReverbConfig } from '@/types/audio'
 
-/**
- * AudioEngine - Singleton audio playback engine
- * Ported from Munyard Mixer, simplified for single-track playback
- *
- * Uses Web Audio API fallback (Superpowered SDK not yet integrated)
- */
 class AudioEngine {
+  // Web Audio API instances
   private audioContext: AudioContext | null = null
   private audioBuffer: AudioBuffer | null = null
   private sourceNode: AudioBufferSourceNode | null = null
-  private gainNode: GainNode | null = null
-  private isInitialized = false
+
+  // State
+  private started = false
+  private initPromise: Promise<void> | null = null
   private isLoadedFlag = false
   private isPlayingFlag = false
   private currentUrl: string | null = null
-  private startTime = 0
-  private pauseTime = 0
+  private duration = 0
+
+  // Playback tracking
   private playbackSpeed = 1.0
-  private varispeedMode: VarispeedMode = 'natural'
-  private reverbMix = 0
+  private isNaturalVarispeed = true
+  private startOffset = 0 // Current position in the track (seconds)
+  private startedAtContextTime = 0 // AudioContext.currentTime when playback started
+  private intentionalStop = false // Flag to suppress onEnded callback during pause/seek
+  private progressInterval: number | null = null
+
+  // Settings
+  private reverbMixValue = 0
+  private reverbConfigValue: ReverbConfig | null = null
   private looping = false
   private callbacks: AudioEngineCallbacks = {}
-  private progressInterval: number | null = null
+
+  // iOS unlock
   private silentAudioElement: HTMLAudioElement | null = null
   private isIOS = false
   private audioUnlocked = false
 
   async init(): Promise<void> {
-    if (this.isInitialized) return
+    if (this.started) return
+    if (this.initPromise) return this.initPromise
 
+    this.initPromise = this._doInit()
+    return this.initPromise
+  }
+
+  private async _doInit(): Promise<void> {
     try {
       // Detect iOS
-      this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      if (typeof navigator !== 'undefined') {
+        this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      }
 
-      // Create AudioContext
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      // Create AudioContext (browser auto-suspends until user gesture)
+      this.audioContext = new AudioContext({ sampleRate: 48000 })
 
-      // Create gain node for volume control
-      this.gainNode = this.audioContext.createGain()
-      this.gainNode.connect(this.audioContext.destination)
-
-      this.isInitialized = true
-      console.log('AudioEngine initialized (Web Audio fallback mode)')
-      console.warn('Superpowered SDK not available, using basic Web Audio fallback')
+      this.started = true
+      console.log('AudioEngine initialized (Web Audio API)')
     } catch (error) {
+      this.started = false
       console.error('Failed to initialize AudioEngine:', error)
       throw error
     }
@@ -60,10 +78,9 @@ class AudioEngine {
     if (!this.isIOS || this.audioUnlocked) return
 
     if (!this.silentAudioElement) {
-      // Create silent audio element (matching Munyard Mixer pattern)
       const audio = document.createElement('audio')
       audio.loop = true
-      audio.volume = 0.001 // Very quiet, but not zero (iOS mutes zero)
+      audio.volume = 0.001
       audio.preload = 'auto'
       audio.controls = false
       ;(audio as any).disableRemotePlayback = true
@@ -72,7 +89,7 @@ class AudioEngine {
       ;(audio as any).playsInline = true
       audio.style.display = 'none'
 
-      // High-quality MP3 silence from unmute.js
+      // High-quality MP3 silence from unmute.js (same as Munyard Mixer)
       const huffman = (count: number, repeatStr: string): string => {
         let e = repeatStr
         for (; count > 1; count--) e += repeatStr
@@ -85,7 +102,6 @@ class AudioEngine {
       document.body.appendChild(audio)
       this.silentAudioElement = audio
 
-      // Start silent audio to unlock iOS media channel
       audio.play()
         .then(() => {
           this.audioUnlocked = true
@@ -98,115 +114,162 @@ class AudioEngine {
   }
 
   async loadTrack(url: string): Promise<void> {
-    if (!this.audioContext) {
+    // Wait for init to complete if still in progress
+    if (this.initPromise) {
+      await this.initPromise
+    }
+    if (!this.started || !this.audioContext) {
       throw new Error('AudioEngine not initialized')
     }
 
+    // Don't reload if same URL
+    if (this.currentUrl === url && this.isLoadedFlag) {
+      return
+    }
+
+    // Stop current playback
+    if (this.isPlayingFlag) {
+      this.pause()
+    }
+
+    this.isLoadedFlag = false
+    this.currentUrl = url
+    this.startOffset = 0
+
     try {
-      // Don't reload if same URL
-      if (this.currentUrl === url && this.audioBuffer) {
-        return
-      }
-
-      // Stop current playback
-      if (this.isPlayingFlag) {
-        this.pause()
-      }
-
-      // Fetch audio file
+      // Fetch and decode audio
       const response = await fetch(url)
-      const arrayBuffer = await response.arrayBuffer()
+      if (!response.ok) {
+        throw new Error(`Failed to fetch audio: ${response.statusText}`)
+      }
 
-      // Decode audio data
+      const arrayBuffer = await response.arrayBuffer()
       this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
-      this.currentUrl = url
+      this.duration = this.audioBuffer.duration
       this.isLoadedFlag = true
 
-      if (this.callbacks.onLoaded) {
-        this.callbacks.onLoaded(this.audioBuffer.duration)
-      }
-
-      console.log(`Loaded track: ${url} (${this.audioBuffer.duration.toFixed(2)}s)`)
+      console.log(`AudioEngine: Track loaded, duration = ${this.duration}s`)
+      this.callbacks.onLoaded?.(this.duration)
     } catch (error) {
       console.error('Failed to load track:', error)
-      if (this.callbacks.onError) {
-        this.callbacks.onError(error instanceof Error ? error.message : String(error))
-      }
+      this.callbacks.onError?.(`Failed to load track: ${error}`)
       throw error
     }
   }
 
+  /**
+   * Play audio - SYNCHRONOUS method
+   * Resume AudioContext if suspended, create AudioBufferSourceNode, start playback
+   */
+  getAudioContext(): AudioContext | null {
+    return this.audioContext
+  }
+
   play(): void {
-    if (!this.audioContext || !this.audioBuffer) {
-      console.warn('Cannot play: AudioContext or buffer not ready')
+    console.log('AudioEngine: play() called — started:', this.started, 'isLoadedFlag:', this.isLoadedFlag)
+
+    if (!this.started || !this.isLoadedFlag || !this.audioBuffer || !this.audioContext) {
+      console.warn('AudioEngine: Cannot play — not ready or no track loaded')
       return
     }
 
-    // Unlock iOS audio if needed
-    if (this.isIOS) {
-      this.ensureUnlocked()
+    // If already playing, no-op
+    if (this.isPlayingFlag) {
+      console.log('AudioEngine: Already playing, no-op')
+      return
     }
 
-    // Resume AudioContext if suspended
-    if (this.audioContext.state === 'suspended') {
-      this.audioContext.resume()
-    }
+    // Resume AudioContext (fire-and-forget, same pattern as Superpowered version)
+    const ctx = this.audioContext
+    console.log('AudioEngine: play() — audioContext.state BEFORE resume:', ctx.state)
+    ctx.resume().then(() => {
+      console.log('AudioEngine: play() — audioContext.state AFTER resume:', ctx.state)
+    }).catch((err: unknown) => {
+      console.error('AudioEngine: play() — resume() REJECTED:', err)
+    })
 
-    // Clean up existing source
-    if (this.sourceNode) {
-      this.sourceNode.stop()
-      this.sourceNode.disconnect()
-    }
-
-    // Create new source node
+    // Create new AudioBufferSourceNode (Web Audio pattern: source nodes are one-shot)
     this.sourceNode = this.audioContext.createBufferSource()
     this.sourceNode.buffer = this.audioBuffer
     this.sourceNode.playbackRate.value = this.playbackSpeed
     this.sourceNode.loop = this.looping
+    this.sourceNode.connect(this.audioContext.destination)
 
-    // Connect to gain node
-    if (this.gainNode) {
-      this.sourceNode.connect(this.gainNode)
-    }
-
-    // Set up ended callback
+    // Handle playback end
     this.sourceNode.onended = () => {
-      if (!this.looping && this.isPlayingFlag) {
+      if (!this.intentionalStop) {
+        // Natural end of track
+        console.log('AudioEngine: Track ended naturally')
         this.isPlayingFlag = false
-        this.pauseTime = 0
-        if (this.callbacks.onEnded) {
-          this.callbacks.onEnded()
-        }
+        this.startOffset = 0
         this.stopProgressTracking()
+        this.callbacks.onEnded?.()
+      } else {
+        // Intentional stop (pause/seek) - don't fire onEnded
+        this.intentionalStop = false
       }
     }
 
     // Start playback from current position
-    const offset = this.pauseTime
-    this.sourceNode.start(0, offset)
-    this.startTime = this.audioContext.currentTime - offset
+    this.sourceNode.start(0, this.startOffset)
+    this.startedAtContextTime = this.audioContext.currentTime
     this.isPlayingFlag = true
 
     // Start progress tracking
     this.startProgressTracking()
 
-    console.log(`Playing from ${offset.toFixed(2)}s`)
+    console.log('AudioEngine: Playback started from', this.startOffset, 'seconds')
   }
 
-  pause(): void {
-    if (!this.audioContext || !this.isPlayingFlag) {
+  /**
+   * Diagnostic: Play a test tone directly on the AudioContext
+   * to verify audio output works. Call from browser console:
+   * window.__audioEngineDiag()
+   */
+  diagTestTone(): void {
+    const ctx = this.audioContext
+    if (!ctx) {
+      console.error('DIAG: No AudioContext')
       return
     }
+    console.log('DIAG: AudioContext state:', ctx.state, '— attempting resume + oscillator')
+    ctx.resume().then(() => {
+      console.log('DIAG: AudioContext state after resume:', ctx.state)
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      gain.gain.value = 0.1
+      osc.frequency.value = 440
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      setTimeout(() => { osc.stop(); osc.disconnect(); gain.disconnect(); console.log('DIAG: Tone stopped') }, 500)
+      console.log('DIAG: 440Hz tone playing for 0.5s')
+    }).catch((err: unknown) => {
+      console.error('DIAG: resume failed:', err)
+    })
+  }
+
+  /**
+   * Pause audio - stop the source node and record current position
+   */
+  pause(): void {
+    if (!this.started || !this.isPlayingFlag) return
 
     // Calculate current position
-    this.pauseTime = this.audioContext.currentTime - this.startTime
+    if (this.audioContext) {
+      const elapsed = (this.audioContext.currentTime - this.startedAtContextTime) * this.playbackSpeed
+      this.startOffset = Math.min(this.startOffset + elapsed, this.duration)
+      console.log('AudioEngine: Paused at', this.startOffset, 'seconds')
+    }
 
     // Stop source node
     if (this.sourceNode) {
+      this.intentionalStop = true
       try {
         this.sourceNode.stop()
-      } catch (e) {
-        // Already stopped
+      } catch (err) {
+        // sourceNode.stop() can throw if already stopped
+        console.warn('AudioEngine: stop() failed:', err)
       }
       this.sourceNode.disconnect()
       this.sourceNode = null
@@ -214,93 +277,74 @@ class AudioEngine {
 
     this.isPlayingFlag = false
     this.stopProgressTracking()
-
-    console.log(`Paused at ${this.pauseTime.toFixed(2)}s`)
   }
 
-  seek(position: number): void {
-    if (!this.audioBuffer) {
-      console.warn('Cannot seek: No audio loaded')
-      return
-    }
+  seek(positionSeconds: number): void {
+    if (!this.started || !this.audioBuffer) return
 
-    // Clamp position to valid range
-    const clampedPosition = Math.max(0, Math.min(position, this.audioBuffer.duration))
+    // Clamp to valid range
+    const clampedPosition = Math.max(0, Math.min(positionSeconds, this.duration))
+    this.startOffset = clampedPosition
 
-    const wasPlaying = this.isPlayingFlag
+    console.log('AudioEngine: Seek to', clampedPosition, 'seconds')
 
-    if (wasPlaying) {
-      this.pause()
-    }
+    // If playing, restart from new position
+    if (this.isPlayingFlag) {
+      // Stop current playback
+      if (this.sourceNode) {
+        this.intentionalStop = true
+        try {
+          this.sourceNode.stop()
+        } catch (err) {
+          console.warn('AudioEngine: stop() during seek failed:', err)
+        }
+        this.sourceNode.disconnect()
+        this.sourceNode = null
+      }
 
-    this.pauseTime = clampedPosition
-
-    if (wasPlaying) {
+      // Start new playback from new position
+      this.isPlayingFlag = false // Reset flag so play() works
       this.play()
+    } else {
+      // Just update position and fire callback
+      this.callbacks.onProgress?.(clampedPosition, this.duration)
     }
-
-    console.log(`Seeked to ${clampedPosition.toFixed(2)}s`)
   }
 
-  setVarispeed(speed: number, mode: VarispeedMode): void {
-    // Clamp speed to 0.5-1.5 range
+  setVarispeed(speed: number, isNatural: boolean): void {
     const clampedSpeed = Math.max(0.5, Math.min(1.5, speed))
     this.playbackSpeed = clampedSpeed
-    this.varispeedMode = mode
+    this.isNaturalVarispeed = isNatural
 
-    // Apply to current source if playing
-    if (this.sourceNode && this.isPlayingFlag) {
+    // Apply to current source node if playing
+    if (this.sourceNode) {
       this.sourceNode.playbackRate.value = clampedSpeed
     }
 
-    // Note: Web Audio fallback doesn't support time-stretch mode
-    // Both modes use pitch-shifting (natural varispeed)
-    if (mode === 'timestretch') {
-      console.warn('TimeStretch mode not available in Web Audio fallback')
-    }
-
-    console.log(`Varispeed set to ${clampedSpeed.toFixed(2)}x (${mode} mode)`)
+    console.log('AudioEngine: Varispeed set to', clampedSpeed, '(mode:', isNatural ? 'natural' : 'timestretch', ')')
   }
 
   setReverbConfig(config: ReverbConfig): void {
-    // Reverb not implemented in Web Audio fallback
-    console.warn('Reverb not available in Web Audio fallback')
+    // Store config for future use (reverb processing not implemented yet)
+    this.reverbConfigValue = config
+    console.log('AudioEngine: Reverb config stored (processing not implemented)')
   }
 
   setReverbMix(mix: number): void {
-    // Clamp mix to 0-1
-    this.reverbMix = Math.max(0, Math.min(1, mix))
-
-    // Reverb not implemented in Web Audio fallback
-    console.warn('Reverb not available in Web Audio fallback')
+    const clampedMix = Math.max(0, Math.min(1, mix))
+    this.reverbMixValue = clampedMix
+    console.log('AudioEngine: Reverb mix set to', clampedMix, '(processing not implemented)')
   }
 
   setLooping(enabled: boolean): void {
     this.looping = enabled
 
-    // Apply to current source if exists
+    // Apply to current source node if playing
     if (this.sourceNode) {
       this.sourceNode.loop = enabled
     }
 
-    console.log(`Looping ${enabled ? 'enabled' : 'disabled'}`)
-  }
-
-  getCurrentTime(): number {
-    if (!this.audioContext) return 0
-
-    if (this.isPlayingFlag) {
-      return Math.min(
-        this.audioContext.currentTime - this.startTime,
-        this.audioBuffer?.duration || 0
-      )
-    }
-
-    return this.pauseTime
-  }
-
-  getDuration(): number {
-    return this.audioBuffer?.duration || 0
+    console.log('AudioEngine: Looping', enabled ? 'enabled' : 'disabled')
   }
 
   isPlaying(): boolean {
@@ -311,47 +355,63 @@ class AudioEngine {
     return this.isLoadedFlag
   }
 
+  getDuration(): number {
+    return this.duration
+  }
+
+  getCurrentTime(): number {
+    if (!this.isPlayingFlag || !this.audioContext) {
+      return this.startOffset
+    }
+
+    const elapsed = (this.audioContext.currentTime - this.startedAtContextTime) * this.playbackSpeed
+    return Math.min(this.startOffset + elapsed, this.duration)
+  }
+
   setCallbacks(callbacks: AudioEngineCallbacks): void {
     this.callbacks = { ...this.callbacks, ...callbacks }
   }
 
+  /**
+   * Start progress tracking interval (250ms updates)
+   */
   private startProgressTracking(): void {
-    if (this.progressInterval) return
+    this.stopProgressTracking()
 
     this.progressInterval = window.setInterval(() => {
-      if (this.isPlayingFlag && this.callbacks.onProgress && this.audioBuffer) {
+      if (this.isPlayingFlag && this.audioContext) {
         const currentTime = this.getCurrentTime()
-        const duration = this.audioBuffer.duration
-        this.callbacks.onProgress(currentTime, duration)
+        this.callbacks.onProgress?.(currentTime, this.duration)
       }
-    }, 100) // Update every 100ms
+    }, 250)
   }
 
+  /**
+   * Stop progress tracking interval
+   */
   private stopProgressTracking(): void {
-    if (this.progressInterval) {
+    if (this.progressInterval !== null) {
       clearInterval(this.progressInterval)
       this.progressInterval = null
     }
   }
 
   destroy(): void {
-    // Stop playback
     if (this.isPlayingFlag) {
       this.pause()
     }
 
-    // Clean up nodes
+    this.stopProgressTracking()
+
     if (this.sourceNode) {
-      this.sourceNode.disconnect()
+      try {
+        this.sourceNode.disconnect()
+      } catch (err) {
+        // Already disconnected
+      }
       this.sourceNode = null
     }
 
-    if (this.gainNode) {
-      this.gainNode.disconnect()
-      this.gainNode = null
-    }
-
-    // Close AudioContext
     if (this.audioContext) {
       this.audioContext.close()
       this.audioContext = null
@@ -367,16 +427,14 @@ class AudioEngine {
       this.silentAudioElement = null
     }
 
-    // Stop progress tracking
-    this.stopProgressTracking()
-
-    // Reset state
-    this.isInitialized = false
+    this.audioBuffer = null
+    this.started = false
     this.isLoadedFlag = false
     this.isPlayingFlag = false
     this.currentUrl = null
-    this.audioBuffer = null
     this.audioUnlocked = false
+    this.startOffset = 0
+    this.duration = 0
 
     console.log('AudioEngine destroyed')
   }
