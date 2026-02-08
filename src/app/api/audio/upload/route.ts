@@ -1,11 +1,11 @@
 // src/app/api/audio/upload/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { uploadAudioFile } from '@/lib/supabase/storage'
 
 export const runtime = 'nodejs'
 
 const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
+const AUDIO_BUCKET = 'card-audio'
 
 export async function POST(request: Request) {
   try {
@@ -38,26 +38,40 @@ export async function POST(request: Request) {
       )
     }
 
-    // TODO: Server-side conversion to MP3 for non-MP3 files
-    // For v1: Accept any audio format - Superpowered audio engine handles multiple formats
-    // Browser-based conversion can happen client-side if needed
-    // Future optimization: Use fluent-ffmpeg for server-side conversion
+    // Get file extension from original filename, default to original extension
+    const originalName = file.name || 'audio.mp3'
+    const ext = originalName.split('.').pop()?.toLowerCase() || 'mp3'
+    const fileName = `${cardId}/${trackId}.${ext}`
 
-    // Upload to Supabase Storage
-    const { url, path } = await uploadAudioFile(file, cardId, trackId)
+    // Convert File to ArrayBuffer for upload
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
 
-    // TODO: Extract duration from audio file
-    // For v1: Return null duration - client can extract using HTMLAudioElement
-    // Future: Use ffprobe or similar to extract metadata server-side
+    // Upload directly with server supabase client
+    const { data, error: uploadError } = await supabase.storage
+      .from(AUDIO_BUCKET)
+      .upload(fileName, buffer, {
+        contentType: file.type || 'audio/mpeg',
+        upsert: false,
+      })
 
-    // TODO: Generate waveform data server-side
-    // For v1: Return without waveform - client generates using AudioContext.decodeAudioData()
-    // Client-side approach is more practical for browser playback anyway
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError)
+      return NextResponse.json(
+        { error: uploadError.message || 'Failed to upload audio' },
+        { status: 500 }
+      )
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from(AUDIO_BUCKET)
+      .getPublicUrl(data.path)
 
     return NextResponse.json({
-      url,
-      storagePath: path,
-      duration: null, // Client will populate this
+      url: urlData.publicUrl,
+      storagePath: data.path,
+      duration: null,
     })
 
   } catch (error) {

@@ -57,17 +57,16 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
 
   // Refs
   const engineRef = useRef(getAudioEngine())
-  const isInitializedRef = useRef(false)
+  const initPromiseRef = useRef<Promise<void> | null>(null)
 
   // Initialize engine
   useEffect(() => {
     const engine = engineRef.current
 
-    if (!isInitializedRef.current) {
-      engine.init().catch((error) => {
+    if (!initPromiseRef.current) {
+      initPromiseRef.current = engine.init().catch((error) => {
         console.error('Failed to initialize AudioEngine:', error)
       })
-      isInitializedRef.current = true
     }
 
     // Set up callbacks
@@ -153,15 +152,21 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [reverbConfig])
 
-  // Load track function
-  const loadTrack = useCallback((url: string) => {
+  // Load track function — waits for engine init before sending load command
+  const loadTrack = useCallback(async (url: string) => {
     const engine = engineRef.current
     setIsLoading(true)
     setIsLoaded(false)
-    engine.loadTrack(url).catch((error) => {
+    try {
+      // Wait for Superpowered to finish initializing
+      if (initPromiseRef.current) {
+        await initPromiseRef.current
+      }
+      await engine.loadTrack(url)
+    } catch (error) {
       console.error('Failed to load track:', error)
       setIsLoading(false)
-    })
+    }
   }, [])
 
   // Play function

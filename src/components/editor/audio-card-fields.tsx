@@ -40,7 +40,11 @@ export function AudioCardFields({ content, onChange, cardId }: AudioCardFieldsPr
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith('audio/')) {
+    // Check file type - allow audio/* MIME types and common audio extensions
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.aiff', '.wma']
+    const hasAudioMime = file.type.startsWith('audio/')
+    const hasAudioExt = audioExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+    if (!hasAudioMime && !hasAudioExt) {
       toast.error('File must be an audio file')
       return
     }
@@ -212,7 +216,7 @@ export function AudioCardFields({ content, onChange, cardId }: AudioCardFieldsPr
           <input
             ref={trackInputRef}
             type="file"
-            accept="audio/*"
+            accept="*/*"
             onChange={handleTrackUpload}
             className="hidden"
             disabled={isUploadingTrack}
