@@ -7,6 +7,7 @@ import { vcrMenuTheme } from './vcr-menu'
 import { ipodClassicTheme } from './ipod-classic'
 import { receiptTheme } from './receipt'
 import { macintoshTheme } from './macintosh'
+import { lobbyProTheme } from './lobby-pro'
 
 export const THEMES: ThemeConfig[] = [
   macOsTheme,
@@ -16,9 +17,10 @@ export const THEMES: ThemeConfig[] = [
   ipodClassicTheme,
   receiptTheme,
   macintoshTheme,
+  lobbyProTheme,
 ]
 
-export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh']
+export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh', 'lobby-pro']
 
 export function getTheme(id: ThemeId): ThemeConfig | undefined {
   return THEMES.find((theme) => theme.id === id)
