@@ -3,6 +3,7 @@
 import { AudioPlayer } from '@/components/audio/audio-player'
 import { isAudioContent } from '@/types/card'
 import type { Card } from '@/types/card'
+import { useThemeStore } from '@/stores/theme-store'
 
 interface AudioCardProps {
   card: Card
@@ -11,6 +12,19 @@ interface AudioCardProps {
 
 export function AudioCard({ card, isPreview = false }: AudioCardProps) {
   const content = card.content
+  const themeId = useThemeStore((s) => s.themeId)
+
+  // Map ThemeId to ThemeVariant
+  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'> = {
+    'instagram-reels': 'instagram-reels',
+    'mac-os': 'mac-os',
+    'macintosh': 'mac-os', // Legacy name
+    'system-settings': 'system-settings',
+    'receipt': 'receipt',
+    'ipod-classic': 'ipod-classic',
+    'vcr-menu': 'vcr-menu',
+  }
+  const themeVariant = themeVariantMap[themeId] || 'instagram-reels'
 
   // Type guard check
   if (!isAudioContent(content)) {
@@ -35,7 +49,7 @@ export function AudioCard({ card, isPreview = false }: AudioCardProps) {
     )
   }
 
-  // Render AudioPlayer with all configured settings
+  // Render AudioPlayer with all configured settings + theme variant
   return (
     <AudioPlayer
       tracks={content.tracks}
@@ -46,6 +60,8 @@ export function AudioCard({ card, isPreview = false }: AudioCardProps) {
       playerColors={content.playerColors}
       cardId={card.id}
       isEditing={isPreview}
+      themeVariant={themeVariant}
+      pageId={card.page_id}
     />
   )
 }

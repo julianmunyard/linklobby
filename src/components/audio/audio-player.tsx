@@ -11,6 +11,9 @@ import { VarispeedSlider } from './varispeed-slider'
 import { ReverbKnob } from './reverb-knob'
 import { ReverbConfigModal } from './reverb-config-modal'
 import { TrackList } from './track-list'
+import { cn } from '@/lib/utils'
+
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
 
 interface AudioPlayerProps {
   tracks: AudioTrack[]
@@ -20,8 +23,10 @@ interface AudioPlayerProps {
   reverbConfig?: ReverbConfig
   playerColors?: AudioCardContent['playerColors']
   cardId: string
+  pageId: string
   isEditing?: boolean         // In editor = show reverb config button
   onContentChange?: (updates: Record<string, unknown>) => void  // For editor updates
+  themeVariant?: ThemeVariant
   className?: string
 }
 
@@ -33,8 +38,10 @@ export function AudioPlayer({
   reverbConfig,
   playerColors,
   cardId,
+  pageId,
   isEditing = false,
   onContentChange,
+  themeVariant = 'instagram-reels',
   className = ''
 }: AudioPlayerProps) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -81,10 +88,57 @@ export function AudioPlayer({
   // Get waveform data from current track
   const waveformData = currentTrack?.waveformData
 
+  // Theme-specific class names and styling
+  const themeClasses = cn(
+    'flex flex-col gap-4',
+    {
+      // Macintosh: Pix Chicago font, pixel-art style
+      'audio-player-macintosh': themeVariant === 'mac-os',
+      // Receipt: Monospace black-on-white
+      'audio-player-receipt': themeVariant === 'receipt',
+      // VCR: LED counter style
+      'audio-player-vcr': themeVariant === 'vcr-menu',
+      // System Settings: Poolsuite fonts
+      'audio-player-system-settings': themeVariant === 'system-settings',
+      // iPod Classic: Compact LCD screen layout
+      'audio-player-ipod': themeVariant === 'ipod-classic',
+    },
+    className
+  )
+
+  const themeStyle: React.CSSProperties = {}
+
+  // Apply theme-specific fonts
+  if (themeVariant === 'mac-os') {
+    themeStyle.fontFamily = "var(--font-pix-chicago), 'Chicago', monospace"
+  } else if (themeVariant === 'system-settings') {
+    themeStyle.fontFamily = 'var(--font-chikarego), var(--font-ishmeria), monospace'
+  } else if (themeVariant === 'receipt') {
+    themeStyle.fontFamily = 'var(--font-ticket-de-caisse), monospace'
+    themeStyle.color = '#000'
+  } else if (themeVariant === 'vcr-menu') {
+    themeStyle.fontFamily = 'var(--font-pixter-granular), monospace'
+  } else if (themeVariant === 'ipod-classic') {
+    themeStyle.fontFamily = "var(--font-chicago), system-ui"
+    themeStyle.fontSize = '0.875rem' // Smaller for iPod LCD
+  }
+
   return (
-    <div className={`flex flex-col gap-4 ${className}`}>
-      {/* Top row: Album art, Play/Pause, Track info */}
-      <div className="flex items-start gap-3">
+    <>
+      {/* Receipt theme: Section header and divider */}
+      {themeVariant === 'receipt' && (
+        <>
+          <div className="receipt-divider">{'-'.repeat(60)}</div>
+          <div className="text-center py-2 font-bold text-sm">
+            ** NOW PLAYING **
+          </div>
+          <div className="receipt-divider">{'-'.repeat(60)}</div>
+        </>
+      )}
+
+      <div className={themeClasses} style={themeStyle}>
+        {/* Top row: Album art, Play/Pause, Track info */}
+        <div className="flex items-start gap-3">
         {/* Album Art */}
         {albumArtUrl && (
           <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
@@ -195,5 +249,11 @@ export function AudioPlayer({
         elementBgColor={playerColors?.elementBgColor}
       />
     </div>
+
+      {/* Receipt theme: Closing divider */}
+      {themeVariant === 'receipt' && (
+        <div className="receipt-divider">{'-'.repeat(60)}</div>
+      )}
+    </>
   )
 }
