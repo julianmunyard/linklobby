@@ -18,7 +18,14 @@ export interface TrackCardClickPayload {
 export interface TrackInteractionPayload {
   cardId: string
   pageId: string
-  interactionType: 'game_play' | 'gallery_view'
+  interactionType: 'game_play' | 'gallery_view' | 'audio_play'
+}
+
+export interface TrackAudioPlayPayload {
+  cardId: string
+  pageId: string
+  trackTitle?: string
+  duration?: number
 }
 
 /**
@@ -74,7 +81,7 @@ export async function trackCardClick(payload: TrackCardClickPayload): Promise<vo
 }
 
 /**
- * Track a specialized interaction (game play or gallery view)
+ * Track a specialized interaction (game play, gallery view, or audio play)
  *
  * @param payload - Interaction data
  */
@@ -91,5 +98,27 @@ export async function trackInteraction(payload: TrackInteractionPayload): Promis
   } catch (error) {
     // Swallow errors - tracking should never break user experience
     console.debug('Failed to track interaction:', error)
+  }
+}
+
+/**
+ * Track an audio play event
+ *
+ * @param payload - Audio play data
+ */
+export async function trackAudioPlay(payload: TrackAudioPlayPayload): Promise<void> {
+  try {
+    await fetch('/api/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'interaction',
+        interactionType: 'audio_play',
+        ...payload
+      })
+    })
+  } catch (error) {
+    // Swallow errors - tracking should never break user experience
+    console.debug('Failed to track audio play:', error)
   }
 }

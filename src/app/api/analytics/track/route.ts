@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Validate interaction type
-      if (interactionType !== 'game_play' && interactionType !== 'gallery_view') {
+      if (interactionType !== 'game_play' && interactionType !== 'gallery_view' && interactionType !== 'audio_play') {
         console.error('Invalid interaction type:', interactionType)
         return NextResponse.json({ success: false, error: 'Invalid interaction type' }, { status: 400 })
       }

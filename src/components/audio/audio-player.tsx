@@ -12,6 +12,7 @@ import { ReverbKnob } from './reverb-knob'
 import { ReverbConfigModal } from './reverb-config-modal'
 import { TrackList } from './track-list'
 import { cn } from '@/lib/utils'
+import { trackAudioPlay } from '@/lib/analytics/track-event'
 
 type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
 
@@ -83,6 +84,21 @@ export function AudioPlayer({
     if (onContentChange) {
       onContentChange({ reverbConfig: newConfig })
     }
+  }
+
+  // Handle play with analytics tracking
+  const handlePlay = () => {
+    // Track audio play on public pages only (not in editor)
+    if (!isEditing && !player.isPlaying && pageId) {
+      trackAudioPlay({
+        cardId,
+        pageId,
+        trackTitle: currentTrack?.title,
+        duration: currentTrack?.duration
+      })
+    }
+    // Toggle playback
+    player.togglePlay()
   }
 
   // Get waveform data from current track
@@ -157,7 +173,7 @@ export function AudioPlayer({
             isPlaying={player.isPlaying}
             isLoaded={player.isLoaded}
             isLoading={player.isLoading}
-            onTogglePlay={player.togglePlay}
+            onTogglePlay={handlePlay}
             foregroundColor={playerColors?.foregroundColor}
             elementBgColor={playerColors?.elementBgColor}
           />

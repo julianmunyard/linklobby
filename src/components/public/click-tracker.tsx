@@ -66,6 +66,17 @@ export function ClickTracker({ pageId, cards }: ClickTrackerProps) {
           break
         }
 
+        // Check for audio play tracking
+        const audioPlayId = element.getAttribute('data-audio-play')
+        if (audioPlayId) {
+          trackInteraction({
+            cardId: audioPlayId,
+            pageId,
+            interactionType: 'audio_play'
+          })
+          break
+        }
+
         // Move up to parent element
         element = element.parentElement
         depth++
