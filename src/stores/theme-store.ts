@@ -16,7 +16,7 @@ import { getTheme, getThemeDefaults } from '@/lib/themes'
 import { useProfileStore } from '@/stores/profile-store'
 
 // Themes where text color auto-syncs to header title and social icon color
-const SYNC_TEXT_COLOR_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+const SYNC_TEXT_COLOR_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'lobby-pro']
 
 function syncHeaderColors(themeId: ThemeId, textColor: string) {
   if (!SYNC_TEXT_COLOR_THEMES.includes(themeId)) return
@@ -156,7 +156,7 @@ export const useThemeStore = create<ThemeStore>()(
         }
 
         // Basic themes default to centered cards
-        const basicThemes: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+        const basicThemes: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'lobby-pro']
         const shouldCenter = basicThemes.includes(themeId)
 
         set({
