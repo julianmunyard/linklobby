@@ -1,20 +1,28 @@
 'use client'
 
+import { useState } from 'react'
+import Image from 'next/image'
+import { Settings } from 'lucide-react'
+import type { AudioTrack, AudioCardContent, ReverbConfig } from '@/types/audio'
+import { useAudioPlayer } from '@/audio/hooks/useAudioPlayer'
 import { PlayerControls } from './player-controls'
 import { WaveformDisplay } from './waveform-display'
-import type { AudioTrack, ReverbConfig, PlayerColors } from '@/types/audio'
-import { useAudioPlayer } from '@/audio/hooks/useAudioPlayer'
-import Image from 'next/image'
+import { VarispeedSlider } from './varispeed-slider'
+import { ReverbKnob } from './reverb-knob'
+import { ReverbConfigModal } from './reverb-config-modal'
+import { TrackList } from './track-list'
 
 interface AudioPlayerProps {
   tracks: AudioTrack[]
   albumArtUrl?: string
-  showWaveform?: boolean          // Default true
-  looping?: boolean               // Default false
+  showWaveform?: boolean
+  looping?: boolean
   reverbConfig?: ReverbConfig
-  playerColors?: PlayerColors
+  playerColors?: AudioCardContent['playerColors']
   cardId: string
-  isEditing?: boolean             // Show editor-only controls
+  isEditing?: boolean         // In editor = show reverb config button
+  onContentChange?: (updates: Record<string, unknown>) => void  // For editor updates
+  className?: string
 }
 
 export function AudioPlayer({
@@ -25,23 +33,11 @@ export function AudioPlayer({
   reverbConfig,
   playerColors,
   cardId,
-  isEditing = false
+  isEditing = false,
+  onContentChange,
+  className = ''
 }: AudioPlayerProps) {
-  const {
-    isPlaying,
-    isLoaded,
-    isLoading,
-    currentTime,
-    duration,
-    progress,
-    togglePlay,
-    seek
-  } = useAudioPlayer({
-    trackUrl: tracks[0]?.audioUrl || '',
-    looping,
-    reverbConfig,
-    cardId
-  })
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
 
   if (tracks.length === 0) {
     return (
@@ -52,61 +48,152 @@ export function AudioPlayer({
     )
   }
 
-  const currentTrack = tracks[0] // For now, single track support
+  const currentTrack = tracks[currentTrackIndex]
+  const currentTrackUrl = currentTrack?.audioUrl
+
+  // Use the audio player hook
+  const player = useAudioPlayer({
+    cardId,
+    trackUrl: currentTrackUrl,
+    looping,
+    reverbConfig,
+    onEnded: () => {
+      // Auto-advance to next track if multi-track and not looping
+      if (!looping && tracks.length > 1) {
+        const nextIndex = (currentTrackIndex + 1) % tracks.length
+        setCurrentTrackIndex(nextIndex)
+      }
+    }
+  })
+
+  // Handle track switching
+  const handleTrackSelect = (index: number) => {
+    setCurrentTrackIndex(index)
+  }
+
+  // Handle reverb config changes in editor
+  const handleReverbConfigChange = (newConfig: ReverbConfig) => {
+    if (onContentChange) {
+      onContentChange({ reverbConfig: newConfig })
+    }
+  }
+
+  // Get waveform data from current track
+  const waveformData = currentTrack?.waveformData
 
   return (
-    <div
-      className="w-full p-4 space-y-4"
-      style={{
-        borderColor: playerColors?.borderColor,
-        color: playerColors?.foregroundColor
-      }}
-    >
-      {/* Album Art */}
-      {albumArtUrl && (
-        <div className="flex justify-center">
-          <div className="relative w-48 h-48 rounded-lg overflow-hidden">
+    <div className={`flex flex-col gap-4 ${className}`}>
+      {/* Top row: Album art, Play/Pause, Track info */}
+      <div className="flex items-start gap-3">
+        {/* Album Art */}
+        {albumArtUrl && (
+          <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
             <Image
               src={albumArtUrl}
-              alt={currentTrack.title || 'Album art'}
+              alt="Album art"
               fill
               className="object-cover"
             />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Track Info */}
-      <div className="text-center">
-        <h3 className="font-semibold">{currentTrack.title || 'Untitled'}</h3>
-        {currentTrack.artist && (
-          <p className="text-sm opacity-80">{currentTrack.artist}</p>
+        {/* Play/Pause Control */}
+        <div className="flex-shrink-0">
+          <PlayerControls
+            isPlaying={player.isPlaying}
+            isLoaded={player.isLoaded}
+            isLoading={player.isLoading}
+            onTogglePlay={player.togglePlay}
+            foregroundColor={playerColors?.foregroundColor}
+            elementBgColor={playerColors?.elementBgColor}
+          />
+        </div>
+
+        {/* Track Info */}
+        {currentTrack && (
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <h3
+              className="text-base font-semibold truncate"
+              style={{ color: playerColors?.foregroundColor || 'inherit' }}
+            >
+              {currentTrack.title}
+            </h3>
+            <p
+              className="text-sm truncate"
+              style={{ color: playerColors?.foregroundColor || 'inherit', opacity: 0.7 }}
+            >
+              {currentTrack.artist}
+            </p>
+            <p
+              className="text-xs font-mono"
+              style={{ color: playerColors?.foregroundColor || 'inherit', opacity: 0.5 }}
+            >
+              {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
+            </p>
+          </div>
         )}
       </div>
 
-      {/* Waveform/Progress Display */}
-      <WaveformDisplay
-        showWaveform={showWaveform}
-        waveformData={currentTrack.waveformData}
-        progress={progress}
-        currentTime={currentTime}
-        duration={duration}
-        onSeek={seek}
+      {/* Varispeed Slider with mode toggle */}
+      <VarispeedSlider
+        speed={player.speed}
+        mode={player.varispeedMode}
+        onSpeedChange={player.setSpeed}
+        onModeChange={player.setVarispeedMode}
         foregroundColor={playerColors?.foregroundColor}
         elementBgColor={playerColors?.elementBgColor}
       />
 
-      {/* Player Controls */}
-      <div className="flex justify-center">
-        <PlayerControls
-          isPlaying={isPlaying}
-          isLoaded={isLoaded}
-          isLoading={isLoading}
-          onTogglePlay={togglePlay}
+      {/* Waveform/Progress Bar with time display */}
+      <WaveformDisplay
+        showWaveform={showWaveform}
+        waveformData={waveformData}
+        progress={player.progress}
+        currentTime={player.currentTime}
+        duration={player.duration}
+        onSeek={player.seek}
+        foregroundColor={playerColors?.foregroundColor}
+        elementBgColor={playerColors?.elementBgColor}
+      />
+
+      {/* Reverb Knob with optional config button (editor only) */}
+      <div className="flex items-center justify-center gap-2">
+        <ReverbKnob
+          mix={player.reverbMix}
+          onMixChange={player.setReverbMix}
           foregroundColor={playerColors?.foregroundColor}
           elementBgColor={playerColors?.elementBgColor}
         />
+
+        {/* Reverb Config Modal (Editor Only) */}
+        {isEditing && reverbConfig && (
+          <ReverbConfigModal
+            config={reverbConfig}
+            onSave={handleReverbConfigChange}
+            trigger={
+              <button
+                className="p-2 rounded-full transition-colors"
+                style={{
+                  backgroundColor: playerColors?.elementBgColor || 'rgba(0, 0, 0, 0.1)',
+                  color: playerColors?.foregroundColor || 'currentColor'
+                }}
+                aria-label="Configure reverb"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            }
+          />
+        )}
       </div>
+
+      {/* Track List (multi-track only) */}
+      <TrackList
+        tracks={tracks}
+        currentTrackIndex={currentTrackIndex}
+        onTrackSelect={handleTrackSelect}
+        foregroundColor={playerColors?.foregroundColor}
+        elementBgColor={playerColors?.elementBgColor}
+      />
     </div>
   )
 }
