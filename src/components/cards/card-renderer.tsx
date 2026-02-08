@@ -10,6 +10,7 @@ import { TextCard } from "./text-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
 import { GameCard } from "./game-card"
+import { AudioCard } from "./audio-card"
 import { MusicCard } from "./music-card"
 import { EmailCollectionCard } from "./email-collection-card"
 import { ReleaseCard } from "./release-card"
@@ -54,6 +55,9 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
     case "game":
       cardContent = <GameCard card={card} isPreview={isPreview} />
       break
+    case "audio":
+      cardContent = <AudioCard card={card} isPreview={isPreview} />
+      break
     case "music":
       cardContent = <MusicCard card={card} isPreview={isPreview} />
       break
@@ -77,7 +81,7 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       )
       break
     default:
-      // Fallback for unimplemented card types (audio)
+      // Fallback for unimplemented card types
       cardContent = (
         <div className="w-full p-4 rounded-lg border bg-card">
           <p className="font-medium">{card.title || "Untitled"}</p>
