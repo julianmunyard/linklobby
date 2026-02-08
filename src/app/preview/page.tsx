@@ -10,7 +10,6 @@ import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
 import { ReceiptLayout } from "@/components/cards/receipt-layout"
 import { MacintoshLayout } from "@/components/cards/macintosh-layout"
-import { LobbyProLayout } from "@/components/cards/lobby-pro-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -245,30 +244,6 @@ function PreviewContent() {
         <NoiseOverlay />
         {/* Frame overlay */}
         <FrameOverlay />
-      </>
-    )
-  }
-
-  // Lobby Pro theme uses animated list layout
-  if (themeId === 'lobby-pro') {
-    return (
-      <>
-        {/* Page background */}
-        <PageBackground />
-        {/* Dim overlay */}
-        <DimOverlay />
-
-        {/* Lobby Pro Layout */}
-        <LobbyProLayout
-          title={displayName || ''}
-          cards={state.cards}
-          isPreview={true}
-          onCardClick={handleCardClick}
-          selectedCardId={state.selectedCardId}
-        />
-
-        {/* Noise overlay */}
-        <NoiseOverlay />
       </>
     )
   }
