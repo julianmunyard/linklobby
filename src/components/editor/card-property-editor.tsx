@@ -30,6 +30,7 @@ import { SquareCardFields } from "./square-card-fields"
 import { VideoCardFields } from "./video-card-fields"
 import { GalleryCardFields } from "./gallery-card-fields"
 import { GameCardFields } from "./game-card-fields"
+import { AudioCardFields } from "./audio-card-fields"
 import { MusicCardFields } from "./music-card-fields"
 import { EmailCollectionFields } from "./email-collection-fields"
 import { ReleaseCardFields } from "./release-card-fields"
@@ -42,7 +43,7 @@ import { usePageStore } from "@/stores/page-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, MusicCardContent, LinkCardContent, EmailCollectionCardContent, ReleaseCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, AudioCardContent, MusicCardContent, LinkCardContent, EmailCollectionCardContent, ReleaseCardContent, TextAlign, VerticalAlign } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Card types that support horizontal positioning (w-fit cards)
@@ -318,6 +319,15 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               <GameCardFields
                 content={currentContent as Partial<GameCardContent>}
                 onChange={handleContentChange}
+              />
+            )}
+
+            {/* Audio-specific fields at top for audio cards */}
+            {card.card_type === "audio" && (
+              <AudioCardFields
+                content={currentContent as Partial<AudioCardContent>}
+                onChange={handleContentChange}
+                cardId={card.id}
               />
             )}
 

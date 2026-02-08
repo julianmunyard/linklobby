@@ -19,6 +19,7 @@ import type { CardType } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from "@/types/fan-tools"
 import { DEFAULT_RELEASE_CONTENT } from "./release-card-fields"
+import { DEFAULT_AUDIO_CONTENT } from "@/types/audio"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
@@ -29,6 +30,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },
   { type: "video", label: "Video Card" },
+  { type: "audio", label: "Audio Player" },
   { type: "music", label: "Music Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },
@@ -143,6 +145,8 @@ export function CardsTab() {
             return { textAlign: "center", verticalAlign: "middle" }
           case "game":
             return { gameType: "snake" }
+          case "audio":
+            return { ...DEFAULT_AUDIO_CONTENT }
           case "email-collection":
             return { ...DEFAULT_EMAIL_COLLECTION_CONTENT }
           case "release":
