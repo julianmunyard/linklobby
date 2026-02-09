@@ -7,6 +7,8 @@ import { DEFAULT_AUDIO_CONTENT } from '@/types/audio'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey, hasDuplicateSortKeys, normalizeSortKeys } from '@/lib/ordering'
+import { getRandomWordArtStyle } from '@/lib/word-art-styles'
+import { useThemeStore } from '@/stores/theme-store'
 
 interface Theme {
   id: string
@@ -93,6 +95,12 @@ export const usePageStore = create<PageState>()(
           return {}
       }
     })()
+
+    // When word-art theme is active, assign a random word art style to the card
+    const currentThemeId = useThemeStore.getState().themeId
+    if (currentThemeId === 'word-art') {
+      defaultContent.wordArtStyle = getRandomWordArtStyle()
+    }
 
     const newCard: Card = {
       id: crypto.randomUUID(),

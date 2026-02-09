@@ -84,6 +84,10 @@ export function ClassifiedLayout({
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
+  const classifiedStampText = useThemeStore((s) => s.classifiedStampText)
+  const classifiedDeptText = useThemeStore((s) => s.classifiedDeptText)
+  const classifiedCenterText = useThemeStore((s) => s.classifiedCenterText)
+  const classifiedMessageText = useThemeStore((s) => s.classifiedMessageText)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Profile data
@@ -200,34 +204,34 @@ export function ClassifiedLayout({
             fontFamily: 'var(--font-special-elite)',
           }}
         >
-          {/* Punch holes */}
-          <div className="flex justify-around px-12 pt-4 pb-2">
+          {/* Punch holes - above texture overlay */}
+          <div className="flex justify-around px-12 pt-4 pb-2 relative" style={{ zIndex: 10000 }}>
             <div className="classified-punch-hole" />
             <div className="classified-punch-hole" />
             <div className="classified-punch-hole" />
           </div>
 
-          {/* Top CLASSIFIED stamp */}
+          {/* Top stamp */}
           <div className="text-center mt-2 mb-4">
             <span
               className="classified-stamp"
               style={{ transform: 'rotate(-3deg)', display: 'inline-block' }}
             >
-              CLASSIFIED
+              {classifiedStampText || 'SECRET'}
             </span>
           </div>
 
           {/* Document content */}
           <div className="classified-content">
-            {/* WAR DEPARTMENT header */}
-            <div className="text-center mb-4" style={{ color: 'var(--theme-accent)' }}>
-              <div className="text-xs uppercase tracking-[0.3em] mb-1">War Department</div>
-              <div className="text-sm uppercase tracking-[0.2em] font-bold mb-1">Classified Message Center</div>
+            {/* Header */}
+            <div className="classified-header-text text-center mb-4" style={{ color: 'var(--theme-accent)' }}>
+              <div className="text-xs uppercase tracking-[0.3em] mb-1">{classifiedDeptText || 'War Department'}</div>
+              <div className="text-sm uppercase tracking-[0.2em] font-bold mb-1">{classifiedCenterText || 'Classified Message Center'}</div>
               <div
                 className="uppercase tracking-[0.15em]"
                 style={{ fontSize: titleFontSize }}
               >
-                Incoming Message
+                {classifiedMessageText || 'Incoming Message'}
               </div>
             </div>
 
@@ -267,7 +271,7 @@ export function ClassifiedLayout({
                   fontSize: `${(headingSize || 1.6) * 0.9}rem`,
                 }}
               >
-                {title || 'CLASSIFIED'}
+                {title || 'SECRET'}
               </div>
             </div>
 
@@ -303,7 +307,7 @@ export function ClassifiedLayout({
                         cardId={card.id}
                         pageId={card.page_id}
                         isEditing={isPreview}
-                        themeVariant="receipt"
+                        themeVariant="classified"
                       />
                     </div>
                   )
@@ -430,13 +434,13 @@ export function ClassifiedLayout({
               </div>
             )}
 
-            {/* Bottom CLASSIFIED stamp */}
+            {/* Bottom stamp */}
             <div className="text-center mt-6 mb-2">
               <span
                 className="classified-stamp"
                 style={{ transform: 'rotate(2deg)', display: 'inline-block' }}
               >
-                CLASSIFIED
+                {classifiedStampText || 'SECRET'}
               </span>
             </div>
 

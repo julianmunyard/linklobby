@@ -35,7 +35,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText } = useThemeStore()
   const theme = getTheme(themeId)
 
   // Hide card style controls for list-layout themes
@@ -395,6 +395,54 @@ export function StyleControls() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Classified Theme: Header Text Fields */}
+      {themeId === 'classified' && (
+        <div className="space-y-3">
+          <Label className="text-sm">Document Text</Label>
+          <p className="text-xs text-muted-foreground">Customize the classified document header text</p>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Stamp Text</Label>
+            <Input
+              value={classifiedStampText}
+              onChange={(e) => setClassifiedStampText(e.target.value)}
+              placeholder="SECRET"
+              className="font-mono uppercase"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Department</Label>
+            <Input
+              value={classifiedDeptText}
+              onChange={(e) => setClassifiedDeptText(e.target.value)}
+              placeholder="War Department"
+              className="font-mono"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Center Line</Label>
+            <Input
+              value={classifiedCenterText}
+              onChange={(e) => setClassifiedCenterText(e.target.value)}
+              placeholder="Classified Message Center"
+              className="font-mono"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Message Line</Label>
+            <Input
+              value={classifiedMessageText}
+              onChange={(e) => setClassifiedMessageText(e.target.value)}
+              placeholder="Incoming Message"
+              className="font-mono"
+            />
+          </div>
         </div>
       )}
 

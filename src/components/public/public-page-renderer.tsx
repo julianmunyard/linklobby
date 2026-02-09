@@ -95,6 +95,11 @@ interface PublicPageRendererProps {
   macPatternColor?: string
   // Word Art theme
   wordArtTitleStyle?: string
+  // Classified theme
+  classifiedStampText?: string
+  classifiedDeptText?: string
+  classifiedCenterText?: string
+  classifiedMessageText?: string
   // Social icon size
   socialIconSize?: number
   // Cards
@@ -145,6 +150,10 @@ export function PublicPageRenderer({
   macPattern,
   macPatternColor,
   wordArtTitleStyle,
+  classifiedStampText,
+  classifiedDeptText,
+  classifiedCenterText,
+  classifiedMessageText,
   socialIconSize,
   cards,
 }: PublicPageRendererProps) {
@@ -263,12 +272,16 @@ export function PublicPageRenderer({
     return (
       <StaticClassifiedLayout
         username={username}
-        title={displayName || 'CLASSIFIED'}
+        title={displayName || 'SECRET'}
         cards={cards}
         headingSize={headingSize}
         bodySize={bodySize}
         socialIcons={socialIcons}
         showSocialIcons={showSocialIcons}
+        classifiedStampText={classifiedStampText}
+        classifiedDeptText={classifiedDeptText}
+        classifiedCenterText={classifiedCenterText}
+        classifiedMessageText={classifiedMessageText}
       />
     )
   }

@@ -54,6 +54,11 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const ipodTexture = themeSettings?.ipodTexture ?? '/images/metal-texture.jpeg'
   const macPattern = themeSettings?.macPattern ?? ''
   const macPatternColor = themeSettings?.macPatternColor ?? '#c0c0c0'
+  const wordArtTitleStyle = themeSettings?.wordArtTitleStyle ?? 'style-eleven'
+  const classifiedStampText = themeSettings?.classifiedStampText ?? 'SECRET'
+  const classifiedDeptText = themeSettings?.classifiedDeptText ?? 'War Department'
+  const classifiedCenterText = themeSettings?.classifiedCenterText ?? 'Classified Message Center'
+  const classifiedMessageText = themeSettings?.classifiedMessageText ?? 'Incoming Message'
   const socialIconSize = themeSettings?.socialIconSize ?? 24
 
   // Pixel configuration
@@ -110,6 +115,11 @@ export default async function PublicPage({ params }: PublicPageProps) {
         ipodTexture={ipodTexture}
         macPattern={macPattern}
         macPatternColor={macPatternColor}
+        wordArtTitleStyle={wordArtTitleStyle}
+        classifiedStampText={classifiedStampText}
+        classifiedDeptText={classifiedDeptText}
+        classifiedCenterText={classifiedCenterText}
+        classifiedMessageText={classifiedMessageText}
         socialIconSize={socialIconSize}
         cards={cards}
       />

@@ -40,11 +40,24 @@ export function PageBackground() {
   }
 
   if (background.type === 'image' && background.value) {
+    const imgZoom = background.imageZoom ?? 1
+    const imgPosX = background.imagePositionX ?? 50
+    const imgPosY = background.imagePositionY ?? 50
     return (
       <div
-        className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${background.value})` }}
-      />
+        className="fixed inset-0 -z-10 overflow-hidden"
+      >
+        <div
+          className="w-full h-full bg-no-repeat"
+          style={{
+            backgroundImage: `url(${background.value})`,
+            backgroundSize: 'cover',
+            backgroundPosition: `${imgPosX}% ${imgPosY}%`,
+            transform: `scale(${imgZoom})`,
+            transformOrigin: `${imgPosX}% ${imgPosY}%`,
+          }}
+        />
+      </div>
     )
   }
 

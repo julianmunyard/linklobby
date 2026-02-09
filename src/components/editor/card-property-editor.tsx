@@ -39,7 +39,9 @@ import { LinkCardFields } from "./link-card-fields"
 import { MacNotepadFields } from "./mac-notepad-fields"
 import { MacWindowFields } from "./mac-window-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
+import { WordArtStylePicker } from "./word-art-style-picker"
 import { usePageStore } from "@/stores/page-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
@@ -68,6 +70,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const duplicateCard = usePageStore((state) => state.duplicateCard)
   const removeCard = usePageStore((state) => state.removeCard)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
+  const themeId = useThemeStore((s) => s.themeId)
   const { undo } = useHistory()
   const [urlError, setUrlError] = useState<string | null>(null)
 
@@ -293,6 +296,14 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   onChange={handleTypeChange}
                 />
               </div>
+            )}
+
+            {/* Word Art style picker - shown when word-art theme is active */}
+            {themeId === 'word-art' && !['audio', 'social-icons'].includes(card.card_type) && (
+              <WordArtStylePicker
+                currentStyleId={(currentContent.wordArtStyle as string) || 'style-one'}
+                onChange={(styleId) => handleContentChange({ wordArtStyle: styleId })}
+              />
             )}
 
             {/* Video-specific fields at top for video cards */}

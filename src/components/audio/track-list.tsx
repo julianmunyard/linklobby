@@ -2,7 +2,7 @@
 
 import type { AudioTrack } from '@/types/audio'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface TrackListProps {
   tracks: AudioTrack[]

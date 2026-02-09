@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface WaveformDisplayProps {
   showWaveform: boolean       // true = waveform, false = progress bar
@@ -49,7 +49,8 @@ export function WaveformDisplay({
 
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
-  const isCompact = isReceipt || isVcr
+  const isClassified = themeVariant === 'classified'
+  const isCompact = isReceipt || isVcr || isClassified
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const inactiveColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
@@ -106,7 +107,7 @@ export function WaveformDisplay({
       {/* Waveform or Progress Bar */}
       <div
         ref={containerRef}
-        className={`relative cursor-pointer select-none ${isVcr ? 'h-6' : isReceipt ? 'h-8' : 'h-16'}`}
+        className={`relative cursor-pointer select-none ${(isVcr || isClassified) ? 'h-6' : isReceipt ? 'h-8' : 'h-16'}`}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         style={{ touchAction: 'none' }}
@@ -138,8 +139,8 @@ export function WaveformDisplay({
         ) : (
           // Progress Bar Mode
           <div className="h-full flex items-center">
-            {isVcr ? (
-              /* VCR: rectangular bordered bar, thinner than receipt */
+            {(isVcr || isClassified) ? (
+              /* VCR/Classified: rectangular bordered bar */
               <div
                 className="relative w-full p-[3px]"
                 style={{ border: `1px solid ${activeColor}` }}
@@ -200,6 +201,11 @@ export function WaveformDisplay({
         <div className="flex justify-between font-mono text-[10px]" style={{ color: activeColor }}>
           <span>{isPlaying ? '▶' : '❚❚'} {formatVcrTime(currentTime)}</span>
           <span>{formatVcrTime(duration)}</span>
+        </div>
+      ) : isClassified ? (
+        <div className="flex justify-between font-mono text-[10px]" style={{ color: activeColor }}>
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
         </div>
       ) : (
         <div className={`flex justify-between font-mono ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>

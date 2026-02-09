@@ -344,6 +344,10 @@ export function BackgroundControls() {
                 src={background.value}
                 alt="Background preview"
                 className="w-full h-full object-cover"
+                style={{
+                  transform: `scale(${background.imageZoom ?? 1})`,
+                  objectPosition: `${background.imagePositionX ?? 50}% ${background.imagePositionY ?? 50}%`,
+                }}
               />
               <Button
                 variant="secondary"
@@ -378,6 +382,51 @@ export function BackgroundControls() {
             className="hidden"
             onChange={handleImageUpload}
           />
+
+          {/* Image Crop Controls */}
+          {background.value && (
+            <div className="space-y-3 pt-2">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Zoom</Label>
+                  <span className="text-xs text-muted-foreground">{(background.imageZoom ?? 1).toFixed(1)}x</span>
+                </div>
+                <Slider
+                  value={[background.imageZoom ?? 1]}
+                  onValueChange={([v]) => setBackground({ ...background, imageZoom: v })}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Position X</Label>
+                  <span className="text-xs text-muted-foreground">{background.imagePositionX ?? 50}%</span>
+                </div>
+                <Slider
+                  value={[background.imagePositionX ?? 50]}
+                  onValueChange={([v]) => setBackground({ ...background, imagePositionX: v })}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Position Y</Label>
+                  <span className="text-xs text-muted-foreground">{background.imagePositionY ?? 50}%</span>
+                </div>
+                <Slider
+                  value={[background.imagePositionY ?? 50]}
+                  onValueChange={([v]) => setBackground({ ...background, imagePositionY: v })}
+                  min={0}
+                  max={100}
+                  step={1}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -66,8 +66,8 @@ export function LanyardCardViews({
   // Find first release card
   const releaseCard = cards.find(c => c.card_type === 'release' && c.is_visible !== false)
 
-  // Take up to 4 links
-  const linksToShow = visibleCards.slice(0, 4)
+  // Take up to 6 links (portrait has more vertical space)
+  const linksToShow = visibleCards.slice(0, 6)
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -96,8 +96,8 @@ export function LanyardCardViews({
     <div
       className="relative overflow-hidden"
       style={{
-        width: '336px',
-        height: '213px',
+        width: '300px',
+        height: '420px',
         backgroundColor: 'var(--theme-card-bg)',
         color: 'var(--theme-text)',
         fontFamily: 'var(--font-ticket-de-caisse)',
@@ -110,7 +110,7 @@ export function LanyardCardViews({
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col" style={{ mixBlendMode: 'multiply', opacity: 0.9 }}>
         {/* View content takes flex-1 */}
-        <div className="flex-1 overflow-hidden px-3 pt-3 pb-1">
+        <div className="flex-1 overflow-hidden px-4 pt-4 pb-2">
           {activeView === 0 && (
             <LinksView
               title={title}
@@ -133,7 +133,7 @@ export function LanyardCardViews({
         </div>
 
         {/* Navigation - fixed at bottom */}
-        <div className="flex items-center justify-center gap-2 pb-2 px-3">
+        <div className="flex items-center justify-center gap-2 pb-3 px-4">
           <button
             onClick={handlePrev}
             disabled={activeView === 0}
@@ -178,16 +178,16 @@ function LinksView({
   return (
     <div className="h-full flex flex-col">
       <h2
-        className="uppercase tracking-wider mb-3 text-center"
+        className="uppercase tracking-wider mb-4 text-center"
         style={{
           fontFamily: 'var(--font-hypermarket)',
-          fontSize: '1.1rem',
+          fontSize: '1.3rem',
           fontWeight: 'normal',
         }}
       >
         {title}
       </h2>
-      <div className="flex-1 flex flex-col justify-start gap-1.5">
+      <div className="flex-1 flex flex-col justify-start gap-2.5">
         {links.length === 0 ? (
           <div className="text-center text-sm opacity-50 mt-4">NO LINKS</div>
         ) : (
@@ -195,14 +195,14 @@ function LinksView({
             <button
               key={card.id}
               onClick={onLinkClick(card)}
-              className="text-left hover:opacity-70 transition-opacity"
-              style={{ fontSize: '0.85rem' }}
+              className="text-left hover:opacity-70 transition-opacity w-full"
+              style={{ fontSize: '0.95rem' }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-current/10 pb-2">
                 <span className="truncate pr-2">
                   {(card.content as any)?.title || (card.content as any)?.name || 'Link'}
                 </span>
-                <span>{'>'}</span>
+                <span className="opacity-50">{'>'}</span>
               </div>
             </button>
           ))
@@ -293,9 +293,9 @@ function AudioView({ audioCard }: { audioCard?: Card }) {
   const albumArt = content.albumArtUrl || (firstTrack as any)?.albumArt
 
   return (
-    <div className="h-full flex flex-col items-center justify-center gap-2 px-2">
+    <div className="h-full flex flex-col items-center justify-center gap-3 px-3">
       {albumArt && (
-        <div className="w-20 h-20 rounded overflow-hidden">
+        <div className="w-32 h-32 rounded overflow-hidden">
           <img
             src={albumArt}
             alt="Album art"
@@ -304,17 +304,17 @@ function AudioView({ audioCard }: { audioCard?: Card }) {
         </div>
       )}
       <div className="text-center">
-        <div className="font-bold text-sm truncate max-w-full">
+        <div className="font-bold text-base truncate max-w-full">
           {firstTrack?.title || 'Audio Track'}
         </div>
         {firstTrack?.artist && (
-          <div className="text-xs opacity-70 truncate max-w-full">
+          <div className="text-sm opacity-70 truncate max-w-full">
             {firstTrack.artist}
           </div>
         )}
       </div>
-      <div className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center opacity-70">
-        <Play size={14} className="ml-0.5" />
+      <div className="w-10 h-10 rounded-full border-2 border-current flex items-center justify-center opacity-70">
+        <Play size={16} className="ml-0.5" />
       </div>
     </div>
   )
@@ -347,9 +347,9 @@ function ReleaseView({ releaseCard }: { releaseCard?: Card }) {
   }
 
   return (
-    <div className="h-full flex flex-col items-center justify-center gap-2 px-2">
+    <div className="h-full flex flex-col items-center justify-center gap-3 px-3">
       {content.albumArtUrl && (
-        <div className="w-20 h-20 rounded overflow-hidden">
+        <div className="w-32 h-32 rounded overflow-hidden">
           <img
             src={content.albumArtUrl}
             alt="Album art"
@@ -358,11 +358,11 @@ function ReleaseView({ releaseCard }: { releaseCard?: Card }) {
         </div>
       )}
       <div className="text-center">
-        <div className="font-bold text-sm truncate max-w-full">
+        <div className="font-bold text-base truncate max-w-full">
           {content.releaseTitle || 'New Release'}
         </div>
         {content.artistName && (
-          <div className="text-xs opacity-70 truncate max-w-full">
+          <div className="text-sm opacity-70 truncate max-w-full">
             {content.artistName}
           </div>
         )}
@@ -374,7 +374,7 @@ function ReleaseView({ releaseCard }: { releaseCard?: Card }) {
         />
       )}
       {content.preSaveButtonText && (
-        <div className="px-3 py-1 border border-current rounded text-xs">
+        <div className="px-4 py-1.5 border border-current rounded text-sm">
           {content.preSaveButtonText}
         </div>
       )}

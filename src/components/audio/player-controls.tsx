@@ -2,7 +2,7 @@
 
 import { Play, Pause, Loader2 } from 'lucide-react'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface PlayerControlsProps {
   isPlaying: boolean
@@ -27,7 +27,8 @@ export function PlayerControls({
 }: PlayerControlsProps) {
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
-  const isCompact = isReceipt || isVcr
+  const isClassified = themeVariant === 'classified'
+  const isCompact = isReceipt || isVcr || isClassified
   const iconColor = foregroundColor || 'var(--player-foreground, currentColor)'
   const bgColor = elementBgColor || 'var(--player-element-bg, rgba(0, 0, 0, 0.1))'
 
@@ -44,11 +45,11 @@ export function PlayerControls({
       aria-label={isPlaying ? 'Pause' : 'Play'}
     >
       {isLoading ? (
-        <Loader2 className={isCompact ? "h-4 w-4 animate-spin" : "h-5 w-5 animate-spin"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Loader2 className={isCompact ? "h-4 w-4 animate-spin" : "h-5 w-5 animate-spin"} style={{ color: (isReceipt || isClassified) ? '#ffffff' : iconColor }} />
       ) : isPlaying ? (
-        <Pause className={isCompact ? "h-4 w-4" : "h-5 w-5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Pause className={isCompact ? "h-4 w-4" : "h-5 w-5"} style={{ color: (isReceipt || isClassified) ? '#ffffff' : iconColor }} />
       ) : (
-        <Play className={isCompact ? "h-4 w-4 ml-0.5" : "h-5 w-5 ml-0.5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Play className={isCompact ? "h-4 w-4 ml-0.5" : "h-5 w-5 ml-0.5"} style={{ color: (isReceipt || isClassified) ? '#ffffff' : iconColor }} />
       )}
     </button>
   )

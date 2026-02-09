@@ -14,7 +14,7 @@ import { TrackList } from './track-list'
 import { cn } from '@/lib/utils'
 import { trackAudioPlay } from '@/lib/analytics/track-event'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface AudioPlayerProps {
   tracks: AudioTrack[]
@@ -47,19 +47,10 @@ export function AudioPlayer({
 }: AudioPlayerProps) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
 
-  if (tracks.length === 0) {
-    return (
-      <div className="w-full p-6 text-center text-muted-foreground">
-        <p className="text-sm">No audio uploaded yet</p>
-        {isEditing && <p className="text-xs mt-1">Upload a track to get started</p>}
-      </div>
-    )
-  }
-
-  const currentTrack = tracks[currentTrackIndex]
+  const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : undefined
   const currentTrackUrl = currentTrack?.audioUrl
 
-  // Use the audio player hook
+  // Use the audio player hook (must be called before any early returns)
   const player = useAudioPlayer({
     cardId,
     trackUrl: currentTrackUrl,
@@ -73,6 +64,15 @@ export function AudioPlayer({
       }
     }
   })
+
+  if (tracks.length === 0) {
+    return (
+      <div className="w-full p-6 text-center text-muted-foreground">
+        <p className="text-sm">No audio uploaded yet</p>
+        {isEditing && <p className="text-xs mt-1">Upload a track to get started</p>}
+      </div>
+    )
+  }
 
   // Handle track switching
   const handleTrackSelect = (index: number) => {
@@ -107,12 +107,13 @@ export function AudioPlayer({
   // Theme booleans
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
-  const isCompact = isReceipt || isVcr
+  const isClassified = themeVariant === 'classified'
+  const isCompact = isReceipt || isVcr || isClassified
 
   // Color overrides per theme
-  // VCR: follow theme text color (var(--theme-text)); receipt: force black
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isVcr ? 'var(--theme-text)' : playerColors?.foregroundColor
-  const effectiveElementBgColor = (isReceipt || isVcr) ? 'transparent' : playerColors?.elementBgColor
+  // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified: theme text
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : (isVcr || isClassified) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveElementBgColor = (isReceipt || isVcr || isClassified) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
   if (isVcr) {
@@ -237,6 +238,141 @@ export function AudioPlayer({
           </div>
         )}
       </div>
+    )
+  }
+
+  // ─── CLASSIFIED THEME: VCR-style bordered layout with classified fonts ───
+  if (isClassified) {
+    const clColor = 'var(--theme-text)'
+    const clFont: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', color: clColor }
+    const clBorder = '1px solid currentColor'
+
+    return (
+      <>
+        <div className="classified-divider">{'-'.repeat(80)}</div>
+        <div className="text-center py-2 text-sm uppercase tracking-widest" style={{ color: 'var(--theme-accent)', fontFamily: 'var(--font-special-elite)' }}>
+          // AUDIO TRANSMISSION //
+        </div>
+        <div className="classified-divider">{'-'.repeat(80)}</div>
+
+        <div
+          className={cn('flex flex-col', className)}
+          style={{ ...clFont, border: clBorder }}
+        >
+          {/* PLAY / PAUSE — clickable header */}
+          <button
+            onClick={handlePlay}
+            disabled={!player.isLoaded && !player.isLoading}
+            className="flex items-center justify-between px-3 py-2 text-left uppercase tracking-wider cursor-pointer hover:opacity-80"
+            style={{
+              borderBottom: clBorder,
+              opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+            }}
+          >
+            <span className="text-sm font-bold">
+              {player.isPlaying ? '> PLAY' : '|| PAUSE'}
+            </span>
+          </button>
+
+          {/* Track info */}
+          {currentTrack && (
+            <div className="px-3 py-2 uppercase tracking-wider" style={{ borderBottom: clBorder }}>
+              <div className="text-sm font-bold truncate">
+                {currentTrack.title}
+              </div>
+              <div className="text-xs opacity-50 truncate">
+                {currentTrack.artist && `${currentTrack.artist} · `}
+                {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
+              </div>
+            </div>
+          )}
+
+          {/* Progress */}
+          <div className="px-3 py-2" style={{ borderBottom: clBorder }}>
+            <div className="text-[10px] uppercase tracking-widest mb-1 opacity-60">Progress</div>
+            <WaveformDisplay
+              showWaveform={showWaveform}
+              waveformData={waveformData}
+              progress={player.progress}
+              currentTime={player.currentTime}
+              duration={player.duration}
+              onSeek={player.seek}
+              foregroundColor={clColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+              isPlaying={player.isPlaying}
+            />
+          </div>
+
+          {/* Controls: varispeed + bordered reverb box */}
+          <div className="flex items-stretch gap-0 px-3 py-2">
+            <div className="flex-1 min-w-0 pr-3">
+              <div className="text-[10px] uppercase tracking-widest mb-1 opacity-60">Varispeed</div>
+              <VarispeedSlider
+                speed={player.speed}
+                mode={player.varispeedMode}
+                onSpeedChange={player.setSpeed}
+                onModeChange={player.setVarispeedMode}
+                foregroundColor={clColor}
+                elementBgColor="transparent"
+                themeVariant={themeVariant}
+                hideModeToggle
+              />
+            </div>
+            {/* Bordered box: mode toggle + reverb knob */}
+            <div
+              className="flex flex-col items-center gap-1 flex-shrink-0 px-2 py-1"
+              style={{ border: clBorder }}
+            >
+              <button
+                onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+                className="px-2 py-0.5 text-[10px] rounded-none border transition-colors uppercase tracking-wider w-full text-center"
+                style={{ color: 'inherit', borderColor: 'currentColor', backgroundColor: 'transparent' }}
+              >
+                {player.varispeedMode === 'timestretch' ? 'TIME-STRETCH' : 'NATURAL'}
+              </button>
+              <ReverbKnob
+                mix={player.reverbMix}
+                onMixChange={player.setReverbMix}
+                foregroundColor={clColor}
+                elementBgColor="transparent"
+                themeVariant={themeVariant}
+              />
+              {isEditing && reverbConfig && (
+                <ReverbConfigModal
+                  config={reverbConfig}
+                  onSave={handleReverbConfigChange}
+                  trigger={
+                    <button
+                      className="p-1 rounded-none transition-colors"
+                      style={{ color: 'inherit' }}
+                      aria-label="Configure reverb"
+                    >
+                      <Settings className="w-3 h-3" />
+                    </button>
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Track List (multi-track only) */}
+          {tracks.length > 1 && (
+            <div style={{ borderTop: clBorder }}>
+              <TrackList
+                tracks={tracks}
+                currentTrackIndex={currentTrackIndex}
+                onTrackSelect={handleTrackSelect}
+                foregroundColor={clColor}
+                elementBgColor="transparent"
+                themeVariant={themeVariant}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="classified-divider">{'-'.repeat(80)}</div>
+      </>
     )
   }
 
@@ -461,6 +597,7 @@ export function AudioPlayer({
       {themeVariant === 'receipt' && (
         <div className="receipt-divider">{'-'.repeat(60)}</div>
       )}
+
     </>
   )
 }

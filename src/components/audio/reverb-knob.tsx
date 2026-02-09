@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface ReverbKnobProps {
   mix: number               // 0-1
@@ -28,7 +28,8 @@ export function ReverbKnob({
 
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
-  const isCompact = isReceipt || isVcr
+  const isClassified = themeVariant === 'classified'
+  const isCompact = isReceipt || isVcr || isClassified
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
@@ -134,7 +135,7 @@ export function ReverbKnob({
             cx={knobCenter}
             cy={knobCenter}
             r={knobRadius}
-            fill={isReceipt ? 'transparent' : bgColor}
+            fill={(isReceipt || isClassified) ? 'transparent' : bgColor}
             stroke={activeColor}
             strokeWidth={isCompact ? '1.5' : '2'}
           />

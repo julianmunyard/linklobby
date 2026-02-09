@@ -131,6 +131,10 @@ function PreviewContent() {
             macPatternColor: ts.macPatternColor ?? '#c0c0c0',
             wordArtTitleStyle: ts.wordArtTitleStyle ?? 'style-eleven',
             lanyardActiveView: ts.lanyardActiveView ?? 0,
+            classifiedStampText: ts.classifiedStampText ?? 'SECRET',
+            classifiedDeptText: ts.classifiedDeptText ?? 'War Department',
+            classifiedCenterText: ts.classifiedCenterText ?? 'Classified Message Center',
+            classifiedMessageText: ts.classifiedMessageText ?? 'Incoming Message',
           })
         }
       }
@@ -278,7 +282,7 @@ function PreviewContent() {
         <PageBackground />
         <DimOverlay />
         <ClassifiedLayout
-          title={displayName || 'CLASSIFIED'}
+          title={displayName || 'SECRET'}
           cards={state.cards}
           isPreview={true}
           onCardClick={handleCardClick}

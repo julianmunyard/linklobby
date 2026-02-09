@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import type { VarispeedMode } from '@/audio/engine/types'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface VarispeedSliderProps {
   speed: number                  // 0.5-1.5
@@ -31,7 +31,8 @@ export function VarispeedSlider({
   const previousTick = useRef<number | null>(null)
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
-  const isCompact = isReceipt || isVcr
+  const isClassified = themeVariant === 'classified'
+  const isCompact = isReceipt || isVcr || isClassified
 
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'

@@ -33,23 +33,32 @@ export function StaticBackground({ background }: StaticBackgroundProps) {
 
   // Image background
   if (background.type === 'image' && background.value) {
+    const imgZoom = background.imageZoom ?? 1
+    const imgPosX = background.imagePositionX ?? 50
+    const imgPosY = background.imagePositionY ?? 50
     return (
       <>
         <div
-          className="fixed -z-10"
+          className="fixed -z-10 overflow-hidden"
           style={{
             top: '-50vh',
             left: '-50vw',
             right: '-50vw',
             bottom: '-50vh',
-            backgroundImage: `url(${background.value})`,
-            // Size to viewport (not the extended element) to match preview
-            backgroundSize: '100vw 100vh',
-            // Center in extended element (50vw/50vh offset = viewport center)
-            backgroundPosition: '50vw 50vh',
-            backgroundRepeat: 'no-repeat',
           }}
-        />
+        >
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url(${background.value})`,
+              backgroundSize: '100vw 100vh',
+              backgroundPosition: `calc(50vw + ${(imgPosX - 50) * 0.5}vw) calc(50vh + ${(imgPosY - 50) * 0.5}vh)`,
+              backgroundRepeat: 'no-repeat',
+              transform: `scale(${imgZoom})`,
+              transformOrigin: `calc(50vw + ${(imgPosX - 50) * 0.5}vw) calc(50vh + ${(imgPosY - 50) * 0.5}vh)`,
+            }}
+          />
+        </div>
         {background.dimOverlay && (
           <div
             className="fixed inset-0 -z-[9] pointer-events-none"

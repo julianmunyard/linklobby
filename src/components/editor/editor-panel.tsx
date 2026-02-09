@@ -12,8 +12,10 @@ import { ScheduleTab } from "./schedule-tab"
 import { InsightsTab } from "./insights-tab"
 import { SettingsTab } from "./settings-tab"
 import { CardPropertyEditor } from "./card-property-editor"
+import { WordArtTitleEditor } from "./word-art-title-editor"
 import { SelectionToolbar } from "./selection-toolbar"
 import { usePageStore } from "@/stores/page-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 
 interface EmptyStateProps {
@@ -60,10 +62,14 @@ export function EditorPanel() {
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const themeId = useThemeStore((state) => state.themeId)
   const { saveCards } = useCards()
 
+  // Check if word-art title is selected (special pseudo-card)
+  const isWordArtTitleSelected = selectedCardId === '__word-art-title__' && themeId === 'word-art'
+
   // Find the selected card
-  const selectedCard = selectedCardId
+  const selectedCard = selectedCardId && !isWordArtTitleSelected
     ? cards.find((c) => c.id === selectedCardId)
     : null
 
@@ -80,7 +86,10 @@ export function EditorPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      {selectedCard ? (
+      {isWordArtTitleSelected ? (
+        // Show word art title style editor
+        <WordArtTitleEditor onClose={() => selectCard(null)} />
+      ) : selectedCard ? (
         // Show property editor when card is selected
         <CardPropertyEditor
           card={selectedCard}

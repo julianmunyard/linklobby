@@ -10,10 +10,10 @@ export const classifiedTheme: ThemeConfig = {
   defaultColors: {
     background: '#2a2a2a',     // Dark desk background behind the paper
     cardBg: '#E8A0A0',          // Pink/salmon paper color
-    text: '#3B2F7E',            // Purple-blue typewriter/mimeograph ink
-    accent: '#CC0000',          // Red for stamps and headers
-    border: '#3B2F7E',          // Purple-blue borders
-    link: '#3B2F7E',            // Purple-blue links
+    text: '#6B5B95',            // Faded purple-blue typewriter/mimeograph ink
+    accent: '#C4605A',          // Faded red ink for stamps and headers
+    border: '#6B5B95',          // Faded purple-blue borders
+    link: '#6B5B95',            // Faded purple-blue links
   },
 
   defaultFonts: {
@@ -37,10 +37,10 @@ export const classifiedTheme: ThemeConfig = {
       colors: {
         background: '#2a2a2a',
         cardBg: '#E8A0A0',
-        text: '#3B2F7E',
-        accent: '#CC0000',
-        border: '#3B2F7E',
-        link: '#3B2F7E',
+        text: '#6B5B95',        // Faded purple-blue ink
+        accent: '#C4605A',      // Faded red ink
+        border: '#6B5B95',
+        link: '#6B5B95',
       },
     },
     {
@@ -49,10 +49,10 @@ export const classifiedTheme: ThemeConfig = {
       colors: {
         background: '#1a1a1a',
         cardBg: '#d4a088',      // Warmer aged pink
-        text: '#2a1f5e',        // Darker purple
-        accent: '#990000',      // Darker red
-        border: '#2a1f5e',
-        link: '#2a1f5e',
+        text: '#7B6A8E',        // Lighter muted purple
+        accent: '#B8706A',      // Softer warm red
+        border: '#7B6A8E',
+        link: '#7B6A8E',
       },
     },
     {
@@ -61,10 +61,10 @@ export const classifiedTheme: ThemeConfig = {
       colors: {
         background: '#1c2333',  // Dark navy
         cardBg: '#c4b8c8',      // Lavender-grey paper
-        text: '#2b2d5e',        // Navy-purple
-        accent: '#8b0000',      // Dark red
-        border: '#2b2d5e',
-        link: '#2b2d5e',
+        text: '#60688A',        // Lighter navy-purple
+        accent: '#A85858',      // Softer muted red
+        border: '#60688A',
+        link: '#60688A',
       },
     },
     {
@@ -73,10 +73,10 @@ export const classifiedTheme: ThemeConfig = {
       colors: {
         background: '#1a1e14',  // Dark olive
         cardBg: '#c8c0a0',      // Khaki/green-tinted paper
-        text: '#2a3020',        // Dark olive text
-        accent: '#8b2500',      // Burnt red
-        border: '#2a3020',
-        link: '#2a3020',
+        text: '#5A6248',        // Lighter olive text
+        accent: '#A8604A',      // Softer burnt red
+        border: '#5A6248',
+        link: '#5A6248',
       },
     },
   ],

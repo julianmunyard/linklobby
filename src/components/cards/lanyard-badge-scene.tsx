@@ -47,7 +47,7 @@ export function LanyardBadgeScene({
   return (
     <div className="lanyard-wrapper">
       <Canvas
-        camera={{ position: [0, 0, 37], fov: 20 }}
+        camera={{ position: [0, 0, 13], fov: 20 }}
         dpr={[1, isMobile ? 1.5 : 2]}
         gl={{ alpha: true }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
@@ -258,15 +258,14 @@ function Band({
               )
             )}
           >
-            {/* Card mesh - use the original material from the GLB */}
+            {/* Card mesh - cream paper material */}
             <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={materials.base.map}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
+                color="#f5f2eb"
+                clearcoat={isMobile ? 0 : 0.4}
+                clearcoatRoughness={0.4}
+                roughness={0.8}
+                metalness={0.05}
               />
             </mesh>
 
@@ -280,12 +279,12 @@ function Band({
             {/* Clamp mesh */}
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
 
-            {/* HTML overlay for card content - rendered on the card face */}
+            {/* HTML overlay for card content - positioned on the card face */}
             <Html
               transform
               occlude="blending"
-              position={[0, -0.1, 0.01]}
-              scale={0.14}
+              position={[0, 0.523, 0.01]}
+              scale={0.155}
               style={{ pointerEvents: 'auto' }}
             >
               <LanyardCardViews

@@ -69,11 +69,6 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
     "--card-shadow": style.shadowEnabled ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
   }
 
-  // Add background image if type is "image"
-  if (background.type === "image" && background.value) {
-    cssVariables["--bg-image"] = `url(${background.value})`
-  }
-
   // Get theme ID for data-theme attribute
   const themeId = themeSettings?.themeId ?? 'mac-os'
 
@@ -104,11 +99,8 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
             }
 
             body {
-              background-color: var(--bg-color);
+              background-color: ${background.type === "solid" || !background.type ? "var(--bg-color)" : "transparent"};
               color: var(--fg-color);
-              ${background.type === "image" && background.value
-                ? "background-image: var(--bg-image); background-size: cover; background-position: center; background-attachment: fixed;"
-                : ""}
             }
           `,
         }}

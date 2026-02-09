@@ -40,6 +40,10 @@ interface ThemeStore extends ThemeState {
   macPatternColor: string  // Macintosh theme: background color behind pattern
   wordArtTitleStyle: string  // Word Art theme: style ID for title text
   lanyardActiveView: number  // Lanyard theme: active card view index (0-4)
+  classifiedStampText: string       // Classified theme: stamp text
+  classifiedDeptText: string        // Classified theme: department line
+  classifiedCenterText: string      // Classified theme: center line
+  classifiedMessageText: string     // Classified theme: message line
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -67,6 +71,10 @@ interface ThemeStore extends ThemeState {
   setMacPatternColor: (color: string) => void
   setWordArtTitleStyle: (style: string) => void
   setLanyardActiveView: (view: number) => void
+  setClassifiedStampText: (text: string) => void
+  setClassifiedDeptText: (text: string) => void
+  setClassifiedCenterText: (text: string) => void
+  setClassifiedMessageText: (text: string) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -136,6 +144,10 @@ export const useThemeStore = create<ThemeStore>()(
       macPatternColor: '#c0c0c0',
       wordArtTitleStyle: 'style-eleven',
       lanyardActiveView: 0,
+      classifiedStampText: 'SECRET',
+      classifiedDeptText: 'War Department',
+      classifiedCenterText: 'Classified Message Center',
+      classifiedMessageText: 'Incoming Message',
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -354,6 +366,22 @@ export const useThemeStore = create<ThemeStore>()(
         set({ lanyardActiveView: view, hasChanges: true })
       },
 
+      setClassifiedStampText: (text: string) => {
+        set({ classifiedStampText: text, hasChanges: true })
+      },
+
+      setClassifiedDeptText: (text: string) => {
+        set({ classifiedDeptText: text, hasChanges: true })
+      },
+
+      setClassifiedCenterText: (text: string) => {
+        set({ classifiedCenterText: text, hasChanges: true })
+      },
+
+      setClassifiedMessageText: (text: string) => {
+        set({ classifiedMessageText: text, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -404,6 +432,10 @@ export const useThemeStore = create<ThemeStore>()(
           macPatternColor: theme.macPatternColor ?? '#c0c0c0',
           wordArtTitleStyle: theme.wordArtTitleStyle ?? 'style-eleven',
           lanyardActiveView: theme.lanyardActiveView ?? 0,
+          classifiedStampText: theme.classifiedStampText ?? 'SECRET',
+          classifiedDeptText: theme.classifiedDeptText ?? 'War Department',
+          classifiedCenterText: theme.classifiedCenterText ?? 'Classified Message Center',
+          classifiedMessageText: theme.classifiedMessageText ?? 'Incoming Message',
           hasChanges: false,
         })
       },
@@ -430,6 +462,10 @@ export const useThemeStore = create<ThemeStore>()(
           macPatternColor: state.macPatternColor,
           wordArtTitleStyle: state.wordArtTitleStyle,
           lanyardActiveView: state.lanyardActiveView,
+          classifiedStampText: state.classifiedStampText,
+          classifiedDeptText: state.classifiedDeptText,
+          classifiedCenterText: state.classifiedCenterText,
+          classifiedMessageText: state.classifiedMessageText,
         }
       },
     }),

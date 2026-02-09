@@ -34,6 +34,10 @@ export interface StyleConfig {
 export interface BackgroundConfig {
   type: 'solid' | 'image' | 'video'
   value: string           // color hex, image URL, or video URL
+  // Image zoom/position settings
+  imageZoom?: number      // Default: 1.0, range: 1.0 to 3.0
+  imagePositionX?: number // Default: 50 (center), range: 0-100
+  imagePositionY?: number // Default: 50 (center), range: 0-100
   // Video zoom/position settings
   videoZoom?: number      // Default: 1.0, range: 1.0 to 2.0
   videoPositionX?: number // Default: 50 (center), range: 0-100
@@ -120,6 +124,10 @@ export interface ThemeState {
   macPatternColor?: string  // Macintosh theme: background color behind pattern (default '#c0c0c0')
   wordArtTitleStyle?: string  // Word Art theme: style ID for the title text
   lanyardActiveView?: number  // Lanyard theme: active card view index (0-4)
+  classifiedStampText?: string       // Classified theme: stamp text (default 'SECRET')
+  classifiedDeptText?: string        // Classified theme: department line (default 'War Department')
+  classifiedCenterText?: string      // Classified theme: center line (default 'Classified Message Center')
+  classifiedMessageText?: string     // Classified theme: message line (default 'Incoming Message')
   pixels?: {  // Tracking pixel configuration
     facebookPixelId?: string  // Facebook Pixel ID for ad retargeting
     gaMeasurementId?: string  // Google Analytics GA4 Measurement ID
