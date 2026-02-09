@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-08 - Completed 12-05 auto tasks (Theme adaptations, audio analytics)
+Last activity: 2026-02-10 - Completed quick task 049: Lanyard Badge theme with 3D card
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -609,6 +609,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Colorway UI for any theme with palettes | quick-041 | Show colorway swatches below selected theme card when palettes.length > 0, reusable for all themes |
 | Transparent flag on palettes | quick-041 | Optional transparent?: boolean on palette entries controls card transparency when colorway selected |
 | handleColorwaySelect side effects | quick-041 | setPalette + clearCardColorOverrides + setAllCardsTransparency in one action for clean state |
+| Three.js dynamic import ssr:false | quick-049 | Three.js requires WebGL, cannot server-render - dynamic import with ssr disabled |
+| drei Html for card overlay | quick-049 | Renders React DOM on 3D card surface - preserves CSS blend modes and interactivity |
+| e.stopPropagation on card UI | quick-049 | Prevents Three.js drag handler from capturing arrow clicks and link interactions |
+| Camera z=37 for badge framing | quick-049 | User-specified cameraDistance=37 from ReactBits URL parameter |
+| Reuse receipt fonts/textures | quick-049 | Conference badge shares receipt paper aesthetic - Hypermarket + Ticket De Caisse |
+| Mobile physics optimization | quick-049 | 30fps physics timestep and lower DPR on mobile for performance |
 
 ## Quick Tasks
 
@@ -657,6 +663,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 043 | Macintosh gallery card in large window | Complete | fd68b8c, f2ae195 |
 | 044 | Mac gallery full-bleed with 8-bit arrows | Complete | facd477 |
 | 045 | Macintosh menu bar: File Edit View [username] | Complete | 1153a0b |
+| 049 | Lanyard Badge theme with 3D card and swipeable views | Complete | 9ab52af...f5adae3 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
