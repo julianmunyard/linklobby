@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -118,6 +118,8 @@ export interface ThemeState {
   centerCards?: boolean      // Basic themes (mac-os, instagram, poolsuite): vertically center cards on screen
   macPattern?: string       // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor?: string  // Macintosh theme: background color behind pattern (default '#c0c0c0')
+  wordArtTitleStyle?: string  // Word Art theme: style ID for the title text
+  lanyardActiveView?: number  // Lanyard theme: active card view index (0-4)
   pixels?: {  // Tracking pixel configuration
     facebookPixelId?: string  // Facebook Pixel ID for ad retargeting
     gaMeasurementId?: string  // Google Analytics GA4 Measurement ID
