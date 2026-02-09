@@ -27,6 +27,8 @@ export function ReverbKnob({
   const dragStartValue = useRef<number>(0)
 
   const isReceipt = themeVariant === 'receipt'
+  const isVcr = themeVariant === 'vcr-menu'
+  const isCompact = isReceipt || isVcr
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
@@ -83,16 +85,16 @@ export function ReverbKnob({
   const maxAngle = 135
   const angle = minAngle + (maxAngle - minAngle) * mix
 
-  // Receipt uses a smaller knob
-  const knobSize = isReceipt ? 40 : 64
+  // Compact themes use a smaller knob
+  const knobSize = isCompact ? 40 : 64
   const knobCenter = knobSize / 2
-  const knobRadius = isReceipt ? 12 : 20
-  const innerTickR = isReceipt ? 15 : 24
-  const outerTickR = isReceipt ? 18 : 28
+  const knobRadius = isCompact ? 12 : 20
+  const innerTickR = isCompact ? 15 : 24
+  const outerTickR = isCompact ? 18 : 28
   const indicatorEnd = knobCenter - knobRadius + 2
 
   return (
-    <div className={`flex flex-col items-center ${isReceipt ? 'gap-0.5' : 'gap-2'} ${className}`}>
+    <div className={`flex flex-col items-center ${isCompact ? 'gap-0.5' : 'gap-2'} ${className}`}>
       {/* Knob */}
       <div
         ref={knobRef}
@@ -103,8 +105,8 @@ export function ReverbKnob({
       >
         <svg width={knobSize} height={knobSize} viewBox={`0 0 ${knobSize} ${knobSize}`}>
           {/* Tick marks around circumference */}
-          {Array.from({ length: isReceipt ? 7 : 11 }).map((_, i) => {
-            const tickCount = isReceipt ? 6 : 10
+          {Array.from({ length: isCompact ? 7 : 11 }).map((_, i) => {
+            const tickCount = isCompact ? 6 : 10
             const tickAngle = minAngle + ((maxAngle - minAngle) / tickCount) * i
             const tickRad = ((tickAngle - 90) * Math.PI) / 180
 
@@ -121,7 +123,7 @@ export function ReverbKnob({
                 x2={x2}
                 y2={y2}
                 stroke={activeColor}
-                strokeWidth={isReceipt ? '1' : '1.5'}
+                strokeWidth={isCompact ? '1' : '1.5'}
                 strokeLinecap="round"
               />
             )
@@ -134,7 +136,7 @@ export function ReverbKnob({
             r={knobRadius}
             fill={isReceipt ? 'transparent' : bgColor}
             stroke={activeColor}
-            strokeWidth={isReceipt ? '1.5' : '2'}
+            strokeWidth={isCompact ? '1.5' : '2'}
           />
 
           {/* Indicator line (rotates with value) */}
@@ -144,7 +146,7 @@ export function ReverbKnob({
             x2={knobCenter}
             y2={indicatorEnd}
             stroke={activeColor}
-            strokeWidth={isReceipt ? '2' : '3'}
+            strokeWidth={isCompact ? '2' : '3'}
             strokeLinecap="round"
             style={{
               transformOrigin: 'center',
@@ -155,11 +157,11 @@ export function ReverbKnob({
       </div>
 
       {/* Label and value */}
-      <div className={`flex items-center ${isReceipt ? 'gap-1' : 'flex-col'}`}>
-        <span className={`font-mono font-bold ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
+      <div className={`flex items-center ${isCompact ? 'gap-1' : 'flex-col'}`}>
+        <span className={`font-mono font-bold ${isCompact ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
           REVERB
         </span>
-        <span className={`font-mono ${isReceipt ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
+        <span className={`font-mono ${isCompact ? 'text-[10px]' : 'text-xs'}`} style={{ color: activeColor }}>
           {Math.round(mix * 100)}%
         </span>
       </div>

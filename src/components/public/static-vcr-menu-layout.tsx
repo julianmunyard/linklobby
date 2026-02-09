@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import type { Card, ReleaseCardContent } from '@/types/card'
-import { isReleaseContent } from '@/types/card'
+import type { Card, ReleaseCardContent, AudioCardContent } from '@/types/card'
+import { isReleaseContent, isAudioContent } from '@/types/card'
+import { AudioPlayer } from '@/components/audio/audio-player'
 import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
@@ -216,25 +217,27 @@ export function StaticVcrMenuLayout({
           return (
             <div key={card.id} className="mb-6 text-center w-full max-w-2xl">
               {!isReleased ? (
-                <>
-                  {/* PRESAVE (title) button box */}
-                  <a
-                    href={preSaveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity mb-3"
-                    style={{
-                      color: 'var(--theme-text)',
-                      borderColor: 'var(--theme-text)'
-                    }}
-                    onClick={(e) => {
-                      if (!preSaveUrl) e.preventDefault()
-                    }}
-                  >
-                    [PRESAVE {(releaseTitle || 'UPCOMING').toUpperCase()}]
-                  </a>
-
-                  {/* Countdown */}
+                <a
+                  href={preSaveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full max-w-sm mx-auto text-base tracking-wider px-3 py-2 border hover:opacity-80 transition-opacity"
+                  style={{
+                    color: 'var(--theme-text)',
+                    borderColor: 'var(--theme-text)'
+                  }}
+                  onClick={(e) => {
+                    if (!preSaveUrl) e.preventDefault()
+                  }}
+                >
+                  <div className="text-center mb-2">
+                    <span
+                      className="inline-block px-2 py-1 border"
+                      style={{ borderColor: 'var(--theme-text)' }}
+                    >
+                      [PRESAVE {(releaseTitle || 'UPCOMING').toUpperCase()}]
+                    </span>
+                  </div>
                   {releaseDate && isMounted && (
                     <Countdown
                       date={new Date(releaseDate)}
@@ -246,14 +249,14 @@ export function StaticVcrMenuLayout({
                       }}
                     />
                   )}
-                </>
+                </a>
               ) : afterCountdownAction === 'custom' && (
                 afterCountdownUrl ? (
                   <a
                     href={afterCountdownUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-base tracking-wider px-4 py-1 border-2 hover:opacity-80 transition-opacity"
+                    className="inline-block text-base tracking-wider px-4 py-2 border-2 hover:opacity-80 transition-opacity"
                     style={{
                       color: 'var(--theme-text)',
                       borderColor: 'var(--theme-text)'
@@ -295,6 +298,30 @@ export function StaticVcrMenuLayout({
                   {displayText}
                   <span className="sm:hidden"> --</span>
                   <span className="hidden sm:inline"> -----</span>
+                </div>
+              )
+            }
+
+            // Audio cards render as inline player
+            if (card.card_type === 'audio' && isAudioContent(card.content)) {
+              const audioContent = card.content as AudioCardContent
+              return (
+                <div
+                  key={card.id}
+                  className="w-full max-w-sm px-2 py-2"
+                  style={{ fontFamily: 'var(--font-pixter-granular)' }}
+                >
+                  <AudioPlayer
+                    tracks={audioContent.tracks || []}
+                    albumArtUrl={audioContent.albumArtUrl}
+                    showWaveform={audioContent.showWaveform ?? true}
+                    looping={audioContent.looping ?? false}
+                    reverbConfig={audioContent.reverbConfig}
+                    playerColors={audioContent.playerColors}
+                    cardId={card.id}
+                    pageId={card.page_id}
+                    themeVariant="vcr-menu"
+                  />
                 </div>
               )
             }

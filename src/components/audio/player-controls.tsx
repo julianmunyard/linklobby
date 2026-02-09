@@ -26,6 +26,8 @@ export function PlayerControls({
   className = ''
 }: PlayerControlsProps) {
   const isReceipt = themeVariant === 'receipt'
+  const isVcr = themeVariant === 'vcr-menu'
+  const isCompact = isReceipt || isVcr
   const iconColor = foregroundColor || 'var(--player-foreground, currentColor)'
   const bgColor = elementBgColor || 'var(--player-element-bg, rgba(0, 0, 0, 0.1))'
 
@@ -33,7 +35,7 @@ export function PlayerControls({
     <button
       onClick={onTogglePlay}
       disabled={!isLoaded && !isLoading}
-      className={`flex items-center justify-center transition-all relative z-10 ${isReceipt ? 'h-8 w-8 rounded-none' : 'h-11 w-11 rounded-full'} ${className}`}
+      className={`flex items-center justify-center transition-all relative z-10 ${isCompact ? 'h-8 w-8 rounded-none' : 'h-11 w-11 rounded-full'} ${className}`}
       style={{
         backgroundColor: bgColor,
         opacity: !isLoaded && !isLoading ? 0.5 : 1,
@@ -42,11 +44,11 @@ export function PlayerControls({
       aria-label={isPlaying ? 'Pause' : 'Play'}
     >
       {isLoading ? (
-        <Loader2 className={isReceipt ? "h-4 w-4 animate-spin" : "h-5 w-5 animate-spin"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Loader2 className={isCompact ? "h-4 w-4 animate-spin" : "h-5 w-5 animate-spin"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       ) : isPlaying ? (
-        <Pause className={isReceipt ? "h-4 w-4" : "h-5 w-5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Pause className={isCompact ? "h-4 w-4" : "h-5 w-5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       ) : (
-        <Play className={isReceipt ? "h-4 w-4 ml-0.5" : "h-5 w-5 ml-0.5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
+        <Play className={isCompact ? "h-4 w-4 ml-0.5" : "h-5 w-5 ml-0.5"} style={{ color: isReceipt ? '#ffffff' : iconColor }} />
       )}
     </button>
   )

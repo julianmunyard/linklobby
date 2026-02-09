@@ -104,25 +104,151 @@ export function AudioPlayer({
   // Get waveform data from current track
   const waveformData = currentTrack?.waveformData
 
-  // Receipt theme: force black colors so all sub-components render in monochrome
+  // Theme booleans
   const isReceipt = themeVariant === 'receipt'
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : playerColors?.foregroundColor
-  const effectiveElementBgColor = isReceipt ? 'transparent' : playerColors?.elementBgColor
+  const isVcr = themeVariant === 'vcr-menu'
+  const isCompact = isReceipt || isVcr
 
-  // Theme-specific class names and styling
+  // Color overrides per theme
+  // VCR: follow theme text color (var(--theme-text)); receipt: force black
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isVcr ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveElementBgColor = (isReceipt || isVcr) ? 'transparent' : playerColors?.elementBgColor
+
+  // ─── VCR THEME: fully bordered OSD layout ───
+  if (isVcr) {
+    const vcrColor = effectiveForegroundColor
+    const vcrFont: React.CSSProperties = { fontFamily: 'var(--font-pixter-granular), monospace', color: vcrColor }
+    const vcrBorder = '1px solid currentColor'
+
+    return (
+      <div
+        className={cn('flex flex-col', className)}
+        style={{ ...vcrFont, border: vcrBorder }}
+      >
+        {/* ▶ PLAY / ❚❚ PAUSE — clickable header */}
+        <button
+          onClick={handlePlay}
+          disabled={!player.isLoaded && !player.isLoading}
+          className="flex items-center justify-between px-3 py-2 text-left uppercase tracking-wider cursor-pointer hover:opacity-80"
+          style={{
+            borderBottom: vcrBorder,
+            opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+          }}
+        >
+          <span className="text-sm font-bold">
+            {player.isPlaying ? '▶ PLAY' : '❚❚ PAUSE'}
+          </span>
+          <span className="text-xs opacity-70">
+            TR.{String(currentTrackIndex + 1).padStart(2, '0')}
+          </span>
+        </button>
+
+        {/* Track info */}
+        {currentTrack && (
+          <div className="px-3 py-2 uppercase tracking-wider" style={{ borderBottom: vcrBorder }}>
+            <div className="text-sm font-bold truncate">
+              TR.{String(currentTrackIndex + 1).padStart(2, '0')} {currentTrack.title}
+            </div>
+            <div className="text-xs opacity-50 truncate">
+              {currentTrack.artist && `${currentTrack.artist} · `}
+              {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
+            </div>
+          </div>
+        )}
+
+        {/* Progress */}
+        <div className="px-3 py-2" style={{ borderBottom: vcrBorder }}>
+          <WaveformDisplay
+            showWaveform={showWaveform}
+            waveformData={waveformData}
+            progress={player.progress}
+            currentTime={player.currentTime}
+            duration={player.duration}
+            onSeek={player.seek}
+            foregroundColor={vcrColor}
+            elementBgColor="transparent"
+            themeVariant={themeVariant}
+            isPlaying={player.isPlaying}
+          />
+        </div>
+
+        {/* Controls: varispeed + bordered reverb box */}
+        <div className="flex items-stretch gap-0 px-3 py-2">
+          <div className="flex-1 min-w-0 pr-3">
+            <VarispeedSlider
+              speed={player.speed}
+              mode={player.varispeedMode}
+              onSpeedChange={player.setSpeed}
+              onModeChange={player.setVarispeedMode}
+              foregroundColor={vcrColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+              hideModeToggle
+            />
+          </div>
+          {/* Bordered box: mode toggle + reverb knob */}
+          <div
+            className="flex flex-col items-center gap-1 flex-shrink-0 px-2 py-1"
+            style={{ border: vcrBorder }}
+          >
+            <button
+              onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+              className="px-2 py-0.5 text-[10px] rounded-none border transition-colors uppercase tracking-wider w-full text-center"
+              style={{ color: 'inherit', borderColor: 'currentColor', backgroundColor: 'transparent' }}
+            >
+              {player.varispeedMode === 'timestretch' ? 'TIME-STRETCH' : 'NATURAL'}
+            </button>
+            <ReverbKnob
+              mix={player.reverbMix}
+              onMixChange={player.setReverbMix}
+              foregroundColor={vcrColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+            {isEditing && reverbConfig && (
+              <ReverbConfigModal
+                config={reverbConfig}
+                onSave={handleReverbConfigChange}
+                trigger={
+                  <button
+                    className="p-1 rounded-none transition-colors"
+                    style={{ color: 'inherit' }}
+                    aria-label="Configure reverb"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Track List (multi-track only) */}
+        {tracks.length > 1 && (
+          <div style={{ borderTop: vcrBorder }}>
+            <TrackList
+              tracks={tracks}
+              currentTrackIndex={currentTrackIndex}
+              onTrackSelect={handleTrackSelect}
+              foregroundColor={vcrColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ─── DEFAULT + RECEIPT THEMES ───
+
   const themeClasses = cn(
     'flex flex-col',
     isReceipt ? 'gap-2' : 'gap-4',
     {
-      // Macintosh: Pix Chicago font, pixel-art style
       'audio-player-macintosh': themeVariant === 'mac-os',
-      // Receipt: Monospace black-on-white
       'audio-player-receipt': themeVariant === 'receipt',
-      // VCR: LED counter style
-      'audio-player-vcr': themeVariant === 'vcr-menu',
-      // System Settings: Poolsuite fonts
       'audio-player-system-settings': themeVariant === 'system-settings',
-      // iPod Classic: Compact LCD screen layout
       'audio-player-ipod': themeVariant === 'ipod-classic',
     },
     className
@@ -130,7 +256,6 @@ export function AudioPlayer({
 
   const themeStyle: React.CSSProperties = {}
 
-  // Apply theme-specific fonts
   if (themeVariant === 'mac-os') {
     themeStyle.fontFamily = "var(--font-pix-chicago), 'Chicago', monospace"
   } else if (themeVariant === 'system-settings') {
@@ -138,11 +263,9 @@ export function AudioPlayer({
   } else if (themeVariant === 'receipt') {
     themeStyle.fontFamily = 'var(--font-ticket-de-caisse), monospace'
     themeStyle.color = '#000'
-  } else if (themeVariant === 'vcr-menu') {
-    themeStyle.fontFamily = 'var(--font-pixter-granular), monospace'
   } else if (themeVariant === 'ipod-classic') {
     themeStyle.fontFamily = "var(--font-chicago), system-ui"
-    themeStyle.fontSize = '0.875rem' // Smaller for iPod LCD
+    themeStyle.fontSize = '0.875rem'
   }
 
   return (
@@ -173,7 +296,7 @@ export function AudioPlayer({
           </div>
         )}
 
-        {/* Play/Pause Control — receipt: album art as background */}
+        {/* Play/Pause Control */}
         <div className="flex-shrink-0 relative">
           {isReceipt && albumArtUrl && (
             <div className="absolute inset-0 overflow-hidden">
@@ -330,6 +453,7 @@ export function AudioPlayer({
         onTrackSelect={handleTrackSelect}
         foregroundColor={effectiveForegroundColor}
         elementBgColor={effectiveElementBgColor}
+        themeVariant={themeVariant}
       />
     </div>
 
