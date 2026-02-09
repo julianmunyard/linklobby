@@ -71,7 +71,7 @@ interface PreviewSortableCardProps {
 }
 
 // Card types that need full interactivity (touch/mouse events pass through)
-const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game', 'social-icons']
+const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game', 'social-icons', 'audio']
 
 /**
  * Preview-specific sortable card that intercepts link clicks and calls onClick instead.
