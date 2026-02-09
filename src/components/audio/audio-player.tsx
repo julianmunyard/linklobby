@@ -390,13 +390,18 @@ export function AudioPlayer({
       fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
     }
-    // Thin rounded border — the Poolsuite signature
+    // All borders are black, thin, rounded — the Poolsuite way
     const psBorder = '1px solid var(--theme-text)'
-    const psBorderLight = '1px solid oklch(0 0 0 / 0.25)'
+    const psRadius = '4px'
     // Teal highlight for active play button (Poolsuite signature)
     const activeTeal = 'oklch(0.88 0.06 180)'
     // Pink accent for add/extra button
     const accentPink = 'oklch(0.88 0.06 0)'
+    // Shared inner box style — little rounded bordered boxes inside the card
+    const psBox: React.CSSProperties = {
+      border: psBorder,
+      borderRadius: psRadius,
+    }
 
     // Progress bar position
     const progressPercent = player.progress * 100
@@ -405,20 +410,12 @@ export function AudioPlayer({
 
     return (
       <div
-        className={cn('poolsuite-player flex flex-col', className)}
-        style={{
-          ...psFont,
-          border: psBorder,
-          borderRadius: '6px',
-          overflow: 'hidden',
-        }}
+        className={cn('poolsuite-player flex flex-col gap-2 p-2.5', className)}
+        style={psFont}
       >
-        {/* ── Section 1: Track Info ── */}
+        {/* ── Box 1: Track Info ── */}
         {currentTrack && (
-          <div
-            className="px-3 py-2.5"
-            style={{ borderBottom: psBorderLight }}
-          >
+          <div className="px-3 py-2" style={psBox}>
             <div className="text-sm font-bold truncate" style={{ color: psColor }}>
               {currentTrack.title}
               {currentTrack.artist && (
@@ -428,11 +425,8 @@ export function AudioPlayer({
           </div>
         )}
 
-        {/* ── Section 2: Time + Transport ── */}
-        <div
-          className="flex items-center gap-3 px-3 py-3"
-          style={{ borderBottom: psBorderLight }}
-        >
+        {/* ── Box 2: Time + Transport ── */}
+        <div className="flex items-center gap-3 px-3 py-2.5" style={psBox}>
           {/* Left: play indicator + time */}
           <div className="flex-1 min-w-0">
             <div className="text-[10px] opacity-40 leading-none mb-1" style={psFont}>
@@ -446,7 +440,7 @@ export function AudioPlayer({
           {/* Right: transport buttons row */}
           <div
             className="flex items-stretch flex-shrink-0"
-            style={{ border: psBorder, borderRadius: '4px', overflow: 'hidden' }}
+            style={{ border: psBorder, borderRadius: psRadius, overflow: 'hidden' }}
           >
             {/* Play */}
             <button
@@ -540,11 +534,8 @@ export function AudioPlayer({
           </div>
         </div>
 
-        {/* ── Section 3: Progress Bar ── */}
-        <div
-          className="px-3 py-3"
-          style={{ borderBottom: psBorderLight }}
-        >
+        {/* ── Box 3: Progress Bar ── */}
+        <div className="px-3 py-2.5" style={psBox}>
           <div
             className="poolsuite-inset-track relative h-5 cursor-pointer"
             onClick={(e) => {
@@ -590,13 +581,10 @@ export function AudioPlayer({
           </div>
         </div>
 
-        {/* ── Section 4: Varispeed + Reverb ── */}
-        <div className="flex items-stretch">
-          {/* Left: Varispeed slider */}
-          <div
-            className="flex-1 min-w-0 px-3 py-3"
-            style={{ borderRight: psBorderLight }}
-          >
+        {/* ── Box 4: Varispeed + Reverb side by side ── */}
+        <div className="flex items-stretch gap-2">
+          {/* Left box: Varispeed slider */}
+          <div className="flex-1 min-w-0 px-3 py-2.5" style={psBox}>
             {/* Header: speed value + mode toggle */}
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-bold tabular-nums" style={{ color: psColor }}>
@@ -670,8 +658,8 @@ export function AudioPlayer({
             </div>
           </div>
 
-          {/* Right: Reverb knob — transparent with color */}
-          <div className="flex flex-col items-center justify-center gap-1 flex-shrink-0 px-4 py-3">
+          {/* Right box: Reverb knob — transparent with color */}
+          <div className="flex flex-col items-center justify-center gap-1 flex-shrink-0 px-4 py-2.5" style={psBox}>
             <ReverbKnob
               mix={player.reverbMix}
               onMixChange={player.setReverbMix}
@@ -697,9 +685,9 @@ export function AudioPlayer({
           </div>
         </div>
 
-        {/* ── Section 5: Track List (multi-track only) ── */}
+        {/* ── Box 5: Track List (multi-track only) ── */}
         {tracks.length > 1 && (
-          <div style={{ borderTop: psBorderLight }}>
+          <div style={psBox}>
             <TrackList
               tracks={tracks}
               currentTrackIndex={currentTrackIndex}
