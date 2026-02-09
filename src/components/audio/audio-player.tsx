@@ -16,6 +16,12 @@ import { trackAudioPlay } from '@/lib/analytics/track-event'
 
 type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
+function formatPoolsuiteTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
 interface AudioPlayerProps {
   tracks: AudioTrack[]
   albumArtUrl?: string
@@ -108,12 +114,13 @@ export function AudioPlayer({
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
   const isClassified = themeVariant === 'classified'
-  const isCompact = isReceipt || isVcr || isClassified
+  const isSystemSettings = themeVariant === 'system-settings'
+  const isCompact = isReceipt || isVcr || isClassified || isSystemSettings
 
   // Color overrides per theme
-  // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : (isVcr || isClassified) ? 'var(--theme-text)' : playerColors?.foregroundColor
-  const effectiveElementBgColor = (isReceipt || isVcr || isClassified) ? 'transparent' : playerColors?.elementBgColor
+  // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
   if (isVcr) {
@@ -376,6 +383,253 @@ export function AudioPlayer({
     )
   }
 
+  // ─── SYSTEM SETTINGS / POOLSUITE FM THEME ───
+  if (isSystemSettings) {
+    const psColor = 'var(--theme-text)'
+    const psFont: React.CSSProperties = {
+      fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
+      color: psColor,
+    }
+    const psBorder = '1px solid oklch(0 0 0 / 0.7)'
+    // Teal highlight for active play button (Poolsuite signature)
+    const activeTeal = 'oklch(0.88 0.06 180)'
+    // Pink accent for add/extra button
+    const accentPink = 'oklch(0.88 0.06 0)'
+
+    // Varispeed slider position for halftone fill
+    const varispeedPercent = ((player.speed - 0.5) / (1.5 - 0.5)) * 100
+
+    return (
+      <div
+        className={cn('poolsuite-player flex flex-col gap-0', className)}
+        style={psFont}
+      >
+        {/* ── Track Info ── */}
+        {currentTrack && (
+          <div className="px-3 pt-2 pb-1.5">
+            <div className="text-sm font-bold truncate" style={{ color: psColor }}>
+              {currentTrack.title}
+            </div>
+            {currentTrack.artist && (
+              <div className="text-xs truncate mt-0.5" style={{ color: psColor, opacity: 0.6 }}>
+                {currentTrack.artist}
+              </div>
+            )}
+            {/* Thin divider */}
+            <div className="mt-1.5" style={{ borderBottom: '1px solid oklch(0 0 0 / 0.15)' }} />
+          </div>
+        )}
+
+        {/* ── Time + Transport Row ── */}
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          {/* Left: play indicator + time */}
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] opacity-50 mb-0.5" style={psFont}>
+              {player.isPlaying ? '▶' : ''}
+            </div>
+            <div className="text-base font-bold tabular-nums" style={psFont}>
+              {formatPoolsuiteTime(player.currentTime)}
+            </div>
+          </div>
+
+          {/* Right: transport buttons row */}
+          <div className="flex items-stretch" style={{ border: psBorder, borderRadius: '2px' }}>
+            {/* Play */}
+            <button
+              onClick={handlePlay}
+              disabled={!player.isLoaded && !player.isLoading}
+              className={cn(
+                'poolsuite-transport-btn flex items-center justify-center w-10 h-9',
+                player.isPlaying && 'poolsuite-active'
+              )}
+              style={{
+                backgroundColor: player.isPlaying ? activeTeal : 'var(--theme-card-bg)',
+                borderRight: psBorder,
+                borderRadius: 0,
+                opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+              }}
+              aria-label="Play"
+            >
+              <span className="text-base leading-none" style={{ color: psColor }}>▶</span>
+            </button>
+
+            {/* Pause */}
+            <button
+              onClick={handlePlay}
+              disabled={!player.isLoaded && !player.isLoading}
+              className={cn(
+                'poolsuite-transport-btn flex items-center justify-center w-10 h-9',
+                !player.isPlaying && player.isLoaded && 'poolsuite-active'
+              )}
+              style={{
+                backgroundColor: !player.isPlaying && player.isLoaded ? activeTeal : 'var(--theme-card-bg)',
+                borderRight: psBorder,
+                borderRadius: 0,
+                opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+              }}
+              aria-label="Pause"
+            >
+              <span className="text-base leading-none font-bold" style={{ color: psColor }}>‖</span>
+            </button>
+
+            {/* Prev */}
+            {tracks.length > 1 && (
+              <button
+                onClick={() => {
+                  const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length
+                  handleTrackSelect(prevIndex)
+                }}
+                className="poolsuite-transport-btn flex items-center justify-center w-10 h-9"
+                style={{
+                  backgroundColor: 'var(--theme-card-bg)',
+                  borderRight: psBorder,
+                  borderRadius: 0,
+                }}
+                aria-label="Previous track"
+              >
+                <span className="text-xs leading-none" style={{ color: psColor }}>◀◀</span>
+              </button>
+            )}
+
+            {/* Next */}
+            {tracks.length > 1 && (
+              <button
+                onClick={() => {
+                  const nextIndex = (currentTrackIndex + 1) % tracks.length
+                  handleTrackSelect(nextIndex)
+                }}
+                className="poolsuite-transport-btn flex items-center justify-center w-10 h-9"
+                style={{
+                  backgroundColor: 'var(--theme-card-bg)',
+                  borderRight: psBorder,
+                  borderRadius: 0,
+                }}
+                aria-label="Next track"
+              >
+                <span className="text-xs leading-none" style={{ color: psColor }}>▶▶</span>
+              </button>
+            )}
+
+            {/* Reverb toggle (pink accent) */}
+            <button
+              onClick={() => player.setReverbMix(player.reverbMix > 0 ? 0 : 0.3)}
+              className="poolsuite-transport-btn flex items-center justify-center w-10 h-9"
+              style={{
+                backgroundColor: player.reverbMix > 0 ? accentPink : 'var(--theme-card-bg)',
+                borderRadius: 0,
+                border: 'none',
+              }}
+              aria-label="Toggle reverb"
+            >
+              <span className="text-sm leading-none" style={{ color: psColor }}>♪</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ── Volume/Varispeed Slider Row ── */}
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          {/* Speaker icon */}
+          <span className="text-sm flex-shrink-0" style={{ color: psColor, opacity: 0.6 }}>
+            🔈
+          </span>
+
+          {/* Inset slider track with halftone fill */}
+          <div className="poolsuite-inset-track flex-1 relative h-5">
+            {/* Filled portion (solid cream) */}
+            <div
+              className="absolute top-0 left-0 h-full"
+              style={{
+                width: `${varispeedPercent}%`,
+                backgroundColor: 'var(--theme-card-bg)',
+              }}
+            />
+            {/* Unfilled portion (halftone dots) */}
+            <div
+              className="poolsuite-halftone absolute top-0 h-full"
+              style={{
+                left: `${varispeedPercent}%`,
+                right: 0,
+                backgroundColor: 'var(--theme-accent, oklch(0.95 0 0))',
+              }}
+            />
+            {/* Range input overlay */}
+            <input
+              type="range"
+              min="0.5"
+              max="1.5"
+              step="0.01"
+              value={player.speed}
+              onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+              className="absolute inset-0 z-10"
+              style={{ opacity: 0 }}
+              aria-label="Varispeed"
+            />
+            {/* Visual thumb marker */}
+            <div
+              className="absolute top-0 h-full w-[3px] z-[5]"
+              style={{
+                left: `${varispeedPercent}%`,
+                transform: 'translateX(-50%)',
+                backgroundColor: 'oklch(0 0 0 / 0.6)',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* ── Speed + Reverb Row ── */}
+        <div className="flex items-center justify-between px-3 py-1 text-[10px]" style={psFont}>
+          <span className="opacity-60">
+            Speed: {player.speed.toFixed(2)}x
+            {' · '}
+            <button
+              onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+              className="underline hover:opacity-80"
+              style={{ color: 'inherit' }}
+            >
+              {player.varispeedMode === 'timestretch' ? 'Stretch' : 'Natural'}
+            </button>
+          </span>
+          <span className="opacity-60">
+            Reverb: {Math.round(player.reverbMix * 100)}%
+          </span>
+        </div>
+
+        {/* ── Reverb Config (editor only) ── */}
+        {isEditing && reverbConfig && (
+          <div className="px-3 pb-1">
+            <ReverbConfigModal
+              config={reverbConfig}
+              onSave={handleReverbConfigChange}
+              trigger={
+                <button
+                  className="text-[10px] underline opacity-60 hover:opacity-80"
+                  style={psFont}
+                  aria-label="Configure reverb"
+                >
+                  Configure Reverb
+                </button>
+              }
+            />
+          </div>
+        )}
+
+        {/* ── Track List (multi-track only) ── */}
+        {tracks.length > 1 && (
+          <div style={{ borderTop: '1px solid oklch(0 0 0 / 0.15)' }}>
+            <TrackList
+              tracks={tracks}
+              currentTrackIndex={currentTrackIndex}
+              onTrackSelect={handleTrackSelect}
+              foregroundColor={psColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ─── DEFAULT + RECEIPT THEMES ───
 
   const themeClasses = cn(
@@ -384,7 +638,6 @@ export function AudioPlayer({
     {
       'audio-player-macintosh': themeVariant === 'mac-os',
       'audio-player-receipt': themeVariant === 'receipt',
-      'audio-player-system-settings': themeVariant === 'system-settings',
       'audio-player-ipod': themeVariant === 'ipod-classic',
     },
     className
@@ -394,8 +647,6 @@ export function AudioPlayer({
 
   if (themeVariant === 'mac-os') {
     themeStyle.fontFamily = "var(--font-pix-chicago), 'Chicago', monospace"
-  } else if (themeVariant === 'system-settings') {
-    themeStyle.fontFamily = 'var(--font-chikarego), var(--font-ishmeria), monospace'
   } else if (themeVariant === 'receipt') {
     themeStyle.fontFamily = 'var(--font-ticket-de-caisse), monospace'
     themeStyle.color = '#000'
