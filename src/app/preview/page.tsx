@@ -10,6 +10,8 @@ import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
 import { ReceiptLayout } from "@/components/cards/receipt-layout"
 import { MacintoshLayout } from "@/components/cards/macintosh-layout"
+import { WordArtLayout } from "@/components/cards/word-art-layout"
+import { LanyardBadgeLayout } from "@/components/cards/lanyard-badge-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -126,6 +128,8 @@ function PreviewContent() {
             ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
             macPattern: ts.macPattern ?? '',
             macPatternColor: ts.macPatternColor ?? '#c0c0c0',
+            wordArtTitleStyle: ts.wordArtTitleStyle ?? 'style-eleven',
+            lanyardActiveView: ts.lanyardActiveView ?? 0,
           })
         }
       }
@@ -244,6 +248,44 @@ function PreviewContent() {
         <NoiseOverlay />
         {/* Frame overlay */}
         <FrameOverlay />
+      </>
+    )
+  }
+
+  // Lanyard Badge theme uses 3D lanyard with badge card
+  if (themeId === 'lanyard-badge') {
+    return (
+      <>
+        <PageBackground />
+        <DimOverlay />
+        <LanyardBadgeLayout
+          title={displayName || 'BADGE'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Word Art theme uses word art text layout
+  if (themeId === 'word-art') {
+    const wordArtTitleStyle = useThemeStore.getState().wordArtTitleStyle
+    return (
+      <>
+        <PageBackground />
+        <DimOverlay />
+        <WordArtLayout
+          title={displayName || 'Word Art'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+          wordArtTitleStyle={wordArtTitleStyle}
+        />
+        <NoiseOverlay />
       </>
     )
   }
