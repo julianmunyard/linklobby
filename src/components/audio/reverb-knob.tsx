@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 
 type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'
 
@@ -30,26 +30,25 @@ export function ReverbKnob({
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
+  const onMixChangeRef = useRef(onMixChange)
+  onMixChangeRef.current = onMixChange
+
   const handleStart = (clientY: number) => {
     setIsDragging(true)
     dragStartY.current = clientY
     dragStartValue.current = mix
   }
 
-  const handleMove = (clientY: number) => {
-    if (!isDragging) return
-
-    // Calculate change (moving up increases, moving down decreases)
+  const handleMove = useCallback((clientY: number) => {
     const deltaY = dragStartY.current - clientY
-    const sensitivity = 0.005 // Adjust sensitivity
+    const sensitivity = 0.005
     const newMix = Math.max(0, Math.min(1, dragStartValue.current + deltaY * sensitivity))
+    onMixChangeRef.current(newMix)
+  }, [])
 
-    onMixChange(newMix)
-  }
-
-  const handleEnd = () => {
+  const handleEnd = useCallback(() => {
     setIsDragging(false)
-  }
+  }, [])
 
   useEffect(() => {
     if (!isDragging) return
@@ -77,7 +76,7 @@ export function ReverbKnob({
       document.removeEventListener('touchmove', handleTouchMove)
       document.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [isDragging, mix])
+  }, [isDragging, handleMove, handleEnd])
 
   // Calculate rotation angle (270 degrees of rotation, -135 to +135)
   const minAngle = -135

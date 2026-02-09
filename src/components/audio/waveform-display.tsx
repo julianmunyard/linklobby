@@ -111,10 +111,10 @@ export function WaveformDisplay({
               return (
                 <div
                   key={index}
-                  className="flex-1 flex items-center justify-center transition-colors duration-100"
+                  className="flex-1 flex items-center justify-center"
                 >
                   <div
-                    className={`w-full transition-all duration-100 ${isReceipt ? 'rounded-none' : 'rounded-sm'}`}
+                    className={`w-full ${isReceipt ? 'rounded-none' : 'rounded-sm'}`}
                     style={{
                       height: `${height}%`,
                       backgroundColor: isPlayed ? activeColor : inactiveColor
@@ -135,7 +135,7 @@ export function WaveformDisplay({
               >
                 <div className="relative w-full h-1.5">
                   <div
-                    className="absolute top-0 left-0 h-full rounded-none transition-all duration-100"
+                    className="absolute top-0 left-0 h-full rounded-none"
                     style={{
                       width: `${progress * 100}%`,
                       backgroundColor: activeColor
@@ -147,7 +147,7 @@ export function WaveformDisplay({
               <div className="relative w-full h-2 rounded-full" style={{ backgroundColor: inactiveColor }}>
                 {/* Filled portion */}
                 <div
-                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
+                  className="absolute top-0 left-0 h-full rounded-full"
                   style={{
                     width: `${progress * 100}%`,
                     backgroundColor: activeColor
@@ -155,7 +155,7 @@ export function WaveformDisplay({
                 />
                 {/* Scrub handle */}
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md transition-all duration-100"
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md"
                   style={{
                     left: `${progress * 100}%`,
                     transform: `translate(-50%, -50%)`,
