@@ -396,6 +396,8 @@ export function AudioPlayer({
     // Pink accent for add/extra button
     const accentPink = 'oklch(0.88 0.06 0)'
 
+    // Progress bar position
+    const progressPercent = player.progress * 100
     // Varispeed slider position for halftone fill
     const varispeedPercent = ((player.speed - 0.5) / (1.5 - 0.5)) * 100
 
@@ -510,7 +512,7 @@ export function AudioPlayer({
               </button>
             )}
 
-            {/* Reverb toggle (pink accent) */}
+            {/* Music note accent (pink) */}
             <button
               onClick={() => player.setReverbMix(player.reverbMix > 0 ? 0 : 0.3)}
               className="poolsuite-transport-btn flex items-center justify-center w-10 h-9"
@@ -526,20 +528,21 @@ export function AudioPlayer({
           </div>
         </div>
 
-        {/* ── Volume/Varispeed Slider Row ── */}
-        <div className="flex items-center gap-2 px-3 py-1.5">
-          {/* Speaker icon */}
-          <span className="text-sm flex-shrink-0" style={{ color: psColor, opacity: 0.6 }}>
-            🔈
-          </span>
-
-          {/* Inset slider track with halftone fill */}
-          <div className="poolsuite-inset-track flex-1 relative h-5">
+        {/* ── Progress Bar ── */}
+        <div className="px-3 py-1.5">
+          <div
+            className="poolsuite-inset-track relative h-5 cursor-pointer"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+              player.seek(pos)
+            }}
+          >
             {/* Filled portion (solid cream) */}
             <div
               className="absolute top-0 left-0 h-full"
               style={{
-                width: `${varispeedPercent}%`,
+                width: `${progressPercent}%`,
                 backgroundColor: 'var(--theme-card-bg)',
               }}
             />
@@ -547,71 +550,128 @@ export function AudioPlayer({
             <div
               className="poolsuite-halftone absolute top-0 h-full"
               style={{
-                left: `${varispeedPercent}%`,
+                left: `${progressPercent}%`,
                 right: 0,
                 backgroundColor: 'var(--theme-accent, oklch(0.95 0 0))',
               }}
-            />
-            {/* Range input overlay */}
-            <input
-              type="range"
-              min="0.5"
-              max="1.5"
-              step="0.01"
-              value={player.speed}
-              onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
-              className="absolute inset-0 z-10"
-              style={{ opacity: 0 }}
-              aria-label="Varispeed"
             />
             {/* Visual thumb marker */}
             <div
               className="absolute top-0 h-full w-[3px] z-[5]"
               style={{
-                left: `${varispeedPercent}%`,
+                left: `${progressPercent}%`,
                 transform: 'translateX(-50%)',
                 backgroundColor: 'oklch(0 0 0 / 0.6)',
               }}
             />
           </div>
-        </div>
-
-        {/* ── Speed + Reverb Row ── */}
-        <div className="flex items-center justify-between px-3 py-1 text-[10px]" style={psFont}>
-          <span className="opacity-60">
-            Speed: {player.speed.toFixed(2)}x
-            {' · '}
-            <button
-              onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
-              className="underline hover:opacity-80"
-              style={{ color: 'inherit' }}
-            >
-              {player.varispeedMode === 'timestretch' ? 'Stretch' : 'Natural'}
-            </button>
-          </span>
-          <span className="opacity-60">
-            Reverb: {Math.round(player.reverbMix * 100)}%
-          </span>
-        </div>
-
-        {/* ── Reverb Config (editor only) ── */}
-        {isEditing && reverbConfig && (
-          <div className="px-3 pb-1">
-            <ReverbConfigModal
-              config={reverbConfig}
-              onSave={handleReverbConfigChange}
-              trigger={
-                <button
-                  className="text-[10px] underline opacity-60 hover:opacity-80"
-                  style={psFont}
-                  aria-label="Configure reverb"
-                >
-                  Configure Reverb
-                </button>
-              }
-            />
+          {/* Time display */}
+          <div className="flex justify-between mt-1 text-[10px] tabular-nums" style={{ color: psColor, opacity: 0.5 }}>
+            <span>{formatPoolsuiteTime(player.currentTime)}</span>
+            <span>{formatPoolsuiteTime(player.duration)}</span>
           </div>
-        )}
+        </div>
+
+        {/* ── Varispeed + Reverb Row ── */}
+        <div className="flex items-stretch gap-0 px-3 py-1.5">
+          {/* Varispeed slider with halftone */}
+          <div className="flex-1 min-w-0 pr-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-bold tabular-nums" style={{ color: psColor }}>
+                {player.speed.toFixed(2)}x
+              </span>
+              <button
+                onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+                className="poolsuite-transport-btn px-1.5 py-0.5 text-[9px] uppercase tracking-wider"
+                style={{
+                  backgroundColor: 'var(--theme-card-bg)',
+                  color: psColor,
+                }}
+              >
+                {player.varispeedMode === 'timestretch' ? 'Stretch' : 'Natural'}
+              </button>
+            </div>
+
+            {/* Tick marks */}
+            <div className="relative mb-0.5">
+              <div className="flex justify-between px-0">
+                {[0.5, 1.0, 1.5].map((tick) => (
+                  <span key={tick} className="text-[8px] tabular-nums" style={{ color: psColor, opacity: 0.4 }}>
+                    {tick}x
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Inset slider track with halftone fill */}
+            <div className="poolsuite-inset-track relative h-5">
+              {/* Filled portion (solid cream) */}
+              <div
+                className="absolute top-0 left-0 h-full"
+                style={{
+                  width: `${varispeedPercent}%`,
+                  backgroundColor: 'var(--theme-card-bg)',
+                }}
+              />
+              {/* Unfilled portion (halftone dots) */}
+              <div
+                className="poolsuite-halftone absolute top-0 h-full"
+                style={{
+                  left: `${varispeedPercent}%`,
+                  right: 0,
+                  backgroundColor: 'var(--theme-accent, oklch(0.95 0 0))',
+                }}
+              />
+              {/* Range input overlay */}
+              <input
+                type="range"
+                min="0.5"
+                max="1.5"
+                step="0.01"
+                value={player.speed}
+                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                className="absolute inset-0 z-10"
+                style={{ opacity: 0 }}
+                aria-label="Varispeed"
+              />
+              {/* Visual thumb marker */}
+              <div
+                className="absolute top-0 h-full w-[3px] z-[5]"
+                style={{
+                  left: `${varispeedPercent}%`,
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'oklch(0 0 0 / 0.6)',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Reverb knob — transparent like VCR */}
+          <div className="flex flex-col items-center gap-1 flex-shrink-0 pl-2" style={{ borderLeft: '1px solid oklch(0 0 0 / 0.15)' }}>
+            <ReverbKnob
+              mix={player.reverbMix}
+              onMixChange={player.setReverbMix}
+              foregroundColor={psColor}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+            {isEditing && reverbConfig && (
+              <ReverbConfigModal
+                config={reverbConfig}
+                onSave={handleReverbConfigChange}
+                trigger={
+                  <button
+                    className="p-1 transition-colors hover:opacity-80"
+                    style={{ color: psColor }}
+                    aria-label="Configure reverb"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </div>
 
         {/* ── Track List (multi-track only) ── */}
         {tracks.length > 1 && (
