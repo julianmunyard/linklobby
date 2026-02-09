@@ -512,6 +512,88 @@
   }
 }
 
+/* Lanyard Badge Theme Styles */
+[data-theme="lanyard-badge"] {
+  --theme-shadow: none;
+  --font-ticket-de-caisse: 'Ticket De Caisse', 'Courier New', monospace;
+  --font-hypermarket: 'Hypermarket', 'Impact', sans-serif;
+}
+
+/* Lanyard badge card - paper texture overlay (reuses receipt paper textures but with rounded corners) */
+.lanyard-badge-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/paper-texture.jpeg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.6;
+  border-radius: inherit;
+}
+
+.lanyard-badge-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/plastic-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.7;
+  border-radius: inherit;
+}
+
+/* Lanyard scene wrapper */
+.lanyard-wrapper {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Navigation arrows on badge card */
+.lanyard-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.lanyard-nav-btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.lanyard-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
 /* Receipt dots (dot leader) */
 .receipt-dots {
   letter-spacing: 2px;
