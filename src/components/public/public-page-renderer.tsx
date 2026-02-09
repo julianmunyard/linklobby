@@ -5,6 +5,8 @@ import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import { StaticReceiptLayout } from "./static-receipt-layout"
 import { StaticMacintoshLayout } from "./static-macintosh-layout"
+import { StaticWordArtLayout } from "./static-word-art-layout"
+import { StaticLanyardBadgeLayout } from "./static-lanyard-badge-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -90,6 +92,8 @@ interface PublicPageRendererProps {
   // Macintosh theme
   macPattern?: string
   macPatternColor?: string
+  // Word Art theme
+  wordArtTitleStyle?: string
   // Social icon size
   socialIconSize?: number
   // Cards
@@ -139,6 +143,7 @@ export function PublicPageRenderer({
   ipodTexture,
   macPattern,
   macPatternColor,
+  wordArtTitleStyle,
   socialIconSize,
   cards,
 }: PublicPageRendererProps) {
@@ -229,6 +234,42 @@ export function PublicPageRenderer({
         frameZoom={background?.frameZoom ?? 1}
         framePosX={background?.framePositionX ?? 0}
         framePosY={background?.framePositionY ?? 0}
+      />
+    )
+  }
+
+  // Lanyard Badge theme uses 3D lanyard with badge card
+  if (themeId === 'lanyard-badge') {
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+    return (
+      <StaticLanyardBadgeLayout
+        username={username}
+        title={displayName || 'BADGE'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        socialIcons={socialIcons}
+        accentColor={accentColor}
+        avatarUrl={avatarUrl}
+        showAvatar={showAvatar}
+      />
+    )
+  }
+
+  // Word Art theme uses word art text layout
+  if (themeId === 'word-art') {
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+
+    return (
+      <StaticWordArtLayout
+        username={username}
+        title={displayName || 'Word Art'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        socialIcons={socialIcons}
+        socialIconColor={socialIconColor}
+        wordArtTitleStyle={wordArtTitleStyle}
       />
     )
   }
