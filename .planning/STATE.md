@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 049: Lanyard Badge theme with 3D card
+Last activity: 2026-02-10 - Completed quick task 050: Classified Document theme
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -615,6 +615,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Camera z=37 for badge framing | quick-049 | User-specified cameraDistance=37 from ReactBits URL parameter |
 | Reuse receipt fonts/textures | quick-049 | Conference badge shares receipt paper aesthetic - Hypermarket + Ticket De Caisse |
 | Mobile physics optimization | quick-049 | 30fps physics timestep and lower DPR on mobile for performance |
+| Special Elite Google Font | quick-050 | Real 1940s Smith Corona typewriter font for authentic classified document aesthetic |
+| 420px classified paper width | quick-050 | Wider than receipt (320px) to suggest A4 document proportions |
+| No photo/stickers in classified | quick-050 | Military documents don't have photos - clean document aesthetic |
+| Red accent for stamps + headers | quick-050 | Distinct from purple-blue body text, matches real WWII classified docs |
 
 ## Quick Tasks
 
@@ -664,6 +668,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 044 | Mac gallery full-bleed with 8-bit arrows | Complete | facd477 |
 | 045 | Macintosh menu bar: File Edit View [username] | Complete | 1153a0b |
 | 049 | Lanyard Badge theme with 3D card and swipeable views | Complete | 9ab52af...f5adae3 |
+| 050 | Classified Document theme (WWII military aesthetic) | Complete | 3ca9a15, c8dcdf0 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
