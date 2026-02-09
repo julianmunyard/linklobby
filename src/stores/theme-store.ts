@@ -38,6 +38,8 @@ interface ThemeStore extends ThemeState {
   ipodFont: string  // iPod theme: font choice ('system' or 'pix-chicago')
   macPattern: string  // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor: string  // Macintosh theme: background color behind pattern
+  wordArtTitleStyle: string  // Word Art theme: style ID for title text
+  lanyardActiveView: number  // Lanyard theme: active card view index (0-4)
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -63,6 +65,8 @@ interface ThemeStore extends ThemeState {
   setIpodFont: (font: string) => void
   setMacPattern: (pattern: string) => void
   setMacPatternColor: (color: string) => void
+  setWordArtTitleStyle: (style: string) => void
+  setLanyardActiveView: (view: number) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -130,6 +134,8 @@ export const useThemeStore = create<ThemeStore>()(
       ipodFont: 'system',
       macPattern: '',
       macPatternColor: '#c0c0c0',
+      wordArtTitleStyle: 'style-eleven',
+      lanyardActiveView: 0,
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -340,6 +346,14 @@ export const useThemeStore = create<ThemeStore>()(
         set({ macPatternColor: color, hasChanges: true })
       },
 
+      setWordArtTitleStyle: (style: string) => {
+        set({ wordArtTitleStyle: style, hasChanges: true })
+      },
+
+      setLanyardActiveView: (view: number) => {
+        set({ lanyardActiveView: view, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -388,6 +402,8 @@ export const useThemeStore = create<ThemeStore>()(
           ipodFont: theme.ipodFont ?? 'system',
           macPattern: theme.macPattern ?? '',
           macPatternColor: theme.macPatternColor ?? '#c0c0c0',
+          wordArtTitleStyle: theme.wordArtTitleStyle ?? 'style-eleven',
+          lanyardActiveView: theme.lanyardActiveView ?? 0,
           hasChanges: false,
         })
       },
@@ -412,6 +428,8 @@ export const useThemeStore = create<ThemeStore>()(
           ipodFont: state.ipodFont,
           macPattern: state.macPattern,
           macPatternColor: state.macPatternColor,
+          wordArtTitleStyle: state.wordArtTitleStyle,
+          lanyardActiveView: state.lanyardActiveView,
         }
       },
     }),
