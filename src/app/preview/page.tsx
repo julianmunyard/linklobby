@@ -12,6 +12,7 @@ import { ReceiptLayout } from "@/components/cards/receipt-layout"
 import { MacintoshLayout } from "@/components/cards/macintosh-layout"
 import { WordArtLayout } from "@/components/cards/word-art-layout"
 import { LanyardBadgeLayout } from "@/components/cards/lanyard-badge-layout"
+import { ClassifiedLayout } from "@/components/cards/classified-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -260,6 +261,24 @@ function PreviewContent() {
         <DimOverlay />
         <LanyardBadgeLayout
           title={displayName || 'BADGE'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Classified Document theme uses military document layout
+  if (themeId === 'classified') {
+    return (
+      <>
+        <PageBackground />
+        <DimOverlay />
+        <ClassifiedLayout
+          title={displayName || 'CLASSIFIED'}
           cards={state.cards}
           isPreview={true}
           onCardClick={handleCardClick}
