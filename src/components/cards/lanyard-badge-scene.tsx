@@ -1,6 +1,7 @@
+/* eslint-disable react/no-unknown-property */
 'use client'
 
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame, extend } from '@react-three/fiber'
 import { useGLTF, useTexture, Environment, Lightformer, Html } from '@react-three/drei'
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier'
@@ -9,7 +10,7 @@ import * as THREE from 'three'
 import type { Card } from '@/types/card'
 import { LanyardCardViews } from './lanyard-badge-card-views'
 
-// Register meshline components
+// Register meshline components with R3F
 extend({ MeshLineGeometry, MeshLineMaterial })
 
 interface LanyardBadgeSceneProps {
@@ -23,18 +24,6 @@ interface LanyardBadgeSceneProps {
   lanyardColor?: string
 }
 
-interface BandProps {
-  cards: Card[]
-  title: string
-  activeView: number
-  onViewChange: (view: number) => void
-  avatarUrl?: string | null
-  isPreview?: boolean
-  onCardClick?: (cardId: string) => void
-  lanyardColor?: string
-  isMobile: boolean
-}
-
 export function LanyardBadgeScene({
   cards,
   title,
@@ -45,24 +34,25 @@ export function LanyardBadgeScene({
   onCardClick,
   lanyardColor = '#e94560',
 }: LanyardBadgeSceneProps) {
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   return (
-    <div className="lanyard-wrapper" style={{ width: '100%', height: '100vh' }}>
+    <div className="lanyard-wrapper">
       <Canvas
-        camera={{ position: [0, 0, 37], fov: 25 }}
+        camera={{ position: [0, 0, 37], fov: 20 }}
         dpr={[1, isMobile ? 1.5 : 2]}
-        gl={{ alpha: false }}
+        gl={{ alpha: true }}
+        onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), 0)}
       >
-        <color attach="background" args={['#1a1a2e']} />
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={Math.PI} />
         <Physics gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 30 : 1 / 60}>
           <Band
             cards={cards}
@@ -76,15 +66,53 @@ export function LanyardBadgeScene({
             isMobile={isMobile}
           />
         </Physics>
-        <Environment background={false}>
-          <Lightformer intensity={2} position={[0, 5, -5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={3} position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={2} position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-          <Lightformer intensity={10} position={[0, 0, -5]} scale={[10, 100, 1]} />
+        <Environment blur={0.75}>
+          <Lightformer
+            intensity={2}
+            color="white"
+            position={[0, -1, 5]}
+            rotation={[0, 0, Math.PI / 3]}
+            scale={[100, 0.1, 1]}
+          />
+          <Lightformer
+            intensity={3}
+            color="white"
+            position={[-1, -1, 1]}
+            rotation={[0, 0, Math.PI / 3]}
+            scale={[100, 0.1, 1]}
+          />
+          <Lightformer
+            intensity={3}
+            color="white"
+            position={[1, 1, 1]}
+            rotation={[0, 0, Math.PI / 3]}
+            scale={[100, 0.1, 1]}
+          />
+          <Lightformer
+            intensity={10}
+            color="white"
+            position={[-10, 0, 14]}
+            rotation={[0, Math.PI / 2, Math.PI / 3]}
+            scale={[100, 10, 1]}
+          />
         </Environment>
       </Canvas>
     </div>
   )
+}
+
+interface BandProps {
+  cards: Card[]
+  title: string
+  activeView: number
+  onViewChange: (view: number) => void
+  avatarUrl?: string | null
+  isPreview?: boolean
+  onCardClick?: (cardId: string) => void
+  lanyardColor?: string
+  isMobile: boolean
+  maxSpeed?: number
+  minSpeed?: number
 }
 
 function Band({
@@ -97,6 +125,8 @@ function Band({
   onCardClick,
   lanyardColor,
   isMobile,
+  maxSpeed = 50,
+  minSpeed = 0,
 }: BandProps) {
   const band = useRef<any>(null)
   const fixed = useRef<any>(null)
@@ -113,55 +143,45 @@ function Band({
   const segmentProps = {
     type: 'dynamic' as const,
     canSleep: true,
-    colliders: false,
+    colliders: false as const,
     angularDamping: 4,
     linearDamping: 4,
   }
 
-  // Load 3D model and texture
-  const gltf = useGLTF('/models/card.glb') as any
-  const nodes = gltf.nodes || {}
-  const materials = gltf.materials || {}
+  const { nodes, materials } = useGLTF('/models/card.glb') as any
   const texture = useTexture('/images/lanyard-band.png')
 
-  // Catmull-Rom curve for smooth rope
   const [curve] = useState(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
       ])
   )
 
-  const [dragged, drag] = useState<THREE.Vector3 | false>(false)
+  const [dragged, drag] = useState<any>(false)
   const [hovered, hover] = useState(false)
 
-  // Physics joints
   // @ts-ignore - rapier joint API
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1])
-  // @ts-ignore - rapier joint API
+  // @ts-ignore
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1])
-  // @ts-ignore - rapier joint API
+  // @ts-ignore
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1])
-  // @ts-ignore - rapier joint API
+  // @ts-ignore
   useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.5, 0]])
 
-  // Cursor management
   useEffect(() => {
     if (hovered) {
       document.body.style.cursor = dragged ? 'grabbing' : 'grab'
-      return () => {
-        document.body.style.cursor = 'auto'
-      }
+      return () => void (document.body.style.cursor = 'auto')
     }
   }, [hovered, dragged])
 
-  // Animation loop
   useFrame((state, delta) => {
-    if (dragged && card.current) {
-      // Kinematic dragging
+    if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
       dir.copy(vec).sub(state.camera.position).normalize()
       vec.add(dir.multiplyScalar(state.camera.position.length()))
@@ -172,15 +192,10 @@ function Band({
         z: vec.z - dragged.z,
       })
     }
-
     if (fixed.current) {
-      // Lerp joint positions for smooth rope
-      const minSpeed = 0
-      const maxSpeed = 50
       ;[j1, j2].forEach((ref) => {
-        if (!ref.current.lerped) {
+        if (!ref.current.lerped)
           ref.current.lerped = new THREE.Vector3().copy(ref.current.translation())
-        }
         const clampedDistance = Math.max(
           0.1,
           Math.min(1, ref.current.lerped.distanceTo(ref.current.translation()))
@@ -191,47 +206,34 @@ function Band({
         )
       })
 
-      // Update rope curve
       curve.points[0].copy(j3.current.translation())
       curve.points[1].copy(j2.current.lerped)
       curve.points[2].copy(j1.current.lerped)
       curve.points[3].copy(fixed.current.translation())
+      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32))
 
-      if (band.current && band.current.geometry) {
-        band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32))
-      }
-
-      // Apply angular damping to card
-      if (card.current) {
-        ang.copy(card.current.angvel())
-        rot.copy(card.current.rotation())
-        card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z })
-      }
+      ang.copy(card.current.angvel())
+      rot.copy(card.current.rotation())
+      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z })
     }
   })
 
-  // Curve type and texture settings
   curve.curveType = 'chordal'
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping
 
   return (
     <>
       <group position={[0, 4, 0]}>
-        {/* @ts-ignore - rapier ref types */}
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
-        {/* @ts-ignore - rapier ref types */}
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        {/* @ts-ignore - rapier ref types */}
         <RigidBody position={[1, 0, 0]} ref={j2} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        {/* @ts-ignore - rapier ref types */}
         <RigidBody position={[1.5, 0, 0]} ref={j3} {...segmentProps}>
           <BallCollider args={[0.1]} />
         </RigidBody>
-        {/* @ts-ignore - rapier ref types */}
         <RigidBody
           position={[2, 0, 0]}
           ref={card}
@@ -244,41 +246,46 @@ function Band({
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
-            onPointerUp={(e: any) => {
-              e.target.releasePointerCapture(e.pointerId)
-              drag(false)
-            }}
-            onPointerDown={(e: any) => {
-              e.target.setPointerCapture(e.pointerId)
+            onPointerUp={(e: any) => (
+              e.target.releasePointerCapture(e.pointerId), drag(false)
+            )}
+            onPointerDown={(e: any) => (
+              e.target.setPointerCapture(e.pointerId),
               drag(
                 new THREE.Vector3()
                   .copy(e.point)
                   .sub(vec.copy(card.current.translation()))
               )
-            }}
+            )}
           >
-            {/* Card mesh - use simple white material so HTML content shows through */}
-            <mesh geometry={nodes.card?.geometry}>
-              <meshStandardMaterial color="#f5f2eb" opacity={0.95} transparent />
+            {/* Card mesh - use the original material from the GLB */}
+            <mesh geometry={nodes.card.geometry}>
+              <meshPhysicalMaterial
+                map={materials.base.map}
+                map-anisotropy={16}
+                clearcoat={isMobile ? 0 : 1}
+                clearcoatRoughness={0.15}
+                roughness={0.9}
+                metalness={0.8}
+              />
             </mesh>
 
             {/* Clip mesh */}
-            {nodes.clip?.geometry && (
-              <mesh geometry={nodes.clip.geometry} material={materials.metal} />
-            )}
+            <mesh
+              geometry={nodes.clip.geometry}
+              material={materials.metal}
+              material-roughness={0.3}
+            />
 
             {/* Clamp mesh */}
-            {nodes.clamp?.geometry && (
-              <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
-            )}
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
 
-            {/* HTML overlay for card content */}
+            {/* HTML overlay for card content - rendered on the card face */}
             <Html
               transform
               occlude="blending"
-              position={[0, 0, 0.01]}
-              scale={0.035}
-              rotation={[0, 0, 0]}
+              position={[0, -0.1, 0.01]}
+              scale={0.14}
               style={{ pointerEvents: 'auto' }}
             >
               <LanyardCardViews
@@ -297,11 +304,11 @@ function Band({
 
       {/* Rope/lanyard mesh */}
       <mesh ref={band}>
-        {/* @ts-ignore - meshline custom geometry */}
+        {/* @ts-ignore */}
         <meshLineGeometry />
-        {/* @ts-ignore - meshline custom material */}
+        {/* @ts-ignore */}
         <meshLineMaterial
-          color={lanyardColor}
+          color="white"
           depthTest={false}
           resolution={isMobile ? [1000, 2000] : [1000, 1000]}
           useMap
