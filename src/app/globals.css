@@ -10,6 +10,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Home Video';
+  src: url('/fonts/home-video.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Home Video';
+  src: url('/fonts/home-video-bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -65,7 +81,7 @@
   /* Font tokens */
   --font-theme-heading: var(--theme-font-heading, var(--font-geist-sans));
   --font-theme-body: var(--theme-font-body, var(--font-geist-sans));
-  --font-pixter-granular: 'Pixter Granular', monospace;
+  --font-pixter-granular: 'Home Video', 'Pixter Granular', monospace;
   --font-ticket-de-caisse: 'Ticket De Caisse', 'Courier New', monospace;
   --font-hypermarket: 'Hypermarket', 'Impact', sans-serif;
 
@@ -123,7 +139,7 @@
   --theme-shadow-enabled: 1;
 
   /* VCR Menu font variable */
-  --font-pixter-granular: 'Pixter Granular', monospace;
+  --font-pixter-granular: 'Home Video', 'Pixter Granular', monospace;
 
   /* Receipt theme font variables */
   --font-ticket-de-caisse: 'Ticket De Caisse', 'Courier New', monospace;
@@ -233,7 +249,7 @@
 /* VCR Menu Theme Variants */
 [data-theme="vcr-menu"] {
   --theme-shadow: none;
-  --font-pixter-granular: 'Pixter Granular', monospace;
+  --font-pixter-granular: 'Home Video', 'Pixter Granular', monospace;
 }
 
 /* VCR Menu item hover states */
