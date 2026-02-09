@@ -22,6 +22,8 @@ import {
   // Retro/Pixel
   VT323,
   Courier_Prime,
+  // Classified theme
+  Special_Elite,
 } from 'next/font/google'
 import localFont from 'next/font/local'
 
@@ -145,6 +147,14 @@ export const courierPrime = Courier_Prime({
   display: 'swap',
 })
 
+// Classified theme font
+export const specialElite = Special_Elite({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-special-elite',
+  display: 'swap',
+})
+
 // Local custom fonts (retro/pixel style)
 export const autoMission = localFont({
   src: '../../public/fonts/auto-mission.otf',
@@ -264,6 +274,8 @@ export const fontVariables = [
   // Macintosh fonts
   vt323.variable,
   courierPrime.variable,
+  // Classified font
+  specialElite.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -303,6 +315,7 @@ export const CURATED_FONTS = [
   { id: 'hypermarket', name: 'Hypermarket', variable: 'var(--font-hypermarket)', category: 'retro' as const },
   { id: 'vt323', name: 'VT323', variable: 'var(--font-vt323)', category: 'retro' as const },
   { id: 'courier-prime', name: 'Courier Prime', variable: 'var(--font-courier-prime)', category: 'retro' as const },
+  { id: 'special-elite', name: 'Special Elite', variable: 'var(--font-special-elite)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
