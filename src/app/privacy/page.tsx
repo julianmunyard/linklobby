@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 interface PrivacyPageProps {
-  searchParams: { username?: string }
+  searchParams: Promise<{ username?: string }>
 }
 
 /**
@@ -18,7 +18,8 @@ interface PrivacyPageProps {
  * - If no username: shows generic LinkLobby privacy policy (all features listed)
  */
 export default async function PrivacyPage({ searchParams }: PrivacyPageProps) {
-  const username = searchParams.username
+  const params = await searchParams
+  const username = params.username
 
   // Default config (all features enabled for generic policy)
   let config = {
