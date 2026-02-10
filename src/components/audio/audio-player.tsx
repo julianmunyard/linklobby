@@ -268,63 +268,92 @@ export function AudioPlayer({
       fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
       color: macColor
     }
-    const macBorder = '3px solid #000'
+    // 8-bit pixel border clip-path for boxes
+    const macPixelClip = `polygon(
+      6px 0%, calc(100% - 6px) 0%,
+      calc(100% - 6px) 3px, calc(100% - 3px) 3px,
+      calc(100% - 3px) 6px, 100% 6px,
+      100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px),
+      calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
+      calc(100% - 6px) 100%, 6px 100%,
+      6px calc(100% - 3px), 3px calc(100% - 3px),
+      3px calc(100% - 6px), 0% calc(100% - 6px),
+      0% 6px, 3px 6px,
+      3px 3px, 6px 3px
+    )`
+    // Helper: black shell with white interior for 8-bit bordered boxes
+    const MacBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
+      <div style={{ background: '#000', clipPath: macPixelClip, padding: '2px' }}>
+        <div className={cls} style={{ background: '#fff', clipPath: macPixelClip, ...s }}>
+          {children}
+        </div>
+      </div>
+    )
+
+    // Build marquee text for track title
+    const trackTitle = currentTrack
+      ? `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
+      : ''
 
     return (
       <div
-        className={cn('flex flex-col', className)}
-        style={{ ...macFont, border: macBorder, background: '#fff' }}
+        className={cn('flex flex-col gap-1.5 p-2', className)}
+        style={{ ...macFont, background: '#fff' }}
       >
-        {/* PLAY / PAUSE — clickable header */}
-        <button
-          onClick={handlePlay}
-          disabled={!player.isLoaded && !player.isLoading}
-          className="flex items-center justify-between px-3 py-2 text-left uppercase tracking-wider cursor-pointer hover:opacity-80"
-          style={{
-            borderBottom: macBorder,
-            opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
-          }}
-        >
-          <span className="text-sm font-bold">
-            {player.isPlaying ? 'PAUSE' : 'PLAY'}
-          </span>
-          <span className="text-xs opacity-70">
-            TR.{String(currentTrackIndex + 1).padStart(2, '0')}
-          </span>
-        </button>
+        {/* ── Box 1: PLAY / PAUSE button ── */}
+        <MacBox>
+          <button
+            onClick={handlePlay}
+            disabled={!player.isLoaded && !player.isLoading}
+            className="w-full px-3 py-2 text-left uppercase tracking-wider cursor-pointer hover:opacity-80"
+            style={{
+              opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+            }}
+          >
+            <span className="text-sm font-bold">
+              {player.isPlaying ? 'PAUSE' : 'PLAY'}
+            </span>
+          </button>
+        </MacBox>
 
-        {/* Track info */}
+        {/* ── Box 2: Track info — marquee scrolling title ── */}
         {currentTrack && (
-          <div className="px-3 py-2 uppercase tracking-wider" style={{ borderBottom: macBorder }}>
-            <div className="text-sm font-bold truncate">
-              TR.{String(currentTrackIndex + 1).padStart(2, '0')} {currentTrack.title}
+          <MacBox>
+            <div className="px-3 py-2 uppercase tracking-wider overflow-hidden">
+              <div
+                className="mac-audio-marquee whitespace-nowrap text-sm font-bold"
+                style={{ display: 'inline-block' }}
+              >
+                {trackTitle}
+              </div>
+              <div className="text-xs opacity-50">
+                {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
+              </div>
             </div>
-            <div className="text-xs opacity-50 truncate">
-              {currentTrack.artist && `${currentTrack.artist} · `}
-              {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
-            </div>
-          </div>
+          </MacBox>
         )}
 
-        {/* Progress */}
-        <div className="px-3 py-2" style={{ borderBottom: macBorder }}>
-          <WaveformDisplay
-            showWaveform={showWaveform}
-            waveformData={waveformData}
-            progress={player.progress}
-            currentTime={player.currentTime}
-            duration={player.duration}
-            onSeek={player.seek}
-            foregroundColor={macColor}
-            elementBgColor="transparent"
-            themeVariant="mac-os"
-            isPlaying={player.isPlaying}
-          />
-        </div>
+        {/* ── Box 3: Progress ── */}
+        <MacBox>
+          <div className="px-3 py-2">
+            <WaveformDisplay
+              showWaveform={showWaveform}
+              waveformData={waveformData}
+              progress={player.progress}
+              currentTime={player.currentTime}
+              duration={player.duration}
+              onSeek={player.seek}
+              foregroundColor={macColor}
+              elementBgColor="transparent"
+              themeVariant="mac-os"
+              isPlaying={player.isPlaying}
+            />
+          </div>
+        </MacBox>
 
-        {/* Controls: varispeed + bordered reverb box */}
-        <div className="flex items-stretch gap-0 px-3 py-2">
-          <div className="flex-1 min-w-0 pr-3">
+        {/* ── Box 4: Varispeed slider only (no reverb knob) ── */}
+        <div className="flex items-stretch gap-1.5">
+          <MacBox className="flex-1 min-w-0 px-3 py-2">
             <VarispeedSlider
               speed={player.speed}
               mode={player.varispeedMode}
@@ -335,18 +364,16 @@ export function AudioPlayer({
               themeVariant={themeVariant}
               hideModeToggle
             />
-          </div>
-          {/* Bordered box: mode toggle + reverb knob */}
-          <div
-            className="flex flex-col items-center gap-1 flex-shrink-0 px-2 py-1"
-            style={{ border: macBorder }}
-          >
+          </MacBox>
+
+          {/* ── Box 5: Mode toggle + reverb ── */}
+          <MacBox className="flex flex-col items-center gap-1 flex-shrink-0 px-3 py-2">
             <button
               onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
-              className="px-2 py-0.5 text-[10px] rounded-none border transition-colors uppercase tracking-wider w-full text-center"
-              style={{ color: 'inherit', borderColor: 'currentColor', backgroundColor: 'transparent' }}
+              className="text-[10px] uppercase tracking-wider font-bold"
+              style={{ color: 'inherit' }}
             >
-              {player.varispeedMode === 'timestretch' ? 'TIME-STRETCH' : 'NATURAL'}
+              {player.varispeedMode === 'timestretch' ? 'STRETCH' : 'NATURAL'}
             </button>
             <ReverbKnob
               mix={player.reverbMix}
@@ -370,12 +397,12 @@ export function AudioPlayer({
                 }
               />
             )}
-          </div>
+          </MacBox>
         </div>
 
-        {/* Track List (multi-track only) */}
+        {/* ── Box 6: Track List (multi-track only) ── */}
         {tracks.length > 1 && (
-          <div style={{ borderTop: macBorder }}>
+          <MacBox>
             <TrackList
               tracks={tracks}
               currentTrackIndex={currentTrackIndex}
@@ -384,8 +411,19 @@ export function AudioPlayer({
               elementBgColor="transparent"
               themeVariant={themeVariant}
             />
-          </div>
+          </MacBox>
         )}
+
+        {/* Marquee CSS animation */}
+        <style>{`
+          .mac-audio-marquee {
+            animation: macMarquee 12s linear infinite;
+          }
+          @keyframes macMarquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
+        `}</style>
       </div>
     )
   }
