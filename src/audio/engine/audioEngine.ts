@@ -30,13 +30,15 @@ class AudioEngine {
   private silentAudioElement: HTMLAudioElement | null = null
   private isIOS = false
   private audioUnlocked = false
+  private pendingPlayAfterLoad = false
 
   async init(): Promise<void> {
     if (this.started) return
 
     try {
-      // Detect iOS
-      this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      // Detect iOS (including iPadOS which reports as Mac)
+      this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
       // Initialize Superpowered (same as Munyard Mixer thomasAudioEngine.js)
       // No WASM path — uses CDN default, matching Munyard Mixer exactly
@@ -57,6 +59,16 @@ class AudioEngine {
           console.log(`AudioEngine: Track loaded (${this.durationSeconds.toFixed(2)}s)`)
           if (this.callbacks.onLoaded) {
             this.callbacks.onLoaded(this.durationSeconds)
+          }
+
+          // Mobile: if user tapped play before track finished loading, play now
+          if (this.pendingPlayAfterLoad) {
+            this.pendingPlayAfterLoad = false
+            this.processorNode.sendMessageToAudioScope({
+              type: 'command',
+              data: { command: 'play' }
+            })
+            console.log('AudioEngine: auto-play after pending load')
           }
         }
 
@@ -177,19 +189,48 @@ class AudioEngine {
     })
   }
 
-  play(): void {
-    if (!this.processorNode || !this.isLoadedFlag) {
-      console.warn('Cannot play: not loaded')
+  async play(): Promise<void> {
+    // Lazy init: create AudioContext within the user gesture callstack
+    // This is the critical fix for mobile browsers that require AudioContext
+    // creation/resume to happen during a user-initiated event (tap, click).
+    if (!this.started) {
+      await this.init()
+    }
+
+    if (!this.processorNode) {
+      console.warn('Cannot play: not initialized')
       return
     }
 
-    // iOS unlock
+    // iOS/iPadOS unlock — fire synchronously within gesture context
+    // (don't await the audio.play() promise; fire-and-forget is fine,
+    // the browser just needs to see audio.play() called in the gesture)
     if (this.isIOS) {
       this.ensureUnlocked()
     }
 
-    // Resume AudioContext — this makes processAudio() run in the processor
+    // Resume AudioContext — this makes processAudio() run in the processor.
+    // On mobile, the context starts auto-suspended (browser policy) and this
+    // is the first chance to resume it inside a user gesture.
     this.processorNode.context.resume()
+
+    // Mobile fix: if track hasn't loaded yet (context was suspended so the
+    // processor never received the initial loadTrack message), re-send it
+    // now that the context is resumed, and auto-play when loaded.
+    if (!this.isLoadedFlag) {
+      if (this.currentUrl) {
+        this.processorNode.sendMessageToAudioScope({
+          type: 'command',
+          data: { command: 'loadTrack', url: this.currentUrl }
+        })
+        this.pendingPlayAfterLoad = true
+        this.isPlayingFlag = true
+        console.log('AudioEngine: play pending (track loading after context resume)')
+      } else {
+        console.warn('Cannot play: no track URL')
+      }
+      return
+    }
 
     // Send play command (resets ended state in processor)
     this.processorNode.sendMessageToAudioScope({
@@ -203,6 +244,8 @@ class AudioEngine {
 
   pause(): void {
     if (!this.processorNode) return
+
+    this.pendingPlayAfterLoad = false
 
     // Suspend AudioContext — this stops processAudio() from being called
     this.processorNode.context.suspend()
@@ -300,6 +343,25 @@ class AudioEngine {
     this.callbacks = { ...this.callbacks, ...callbacks }
   }
 
+  /**
+   * Check if the engine has been initialized (AudioContext created).
+   * Used by useAudioPlayer to decide whether to defer track loading.
+   */
+  isStarted(): boolean {
+    return this.started
+  }
+
+  /**
+   * Set a pending track URL without requiring engine initialization.
+   * The URL will be loaded when play() is called and triggers init.
+   */
+  setPendingTrack(url: string): void {
+    this.currentUrl = url
+    this.isLoadedFlag = false
+    this.currentTimeSeconds = 0
+    this.durationSeconds = 0
+  }
+
   destroy(): void {
     if (this.isPlayingFlag) {
       this.pause()
@@ -328,6 +390,7 @@ class AudioEngine {
     this.started = false
     this.isLoadedFlag = false
     this.isPlayingFlag = false
+    this.pendingPlayAfterLoad = false
     this.currentUrl = null
     this.superpowered = null
     this.audioUnlocked = false

@@ -28,7 +28,7 @@ interface UseAudioPlayerReturn {
   varispeedMode: VarispeedMode
   reverbMix: number         // visitor-controlled mix
 
-  play: () => void
+  play: () => Promise<void>
   pause: () => void
   togglePlay: () => void
   seek: (position: number) => void       // 0-1
@@ -57,20 +57,13 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
 
   // Refs
   const engineRef = useRef(getAudioEngine())
-  const initPromiseRef = useRef<Promise<void> | null>(null)
   // Stable ref for onEnded to avoid re-running effect on every render
   const onEndedRef = useRef(onEnded)
   onEndedRef.current = onEnded
 
-  // Initialize engine
+  // Set up engine callbacks (no eager init — engine inits lazily on first play)
   useEffect(() => {
     const engine = engineRef.current
-
-    if (!initPromiseRef.current) {
-      initPromiseRef.current = engine.init().catch((error) => {
-        console.error('Failed to initialize AudioEngine:', error)
-      })
-    }
 
     // Set up callbacks
     engine.setCallbacks({
@@ -155,15 +148,18 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [reverbConfig])
 
-  // Load track function — waits for engine init before sending load command
+  // Load track function — defers to setPendingTrack if engine not yet initialized
   const loadTrack = useCallback(async (url: string) => {
     const engine = engineRef.current
     setIsLoading(true)
     setIsLoaded(false)
     try {
-      // Wait for Superpowered to finish initializing
-      if (initPromiseRef.current) {
-        await initPromiseRef.current
+      if (!engine.isStarted()) {
+        // Engine not yet initialized (no AudioContext yet).
+        // Store the URL so play() can load it after init.
+        engine.setPendingTrack(url)
+        // Don't set isLoading false — it will be set when onLoaded fires after play()
+        return
       }
       await engine.loadTrack(url)
     } catch (error) {
@@ -172,25 +168,24 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [])
 
-  // Play function
-  const play = useCallback(() => {
+  // Play function — async to await lazy engine init within user gesture
+  const play = useCallback(async () => {
     const engine = engineRef.current
-
-    if (!engine.isLoaded()) {
-      console.warn('Cannot play: No track loaded')
-      return
-    }
-
-    // Unlock iOS audio on first play
-    engine.ensureUnlocked()
 
     // Set active embed (pauses all others)
     if (embedPlayback) {
       embedPlayback.setActiveEmbed(cardId)
     }
 
-    engine.play()
-    setIsPlaying(true)
+    try {
+      // engine.play() triggers lazy init if needed (AudioContext created
+      // within user gesture callstack — critical for mobile browsers)
+      await engine.play()
+      setIsPlaying(true)
+    } catch (error) {
+      console.error('Failed to play:', error)
+      setIsPlaying(false)
+    }
 
     if (onPlay) {
       onPlay()
