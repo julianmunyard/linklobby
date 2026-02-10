@@ -371,6 +371,7 @@ export function PublicPageRenderer({
                 socialIconSize={socialIconSize}
                 socialIconColor={socialIconColor}
                 headerTextColor={headerTextColor}
+                themeId={themeId}
               />
             </div>
           </div>
@@ -417,6 +418,7 @@ export function PublicPageRenderer({
             socialIconSize={socialIconSize}
             socialIconColor={socialIconColor}
             headerTextColor={headerTextColor}
+            themeId={themeId}
           />
         </div>
       </div>
