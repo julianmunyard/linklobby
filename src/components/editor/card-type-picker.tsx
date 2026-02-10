@@ -8,7 +8,7 @@ import type { CardType } from "@/types/card"
 
 // Only link card types that can be converted between each other
 // Excludes: dropdown (container), video/gallery/game/audio (specialized)
-const CONVERTIBLE_CARD_TYPES = [
+export const CONVERTIBLE_CARD_TYPES = [
   { type: "hero" as CardType, icon: RectangleHorizontal, label: "Hero" },
   { type: "horizontal" as CardType, icon: Minus, label: "Horizontal" },
   { type: "square" as CardType, icon: Square, label: "Square" },

@@ -14,6 +14,8 @@ import { MobileBottomSheet } from "./mobile-bottom-sheet"
 import { MobileFAB } from "./mobile-fab"
 import { MobileSelectToggle, MobileSelectionBar } from "./mobile-select-mode"
 import { MobileQuickSettings } from "./mobile-quick-settings"
+import { MobileCardTypeDrawer } from "./mobile-card-type-drawer"
+import { isConvertibleType } from "./card-type-picker"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
@@ -25,10 +27,13 @@ export function EditorLayout() {
   const [mounted, setMounted] = useState(false)
   const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const [typeDrawerOpen, setTypeDrawerOpen] = useState(false)
   const [initialDesignTab, setInitialDesignTab] = useState<string | null>(null)
   const isMobileLayout = useIsMobileLayout()
   const isOnline = useOnline()
   const selectedCardId = usePageStore((state) => state.selectedCardId)
+  const cards = usePageStore((state) => state.cards)
+  const selectedCard = cards.find(c => c.id === selectedCardId) || null
 
   // Only access localStorage after mount (client-side)
   useEffect(() => {
@@ -43,10 +48,17 @@ export function EditorLayout() {
     }
   }, [])
 
-  // On mobile, open bottom sheet when a card is selected
+  // On mobile, show type drawer for convertible cards, full editor for others
   useEffect(() => {
     if (isMobileLayout && selectedCardId) {
-      setMobileSheetOpen(true)
+      const card = usePageStore.getState().cards.find(c => c.id === selectedCardId)
+      if (card && isConvertibleType(card.card_type)) {
+        // Convertible cards: show compact type drawer first
+        setTypeDrawerOpen(true)
+      } else {
+        // Non-convertible cards: go straight to full editor
+        setMobileSheetOpen(true)
+      }
     }
   }, [isMobileLayout, selectedCardId])
 
@@ -90,6 +102,19 @@ export function EditorLayout() {
         {/* Mobile selection bar (shows when in select mode with selected cards) */}
         <MobileSelectionBar />
 
+        {/* Mobile card type drawer */}
+        <MobileCardTypeDrawer
+          open={typeDrawerOpen}
+          onOpenChange={(open) => {
+            setTypeDrawerOpen(open)
+          }}
+          card={selectedCard}
+          onOpenFullEditor={() => {
+            setTypeDrawerOpen(false)
+            setMobileSheetOpen(true)
+          }}
+        />
+
         {/* Full-width preview - min-h-0 prevents flex child from overflowing */}
         <div className="flex-1 min-h-0 bg-muted/30">
           <PreviewPanel />
@@ -103,7 +128,10 @@ export function EditorLayout() {
           open={mobileSheetOpen}
           onOpenChange={(open) => {
             setMobileSheetOpen(open)
-            if (!open) setInitialDesignTab(null)
+            if (!open) {
+              setInitialDesignTab(null)
+              setTypeDrawerOpen(false)
+            }
           }}
           title="Editor"
         >

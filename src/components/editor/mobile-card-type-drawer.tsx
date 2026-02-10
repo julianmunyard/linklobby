@@ -1,6 +1,6 @@
 "use client"
 
-import { RectangleHorizontal, Minus, Square, Type, Tag, AlignLeft, Pencil } from "lucide-react"
+import { Pencil } from "lucide-react"
 import {
   Drawer,
   DrawerContent,
@@ -9,18 +9,9 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import { usePageStore } from "@/stores/page-store"
+import { CONVERTIBLE_CARD_TYPES } from "./card-type-picker"
 import { cn } from "@/lib/utils"
 import type { Card, CardType } from "@/types/card"
-
-// Convertible card types - matching card-type-picker.tsx
-const CONVERTIBLE_CARD_TYPES = [
-  { type: "hero" as CardType, icon: RectangleHorizontal, label: "Hero" },
-  { type: "horizontal" as CardType, icon: Minus, label: "Horizontal" },
-  { type: "square" as CardType, icon: Square, label: "Square" },
-  { type: "link" as CardType, icon: Type, label: "Link" },
-  { type: "mini" as CardType, icon: Tag, label: "Mini" },
-  { type: "text" as CardType, icon: AlignLeft, label: "Text" },
-] as const
 
 interface MobileCardTypeDrawerProps {
   open: boolean
