@@ -151,8 +151,11 @@ class AudioEngine {
       throw new Error('AudioEngine not initialized')
     }
 
-    // Don't reload if same URL
+    // Don't reload if same URL — but fire onLoaded so new listeners sync state
     if (this.currentUrl === url && this.isLoadedFlag) {
+      if (this.callbacks.onLoaded) {
+        this.callbacks.onLoaded(this.durationSeconds)
+      }
       return
     }
 

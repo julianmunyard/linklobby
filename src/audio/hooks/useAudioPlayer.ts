@@ -58,6 +58,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
   // Refs
   const engineRef = useRef(getAudioEngine())
   const initPromiseRef = useRef<Promise<void> | null>(null)
+  // Stable ref for onEnded to avoid re-running effect on every render
+  const onEndedRef = useRef(onEnded)
+  onEndedRef.current = onEnded
 
   // Initialize engine
   useEffect(() => {
@@ -87,8 +90,8 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
         if (embedPlayback) {
           embedPlayback.clearActiveEmbed(cardId)
         }
-        if (onEnded) {
-          onEnded()
+        if (onEndedRef.current) {
+          onEndedRef.current()
         }
       },
       onError: (error) => {
@@ -109,7 +112,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
         embedPlayback.unregisterEmbed(cardId)
       }
     }
-  }, [cardId, embedPlayback, onEnded])
+  }, [cardId, embedPlayback])
 
   // Register with EmbedPlaybackProvider
   useEffect(() => {
