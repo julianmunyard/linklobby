@@ -195,7 +195,7 @@ export function DeparturesBoardLayout({
               >
                 <span className="departures-col-time">{genTime(index)}</span>
                 <span className="departures-col-name">{displayText.toUpperCase()}</span>
-                <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ON TIME</span>
+                <span className="departures-col-info" >ON TIME</span>
               </button>
             )
           })}
@@ -235,8 +235,7 @@ export function DeparturesBoardLayout({
                       {preSaveUrl ? (
                         <button
                           className="underline uppercase"
-                          style={{ color: 'var(--theme-accent)' }}
-                          onClick={() => { if (!isPreview) window.open(preSaveUrl, '_blank', 'noopener,noreferrer') }}
+                                                    onClick={() => { if (!isPreview) window.open(preSaveUrl, '_blank', 'noopener,noreferrer') }}
                         >
                           {preSaveButtonText.toUpperCase()}
                         </button>
@@ -261,7 +260,12 @@ export function DeparturesBoardLayout({
             )
           })}
 
-          {/* Social icons */}
+          {/* Trailing blank rows to fill the board */}
+          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
+            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
+          ))}
+
+          {/* Social icons - second to bottom */}
           {showSocialIcons && socialIcons.length > 0 && (
             <div className="departures-board-row departures-board-row-socials">
               {socialIcons.map((icon) => {
@@ -283,10 +287,8 @@ export function DeparturesBoardLayout({
             </div>
           )}
 
-          {/* Trailing blank rows to fill the board */}
-          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
-            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
-          ))}
+          {/* Bottom blank row */}
+          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
         </div>
       </div>
     </div>

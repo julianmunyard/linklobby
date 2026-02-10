@@ -182,7 +182,7 @@ export function StaticDeparturesBoardLayout({
               >
                 <span className="departures-col-time">{genTime(index)}</span>
                 <span className="departures-col-name">{displayText.toUpperCase()}</span>
-                <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ON TIME</span>
+                <span className="departures-col-info" >ON TIME</span>
               </button>
             )
           })}
@@ -225,8 +225,7 @@ export function StaticDeparturesBoardLayout({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="underline uppercase"
-                          style={{ color: 'var(--theme-accent)' }}
-                        >
+                                                  >
                           {preSaveButtonText.toUpperCase()}
                         </a>
                       ) : (
@@ -252,7 +251,12 @@ export function StaticDeparturesBoardLayout({
             )
           })}
 
-          {/* Social icons */}
+          {/* Trailing blank rows */}
+          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
+            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
+          ))}
+
+          {/* Social icons - second to bottom */}
           {showSocialIcons && socialIcons.length > 0 && (
             <div className="departures-board-row departures-board-row-socials">
               {socialIcons.map((icon) => {
@@ -273,10 +277,8 @@ export function StaticDeparturesBoardLayout({
             </div>
           )}
 
-          {/* Trailing blank rows */}
-          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
-            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
-          ))}
+          {/* Bottom blank row */}
+          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
 
           {/* Legal footer */}
           <div className="departures-board-row departures-board-row-footer">
