@@ -300,21 +300,25 @@ export function AudioPlayer({
         className={cn('flex flex-col gap-1.5 p-2', className)}
         style={{ ...macFont, background: '#fff' }}
       >
-        {/* ── Box 1: PLAY / PAUSE button ── */}
-        <MacBox>
+        {/* ── PLAY / PAUSE — border just around the word ── */}
+        <div className="px-3 py-2">
           <button
             onClick={handlePlay}
             disabled={!player.isLoaded && !player.isLoading}
-            className="w-full px-3 py-2 text-left uppercase tracking-wider cursor-pointer hover:opacity-80"
+            className="uppercase tracking-wider cursor-pointer hover:opacity-80"
             style={{
               opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
             }}
           >
-            <span className="text-sm font-bold">
-              {player.isPlaying ? 'PAUSE' : 'PLAY'}
-            </span>
+            <div style={{ background: '#000', clipPath: macPixelClip, padding: '2px', display: 'inline-block' }}>
+              <div style={{ background: '#fff', clipPath: macPixelClip, padding: '4px 12px' }}>
+                <span className="text-sm font-bold">
+                  {player.isPlaying ? 'PAUSE' : 'PLAY'}
+                </span>
+              </div>
+            </div>
           </button>
-        </MacBox>
+        </div>
 
         {/* ── Box 2: Track info — marquee scrolling title ── */}
         {currentTrack && (
@@ -333,40 +337,70 @@ export function AudioPlayer({
           </MacBox>
         )}
 
-        {/* ── Box 3: Progress ── */}
-        <MacBox>
-          <div className="px-3 py-2">
-            <WaveformDisplay
-              showWaveform={showWaveform}
-              waveformData={waveformData}
-              progress={player.progress}
-              currentTime={player.currentTime}
-              duration={player.duration}
-              onSeek={player.seek}
-              foregroundColor={macColor}
-              elementBgColor="transparent"
-              themeVariant="mac-os"
-              isPlaying={player.isPlaying}
-            />
-          </div>
-        </MacBox>
+        {/* ── Progress — no border box, checkers fill entire space ── */}
+        <div className="px-3 py-2">
+          <WaveformDisplay
+            showWaveform={showWaveform}
+            waveformData={waveformData}
+            progress={player.progress}
+            currentTime={player.currentTime}
+            duration={player.duration}
+            onSeek={player.seek}
+            foregroundColor={macColor}
+            elementBgColor="transparent"
+            themeVariant="mac-os"
+            isPlaying={player.isPlaying}
+          />
+        </div>
 
-        {/* ── Box 4: Varispeed slider only (no reverb knob) ── */}
+        {/* ── Bottom row: Varispeed + Mode/Reverb ── */}
         <div className="flex items-stretch gap-1.5">
+          {/* Varispeed box: speed display + checkerboard slider */}
           <MacBox className="flex-1 min-w-0 px-3 py-2">
-            <VarispeedSlider
-              speed={player.speed}
-              mode={player.varispeedMode}
-              onSpeedChange={player.setSpeed}
-              onModeChange={player.setVarispeedMode}
-              foregroundColor={macColor}
-              elementBgColor="transparent"
-              themeVariant={themeVariant}
-              hideModeToggle
-            />
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold font-mono">{player.speed.toFixed(2)}x</span>
+            </div>
+            {/* Tick marks */}
+            <div className="flex justify-between mb-0.5">
+              {[0.5, 1.0, 1.5].map((tick) => (
+                <span key={tick} className="text-[8px] font-mono" style={{ opacity: 0.5 }}>
+                  {tick}x
+                </span>
+              ))}
+            </div>
+            {/* Checkerboard slider — black fill = played, checkers = remaining */}
+            <div className="relative h-5 border-2 border-black">
+              {/* Checkerboard background (full bar) */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
+                }}
+              />
+              {/* Black solid fill from left */}
+              <div
+                className="absolute top-0 left-0 h-full"
+                style={{
+                  width: `${((player.speed - 0.5) / 1.0) * 100}%`,
+                  background: '#000',
+                }}
+              />
+              {/* Hidden range input for interaction */}
+              <input
+                type="range"
+                min="0.5"
+                max="1.5"
+                step="0.01"
+                value={player.speed}
+                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                className="absolute inset-0 w-full h-full cursor-pointer z-10"
+                style={{ opacity: 0 }}
+                aria-label="Varispeed"
+              />
+            </div>
           </MacBox>
 
-          {/* ── Box 5: Mode toggle + reverb ── */}
+          {/* Mode toggle + reverb box */}
           <MacBox className="flex flex-col items-center gap-1 flex-shrink-0 px-3 py-2">
             <button
               onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}

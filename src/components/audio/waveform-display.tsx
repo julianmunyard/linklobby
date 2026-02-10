@@ -108,7 +108,7 @@ export function WaveformDisplay({
       {/* Waveform or Progress Bar */}
       <div
         ref={containerRef}
-        className={`relative cursor-pointer select-none ${(isVcr || isClassified || isMacOs) ? 'h-6' : isReceipt ? 'h-8' : 'h-16'}`}
+        className={`relative cursor-pointer select-none ${isMacOs ? 'h-5' : (isVcr || isClassified) ? 'h-6' : isReceipt ? 'h-8' : 'h-16'}`}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         style={{ touchAction: 'none' }}
@@ -141,21 +141,16 @@ export function WaveformDisplay({
           // Progress Bar Mode
           <div className="h-full flex items-center">
             {isMacOs ? (
-              /* Macintosh: bordered bar with checkerboard fill */
-              <div
-                className="relative w-full p-[3px]"
-                style={{ border: `3px solid ${activeColor}` }}
-              >
-                <div className="relative w-full h-2">
-                  {/* Checkerboard filled portion */}
-                  <div
-                    className="absolute top-0 left-0 h-full"
-                    style={{
-                      width: `${progress * 100}%`,
-                      background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
-                    }}
-                  />
-                </div>
+              /* Macintosh: full-height checkerboard fill, no border wrapper */
+              <div className="relative w-full h-full border-2 border-black">
+                {/* Checkerboard filled portion */}
+                <div
+                  className="absolute top-0 left-0 h-full"
+                  style={{
+                    width: `${progress * 100}%`,
+                    background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
+                  }}
+                />
               </div>
             ) : (isVcr || isClassified) ? (
               /* VCR/Classified: rectangular bordered bar */
