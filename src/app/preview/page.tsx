@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
@@ -158,6 +158,65 @@ function PreviewContent() {
     }
   }, [])
 
+  // Forward pinch gestures to parent for zoom control
+  // Single-finger touches stay in the iframe (scroll, card taps)
+  // Two-finger pinch is detected here and forwarded via postMessage
+  const initialPinchDistRef = useRef(0)
+
+  useEffect(() => {
+    if (window.parent === window) return // Not in iframe
+
+    const getDistance = (touches: TouchList) => {
+      const [t1, t2] = [touches[0], touches[1]]
+      return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        initialPinchDistRef.current = getDistance(e.touches)
+        e.preventDefault()
+        window.parent.postMessage(
+          { type: "PINCH_START" },
+          window.location.origin
+        )
+      }
+    }
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && initialPinchDistRef.current > 0) {
+        const currentDist = getDistance(e.touches)
+        const scale = currentDist / initialPinchDistRef.current
+        e.preventDefault()
+        window.parent.postMessage(
+          { type: "PINCH_UPDATE", payload: { scale } },
+          window.location.origin
+        )
+      }
+    }
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2 && initialPinchDistRef.current > 0) {
+        initialPinchDistRef.current = 0
+        window.parent.postMessage(
+          { type: "PINCH_END" },
+          window.location.origin
+        )
+      }
+    }
+
+    document.addEventListener('touchstart', onTouchStart, { passive: false })
+    document.addEventListener('touchmove', onTouchMove, { passive: false })
+    document.addEventListener('touchend', onTouchEnd)
+    document.addEventListener('touchcancel', onTouchEnd)
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart)
+      document.removeEventListener('touchmove', onTouchMove)
+      document.removeEventListener('touchend', onTouchEnd)
+      document.removeEventListener('touchcancel', onTouchEnd)
+    }
+  }, [])
+
   const hasCards = state.cards.length > 0
 
   // VCR Menu theme uses completely different layout
@@ -295,8 +354,8 @@ function PreviewContent() {
     )
   }
 
-  // Departures Board theme uses airport departures display layout
-  if (themeId === 'departures-board') {
+  // Departures Board themes use airport departures display layout
+  if (themeId === 'departures-board' || themeId === 'departures-board-led') {
     return (
       <>
         <PageBackground />

@@ -21,6 +21,7 @@ export function PreviewPanel() {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const baseScaleRef = useRef(1)
+  const scaleRef = useRef(1)
   const lastTapRef = useRef(0)
   const isMobileLayout = useIsMobileLayout()
   const getSnapshot = usePageStore((state) => state.getSnapshot)
@@ -31,6 +32,9 @@ export function PreviewPanel() {
   const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
   const updateIpodSticker = useThemeStore((state) => state.updateIpodSticker)
   const { saveCards } = useCards()
+
+  // Keep ref in sync for stale closure access in message handlers
+  useEffect(() => { scaleRef.current = scale }, [scale])
 
   // Calculate scale to fit mobile preview in container
   const updateMobileScale = useCallback(() => {
@@ -123,6 +127,17 @@ export function PreviewPanel() {
           break
         case "UPDATE_IPOD_STICKER":
           updateIpodSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
+          break
+        case "PINCH_START":
+          baseScaleRef.current = scaleRef.current
+          break
+        case "PINCH_UPDATE": {
+          const newScale = baseScaleRef.current * event.data.payload.scale
+          setScale(Math.max(0.1, Math.min(newScale, 3)))
+          break
+        }
+        case "PINCH_END":
+          // Pinch finished, scale is already set
           break
       }
     }
