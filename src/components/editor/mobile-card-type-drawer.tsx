@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button"
 import { usePageStore } from "@/stores/page-store"
 import { CONVERTIBLE_CARD_TYPES } from "./card-type-picker"
 import { cn } from "@/lib/utils"
-import type { Card, CardType } from "@/types/card"
+import type { Card, CardType, CardSize } from "@/types/card"
+import { CARD_TYPE_SIZING } from "@/types/card"
 
 interface MobileCardTypeDrawerProps {
   open: boolean
@@ -33,9 +34,17 @@ export function MobileCardTypeDrawer({
     updateCard(card.id, { card_type: newType })
   }
 
+  const handleSizeChange = (newSize: CardSize) => {
+    if (!card) return
+    updateCard(card.id, { size: newSize })
+  }
+
+  // Check if the current card type supports sizing
+  const supportsSizing = card ? CARD_TYPE_SIZING[card.card_type] : null
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} modal={false}>
-      <DrawerContent className="h-auto max-h-[40dvh] flex flex-col">
+    <Drawer open={open} onOpenChange={onOpenChange} modal={false} direction="top">
+      <DrawerContent className="h-auto max-h-[45dvh] flex flex-col">
         <DrawerHeader className="border-b px-4 py-3">
           <DrawerTitle>Card Type</DrawerTitle>
         </DrawerHeader>
@@ -61,6 +70,36 @@ export function MobileCardTypeDrawer({
               )
             })}
           </div>
+
+          {/* Size toggle - only show for card types that support sizing */}
+          {supportsSizing && (
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleSizeChange('big')}
+                className={cn(
+                  "flex-1 flex flex-col items-center gap-0.5 py-3 rounded-xl border-2 transition-all",
+                  card?.size === 'big'
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-muted bg-muted/50 text-muted-foreground"
+                )}
+              >
+                <span className="text-sm font-medium">Big</span>
+                <span className="text-xs opacity-60">Full Width</span>
+              </button>
+              <button
+                onClick={() => handleSizeChange('small')}
+                className={cn(
+                  "flex-1 flex flex-col items-center gap-0.5 py-3 rounded-xl border-2 transition-all",
+                  card?.size === 'small'
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-muted bg-muted/50 text-muted-foreground"
+                )}
+              >
+                <span className="text-sm font-medium">Small</span>
+                <span className="text-xs opacity-60">Half Width</span>
+              </button>
+            </div>
+          )}
 
           {/* Full Editor button */}
           <Button
