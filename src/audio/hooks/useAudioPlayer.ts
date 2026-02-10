@@ -28,7 +28,7 @@ interface UseAudioPlayerReturn {
   varispeedMode: VarispeedMode
   reverbMix: number         // visitor-controlled mix
 
-  play: () => Promise<void>
+  play: () => void
   pause: () => void
   togglePlay: () => void
   seek: (position: number) => void       // 0-1
@@ -57,13 +57,23 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
 
   // Refs
   const engineRef = useRef(getAudioEngine())
+  const initPromiseRef = useRef<Promise<void> | null>(null)
   // Stable ref for onEnded to avoid re-running effect on every render
   const onEndedRef = useRef(onEnded)
   onEndedRef.current = onEnded
 
-  // Set up engine callbacks (no eager init — engine inits lazily on first play)
+  // Initialize engine eagerly on mount — AudioContext is created here.
+  // On desktop, context starts running. On mobile, browser auto-suspends it.
+  // Either way, the processor is ready to receive messages.
+  // play() will call context.resume() synchronously in the user gesture.
   useEffect(() => {
     const engine = engineRef.current
+
+    if (!initPromiseRef.current) {
+      initPromiseRef.current = engine.init().catch((error) => {
+        console.error('Failed to initialize AudioEngine:', error)
+      })
+    }
 
     // Set up callbacks
     engine.setCallbacks({
@@ -148,19 +158,21 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [reverbConfig])
 
-  // Load track function — defers to setPendingTrack if engine not yet initialized
+  // Load track function — waits for engine init before sending load command.
+  // On desktop, init completes quickly and track pre-loads before user clicks play.
+  // On mobile, if context is auto-suspended, downloadAndDecode may fail silently —
+  // play() handles this with the pendingPlayAfterLoad fallback.
   const loadTrack = useCallback(async (url: string) => {
     const engine = engineRef.current
     setIsLoading(true)
     setIsLoaded(false)
     try {
-      if (!engine.isStarted()) {
-        // Engine not yet initialized (no AudioContext yet).
-        // Store the URL so play() can load it after init.
-        engine.setPendingTrack(url)
-        // Don't set isLoading false — it will be set when onLoaded fires after play()
-        return
+      // Wait for Superpowered to finish initializing
+      if (initPromiseRef.current) {
+        await initPromiseRef.current
       }
+      // Store URL on engine even if loadTrack throws (for pendingPlayAfterLoad)
+      engine.setPendingTrack(url)
       await engine.loadTrack(url)
     } catch (error) {
       console.error('Failed to load track:', error)
@@ -168,8 +180,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [])
 
-  // Play function — async to await lazy engine init within user gesture
-  const play = useCallback(async () => {
+  // Play function — MUST be synchronous so context.resume() stays in user gesture.
+  // NEVER make this async — an await before context.resume() breaks mobile playback.
+  const play = useCallback(() => {
     const engine = engineRef.current
 
     // Set active embed (pauses all others)
@@ -177,15 +190,11 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       embedPlayback.setActiveEmbed(cardId)
     }
 
-    try {
-      // engine.play() triggers lazy init if needed (AudioContext created
-      // within user gesture callstack — critical for mobile browsers)
-      await engine.play()
-      setIsPlaying(true)
-    } catch (error) {
-      console.error('Failed to play:', error)
-      setIsPlaying(false)
-    }
+    // engine.play() calls context.resume() synchronously within this gesture.
+    // If track is loaded (desktop): resumes + sends play command.
+    // If track NOT loaded (mobile): resumes + re-sends loadTrack + pendingPlayAfterLoad.
+    engine.play()
+    setIsPlaying(true)
 
     if (onPlay) {
       onPlay()

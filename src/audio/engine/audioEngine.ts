@@ -189,34 +189,26 @@ class AudioEngine {
     })
   }
 
-  async play(): Promise<void> {
-    // Lazy init: create AudioContext within the user gesture callstack
-    // This is the critical fix for mobile browsers that require AudioContext
-    // creation/resume to happen during a user-initiated event (tap, click).
-    if (!this.started) {
-      await this.init()
-    }
-
+  play(): void {
     if (!this.processorNode) {
       console.warn('Cannot play: not initialized')
       return
     }
 
-    // iOS/iPadOS unlock — fire synchronously within gesture context
-    // (don't await the audio.play() promise; fire-and-forget is fine,
-    // the browser just needs to see audio.play() called in the gesture)
+    // iOS/iPadOS unlock — must fire synchronously within user gesture
     if (this.isIOS) {
       this.ensureUnlocked()
     }
 
-    // Resume AudioContext — this makes processAudio() run in the processor.
-    // On mobile, the context starts auto-suspended (browser policy) and this
-    // is the first chance to resume it inside a user gesture.
+    // Resume AudioContext — MUST be synchronous in user gesture callstack.
+    // On mobile, context is auto-suspended by browser policy; this is the
+    // only chance to resume it. On desktop, context may also be suspended.
+    // NEVER put an await before this line — it breaks the gesture context.
     this.processorNode.context.resume()
 
-    // Mobile fix: if track hasn't loaded yet (context was suspended so the
-    // processor never received the initial loadTrack message), re-send it
-    // now that the context is resumed, and auto-play when loaded.
+    // If track hasn't loaded yet (mobile: downloadAndDecode may have failed
+    // while context was auto-suspended), re-send loadTrack now that context
+    // is resumed, and auto-play when the track finishes loading.
     if (!this.isLoadedFlag) {
       if (this.currentUrl) {
         this.processorNode.sendMessageToAudioScope({
@@ -232,7 +224,7 @@ class AudioEngine {
       return
     }
 
-    // Send play command (resets ended state in processor)
+    // Track is loaded — send play command (resets ended state in processor)
     this.processorNode.sendMessageToAudioScope({
       type: 'command',
       data: { command: 'play' }
