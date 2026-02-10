@@ -67,6 +67,7 @@ function getScheduleBadgeInfo(status: ScheduleStatus, content: Record<string, un
 interface PreviewSortableCardProps {
   card: Card
   isSelected?: boolean
+  isDimmed?: boolean
   onClick?: (e: React.MouseEvent) => void
 }
 
@@ -79,7 +80,7 @@ const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game', 'social-icons', 'aud
  * Shows a white border highlight when selected.
  * Includes data-selectable-id for box selection integration.
  */
-export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortableCardProps) {
+export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: PreviewSortableCardProps) {
   // Check if release card should be hidden (countdown ended + hide action)
   if (shouldHideReleaseCard(card)) {
     return null
@@ -152,9 +153,10 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
       style={style}
       data-selectable-id={card.id}
       className={cn(
-        "relative",
+        "relative transition-opacity duration-150",
         widthClass,
         isDragging && "opacity-0",
+        isDimmed && "opacity-40",
         "cursor-pointer",
         // Positionable cards use margin classes for positioning
         positionClass,

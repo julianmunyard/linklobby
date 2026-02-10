@@ -50,6 +50,7 @@ export function MobileCardTypeDrawer({
         <DrawerPrimitive.Content
           className="bg-background fixed inset-x-0 top-0 z-50 flex h-auto flex-col rounded-b-xl border-b shadow-lg"
         >
+          <DrawerPrimitive.Title className="sr-only">Card Type</DrawerPrimitive.Title>
           <div className="px-3 pt-3 pb-2 space-y-2">
             {/* Card type grid + size in one compact section */}
             <div className="flex items-center justify-between mb-1">

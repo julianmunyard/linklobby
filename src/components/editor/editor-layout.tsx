@@ -19,6 +19,7 @@ import { isConvertibleType } from "./card-type-picker"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
+import { useCards } from "@/hooks/use-cards"
 import { cn } from "@/lib/utils"
 
 const STORAGE_KEY = "editor-layout"
@@ -34,6 +35,7 @@ export function EditorLayout() {
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
   const selectedCard = cards.find(c => c.id === selectedCardId) || null
+  const { saveCards } = useCards()
 
   // Only access localStorage after mount (client-side)
   useEffect(() => {
@@ -107,6 +109,10 @@ export function EditorLayout() {
           open={typeDrawerOpen}
           onOpenChange={(open) => {
             setTypeDrawerOpen(open)
+            // Flush save immediately when drawer closes so changes persist
+            if (!open && usePageStore.getState().hasChanges) {
+              saveCards()
+            }
           }}
           card={selectedCard}
           onOpenFullEditor={() => {

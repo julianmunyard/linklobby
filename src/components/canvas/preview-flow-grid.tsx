@@ -54,8 +54,8 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250, // Long press before drag starts — allows normal scrolling
-        tolerance: 5, // Small movement allowed during hold
+        delay: 300, // Long press before drag starts — allows normal scrolling
+        tolerance: 15, // Generous tolerance so scrolling cancels drag activation
       },
     }),
     useSensor(KeyboardSensor, {
@@ -143,6 +143,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
               key={card.id}
               card={card}
               isSelected={card.id === selectedCardId}
+              isDimmed={activeCard !== null && activeCard.id !== card.id}
               onClick={() => handleCardClick(card.id)}
             />
           ))}
