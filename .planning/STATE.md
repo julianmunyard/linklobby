@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 055: Receipt paper texture toggle
+Last activity: 2026-02-10 - Completed quick task 054: iPod audio card with Macintosh-style dark layout
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -631,6 +631,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Text PLAY/PAUSE for Macintosh | quick-053 | Plain text instead of unicode symbols for simpler 8-bit look |
 | Checkerboard progress fill | quick-053 | repeating-conic-gradient for classic Macintosh UI pattern, no image assets |
 | 3px Macintosh borders | quick-053 | Thicker borders (3px vs 1px) create authentic pixel-art aesthetic |
+| iPod audio hardcoded dark colors | quick-054 | #1a1a1a bg, #c0c0c0 borders - consistent dark aesthetic regardless of iPod colorway |
+| Now Playing screen navigation in iPod | quick-054 | Audio cards navigate to dedicated screen with AudioCard themeIdOverride="ipod-classic" |
+| Music note U+266B for audio indicator | quick-054 | Replaces > arrow in iPod menu for audio cards to visually distinguish them |
 | Receipt texture OFF by default | quick-055 | Clean receipt look by default, users opt-in to paper/plastic texture overlays |
 | CSS class toggle for pseudo-elements | quick-055 | .receipt-paper.receipt-paper-texture::after/::before - class presence controls overlay visibility |
 
@@ -688,6 +691,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 052 | Fix Poolsuite audio player not playing on public pages | Complete | c4954da |
 | 053 | Macintosh audio card VCR-style | Complete | 1f17db3, 10306e3 |
 | 053b | Fix Poolsuite audio transparent colors on public pages | Complete | 7fc0fc9, 719ad58 |
+| 054 | iPod audio card with Macintosh-style dark layout | Complete | 8e2db69, 893c6fe |
 | 055 | Receipt paper texture toggle (OFF by default) | Complete | da87b95, e3a614c |
 
 ## Phase 10 Progress (IN PROGRESS)
@@ -768,11 +772,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-055 (Receipt paper texture toggle)
-Stopped at: Completed quick task 055
+Last activity: 2026-02-10 - Completed quick-054 (iPod audio card with Macintosh-style dark layout)
+Stopped at: Completed quick task 054
 Resume file: None
 
-**Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 053b fixes transparent audio buttons on public pages by wrapping in SystemSettingsCard and adding CSS variable fallbacks.
+**Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 054 adds iPod-classic dark audio player with Now Playing screen navigation.
 
 **Next step:** Verify Phase 12 Plan 05 end-to-end audio functionality
 
