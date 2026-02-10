@@ -139,6 +139,9 @@ export function StaticDeparturesBoardLayout({
             <span className="departures-col-info">REMARKS</span>
           </div>
 
+          {/* Gap between header and links */}
+          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
+
           {/* Card rows */}
           {visibleCards.map((card, index) => {
             const displayText = card.title || card.card_type
@@ -251,12 +254,10 @@ export function StaticDeparturesBoardLayout({
             )
           })}
 
-          {/* Trailing blank rows */}
-          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
-            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
-          ))}
+          {/* Single gap before socials */}
+          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
 
-          {/* Social icons - second to bottom */}
+          {/* Social icons */}
           {showSocialIcons && socialIcons.length > 0 && (
             <div className="departures-board-row departures-board-row-socials">
               {socialIcons.map((icon) => {
