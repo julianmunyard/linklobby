@@ -189,8 +189,8 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
               }}
             />
           )}
-          {/* Control buttons for interactive cards - appear on hover */}
-          <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-0 group-hover/interactive:opacity-100 transition-opacity">
+          {/* Control buttons for interactive cards - always visible on mobile, hover on desktop */}
+          <div className="absolute top-2 right-2 z-10 flex gap-1 opacity-100 md:opacity-0 md:group-hover/interactive:opacity-100 transition-opacity">
             {/* Drag handle */}
             <div
               {...attributes}
