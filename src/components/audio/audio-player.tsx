@@ -795,7 +795,6 @@ export function AudioPlayer({
     'flex flex-col',
     isReceipt ? 'gap-2' : 'gap-4',
     {
-      'audio-player-macintosh': themeVariant === 'mac-os',
       'audio-player-receipt': themeVariant === 'receipt',
       'audio-player-ipod': themeVariant === 'ipod-classic',
     },
@@ -804,9 +803,7 @@ export function AudioPlayer({
 
   const themeStyle: React.CSSProperties = {}
 
-  if (themeVariant === 'mac-os') {
-    themeStyle.fontFamily = "var(--font-pix-chicago), 'Chicago', monospace"
-  } else if (themeVariant === 'receipt') {
+  if (themeVariant === 'receipt') {
     themeStyle.fontFamily = 'var(--font-ticket-de-caisse), monospace'
     themeStyle.color = '#000'
   } else if (themeVariant === 'ipod-classic') {
