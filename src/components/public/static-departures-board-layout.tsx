@@ -23,32 +23,21 @@ import Countdown, { CountdownRenderProps } from 'react-countdown'
 type IconComponent = ComponentType<{ className?: string }>
 
 const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
-  instagram: SiInstagram,
-  tiktok: SiTiktok,
-  youtube: SiYoutube,
-  spotify: SiSpotify,
-  twitter: SiX,
-  soundcloud: SiSoundcloud,
-  applemusic: SiApplemusic,
-  bandcamp: SiBandcamp,
-  deezer: Music,
-  amazonmusic: SiAmazonmusic,
-  facebook: SiFacebook,
-  threads: SiThreads,
-  bluesky: SiBluesky,
-  snapchat: SiSnapchat,
-  pinterest: SiPinterest,
-  linkedin: SiLinkedin,
-  whatsapp: SiWhatsapp,
-  twitch: SiTwitch,
-  kick: SiKick,
-  discord: SiDiscord,
-  website: Globe,
-  email: Mail,
-  patreon: SiPatreon,
-  venmo: SiVenmo,
-  cashapp: SiCashapp,
-  paypal: SiPaypal,
+  instagram: SiInstagram, tiktok: SiTiktok, youtube: SiYoutube, spotify: SiSpotify,
+  twitter: SiX, soundcloud: SiSoundcloud, applemusic: SiApplemusic, bandcamp: SiBandcamp,
+  deezer: Music, amazonmusic: SiAmazonmusic, facebook: SiFacebook, threads: SiThreads,
+  bluesky: SiBluesky, snapchat: SiSnapchat, pinterest: SiPinterest, linkedin: SiLinkedin,
+  whatsapp: SiWhatsapp, twitch: SiTwitch, kick: SiKick, discord: SiDiscord,
+  website: Globe, email: Mail, patreon: SiPatreon, venmo: SiVenmo,
+  cashapp: SiCashapp, paypal: SiPaypal,
+}
+
+function genTime(index: number): string {
+  const hour = 6 + Math.floor(index * 0.5)
+  const min = index % 2 === 0 ? '00' : '30'
+  const suffix = hour >= 12 ? 'P' : 'A'
+  const display = hour > 12 ? hour - 12 : hour
+  return `${String(display).padStart(2, '0')}:${min}${suffix}`
 }
 
 interface StaticDeparturesBoardLayoutProps {
@@ -65,8 +54,6 @@ export function StaticDeparturesBoardLayout({
   username,
   title,
   cards,
-  headingSize = 1.0,
-  bodySize = 1.0,
   socialIcons = [],
   showSocialIcons = true,
 }: StaticDeparturesBoardLayoutProps) {
@@ -118,7 +105,7 @@ export function StaticDeparturesBoardLayout({
   const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
     if (completed) return null
     return (
-      <span className="tabular-nums tracking-wider">
+      <span className="tabular-nums">
         {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </span>
     )
@@ -128,179 +115,177 @@ export function StaticDeparturesBoardLayout({
     <div
       ref={containerRef}
       className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto"
-      style={{ backgroundColor: 'var(--theme-background)' }}
+      style={{ backgroundColor: '#000000' }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div
-        className="departures-board-rows"
-        style={{
-          color: 'var(--theme-text)',
-          fontFamily: 'var(--font-aux-mono)',
-        }}
-      >
-        {/* Blank top row */}
-        <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
+      <div className="flex justify-center items-start py-8 px-4 min-h-full">
+        <div
+          className="departures-board"
+          style={{
+            color: 'var(--theme-text)',
+            fontFamily: 'var(--font-aux-mono)',
+          }}
+        >
+          {/* Title row */}
+          <div className="departures-board-row departures-board-row-title">
+            {(title || 'DEPARTURES').toUpperCase()}
+          </div>
 
-        {/* Artist title row */}
-        <div className="departures-board-row departures-board-row-title">
-          {title || 'DEPARTURES'}
-        </div>
+          {/* Column header row */}
+          <div className="departures-board-row departures-board-row-header">
+            <span className="departures-col-time">TIME</span>
+            <span className="departures-col-name">TO</span>
+            <span className="departures-col-info">REMARKS</span>
+          </div>
 
-        {/* Spare blank row */}
-        <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
+          {/* Card rows */}
+          {visibleCards.map((card, index) => {
+            const displayText = card.title || card.card_type
 
-        {/* Link rows */}
-        {visibleCards.map((card, index) => {
-          const displayText = card.title || card.card_type
+            if (card.card_type === 'text') {
+              return (
+                <div key={card.id} className="departures-board-row departures-board-row-section" data-card-id={card.id}>
+                  {displayText.toUpperCase()}
+                </div>
+              )
+            }
 
-          if (card.card_type === 'text') {
+            if (card.card_type === 'audio' && isAudioContent(card.content)) {
+              const audioContent = card.content as AudioCardContent
+              return (
+                <div key={card.id} className="departures-board-row departures-board-row-audio" data-card-id={card.id}>
+                  <AudioPlayer
+                    tracks={audioContent.tracks || []}
+                    albumArtUrl={audioContent.albumArtUrl}
+                    showWaveform={audioContent.showWaveform ?? true}
+                    looping={audioContent.looping ?? false}
+                    reverbConfig={audioContent.reverbConfig}
+                    playerColors={audioContent.playerColors}
+                    cardId={card.id}
+                    pageId={card.page_id}
+                    themeVariant="classified"
+                  />
+                </div>
+              )
+            }
+
             return (
-              <div
+              <button
                 key={card.id}
-                className="departures-board-row departures-board-row-section"
-                style={{ color: 'var(--theme-accent)' }}
+                className={cn(
+                  "departures-board-row departures-board-row-link",
+                  focusedIndex === index && "departures-board-row-focused"
+                )}
+                onClick={() => handleCardClick(card, index)}
                 data-card-id={card.id}
               >
-                {displayText.toUpperCase()}
-              </div>
+                <span className="departures-col-time">{genTime(index)}</span>
+                <span className="departures-col-name">{displayText.toUpperCase()}</span>
+                <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ON TIME</span>
+              </button>
             )
-          }
+          })}
 
-          if (card.card_type === 'audio' && isAudioContent(card.content)) {
-            const audioContent = card.content as AudioCardContent
+          {/* Release cards */}
+          {releaseCards.map((card) => {
+            if (!isReleaseContent(card.content)) return null
+            const content = card.content as ReleaseCardContent
+            const {
+              releaseTitle, artistName, releaseDate, preSaveUrl,
+              preSaveButtonText = 'PRE-SAVE', afterCountdownAction = 'custom',
+              afterCountdownText = 'OUT NOW', afterCountdownUrl
+            } = content
+            const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+
             return (
-              <div key={card.id} className="departures-board-row departures-board-row-audio" data-card-id={card.id}>
-                <AudioPlayer
-                  tracks={audioContent.tracks || []}
-                  albumArtUrl={audioContent.albumArtUrl}
-                  showWaveform={audioContent.showWaveform ?? true}
-                  looping={audioContent.looping ?? false}
-                  reverbConfig={audioContent.reverbConfig}
-                  playerColors={audioContent.playerColors}
-                  cardId={card.id}
-                  pageId={card.page_id}
-                  themeVariant="classified"
-                />
+              <div key={card.id} className="departures-board-row departures-board-row-link" data-card-id={card.id}>
+                {!isReleased ? (
+                  <>
+                    <span className="departures-col-time" style={{ color: 'var(--theme-accent)' }}>
+                      {releaseDate && isMounted && (
+                        <Countdown
+                          date={new Date(releaseDate)}
+                          renderer={countdownRenderer}
+                          onComplete={() => {
+                            if (afterCountdownAction === 'hide') {
+                              setCompletedReleases(prev => new Set(prev).add(card.id))
+                            }
+                          }}
+                        />
+                      )}
+                    </span>
+                    <span className="departures-col-name">
+                      {(releaseTitle || artistName || 'NEW RELEASE').toUpperCase()}
+                    </span>
+                    <span className="departures-col-info">
+                      {preSaveUrl ? (
+                        <a
+                          href={preSaveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline uppercase"
+                          style={{ color: 'var(--theme-accent)' }}
+                        >
+                          {preSaveButtonText.toUpperCase()}
+                        </a>
+                      ) : (
+                        <span style={{ color: 'var(--theme-accent)' }}>BOARDING</span>
+                      )}
+                    </span>
+                  </>
+                ) : afterCountdownAction === 'custom' ? (
+                  <>
+                    <span className="departures-col-time">&nbsp;</span>
+                    <a
+                      href={afterCountdownUrl || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="departures-col-name uppercase"
+                    >
+                      {(afterCountdownText || 'OUT NOW').toUpperCase()}
+                    </a>
+                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ARRIVED</span>
+                  </>
+                ) : null}
               </div>
             )
-          }
+          })}
 
-          return (
-            <button
-              key={card.id}
-              className={cn(
-                "departures-board-row departures-board-row-link",
-                focusedIndex === index && "departures-board-row-focused"
-              )}
-              onClick={() => handleCardClick(card, index)}
-              data-card-id={card.id}
-            >
-              {displayText.toUpperCase()}
-            </button>
-          )
-        })}
-
-        {/* Release cards */}
-        {releaseCards.map((card) => {
-          if (!isReleaseContent(card.content)) return null
-          const content = card.content as ReleaseCardContent
-          const {
-            releaseTitle,
-            artistName,
-            releaseDate,
-            preSaveUrl,
-            preSaveButtonText = 'PRE-SAVE',
-            afterCountdownAction = 'custom',
-            afterCountdownText = 'OUT NOW',
-            afterCountdownUrl
-          } = content
-
-          const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
-
-          return (
-            <div key={card.id} className="departures-board-row departures-board-row-release" data-card-id={card.id}>
-              {!isReleased ? (
-                <div className="flex items-center justify-between w-full">
-                  <span className="uppercase truncate">
-                    {releaseTitle || artistName || 'NEW RELEASE'}
-                  </span>
-                  <span className="flex items-center gap-4 shrink-0">
-                    {releaseDate && isMounted && (
-                      <Countdown
-                        date={new Date(releaseDate)}
-                        renderer={countdownRenderer}
-                        onComplete={() => {
-                          if (afterCountdownAction === 'hide') {
-                            setCompletedReleases(prev => new Set(prev).add(card.id))
-                          }
-                        }}
-                      />
-                    )}
-                    {preSaveUrl && (
-                      <a
-                        href={preSaveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline uppercase text-sm shrink-0"
-                        style={{ color: 'var(--theme-accent)' }}
-                      >
-                        {preSaveButtonText.toUpperCase()}
-                      </a>
-                    )}
-                  </span>
-                </div>
-              ) : afterCountdownAction === 'custom' ? (
-                <a
-                  href={afterCountdownUrl || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="uppercase w-full text-left block"
-                >
-                  {(afterCountdownText || 'OUT NOW').toUpperCase()}
-                </a>
-              ) : null}
+          {/* Social icons */}
+          {showSocialIcons && socialIcons.length > 0 && (
+            <div className="departures-board-row departures-board-row-socials">
+              {socialIcons.map((icon) => {
+                const IconComponent = PLATFORM_ICONS[icon.platform]
+                if (!IconComponent) return null
+                return (
+                  <a
+                    key={icon.id}
+                    href={icon.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="opacity-50 hover:opacity-100 transition-opacity"
+                  >
+                    <IconComponent className="w-4 h-4" />
+                  </a>
+                )
+              })}
             </div>
-          )
-        })}
+          )}
 
-        {/* Social icons row */}
-        {showSocialIcons && socialIcons.length > 0 && (
-          <div className="departures-board-row departures-board-row-socials">
-            {socialIcons.map((icon) => {
-              const IconComponent = PLATFORM_ICONS[icon.platform]
-              if (!IconComponent) return null
-              return (
-                <a
-                  key={icon.id}
-                  href={icon.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="opacity-60 hover:opacity-100 transition-opacity"
-                >
-                  <IconComponent className="w-4 h-4" />
-                </a>
-              )
-            })}
+          {/* Trailing blank rows */}
+          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
+            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
+          ))}
+
+          {/* Legal footer */}
+          <div className="departures-board-row departures-board-row-footer">
+            <Link href={`/privacy?username=${username}`} className="hover:underline opacity-30">Privacy</Link>
+            <span className="opacity-30">·</span>
+            <Link href="/terms" className="hover:underline opacity-30">Terms</Link>
+            <span className="opacity-30">·</span>
+            <span className="opacity-30">Powered by LinkLobby</span>
           </div>
-        )}
-
-        {/* Fill remaining space with blank rows */}
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
-        ))}
-
-        {/* Legal footer row */}
-        <div className="departures-board-row departures-board-row-footer">
-          <Link href={`/privacy?username=${username}`} className="hover:underline opacity-30">
-            Privacy
-          </Link>
-          <span className="opacity-30">·</span>
-          <Link href="/terms" className="hover:underline opacity-30">
-            Terms
-          </Link>
-          <span className="opacity-30">·</span>
-          <span className="opacity-30">Powered by LinkLobby</span>
         </div>
       </div>
     </div>

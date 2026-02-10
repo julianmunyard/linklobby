@@ -9,7 +9,6 @@ import type { AudioCardContent } from '@/types/audio'
 import { AudioPlayer } from '@/components/audio/audio-player'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
-import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { Globe, Mail, Music } from 'lucide-react'
 import {
@@ -25,32 +24,22 @@ import Countdown, { CountdownRenderProps } from 'react-countdown'
 type IconComponent = ComponentType<{ className?: string }>
 
 const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
-  instagram: SiInstagram,
-  tiktok: SiTiktok,
-  youtube: SiYoutube,
-  spotify: SiSpotify,
-  twitter: SiX,
-  soundcloud: SiSoundcloud,
-  applemusic: SiApplemusic,
-  bandcamp: SiBandcamp,
-  deezer: Music,
-  amazonmusic: SiAmazonmusic,
-  facebook: SiFacebook,
-  threads: SiThreads,
-  bluesky: SiBluesky,
-  snapchat: SiSnapchat,
-  pinterest: SiPinterest,
-  linkedin: SiLinkedin,
-  whatsapp: SiWhatsapp,
-  twitch: SiTwitch,
-  kick: SiKick,
-  discord: SiDiscord,
-  website: Globe,
-  email: Mail,
-  patreon: SiPatreon,
-  venmo: SiVenmo,
-  cashapp: SiCashapp,
-  paypal: SiPaypal,
+  instagram: SiInstagram, tiktok: SiTiktok, youtube: SiYoutube, spotify: SiSpotify,
+  twitter: SiX, soundcloud: SiSoundcloud, applemusic: SiApplemusic, bandcamp: SiBandcamp,
+  deezer: Music, amazonmusic: SiAmazonmusic, facebook: SiFacebook, threads: SiThreads,
+  bluesky: SiBluesky, snapchat: SiSnapchat, pinterest: SiPinterest, linkedin: SiLinkedin,
+  whatsapp: SiWhatsapp, twitch: SiTwitch, kick: SiKick, discord: SiDiscord,
+  website: Globe, email: Mail, patreon: SiPatreon, venmo: SiVenmo,
+  cashapp: SiCashapp, paypal: SiPaypal,
+}
+
+// Generate a fake time from card index
+function genTime(index: number): string {
+  const hour = 6 + Math.floor(index * 0.5)
+  const min = index % 2 === 0 ? '00' : '30'
+  const suffix = hour >= 12 ? 'P' : 'A'
+  const display = hour > 12 ? hour - 12 : hour
+  return `${String(display).padStart(2, '0')}:${min}${suffix}`
 }
 
 interface DeparturesBoardLayoutProps {
@@ -76,7 +65,6 @@ export function DeparturesBoardLayout({
   const socialIcons = useProfileStore((s) => s.socialIcons)
   const showSocialIcons = useProfileStore((s) => s.showSocialIcons)
 
-  // Release cards
   const releaseCards = cards.filter(c => {
     if (c.is_visible === false || c.card_type !== 'release' || !isReleaseContent(c.content)) return false
     const content = c.content as ReleaseCardContent
@@ -87,7 +75,6 @@ export function DeparturesBoardLayout({
     return true
   })
 
-  // Visible cards (exclude social-icons and release)
   const visibleCards = sortCardsBySortKey(
     cards.filter(c =>
       c.is_visible !== false &&
@@ -96,9 +83,7 @@ export function DeparturesBoardLayout({
     )
   )
 
-  useEffect(() => {
-    containerRef.current?.focus()
-  }, [])
+  useEffect(() => { containerRef.current?.focus() }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -130,7 +115,7 @@ export function DeparturesBoardLayout({
   const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps) => {
     if (completed) return null
     return (
-      <span className="tabular-nums tracking-wider">
+      <span className="tabular-nums">
         {days > 0 ? `${days}D ` : ''}{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </span>
     )
@@ -140,170 +125,169 @@ export function DeparturesBoardLayout({
     <div
       ref={containerRef}
       className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto"
-      style={{ backgroundColor: 'var(--theme-background)' }}
+      style={{ backgroundColor: '#000000' }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div
-        className="departures-board-rows"
-        style={{
-          color: 'var(--theme-text)',
-          fontFamily: 'var(--font-aux-mono)',
-        }}
-      >
-        {/* Blank top row */}
-        <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
-
-        {/* Artist title row */}
-        <div className="departures-board-row departures-board-row-title">
-          {displayName || title || 'DEPARTURES'}
-        </div>
-
-        {/* Spare blank row */}
-        <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
-
-        {/* Link rows */}
-        {visibleCards.map((card, index) => {
-          const displayText = card.title || card.card_type
-
-          // Text cards as section labels
-          if (card.card_type === 'text') {
-            return (
-              <div
-                key={card.id}
-                className="departures-board-row departures-board-row-section"
-                style={{ color: 'var(--theme-accent)' }}
-              >
-                {displayText.toUpperCase()}
-              </div>
-            )
-          }
-
-          // Audio cards inline
-          if (card.card_type === 'audio' && isAudioContent(card.content)) {
-            const audioContent = card.content as AudioCardContent
-            return (
-              <div key={card.id} className="departures-board-row departures-board-row-audio" onClick={() => onCardClick?.(card.id)}>
-                <AudioPlayer
-                  tracks={audioContent.tracks || []}
-                  albumArtUrl={audioContent.albumArtUrl}
-                  showWaveform={audioContent.showWaveform ?? true}
-                  looping={audioContent.looping ?? false}
-                  reverbConfig={audioContent.reverbConfig}
-                  playerColors={audioContent.playerColors}
-                  cardId={card.id}
-                  pageId={card.page_id}
-                  isEditing={isPreview}
-                  themeVariant="classified"
-                />
-              </div>
-            )
-          }
-
-          // Standard link row
-          return (
-            <button
-              key={card.id}
-              className={cn(
-                "departures-board-row departures-board-row-link",
-                focusedIndex === index && selectedCardId === card.id && "departures-board-row-focused"
-              )}
-              onClick={() => handleCardClick(card, index)}
-            >
-              {displayText.toUpperCase()}
-            </button>
-          )
-        })}
-
-        {/* Release cards */}
-        {releaseCards.map((card) => {
-          if (!isReleaseContent(card.content)) return null
-          const content = card.content as ReleaseCardContent
-          const {
-            releaseTitle,
-            artistName,
-            releaseDate,
-            preSaveUrl,
-            preSaveButtonText = 'PRE-SAVE',
-            afterCountdownAction = 'custom',
-            afterCountdownText = 'OUT NOW',
-            afterCountdownUrl
-          } = content
-
-          const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
-
-          return (
-            <div key={card.id} className="departures-board-row departures-board-row-release">
-              {!isReleased ? (
-                <div className="flex items-center justify-between w-full">
-                  <span className="uppercase truncate">
-                    {releaseTitle || artistName || 'NEW RELEASE'}
-                  </span>
-                  <span className="flex items-center gap-4 shrink-0">
-                    {releaseDate && (
-                      <Countdown
-                        date={new Date(releaseDate)}
-                        renderer={countdownRenderer}
-                        onComplete={() => {
-                          if (afterCountdownAction === 'hide') {
-                            setCompletedReleases(prev => new Set(prev).add(card.id))
-                          }
-                        }}
-                      />
-                    )}
-                    {preSaveUrl && (
-                      <button
-                        className="underline uppercase text-sm shrink-0"
-                        style={{ color: 'var(--theme-accent)' }}
-                        onClick={() => {
-                          if (!isPreview) window.open(preSaveUrl, '_blank', 'noopener,noreferrer')
-                        }}
-                      >
-                        {preSaveButtonText.toUpperCase()}
-                      </button>
-                    )}
-                  </span>
-                </div>
-              ) : afterCountdownAction === 'custom' ? (
-                <button
-                  className="uppercase w-full text-left"
-                  onClick={() => {
-                    if (!isPreview && afterCountdownUrl) window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer')
-                  }}
-                >
-                  {(afterCountdownText || 'OUT NOW').toUpperCase()}
-                </button>
-              ) : null}
-            </div>
-          )
-        })}
-
-        {/* Social icons row */}
-        {showSocialIcons && socialIcons.length > 0 && (
-          <div className="departures-board-row departures-board-row-socials">
-            {socialIcons.map((icon) => {
-              const IconComponent = PLATFORM_ICONS[icon.platform]
-              if (!IconComponent) return null
-              return (
-                <a
-                  key={icon.id}
-                  href={icon.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="opacity-60 hover:opacity-100 transition-opacity"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <IconComponent className="w-4 h-4" />
-                </a>
-              )
-            })}
+      <div className="flex justify-center items-start py-8 px-4 min-h-full">
+        <div
+          className="departures-board"
+          style={{
+            color: 'var(--theme-text)',
+            fontFamily: 'var(--font-aux-mono)',
+          }}
+        >
+          {/* Title row - centered */}
+          <div className="departures-board-row departures-board-row-title">
+            {(displayName || title || 'DEPARTURES').toUpperCase()}
           </div>
-        )}
 
-        {/* Fill remaining space with blank rows */}
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
-        ))}
+          {/* Column header row */}
+          <div className="departures-board-row departures-board-row-header">
+            <span className="departures-col-time">TIME</span>
+            <span className="departures-col-name">TO</span>
+            <span className="departures-col-info">REMARKS</span>
+          </div>
+
+          {/* Card rows */}
+          {visibleCards.map((card, index) => {
+            const displayText = card.title || card.card_type
+
+            // Text cards as section dividers
+            if (card.card_type === 'text') {
+              return (
+                <div key={card.id} className="departures-board-row departures-board-row-section">
+                  {displayText.toUpperCase()}
+                </div>
+              )
+            }
+
+            // Audio cards
+            if (card.card_type === 'audio' && isAudioContent(card.content)) {
+              const audioContent = card.content as AudioCardContent
+              return (
+                <div key={card.id} className="departures-board-row departures-board-row-audio" onClick={() => onCardClick?.(card.id)}>
+                  <AudioPlayer
+                    tracks={audioContent.tracks || []}
+                    albumArtUrl={audioContent.albumArtUrl}
+                    showWaveform={audioContent.showWaveform ?? true}
+                    looping={audioContent.looping ?? false}
+                    reverbConfig={audioContent.reverbConfig}
+                    playerColors={audioContent.playerColors}
+                    cardId={card.id}
+                    pageId={card.page_id}
+                    isEditing={isPreview}
+                    themeVariant="classified"
+                  />
+                </div>
+              )
+            }
+
+            // Standard link row: TIME | NAME | STATUS
+            return (
+              <button
+                key={card.id}
+                className={cn(
+                  "departures-board-row departures-board-row-link",
+                  focusedIndex === index && selectedCardId === card.id && "departures-board-row-focused"
+                )}
+                onClick={() => handleCardClick(card, index)}
+              >
+                <span className="departures-col-time">{genTime(index)}</span>
+                <span className="departures-col-name">{displayText.toUpperCase()}</span>
+                <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ON TIME</span>
+              </button>
+            )
+          })}
+
+          {/* Release cards */}
+          {releaseCards.map((card) => {
+            if (!isReleaseContent(card.content)) return null
+            const content = card.content as ReleaseCardContent
+            const {
+              releaseTitle, artistName, releaseDate, preSaveUrl,
+              preSaveButtonText = 'PRE-SAVE', afterCountdownAction = 'custom',
+              afterCountdownText = 'OUT NOW', afterCountdownUrl
+            } = content
+            const isReleased = releaseDate ? new Date(releaseDate) <= new Date() : false
+
+            return (
+              <div key={card.id} className="departures-board-row departures-board-row-link">
+                {!isReleased ? (
+                  <>
+                    <span className="departures-col-time" style={{ color: 'var(--theme-accent)' }}>
+                      {releaseDate && (
+                        <Countdown
+                          date={new Date(releaseDate)}
+                          renderer={countdownRenderer}
+                          onComplete={() => {
+                            if (afterCountdownAction === 'hide') {
+                              setCompletedReleases(prev => new Set(prev).add(card.id))
+                            }
+                          }}
+                        />
+                      )}
+                    </span>
+                    <span className="departures-col-name">
+                      {(releaseTitle || artistName || 'NEW RELEASE').toUpperCase()}
+                    </span>
+                    <span className="departures-col-info">
+                      {preSaveUrl ? (
+                        <button
+                          className="underline uppercase"
+                          style={{ color: 'var(--theme-accent)' }}
+                          onClick={() => { if (!isPreview) window.open(preSaveUrl, '_blank', 'noopener,noreferrer') }}
+                        >
+                          {preSaveButtonText.toUpperCase()}
+                        </button>
+                      ) : (
+                        <span style={{ color: 'var(--theme-accent)' }}>BOARDING</span>
+                      )}
+                    </span>
+                  </>
+                ) : afterCountdownAction === 'custom' ? (
+                  <>
+                    <span className="departures-col-time">&nbsp;</span>
+                    <button
+                      className="departures-col-name uppercase"
+                      onClick={() => { if (!isPreview && afterCountdownUrl) window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer') }}
+                    >
+                      {(afterCountdownText || 'OUT NOW').toUpperCase()}
+                    </button>
+                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ARRIVED</span>
+                  </>
+                ) : null}
+              </div>
+            )
+          })}
+
+          {/* Social icons */}
+          {showSocialIcons && socialIcons.length > 0 && (
+            <div className="departures-board-row departures-board-row-socials">
+              {socialIcons.map((icon) => {
+                const IconComponent = PLATFORM_ICONS[icon.platform]
+                if (!IconComponent) return null
+                return (
+                  <a
+                    key={icon.id}
+                    href={icon.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="opacity-50 hover:opacity-100 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                  </a>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Trailing blank rows to fill the board */}
+          {Array.from({ length: Math.max(0, 6 - visibleCards.length) }).map((_, i) => (
+            <div key={`blank-${i}`} className="departures-board-row departures-board-row-blank">&nbsp;</div>
+          ))}
+        </div>
       </div>
     </div>
   )
