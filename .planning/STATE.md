@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 054: iPod audio card with Macintosh-style dark layout
+Last activity: 2026-02-10 - Completed quick task 056: Departures Board theme with airport display aesthetic
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -636,6 +636,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Music note U+266B for audio indicator | quick-054 | Replaces > arrow in iPod menu for audio cards to visually distinguish them |
 | Receipt texture OFF by default | quick-055 | Clean receipt look by default, users opt-in to paper/plastic texture overlays |
 | CSS class toggle for pseudo-elements | quick-055 | .receipt-paper.receipt-paper-texture::after/::before - class presence controls overlay visibility |
+| AuxMono monospace for departures board | quick-056 | Custom local font loaded via localFont(), --font-aux-mono CSS variable, all text uppercase |
+| Generated flight data from card index | quick-056 | Times derived from index (06:00, 06:30...), gates from index (A1, B2, C3...), all show "ON TIME" |
+| 520px board container width | quick-056 | Wider than receipt (320px) for tabular column layout, responsive down to 100% on mobile |
+| Four departures board palettes | quick-056 | Terminal Classic (silver), Amber Display (CRT), Green Screen (phosphor), Heathrow Blue (modern) |
+| Audio maps to classified variant | quick-056 | departures-board audio uses themeVariant="classified" to avoid adding new ThemeVariant across files |
 
 ## Quick Tasks
 
@@ -693,6 +698,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 053b | Fix Poolsuite audio transparent colors on public pages | Complete | 7fc0fc9, 719ad58 |
 | 054 | iPod audio card with Macintosh-style dark layout | Complete | 8e2db69, 893c6fe |
 | 055 | Receipt paper texture toggle (OFF by default) | Complete | da87b95, e3a614c |
+| 056 | Departures Board theme with airport display aesthetic | Complete | f17b87b, c785150 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -772,8 +778,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-054 (iPod audio card with Macintosh-style dark layout)
-Stopped at: Completed quick task 054
+Last activity: 2026-02-10 - Completed quick-056 (Departures Board theme with airport display aesthetic)
+Stopped at: Completed quick task 056
 Resume file: None
 
 **Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 054 adds iPod-classic dark audio player with Now Playing screen navigation.
