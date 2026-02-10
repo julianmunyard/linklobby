@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 051: Poolsuite FM audio player theme
+Last activity: 2026-02-10 - Completed quick task 052: Fix Poolsuite audio player not playing on public pages
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -677,6 +677,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 050 | Classified Document theme with WWII military aesthetic | Complete | 3ca9a15, c8dcdf0 |
 | 050 | Classified Document theme (WWII military aesthetic) | Complete | 3ca9a15, c8dcdf0 |
 | 051 | Poolsuite FM audio player for system-settings theme | Complete | ba33ef6, d4403c0 |
+| 052 | Fix Poolsuite audio player not playing on public pages | Complete | c4954da |
 
 ## Phase 10 Progress (IN PROGRESS)
 
