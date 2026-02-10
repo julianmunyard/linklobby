@@ -155,6 +155,13 @@ export const specialElite = Special_Elite({
   display: 'swap',
 })
 
+// Departures Board theme font
+export const auxMono = localFont({
+  src: '../../public/fonts/AuxMono-Regular.ttf',
+  variable: '--font-aux-mono',
+  display: 'swap',
+})
+
 // Local custom fonts (retro/pixel style)
 export const autoMission = localFont({
   src: '../../public/fonts/auto-mission.otf',
@@ -276,6 +283,8 @@ export const fontVariables = [
   courierPrime.variable,
   // Classified font
   specialElite.variable,
+  // Departures Board font
+  auxMono.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -316,6 +325,7 @@ export const CURATED_FONTS = [
   { id: 'vt323', name: 'VT323', variable: 'var(--font-vt323)', category: 'retro' as const },
   { id: 'courier-prime', name: 'Courier Prime', variable: 'var(--font-courier-prime)', category: 'retro' as const },
   { id: 'special-elite', name: 'Special Elite', variable: 'var(--font-special-elite)', category: 'retro' as const },
+  { id: 'aux-mono', name: 'Aux Mono', variable: 'var(--font-aux-mono)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
