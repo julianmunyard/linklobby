@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { useProfileStore } from '@/stores/profile-store'
 import { useThemeStore } from '@/stores/theme-store'
 import { PLATFORM_ICONS } from '@/components/editor/social-icon-picker'
+import { AudioCard } from './audio-card'
 import type { Card, ReleaseCardContent } from '@/types/card'
 
 type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
@@ -35,9 +36,26 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
     return <MacintoshSocials card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
   }
 
+  // Audio card renders with mac-os theme variant
+  if (card.card_type === 'audio') {
+    return (
+      <WindowWrapper onClick={onClick} isSelected={isSelected}>
+        <CheckerboardTitleBar title={card.title || 'Now Playing'} />
+        <div style={{ background: '#000' }}>
+          <AudioCard card={card} isPreview={isPreview} />
+        </div>
+      </WindowWrapper>
+    )
+  }
+
   // Gallery card gets special treatment
   if (card.card_type === 'gallery') {
     return <MacintoshGallery card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
+  }
+
+  // Release cards always render as presave windows regardless of macWindowStyle
+  if (card.card_type === 'release') {
+    return <MacintoshPresave card={card} isPreview={isPreview} onClick={onClick} isSelected={isSelected} />
   }
 
   const style = (card.content as Record<string, unknown>)?.macWindowStyle as MacWindowStyle | undefined

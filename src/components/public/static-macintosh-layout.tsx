@@ -11,8 +11,10 @@ import {
   SiTwitch, SiKick, SiDiscord,
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
+import { AudioPlayer } from '@/components/audio/audio-player'
 import { sortCardsBySortKey } from '@/lib/ordering'
-import type { Card, ReleaseCardContent, GalleryCardContent, GalleryImage } from '@/types/card'
+import { isAudioContent } from '@/types/card'
+import type { Card, ReleaseCardContent, GalleryCardContent, GalleryImage, AudioCardContent } from '@/types/card'
 import type { SocialIcon, SocialPlatform } from '@/types/profile'
 import type { ComponentType } from 'react'
 
@@ -107,6 +109,9 @@ export function StaticMacintoshLayout({
     const macWindowStyle = content?.macWindowStyle as string | undefined
 
     if (card.card_type === 'social-icons') {
+      return
+    }
+    if (card.card_type === 'audio') {
       return
     }
     if (card.card_type === 'gallery') {
@@ -361,9 +366,37 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     return <StaticMacSocials card={card} socialIcons={socialIcons || []} />
   }
 
+  // Audio card renders with mac-os theme variant
+  if (card.card_type === 'audio' && isAudioContent(card.content)) {
+    const audioContent = card.content as AudioCardContent
+    return (
+      <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
+        <CheckerboardTitleBar title={card.title || 'Now Playing'} />
+        <div style={{ background: '#000' }}>
+          <AudioPlayer
+            tracks={audioContent.tracks || []}
+            albumArtUrl={audioContent.albumArtUrl}
+            showWaveform={audioContent.showWaveform ?? true}
+            looping={audioContent.looping ?? false}
+            reverbConfig={audioContent.reverbConfig}
+            playerColors={audioContent.playerColors}
+            cardId={card.id}
+            pageId={card.page_id}
+            themeVariant="mac-os"
+          />
+        </div>
+      </div>
+    )
+  }
+
   // Gallery card gets special treatment
   if (card.card_type === 'gallery') {
     return <StaticMacGallery card={card} />
+  }
+
+  // Release cards always render as presave windows regardless of macWindowStyle
+  if (card.card_type === 'release') {
+    return <StaticPresave card={card} bodySize={bodySize} />
   }
 
   const content = card.content as Record<string, unknown>
