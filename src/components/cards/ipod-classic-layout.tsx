@@ -9,6 +9,7 @@ import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
 import { AudioCard } from '@/components/cards/audio-card'
+import { getAudioEngine } from '@/audio/engine/audioEngine'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
@@ -222,10 +223,22 @@ export function IpodClassicLayout({
       menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
-    } else if (currentScreen === 'release' || currentScreen === 'nowplaying') {
-      // On release/nowplaying screen, only menu button works (go back)
+    } else if (currentScreen === 'release') {
       if (direction === 'menu' || direction === 'center') {
         goBack()
+      }
+      return
+    } else if (currentScreen === 'nowplaying') {
+      // On nowplaying screen, center toggles play/pause, menu goes back
+      if (direction === 'menu') {
+        goBack()
+      } else if (direction === 'center') {
+        const engine = getAudioEngine()
+        if (engine.isPlaying()) {
+          engine.pause()
+        } else if (engine.isLoaded()) {
+          engine.play()
+        }
       }
       return
     }
@@ -785,18 +798,22 @@ export function IpodClassicLayout({
               menu
             </button>
 
-            {/* Previous Button (Left) */}
+            {/* Previous/Back Button (Left) — navigates back from any sub-screen */}
             <button
               className="ipod-wheel-button ipod-wheel-prev"
-              onClick={() => {}}
+              onClick={() => {
+                if (currentScreen !== 'main') {
+                  goBack()
+                }
+              }}
             >
               {'\u25C0\u25C0'}
             </button>
 
-            {/* Next Button (Right) */}
+            {/* Next/Forward Button (Right) — activates selected item */}
             <button
               className="ipod-wheel-button ipod-wheel-next"
-              onClick={() => {}}
+              onClick={() => handleWheelClick('center')}
             >
               {'\u25B6\u25B6'}
             </button>
@@ -804,7 +821,16 @@ export function IpodClassicLayout({
             {/* Play/Pause Button (Bottom) */}
             <button
               className="ipod-wheel-button ipod-wheel-play"
-              onClick={() => {}}
+              onClick={() => {
+                if (currentScreen === 'nowplaying') {
+                  const engine = getAudioEngine()
+                  if (engine.isPlaying()) {
+                    engine.pause()
+                  } else if (engine.isLoaded()) {
+                    engine.play()
+                  }
+                }
+              }}
             >
               ▶ ❙❙
             </button>

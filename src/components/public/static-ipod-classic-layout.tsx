@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
 import { AudioCard } from '@/components/cards/audio-card'
+import { getAudioEngine } from '@/audio/engine/audioEngine'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
@@ -724,18 +725,22 @@ export function StaticIpodClassicLayout({
               menu
             </button>
 
-            {/* Previous Button (Left) */}
+            {/* Previous/Back Button (Left) — navigates back from any sub-screen */}
             <button
               className="ipod-wheel-button ipod-wheel-prev"
-              onClick={() => {}}
+              onClick={() => {
+                if (currentScreen !== 'main') {
+                  goBack()
+                }
+              }}
             >
               {'\u25C0\u25C0'}
             </button>
 
-            {/* Next Button (Right) */}
+            {/* Next/Forward Button (Right) — activates selected item */}
             <button
               className="ipod-wheel-button ipod-wheel-next"
-              onClick={() => {}}
+              onClick={() => handleWheelClick('center')}
             >
               {'\u25B6\u25B6'}
             </button>
@@ -743,7 +748,16 @@ export function StaticIpodClassicLayout({
             {/* Play/Pause Button (Bottom) */}
             <button
               className="ipod-wheel-button ipod-wheel-play"
-              onClick={() => {}}
+              onClick={() => {
+                if (currentScreen === 'nowplaying') {
+                  const engine = getAudioEngine()
+                  if (engine.isPlaying()) {
+                    engine.pause()
+                  } else if (engine.isLoaded()) {
+                    engine.play()
+                  }
+                }
+              }}
             >
               ▶ ❙❙
             </button>
