@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 060: Card type drawer size and top slide
+Last activity: 2026-02-10 - Completed quick task 061: Mobile phone zoom and drawer expand
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -646,6 +646,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | setIsPlaying after await play() | quick-057 | Prevents phantom playing state on mobile when init fails - only set true after successful play |
 | Top-sliding drawer for mobile card type | quick-060 | Drawer slides from top (direction="top") instead of bottom for better preview visibility below |
 | Conditional size toggle in drawer | quick-060 | Big/Small buttons only render when CARD_TYPE_SIZING[card.card_type] is non-null |
+| Mobile phone frame with gestures | quick-061 | 375x667 phone frame with @use-gesture/react pinch-to-zoom (0.1x-3x) and drag-to-pan on mobile layout |
+| touch-action: none for gestures | quick-061 | Prevents browser default pinch-zoom from interfering with custom gesture handling |
+| Expandable drawer controls | quick-061 | "More" section in drawer reveals font size (theme store) and text color (card.content) controls |
 
 ## Quick Tasks
 
@@ -708,6 +711,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 058 | Mobile quick access settings bar | Complete | 0409dbc, 82f6e93 |
 | 059 | Mobile compact card type drawer | Complete | 24af983, 045dc74 |
 | 060 | Card type drawer size and top slide | Complete | 94acf5e |
+| 061 | Mobile phone zoom and drawer expand | Complete | e72eb1f, 429a19e |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -787,11 +791,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-060 (Card type drawer size and top slide)
-Stopped at: Completed quick task 060
+Last activity: 2026-02-10 - Completed quick-061 (Mobile phone zoom and drawer expand)
+Stopped at: Completed quick task 061
 Resume file: None
 
-**Phase 12 In Progress:** Plan 05 awaiting verification. Quick tasks 058, 059, and 060 improve mobile editing UX with compact drawers for settings, card type switching, and size toggling.
+**Phase 12 In Progress:** Plan 05 awaiting verification. Quick tasks 058-061 complete mobile editing UX: quick settings bar, compact card type drawer, phone frame with pinch-to-zoom, and expandable styling controls.
 
 **Next step:** Verify Phase 12 Plan 05 end-to-end audio functionality
 
