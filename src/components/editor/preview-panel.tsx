@@ -6,6 +6,7 @@ import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
+import { useIsMobileLayout } from "@/hooks/use-media-query"
 
 const MOBILE_WIDTH = 375
 const MOBILE_HEIGHT = 667
@@ -16,6 +17,7 @@ export function PreviewPanel() {
   const [mobileScale, setMobileScale] = useState(1)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isMobileLayout = useIsMobileLayout()
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
@@ -136,8 +138,29 @@ export function PreviewPanel() {
     }
   }, [previewReady])
 
-  const isMobile = previewMode === "mobile"
+  const isMobilePreviewMode = previewMode === "mobile"
 
+  // On mobile layout: render iframe full-width/height without phone frame
+  if (isMobileLayout) {
+    return (
+      <div className="h-full flex flex-col bg-muted/30">
+        <div
+          ref={containerRef}
+          className="flex-1 overflow-hidden"
+          onClick={handleDeselect}
+        >
+          <iframe
+            ref={iframeRef}
+            src="/preview"
+            className="w-full h-full border-0"
+            title="Page preview"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Desktop layout: show phone frame / desktop toggle
   return (
     <div className="h-full flex flex-col bg-muted/30">
       {/* Preview toolbar */}
@@ -157,13 +180,13 @@ export function PreviewPanel() {
         <div
           className="bg-background shadow-lg overflow-hidden transition-all duration-300 ease-in-out"
           style={{
-            width: isMobile ? MOBILE_WIDTH : '100%',
-            height: isMobile ? MOBILE_HEIGHT : '100%',
-            borderRadius: isMobile ? '2rem' : '0.5rem',
-            borderWidth: isMobile ? '4px' : '0px',
+            width: isMobilePreviewMode ? MOBILE_WIDTH : '100%',
+            height: isMobilePreviewMode ? MOBILE_HEIGHT : '100%',
+            borderRadius: isMobilePreviewMode ? '2rem' : '0.5rem',
+            borderWidth: isMobilePreviewMode ? '4px' : '0px',
             borderColor: 'hsl(var(--foreground) / 0.1)',
             borderStyle: 'solid',
-            transform: isMobile ? `scale(${mobileScale})` : 'scale(1)',
+            transform: isMobilePreviewMode ? `scale(${mobileScale})` : 'scale(1)',
             transformOrigin: 'center center',
           }}
         >

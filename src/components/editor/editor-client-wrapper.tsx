@@ -110,7 +110,7 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
         {/* Register undo/redo keyboard shortcuts */}
         <HistoryHotkeys />
 
-        <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+        <div className="flex flex-col h-[calc(100dvh-3.5rem)]">
           {/* Editor header */}
           <DashboardHeader username={username} />
 

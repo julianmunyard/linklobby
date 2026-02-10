@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { QRCodeDialog } from "@/components/fan-tools/qr-code-dialog"
@@ -81,8 +80,8 @@ export function SettingsTab() {
   const pageUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${pageInfo.username}`
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+    <div className="h-full overflow-y-auto">
+      <div className="p-4 pb-20 space-y-4">
         {/* Fan Tools Section */}
         <Collapsible open={fanToolsOpen} onOpenChange={setFanToolsOpen}>
           <CollapsibleTrigger asChild>
@@ -167,6 +166,6 @@ export function SettingsTab() {
         open={qrDialogOpen}
         onOpenChange={setQrDialogOpen}
       />
-    </ScrollArea>
+    </div>
   )
 }

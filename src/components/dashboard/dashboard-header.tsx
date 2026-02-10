@@ -82,11 +82,11 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
   }
 
   return (
-    <div className="flex items-center justify-between w-full px-4 py-2 border-b bg-background">
+    <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b bg-background gap-2 overflow-x-auto">
       {/* Left side: User info and public URL */}
-      <div className="flex items-center gap-3">
-        <span className="font-medium text-sm">{username}</span>
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+        <span className="font-medium text-sm truncate">{username}</span>
+        <div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0">
           <span className="hidden sm:inline">{publicUrl}</span>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -130,7 +130,7 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
       </div>
 
       {/* Right side: Undo/Redo, Save status and button */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Undo/Redo buttons */}
         <div className="flex items-center gap-1">
           <Tooltip>

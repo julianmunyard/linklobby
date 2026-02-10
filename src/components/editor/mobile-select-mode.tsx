@@ -85,7 +85,7 @@ export function MobileSelectionBar() {
   if (!isSelectMode || selectedCount === 0) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b p-2 flex items-center justify-between">
+    <div className="fixed top-14 left-0 right-0 z-50 bg-background border-b p-2 flex items-center justify-between shadow-sm">
       <span className="text-sm font-medium">
         {selectedCount} selected
       </span>

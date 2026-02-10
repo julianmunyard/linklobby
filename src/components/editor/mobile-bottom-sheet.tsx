@@ -34,7 +34,7 @@ export function MobileBottomSheet({
       onOpenChange={onOpenChange}
       modal={false}
     >
-      <DrawerContent className="h-[85vh] max-h-[85vh] flex flex-col">
+      <DrawerContent className="h-[85dvh] max-h-[85dvh] flex flex-col">
         <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
           <DrawerTitle>{title}</DrawerTitle>
           <DrawerClose asChild>

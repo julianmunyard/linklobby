@@ -2,7 +2,6 @@
 
 import { useMemo } from "react"
 import { Calendar, Clock, CheckCircle } from "lucide-react"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { usePageStore } from "@/stores/page-store"
 import { sortCardsBySortKey } from "@/lib/ordering"
 import { getScheduleStatus, isScheduled } from "@/types/card"
@@ -73,8 +72,8 @@ export function ScheduleTab() {
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 space-y-6">
+    <div className="h-full overflow-y-auto">
+      <div className="p-4 pb-20 space-y-6">
         {/* Info banner for empty scheduling */}
         {!hasScheduledContent && (
           <div className="p-4 border rounded-lg bg-muted/50 text-center">
@@ -141,6 +140,6 @@ export function ScheduleTab() {
           </section>
         )}
       </div>
-    </ScrollArea>
+    </div>
   )
 }

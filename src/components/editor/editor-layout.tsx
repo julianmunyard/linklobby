@@ -80,8 +80,8 @@ export function EditorLayout() {
         {/* Mobile selection bar (shows when in select mode with selected cards) */}
         <MobileSelectionBar />
 
-        {/* Full-width preview */}
-        <div className="flex-1 bg-muted/30">
+        {/* Full-width preview - min-h-0 prevents flex child from overflowing */}
+        <div className="flex-1 min-h-0 bg-muted/30">
           <PreviewPanel />
         </div>
 

@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Hide scrollbar while keeping scroll functionality */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* VCR Menu Font */
 @font-face {
   font-family: 'Pixter Granular';
@@ -1251,4 +1259,50 @@
   }
 }
 
+/* ========================================
+   LED Departures Board Theme Styles
+   ======================================== */
 
+[data-theme="departures-board-led"] {
+  --theme-shadow: none;
+}
+
+/* LED row: dark background visible as gap between cells */
+[data-theme="departures-board-led"] .departures-board-row {
+  background-color: #111;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      #222 0px,
+      #222 1.6em,
+      #111 1.6em,
+      #111 calc(1.6em + 2px)
+    );
+  text-shadow: 0 0 6px currentColor, 0 0 2px currentColor;
+}
+
+/* LED character cells - one square per letter */
+.led-text {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.led-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  background-color: #222;
+  flex-shrink: 0;
+}
+
+/* Right-aligned columns: push cells to the right */
+[data-theme="departures-board-led"] .departures-col-info .led-text {
+  margin-left: auto;
+}
+
+/* LED glow on social icons */
+[data-theme="departures-board-led"] .departures-board-row-socials svg {
+  filter: drop-shadow(0 0 4px currentColor);
+}

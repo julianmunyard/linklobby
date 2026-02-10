@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+// ScrollArea/ScrollBar removed — native overflow-x-auto used for touch swipe
 import { ThemePresets } from './theme-presets'
 import { ColorCustomizer } from './color-customizer'
 import { FontPicker } from './font-picker'
@@ -154,9 +154,9 @@ export function DesignPanel() {
 
   return (
     <div className="space-y-4">
-      {/* Horizontal scrollable tabs */}
-      <ScrollArea className="w-full">
-        <div className="flex gap-2 pb-2">
+      {/* Horizontal scrollable tabs - native overflow for touch swipe support */}
+      <div className="overflow-x-auto -mx-4 px-4 scrollbar-none">
+        <div className="flex gap-2 pb-2 w-max">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
@@ -172,8 +172,7 @@ export function DesignPanel() {
             </button>
           ))}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      </div>
 
       {/* Tab content */}
       <div className="space-y-4">

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Separator } from "@/components/ui/separator"
@@ -135,8 +134,8 @@ export function InsightsTab() {
 
   if (hasNoData) {
     return (
-      <ScrollArea className="h-full">
-        <div className="p-4">
+      <div className="h-full overflow-y-auto">
+        <div className="p-4 pb-20">
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center gap-4">
             <div className="rounded-full bg-muted p-4">
               <TrendingUp className="h-8 w-8 text-muted-foreground" />
@@ -174,13 +173,13 @@ export function InsightsTab() {
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     )
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 space-y-6">
+    <div className="h-full overflow-y-auto">
+      <div className="p-4 pb-20 space-y-6">
         {/* Time Period Filter */}
         <div className="flex justify-end">
           <ToggleGroup
@@ -242,6 +241,6 @@ export function InsightsTab() {
         {/* Pixel Configuration */}
         {pageInfo && <PixelConfig pageId={pageInfo.id} />}
       </div>
-    </ScrollArea>
+    </div>
   )
 }

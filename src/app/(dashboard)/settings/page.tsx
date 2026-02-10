@@ -20,12 +20,10 @@ export default async function SettingsPage() {
     .single()
 
   return (
-    <div className="min-h-screen p-8">
-      <header className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-        </div>
-        <Button variant="outline" asChild>
+    <div className="min-h-screen p-4 sm:p-8">
+      <header className="flex items-center justify-between gap-4 mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold">Settings</h1>
+        <Button variant="outline" size="sm" asChild>
           <Link href="/editor">Back to Editor</Link>
         </Button>
       </header>
