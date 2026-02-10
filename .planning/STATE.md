@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 053: Macintosh audio card VCR-style
+Last activity: 2026-02-10 - Completed quick task 053: Fix Poolsuite audio transparent colors on public pages
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -625,6 +625,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Hidden range input with visual thumb overlay | quick-051 | Accessible slider with custom Poolsuite visual styling |
 | No album art in Poolsuite player | quick-051 | Compact card layout - dense efficient player matching reference design |
 | System Settings is compact audio theme | quick-051 | Joins receipt/VCR/classified as compact variant with bordered controls |
+| SystemSettingsCard wraps audio on public pages | quick-053 | Audio player wrapped in System 7 window chrome on public pages, matching editor preview |
+| CSS variable fallbacks for system-settings player | quick-053 | var(--theme-card-bg, #F9F0E9) and var(--theme-text, #000000) prevent transparent buttons |
 | Macintosh audio hardcoded colors | quick-053 | Use #fff text and #000 bg for Macintosh player - always black/white for authentic 8-bit aesthetic |
 | Text PLAY/PAUSE for Macintosh | quick-053 | Plain text instead of unicode symbols for simpler 8-bit look |
 | Checkerboard progress fill | quick-053 | repeating-conic-gradient for classic Macintosh UI pattern, no image assets |
@@ -683,6 +685,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 051 | Poolsuite FM audio player for system-settings theme | Complete | ba33ef6, d4403c0 |
 | 052 | Fix Poolsuite audio player not playing on public pages | Complete | c4954da |
 | 053 | Macintosh audio card VCR-style | Complete | 1f17db3, 10306e3 |
+| 053b | Fix Poolsuite audio transparent colors on public pages | Complete | 7fc0fc9, 719ad58 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -762,11 +765,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-053-PLAN.md (Macintosh audio card VCR-style)
-Stopped at: Completed quick task 053
+Last activity: 2026-02-10 - Completed quick-053b (Fix Poolsuite audio transparent colors on public pages)
+Stopped at: Completed quick task 053b
 Resume file: None
 
-**Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 053 adds Macintosh-themed audio player with checkerboard progress bar.
+**Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 053b fixes transparent audio buttons on public pages by wrapping in SystemSettingsCard and adding CSS variable fallbacks.
 
 **Next step:** Verify Phase 12 Plan 05 end-to-end audio functionality
 
