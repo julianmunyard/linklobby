@@ -1135,6 +1135,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px; /* Black gaps between rows */
+  margin: 0 auto;
 }
 
 /* Base row: compact dark strip */
