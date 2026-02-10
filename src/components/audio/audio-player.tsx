@@ -140,12 +140,13 @@ export function AudioPlayer({
   const isClassified = themeVariant === 'classified'
   const isSystemSettings = themeVariant === 'system-settings'
   const isMacOs = themeVariant === 'mac-os'
-  const isCompact = isReceipt || isVcr || isClassified || isSystemSettings || isMacOs
+  const isIpodClassic = themeVariant === 'ipod-classic'
+  const isCompact = isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic
 
   // Color overrides per theme
   // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
-  const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs) ? 'transparent' : playerColors?.elementBgColor
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : isIpodClassic ? '#e0e0e0' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
   if (isVcr) {
@@ -922,6 +923,256 @@ export function AudioPlayer({
     )
   }
 
+  // ─── iPOD CLASSIC THEME: Macintosh layout with dark color scheme ───
+  if (isIpodClassic) {
+    const ipodBg = '#1a1a1a'
+    const ipodBorder = '#c0c0c0'
+    const ipodChecker = '#c0c0c0'
+    const ipodFont: React.CSSProperties = {
+      fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
+      color: ipodBorder
+    }
+    // 8-bit pixel border clip-path for boxes (same as Macintosh)
+    const ipodPixelClip = `polygon(
+      6px 0%, calc(100% - 6px) 0%,
+      calc(100% - 6px) 3px, calc(100% - 3px) 3px,
+      calc(100% - 3px) 6px, 100% 6px,
+      100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px),
+      calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
+      calc(100% - 6px) 100%, 6px 100%,
+      6px calc(100% - 3px), 3px calc(100% - 3px),
+      3px calc(100% - 6px), 0% calc(100% - 6px),
+      0% 6px, 3px 6px,
+      3px 3px, 6px 3px
+    )`
+    // Helper: bordered shell with interior for 8-bit bordered boxes
+    const IpodBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
+      <div style={{ background: ipodBorder, clipPath: ipodPixelClip, padding: '2px' }}>
+        <div className={cls} style={{ background: ipodBg, clipPath: ipodPixelClip, ...s }}>
+          {children}
+        </div>
+      </div>
+    )
+
+    // Build marquee text for track title
+    const trackTitle = currentTrack
+      ? `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
+      : ''
+
+    return (
+      <div
+        className={cn('flex flex-col gap-1.5 p-2', className)}
+        style={{ ...ipodFont, background: ipodBg }}
+      >
+        {/* ── Row 1: PLAY button (left) + Track info (right, ~3/4 width) ── */}
+        <div className="flex items-stretch gap-1.5">
+          <button
+            onClick={handlePlay}
+            disabled={!player.isLoaded && !player.isLoading}
+            className="uppercase tracking-wider cursor-pointer hover:opacity-80 flex-shrink-0"
+            style={{
+              opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
+            }}
+          >
+            <div style={{ background: ipodBorder, clipPath: ipodPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
+              <div className="flex items-center h-full" style={{ background: ipodBg, clipPath: ipodPixelClip, padding: '0 12px' }}>
+                <span className="text-[11px] font-bold whitespace-nowrap">
+                  {player.isPlaying ? 'PAUSE' : 'PLAY'}
+                </span>
+              </div>
+            </div>
+          </button>
+          {currentTrack ? (
+            <div className="flex-1 min-w-0">
+              <IpodBox className="px-2 py-0.5 uppercase tracking-wider overflow-hidden flex items-center" style={{ height: '24px' }}>
+                <div ref={marqueeContainerRef} className="whitespace-nowrap text-[10px] font-bold overflow-hidden">
+                  <span ref={marqueeTextRef} className={isMarqueeNeeded ? 'ipod-audio-marquee inline-block' : 'inline-block'}>{trackTitle}</span>
+                </div>
+              </IpodBox>
+            </div>
+          ) : (
+            <div className="flex-1" />
+          )}
+        </div>
+
+        {/* ── Progress bar — full width, checkers fill ── */}
+        <div className="px-1">
+          <WaveformDisplay
+            showWaveform={showWaveform}
+            waveformData={waveformData}
+            progress={player.progress}
+            currentTime={player.currentTime}
+            duration={player.duration}
+            onSeek={player.seek}
+            foregroundColor={ipodBorder}
+            elementBgColor="transparent"
+            themeVariant="mac-os"
+            isPlaying={player.isPlaying}
+            macCheckerColor={ipodChecker}
+            macBgColor={ipodBg}
+          />
+        </div>
+
+        {/* ── Varispeed slider ── */}
+        <div className="flex items-start gap-1.5">
+          <div className="flex-1 min-w-0 px-1">
+            {/* Checkerboard slider with 8-bit rectangle knob */}
+            <div className="relative" style={{ height: '28px' }}>
+              {/* Checkerboard bar — centered vertically, subtle 8-bit corners */}
+              {(() => {
+                const barClip = `polygon(
+                  2px 0, calc(100% - 2px) 0,
+                  calc(100% - 2px) 1px, calc(100% - 1px) 1px,
+                  calc(100% - 1px) 2px, 100% 2px,
+                  100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px),
+                  calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px),
+                  calc(100% - 2px) 100%, 2px 100%,
+                  2px calc(100% - 1px), 1px calc(100% - 1px),
+                  1px calc(100% - 2px), 0 calc(100% - 2px),
+                  0 2px, 1px 2px,
+                  1px 1px, 2px 1px
+                )`
+                return (
+                  <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
+                    <div className="w-full h-full" style={{ background: ipodBorder, clipPath: barClip, padding: '2px' }}>
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          clipPath: barClip,
+                          background: `repeating-conic-gradient(${ipodChecker} 0% 25%, ${ipodBg} 0% 50%) 0 0 / 4px 4px`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Rectangle knob */}
+              {(() => {
+                const knobClip = `polygon(
+                  3px 0, calc(100% - 3px) 0,
+                  calc(100% - 3px) 1px, calc(100% - 2px) 1px,
+                  calc(100% - 2px) 2px, calc(100% - 1px) 2px,
+                  calc(100% - 1px) 3px, 100% 3px,
+                  100% calc(100% - 3px), calc(100% - 1px) calc(100% - 3px),
+                  calc(100% - 1px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px),
+                  calc(100% - 2px) calc(100% - 1px), calc(100% - 3px) calc(100% - 1px),
+                  calc(100% - 3px) 100%, 3px 100%,
+                  3px calc(100% - 1px), 2px calc(100% - 1px),
+                  2px calc(100% - 2px), 1px calc(100% - 2px),
+                  1px calc(100% - 3px), 0 calc(100% - 3px),
+                  0 3px, 1px 3px,
+                  1px 2px, 2px 2px,
+                  2px 1px, 3px 1px
+                )`
+                return (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: `${((player.speed - 0.5) / 1.0) * 100}%`,
+                      top: 0,
+                      bottom: 0,
+                      width: '16px',
+                      marginLeft: '-8px',
+                    }}
+                  >
+                    <div className="w-full h-full" style={{ background: ipodBorder, clipPath: knobClip, padding: '2px' }}>
+                      <div
+                        className="w-full h-full flex items-center justify-center gap-[4px]"
+                        style={{ background: ipodBg, clipPath: knobClip }}
+                      >
+                        <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
+                        <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Hidden range input */}
+              <input
+                type="range"
+                min="0.5"
+                max="1.5"
+                step="0.01"
+                value={player.speed}
+                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                className="absolute inset-0 w-full h-full cursor-pointer z-20"
+                style={{ opacity: 0 }}
+                aria-label="Varispeed"
+              />
+            </div>
+            {/* Speed + mode below slider */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <IpodBox className="py-0.5 flex items-center justify-center" style={{ width: '52px' }}>
+                <span className="text-[10px] font-bold font-mono">{player.speed.toFixed(2)}x</span>
+              </IpodBox>
+              <IpodBox className="px-2 py-0.5 flex items-center">
+                <button
+                  onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+                  className="text-[10px] uppercase tracking-wider font-bold"
+                  style={{ color: 'inherit' }}
+                >
+                  {player.varispeedMode === 'timestretch' ? 'STRETCH' : 'NATURAL'}
+                </button>
+              </IpodBox>
+            </div>
+          </div>
+
+          {/* Reverb — compact, tucked right */}
+          <div className="flex flex-col items-center flex-shrink-0" style={{ transform: 'scale(0.7)', transformOrigin: 'top right', marginBottom: '-8px' }}>
+            <ReverbKnob
+              mix={player.reverbMix}
+              onMixChange={player.setReverbMix}
+              foregroundColor={ipodBorder}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+            {isEditing && reverbConfig && (
+              <ReverbConfigModal
+                config={reverbConfig}
+                onSave={handleReverbConfigChange}
+                trigger={
+                  <button
+                    className="p-1 rounded-none transition-colors"
+                    style={{ color: 'inherit' }}
+                    aria-label="Configure reverb"
+                  >
+                    <Settings className="w-3 h-3" />
+                  </button>
+                }
+              />
+            )}
+          </div>
+        </div>
+
+        {/* ── Track List (multi-track only) ── */}
+        {tracks.length > 1 && (
+          <IpodBox>
+            <TrackList
+              tracks={tracks}
+              currentTrackIndex={currentTrackIndex}
+              onTrackSelect={handleTrackSelect}
+              foregroundColor={ipodBorder}
+              elementBgColor="transparent"
+              themeVariant={themeVariant}
+            />
+          </IpodBox>
+        )}
+
+        {/* Marquee CSS animation — only applied when text overflows */}
+        <style>{`
+          .ipod-audio-marquee {
+            animation: ipodMarquee 18s linear infinite;
+          }
+          @keyframes ipodMarquee {
+            0%, 10% { transform: translateX(0); }
+            45%, 55% { transform: translateX(calc(-100% + ${marqueeContainerRef.current?.clientWidth ?? 200}px)); }
+            90%, 100% { transform: translateX(0); }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
   // ─── DEFAULT + RECEIPT THEMES ───
 
   const themeClasses = cn(
@@ -929,7 +1180,6 @@ export function AudioPlayer({
     isReceipt ? 'gap-2' : 'gap-4',
     {
       'audio-player-receipt': themeVariant === 'receipt',
-      'audio-player-ipod': themeVariant === 'ipod-classic',
     },
     className
   )
@@ -939,9 +1189,6 @@ export function AudioPlayer({
   if (themeVariant === 'receipt') {
     themeStyle.fontFamily = 'var(--font-ticket-de-caisse), monospace'
     themeStyle.color = '#000'
-  } else if (themeVariant === 'ipod-classic') {
-    themeStyle.fontFamily = "var(--font-chicago), system-ui"
-    themeStyle.fontSize = '0.875rem'
   }
 
   return (
