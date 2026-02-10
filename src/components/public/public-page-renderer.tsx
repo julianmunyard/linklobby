@@ -8,6 +8,7 @@ import { StaticMacintoshLayout } from "./static-macintosh-layout"
 import { StaticWordArtLayout } from "./static-word-art-layout"
 import { StaticLanyardBadgeLayout } from "./static-lanyard-badge-layout"
 import { StaticClassifiedLayout } from "./static-classified-layout"
+import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -285,6 +286,22 @@ export function PublicPageRenderer({
         classifiedDeptText={classifiedDeptText}
         classifiedCenterText={classifiedCenterText}
         classifiedMessageText={classifiedMessageText}
+      />
+    )
+  }
+
+  // Departures Board theme uses airport departures display layout
+  if (themeId === 'departures-board') {
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+    return (
+      <StaticDeparturesBoardLayout
+        username={username}
+        title={displayName || 'DEPARTURES'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        socialIcons={socialIcons}
+        showSocialIcons={showSocialIcons}
       />
     )
   }

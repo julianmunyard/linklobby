@@ -13,6 +13,7 @@ import { MacintoshLayout } from "@/components/cards/macintosh-layout"
 import { WordArtLayout } from "@/components/cards/word-art-layout"
 import { LanyardBadgeLayout } from "@/components/cards/lanyard-badge-layout"
 import { ClassifiedLayout } from "@/components/cards/classified-layout"
+import { DeparturesBoardLayout } from "@/components/cards/departures-board-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
@@ -284,6 +285,24 @@ function PreviewContent() {
         <DimOverlay />
         <ClassifiedLayout
           title={displayName || 'SECRET'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Departures Board theme uses airport departures display layout
+  if (themeId === 'departures-board') {
+    return (
+      <>
+        <PageBackground />
+        <DimOverlay />
+        <DeparturesBoardLayout
+          title={displayName || 'DEPARTURES'}
           cards={state.cards}
           isPreview={true}
           onCardClick={handleCardClick}

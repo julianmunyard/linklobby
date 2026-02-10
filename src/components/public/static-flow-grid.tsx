@@ -95,6 +95,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
             'classified': 'classified',
+            'departures-board': 'classified',  // Dark theme - use classified variant
             'mac-os': 'mac-os',
             'macintosh': 'mac-os',
             'ipod-classic': 'ipod-classic',

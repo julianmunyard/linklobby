@@ -1120,4 +1120,92 @@
   }
 }
 
+/* ========================================
+   Departures Board Theme Styles
+   ======================================== */
+
+[data-theme="departures-board"] {
+  --theme-shadow: none;
+}
+
+/* Departures board container */
+.departures-board-container {
+  width: 520px;
+  max-width: 100%;
+  position: relative;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Board header */
+.departures-board-header {
+  text-align: center;
+  padding: 24px 24px 16px;
+  border-bottom: 2px solid var(--theme-border);
+}
+
+/* Column headers */
+.departures-board-columns {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+/* Flight row */
+.departures-board-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--theme-border);
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.departures-board-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.departures-board-row:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Section divider (text cards) */
+.departures-board-section {
+  text-align: center;
+  padding: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.75rem;
+  border-top: 2px solid var(--theme-border);
+  border-bottom: 2px solid var(--theme-border);
+  margin: 8px 0;
+}
+
+/* Departures board content area */
+.departures-board-content {
+  padding: 0 0 24px;
+}
+
+/* Departures board divider */
+.departures-board-divider {
+  border-top: 1px solid var(--theme-border);
+  margin: 8px 16px;
+}
+
+/* Responsive */
+@media (max-width: 560px) {
+  .departures-board-container {
+    width: 100%;
+  }
+}
+
 

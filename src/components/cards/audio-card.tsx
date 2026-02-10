@@ -8,14 +8,16 @@ import { useThemeStore } from '@/stores/theme-store'
 interface AudioCardProps {
   card: Card
   isPreview?: boolean   // true in editor preview, false on public page
+  themeIdOverride?: string  // Pass from public page when Zustand store isn't available
 }
 
-export function AudioCard({ card, isPreview = false }: AudioCardProps) {
+export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCardProps) {
   const content = card.content
-  const themeId = useThemeStore((s) => s.themeId)
+  const storeThemeId = useThemeStore((s) => s.themeId)
+  const themeId = themeIdOverride || storeThemeId
 
   // Map ThemeId to ThemeVariant
-  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu'> = {
+  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
     'instagram-reels': 'instagram-reels',
     'mac-os': 'mac-os',
     'macintosh': 'mac-os', // Legacy name
@@ -23,6 +25,8 @@ export function AudioCard({ card, isPreview = false }: AudioCardProps) {
     'receipt': 'receipt',
     'ipod-classic': 'ipod-classic',
     'vcr-menu': 'vcr-menu',
+    'classified': 'classified',
+    'departures-board': 'classified',  // Dark theme - use classified variant
   }
   const themeVariant = themeVariantMap[themeId] || 'instagram-reels'
 
