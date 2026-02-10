@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 058: Mobile quick access settings bar
+Last activity: 2026-02-10 - Completed quick task 059: Mobile compact card type drawer
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -704,6 +704,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 056 | Departures Board theme with airport display aesthetic | Complete | f17b87b, c785150 |
 | 057 | Fix mobile audio playback (lazy AudioEngine init) | Complete | ba30282 |
 | 058 | Mobile quick access settings bar | Complete | 0409dbc, 82f6e93 |
+| 059 | Mobile compact card type drawer | Complete | 24af983, 045dc74 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -783,11 +784,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-058 (Mobile quick access settings bar)
-Stopped at: Completed quick task 058
+Last activity: 2026-02-10 - Completed quick-059 (Mobile compact card type drawer)
+Stopped at: Completed quick task 059
 Resume file: None
 
-**Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 054 adds iPod-classic dark audio player with Now Playing screen navigation.
+**Phase 12 In Progress:** Plan 05 awaiting verification. Quick tasks 058 and 059 improve mobile editing UX with compact drawers for settings and card type switching.
 
 **Next step:** Verify Phase 12 Plan 05 end-to-end audio functionality
 
