@@ -175,7 +175,7 @@ export function StaticDeparturesBoardLayout({
                 key={card.id}
                 className={cn(
                   "departures-board-row departures-board-row-link",
-                  focusedIndex === index && "departures-board-row-focused"
+                  ""
                 )}
                 onClick={() => handleCardClick(card, index)}
                 data-card-id={card.id}

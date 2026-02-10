@@ -189,7 +189,7 @@ export function DeparturesBoardLayout({
                 key={card.id}
                 className={cn(
                   "departures-board-row departures-board-row-link",
-                  focusedIndex === index && selectedCardId === card.id && "departures-board-row-focused"
+                  ""
                 )}
                 onClick={() => handleCardClick(card, index)}
               >

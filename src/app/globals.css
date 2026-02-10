@@ -1200,16 +1200,11 @@
 }
 
 .departures-board-row-link:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--theme-card-bg);
 }
 
 .departures-board-row-link:focus {
   outline: none;
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.departures-board-row-focused {
-  background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Section divider (text cards) - centered */
