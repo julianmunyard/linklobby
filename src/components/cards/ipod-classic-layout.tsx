@@ -8,6 +8,7 @@ import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/page-background'
+import { AudioCard } from '@/components/cards/audio-card'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
@@ -38,8 +39,9 @@ export function IpodClassicLayout({
   selectedCardId
 }: IpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [currentScreen, setCurrentScreen] = useState<'main' | 'socials' | 'release'>('main')
+  const [currentScreen, setCurrentScreen] = useState<'main' | 'socials' | 'release' | 'nowplaying'>('main')
   const [activeReleaseIndex, setActiveReleaseIndex] = useState(0)
+  const [activeAudioCard, setActiveAudioCard] = useState<Card | null>(null)
   const [draggingSticker, setDraggingSticker] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuListRef = useRef<HTMLDivElement>(null)
@@ -113,6 +115,13 @@ export function IpodClassicLayout({
     setSelectedIndex(0)
   }
 
+  // Navigate to Now Playing screen for audio cards
+  const goToNowPlaying = (card: Card) => {
+    setCurrentScreen('nowplaying')
+    setActiveAudioCard(card)
+    setSelectedIndex(0)
+  }
+
   // Go back to main screen
   const goBack = () => {
     setCurrentScreen('main')
@@ -135,8 +144,8 @@ export function IpodClassicLayout({
       menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
-    } else if (currentScreen === 'release') {
-      // On release screen, arrow keys do nothing (just center button to go back)
+    } else if (currentScreen === 'release' || currentScreen === 'nowplaying') {
+      // On release/nowplaying screen, arrow keys do nothing (just center button to go back)
       if (e.key === 'Escape' || e.key === 'Backspace') {
         e.preventDefault()
         goBack()
@@ -161,6 +170,8 @@ export function IpodClassicLayout({
             const card = menuCards[selectedIndex]
             if (card?.card_type === 'social-icons') {
               goToSocials()
+            } else if (card?.card_type === 'audio') {
+              goToNowPlaying(card)
             } else if (card) {
               activateLink(card)
             }
@@ -211,8 +222,8 @@ export function IpodClassicLayout({
       menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
     } else if (currentScreen === 'socials') {
       menuLength = socialIcons.length
-    } else if (currentScreen === 'release') {
-      // On release screen, only menu button works (go back)
+    } else if (currentScreen === 'release' || currentScreen === 'nowplaying') {
+      // On release/nowplaying screen, only menu button works (go back)
       if (direction === 'menu' || direction === 'center') {
         goBack()
       }
@@ -233,6 +244,8 @@ export function IpodClassicLayout({
             const card = menuCards[selectedIndex]
             if (card?.card_type === 'social-icons') {
               goToSocials()
+            } else if (card?.card_type === 'audio') {
+              goToNowPlaying(card)
             } else if (card) {
               activateLink(card)
             }
@@ -284,8 +297,8 @@ export function IpodClassicLayout({
     const wheel = wheelRef.current
     if (!wheel) return
 
-    // No scrolling on release screen
-    if (currentScreen === 'release') return
+    // No scrolling on release/nowplaying screen
+    if (currentScreen === 'release' || currentScreen === 'nowplaying') return
 
     let menuLength = 0
     if (currentScreen === 'main') {
@@ -413,6 +426,8 @@ export function IpodClassicLayout({
   let displayTitle = title || 'Menu'
   if (currentScreen === 'socials') {
     displayTitle = 'Socials'
+  } else if (currentScreen === 'nowplaying') {
+    displayTitle = 'Now Playing'
   } else if (currentScreen === 'release') {
     const releaseCard = releaseCards[activeReleaseIndex]
     if (releaseCard && isReleaseContent(releaseCard.content)) {
@@ -459,7 +474,7 @@ export function IpodClassicLayout({
             <div className="ipod-screen">
               {/* Title Bar - Arrow | Title | Battery */}
               <div className="ipod-title-bar">
-                {(currentScreen === 'socials' || currentScreen === 'release') ? (
+                {(currentScreen === 'socials' || currentScreen === 'release' || currentScreen === 'nowplaying') ? (
                   <span className="text-[11px] cursor-pointer" onClick={goBack}>◀</span>
                 ) : (
                   <span className="text-[11px]">▶</span>
@@ -518,6 +533,8 @@ export function IpodClassicLayout({
                                 // Already selected - activate
                                 if (card.card_type === 'social-icons') {
                                   goToSocials()
+                                } else if (card.card_type === 'audio') {
+                                  goToNowPlaying(card)
                                 } else {
                                   activateLink(card)
                                 }
@@ -531,7 +548,7 @@ export function IpodClassicLayout({
                                 {displayText}
                               </span>
                             </span>
-                            <span className="text-[11px] ml-2">{'>'}</span>
+                            <span className="text-[11px] ml-2">{card.card_type === 'audio' ? '\u266B' : '>'}</span>
                           </div>
                         )
                       })}
@@ -739,6 +756,20 @@ export function IpodClassicLayout({
                       </div>
                     )
                   })()
+                ) : currentScreen === 'nowplaying' ? (
+                  activeAudioCard ? (
+                    <div className="flex flex-col h-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                      <AudioCard
+                        card={activeAudioCard}
+                        isPreview={isPreview}
+                        themeIdOverride="ipod-classic"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-[13px] text-gray-500">
+                      No audio
+                    </div>
+                  )
                 ) : null}
               </div>
             </div>
