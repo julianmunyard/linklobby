@@ -180,7 +180,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
         {/* Click on empty space clears selection */}
         <div
-          className="flex flex-wrap gap-4 min-h-[100px] w-full"
+          className={cn("flex flex-wrap gap-4 min-h-[100px] w-full", activeCard && "touch-none")}
           onClick={(e) => {
             // Only clear if clicking the container itself, not a card
             if (e.target === e.currentTarget) {

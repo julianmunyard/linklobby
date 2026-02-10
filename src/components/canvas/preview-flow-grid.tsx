@@ -137,7 +137,8 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-        <div className="flex flex-wrap gap-4 w-full">
+        {/* touch-none during drag prevents page scrolling while moving a card */}
+        <div className={cn("flex flex-wrap gap-4 w-full", activeCard && "touch-none")}>
           {cards.map((card) => (
             <PreviewSortableCard
               key={card.id}
