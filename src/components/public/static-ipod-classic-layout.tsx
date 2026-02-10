@@ -697,7 +697,7 @@ export function StaticIpodClassicLayout({
                   })()
                 ) : currentScreen === 'nowplaying' ? (
                   activeAudioCard ? (
-                    <div className="flex flex-col h-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                    <div className="flex flex-col h-full overflow-hidden">
                       <AudioCard
                         card={activeAudioCard}
                         isPreview={false}

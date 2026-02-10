@@ -145,7 +145,7 @@ export function AudioPlayer({
 
   // Color overrides per theme
   // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : isIpodClassic ? '#e0e0e0' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : isIpodClassic ? '#1a1a1a' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
   const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
@@ -923,11 +923,11 @@ export function AudioPlayer({
     )
   }
 
-  // ─── iPOD CLASSIC THEME: Macintosh layout with dark color scheme ───
+  // ─── iPOD CLASSIC THEME: Macintosh layout with iPod screen colors ───
   if (isIpodClassic) {
-    const ipodBg = '#1a1a1a'
-    const ipodBorder = '#c0c0c0'
-    const ipodChecker = '#c0c0c0'
+    const ipodBg = 'var(--theme-card-bg, #C2C1BA)'
+    const ipodBorder = '#1a1a1a'
+    const ipodChecker = '#1a1a1a'
     const ipodFont: React.CSSProperties = {
       fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
       color: ipodBorder
