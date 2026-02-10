@@ -35,7 +35,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText } = useThemeStore()
   const theme = getTheme(themeId)
 
   // Hide card style controls for list-layout themes
@@ -142,6 +142,20 @@ export function StyleControls() {
             className="font-mono"
           />
           <p className="text-xs text-muted-foreground">Displayed under total links on your receipt</p>
+        </div>
+      )}
+
+      {/* Receipt Theme: Paper Texture Toggle */}
+      {themeId === 'receipt' && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Paper Texture</Label>
+            <p className="text-xs text-muted-foreground">Overlay paper and plastic texture effects</p>
+          </div>
+          <Switch
+            checked={receiptPaperTexture}
+            onCheckedChange={setReceiptPaperTexture}
+          />
         </div>
       )}
 

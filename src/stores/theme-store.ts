@@ -33,6 +33,7 @@ interface ThemeStore extends ThemeState {
   receiptPrice: string  // Receipt theme: custom price text
   receiptStickers: ReceiptSticker[]  // Receipt theme: draggable stickers
   receiptFloatAnimation: boolean  // Receipt theme: floating animation enabled
+  receiptPaperTexture: boolean  // Receipt theme: paper texture overlay enabled
   ipodStickers: ReceiptSticker[]  // iPod theme: draggable stickers
   ipodTexture: string  // iPod theme: texture overlay path
   ipodFont: string  // iPod theme: font choice ('system' or 'pix-chicago')
@@ -62,6 +63,7 @@ interface ThemeStore extends ThemeState {
   updateReceiptSticker: (id: string, updates: Partial<ReceiptSticker>) => void
   removeReceiptSticker: (id: string) => void
   setReceiptFloatAnimation: (enabled: boolean) => void
+  setReceiptPaperTexture: (enabled: boolean) => void
   addIpodSticker: (sticker: ReceiptSticker) => void
   updateIpodSticker: (id: string, updates: Partial<ReceiptSticker>) => void
   removeIpodSticker: (id: string) => void
@@ -137,6 +139,7 @@ export const useThemeStore = create<ThemeStore>()(
       receiptPrice: 'PRICELESS',
       receiptStickers: [],
       receiptFloatAnimation: true,
+      receiptPaperTexture: false,
       ipodStickers: [],
       ipodTexture: '/images/metal-texture.jpeg',
       ipodFont: 'system',
@@ -319,6 +322,10 @@ export const useThemeStore = create<ThemeStore>()(
         set({ receiptFloatAnimation: enabled, hasChanges: true })
       },
 
+      setReceiptPaperTexture: (enabled: boolean) => {
+        set({ receiptPaperTexture: enabled, hasChanges: true })
+      },
+
       addIpodSticker: (sticker: ReceiptSticker) => {
         set((state) => ({
           ipodStickers: [...state.ipodStickers, sticker],
@@ -425,6 +432,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
           receiptStickers: theme.receiptStickers ?? [],
           receiptFloatAnimation: theme.receiptFloatAnimation ?? true,
+          receiptPaperTexture: theme.receiptPaperTexture ?? false,
           ipodStickers: theme.ipodStickers ?? [],
           ipodTexture: theme.ipodTexture ?? '/images/metal-texture.jpeg',
           ipodFont: theme.ipodFont ?? 'system',
@@ -455,6 +463,7 @@ export const useThemeStore = create<ThemeStore>()(
           receiptPrice: state.receiptPrice,
           receiptStickers: state.receiptStickers,
           receiptFloatAnimation: state.receiptFloatAnimation,
+          receiptPaperTexture: state.receiptPaperTexture,
           ipodStickers: state.ipodStickers,
           ipodTexture: state.ipodTexture,
           ipodFont: state.ipodFont,
