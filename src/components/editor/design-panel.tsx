@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { Camera, User, Upload, Plus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,8 +41,19 @@ type TabId = typeof TABS[number]['id']
 // Themes with fixed fonts where the Fonts tab should be hidden
 const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
 
-export function DesignPanel() {
+interface DesignPanelProps {
+  initialSubTab?: string | null
+}
+
+export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const [activeTab, setActiveTab] = useState<TabId>('presets')
+
+  // Watch for initialSubTab changes and switch to that tab
+  useEffect(() => {
+    if (initialSubTab && TABS.some(t => t.id === initialSubTab)) {
+      setActiveTab(initialSubTab as TabId)
+    }
+  }, [initialSubTab])
 
   // Theme store for current theme
   const themeId = useThemeStore((state) => state.themeId)

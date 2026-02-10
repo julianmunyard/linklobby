@@ -13,6 +13,7 @@ import { PreviewPanel } from "./preview-panel"
 import { MobileBottomSheet } from "./mobile-bottom-sheet"
 import { MobileFAB } from "./mobile-fab"
 import { MobileSelectToggle, MobileSelectionBar } from "./mobile-select-mode"
+import { MobileQuickSettings } from "./mobile-quick-settings"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
@@ -24,6 +25,7 @@ export function EditorLayout() {
   const [mounted, setMounted] = useState(false)
   const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
+  const [initialDesignTab, setInitialDesignTab] = useState<string | null>(null)
   const isMobileLayout = useIsMobileLayout()
   const isOnline = useOnline()
   const selectedCardId = usePageStore((state) => state.selectedCardId)
@@ -77,6 +79,14 @@ export function EditorLayout() {
           <MobileSelectToggle />
         </div>
 
+        {/* Quick access settings bar */}
+        <MobileQuickSettings
+          onOpenFullSettings={(subTab) => {
+            setInitialDesignTab(subTab)
+            setMobileSheetOpen(true)
+          }}
+        />
+
         {/* Mobile selection bar (shows when in select mode with selected cards) */}
         <MobileSelectionBar />
 
@@ -91,10 +101,16 @@ export function EditorLayout() {
         {/* Bottom sheet with editor */}
         <MobileBottomSheet
           open={mobileSheetOpen}
-          onOpenChange={setMobileSheetOpen}
+          onOpenChange={(open) => {
+            setMobileSheetOpen(open)
+            if (!open) setInitialDesignTab(null)
+          }}
           title="Editor"
         >
-          <EditorPanel />
+          <EditorPanel
+            initialDesignTab={initialDesignTab}
+            onDesignTabConsumed={() => setInitialDesignTab(null)}
+          />
         </MobileBottomSheet>
       </div>
     )

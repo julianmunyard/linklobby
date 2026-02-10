@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link2, Palette, Calendar, Settings, BarChart3 } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 
@@ -42,12 +42,25 @@ function EmptyState({ icon, title, description }: EmptyStateProps) {
 
 const VALID_TABS = ["links", "design", "schedule", "insights", "settings"]
 
-export function EditorPanel() {
+interface EditorPanelProps {
+  initialDesignTab?: string | null
+  onDesignTabConsumed?: () => void
+}
+
+export function EditorPanel({ initialDesignTab, onDesignTabConsumed }: EditorPanelProps = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get("tab")
   const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
   const [activeTab, setActiveTab] = useState(initialTab)
+
+  // Watch for initialDesignTab changes
+  useEffect(() => {
+    if (initialDesignTab) {
+      setActiveTab('design')
+      onDesignTabConsumed?.()
+    }
+  }, [initialDesignTab, onDesignTabConsumed])
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
@@ -140,7 +153,7 @@ export function EditorPanel() {
               "data-[state=inactive]:hidden"
             )}
           >
-            <DesignTab />
+            <DesignTab initialSubTab={initialDesignTab} />
           </TabsContent>
 
           <TabsContent
