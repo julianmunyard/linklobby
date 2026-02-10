@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
+import { useGesture } from "@use-gesture/react"
 import { PreviewToggle, type PreviewMode } from "./preview-toggle"
 import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
@@ -15,8 +16,12 @@ export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile")
   const [previewReady, setPreviewReady] = useState(false)
   const [mobileScale, setMobileScale] = useState(1)
+  const [scale, setScale] = useState(1)
+  const [translate, setTranslate] = useState({ x: 0, y: 0 })
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const baseScaleRef = useRef(1)
+  const lastTapRef = useRef(0)
   const isMobileLayout = useIsMobileLayout()
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
@@ -37,8 +42,10 @@ export function PreviewPanel() {
 
     const scaleX = availableWidth / MOBILE_WIDTH
     const scaleY = availableHeight / MOBILE_HEIGHT
-    const scale = Math.min(scaleX, scaleY, 1) // Don't scale up, only down
-    setMobileScale(scale)
+    const newScale = Math.min(scaleX, scaleY, 1) // Don't scale up, only down
+    setMobileScale(newScale)
+    baseScaleRef.current = newScale
+    setScale(newScale)
   }, [])
 
   // Update scale on mount and resize
@@ -60,6 +67,17 @@ export function PreviewPanel() {
       await saveCards()
     }
     selectCard(null)
+  }
+
+  // Double-tap to reset zoom
+  const handleDoubleTap = () => {
+    const now = Date.now()
+    if (now - lastTapRef.current < 300) {
+      // Double tap - reset to fit
+      setScale(baseScaleRef.current)
+      setTranslate({ x: 0, y: 0 })
+    }
+    lastTapRef.current = now
   }
 
   // Send state to preview iframe
@@ -138,23 +156,61 @@ export function PreviewPanel() {
     }
   }, [previewReady])
 
+  // Gesture handling for mobile layout
+  const bind = useGesture(
+    {
+      onPinch: ({ offset: [s] }) => {
+        const newScale = baseScaleRef.current * s
+        setScale(Math.max(0.1, Math.min(newScale, 3)))
+      },
+      onDrag: ({ delta: [dx, dy], pinching }) => {
+        if (pinching) return  // Don't drag while pinching
+        setTranslate(prev => ({ x: prev.x + dx, y: prev.y + dy }))
+      },
+    },
+    {
+      target: containerRef,
+      pinch: { scaleBounds: { min: 0.1, max: 3 }, rubberband: true },
+      drag: { filterTaps: true },
+      eventOptions: { passive: false },
+    }
+  )
+
   const isMobilePreviewMode = previewMode === "mobile"
 
-  // On mobile layout: render iframe full-width/height without phone frame
+  // On mobile layout: render iframe in phone frame with gestures
   if (isMobileLayout) {
     return (
       <div className="h-full flex flex-col bg-muted/30">
         <div
           ref={containerRef}
-          className="flex-1 overflow-hidden"
-          onClick={handleDeselect}
+          className="flex-1 min-h-0 bg-muted/30 flex items-center justify-center overflow-hidden"
+          style={{ touchAction: 'none' }}
+          onClick={(e) => {
+            handleDoubleTap()
+            handleDeselect()
+          }}
         >
-          <iframe
-            ref={iframeRef}
-            src="/preview"
-            className="w-full h-full border-0"
-            title="Page preview"
-          />
+          <div
+            className="bg-background shadow-lg overflow-hidden"
+            style={{
+              width: MOBILE_WIDTH,
+              height: MOBILE_HEIGHT,
+              borderRadius: '2rem',
+              borderWidth: '4px',
+              borderColor: 'hsl(var(--foreground) / 0.1)',
+              borderStyle: 'solid',
+              transform: `scale(${scale}) translate(${translate.x}px, ${translate.y}px)`,
+              transformOrigin: 'center center',
+            }}
+          >
+            <iframe
+              ref={iframeRef}
+              src="/preview"
+              className="w-full h-full border-0"
+              title="Page preview"
+            />
+          </div>
         </div>
       </div>
     )
