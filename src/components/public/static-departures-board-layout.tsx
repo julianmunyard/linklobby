@@ -119,7 +119,7 @@ export function StaticDeparturesBoardLayout({
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="flex justify-center items-start py-8 px-4 min-h-full">
+      <div className="flex justify-center items-center px-4 min-h-full">
         <div
           className="departures-board"
           style={{
