@@ -371,8 +371,8 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     const audioContent = card.content as AudioCardContent
     return (
       <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
-        <CheckerboardTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: '#000' }}>
+        <LinesTitleBar title={card.title || 'Now Playing'} />
+        <div style={{ background: '#fff' }}>
           <AudioPlayer
             tracks={audioContent.tracks || []}
             albumArtUrl={audioContent.albumArtUrl}

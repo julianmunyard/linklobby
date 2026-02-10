@@ -40,8 +40,8 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
   if (card.card_type === 'audio') {
     return (
       <WindowWrapper onClick={onClick} isSelected={isSelected}>
-        <CheckerboardTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: '#000' }}>
+        <LinesTitleBar title={card.title || 'Now Playing'} />
+        <div style={{ background: '#fff' }}>
           <AudioCard card={card} isPreview={isPreview} />
         </div>
       </WindowWrapper>

@@ -152,7 +152,7 @@ export function WaveformDisplay({
                     className="absolute top-0 left-0 h-full"
                     style={{
                       width: `${progress * 100}%`,
-                      background: 'repeating-conic-gradient(#fff 0% 25%, #000 0% 50%) 0 0 / 4px 4px',
+                      background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
                     }}
                   />
                 </div>

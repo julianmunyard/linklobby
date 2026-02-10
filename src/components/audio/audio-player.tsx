@@ -132,7 +132,7 @@ export function AudioPlayer({
 
   // Color overrides per theme
   // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#fff' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
   const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
@@ -263,17 +263,17 @@ export function AudioPlayer({
 
   // ─── MACINTOSH THEME: VCR-style bordered layout with 8-bit pixel aesthetic ───
   if (isMacOs) {
-    const macColor = '#fff'
+    const macColor = '#000'
     const macFont: React.CSSProperties = {
       fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
       color: macColor
     }
-    const macBorder = '3px solid #fff'
+    const macBorder = '3px solid #000'
 
     return (
       <div
         className={cn('flex flex-col', className)}
-        style={{ ...macFont, border: macBorder, background: '#000' }}
+        style={{ ...macFont, border: macBorder, background: '#fff' }}
       >
         {/* PLAY / PAUSE — clickable header */}
         <button
@@ -344,7 +344,7 @@ export function AudioPlayer({
             <button
               onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
               className="px-2 py-0.5 text-[10px] rounded-none border transition-colors uppercase tracking-wider w-full text-center"
-              style={{ color: macColor, borderColor: 'currentColor', backgroundColor: 'transparent' }}
+              style={{ color: 'inherit', borderColor: 'currentColor', backgroundColor: 'transparent' }}
             >
               {player.varispeedMode === 'timestretch' ? 'TIME-STRETCH' : 'NATURAL'}
             </button>
