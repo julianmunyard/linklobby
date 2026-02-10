@@ -1,13 +1,18 @@
 "use client"
 
-import { Pencil } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Pencil, ChevronDown } from "lucide-react"
 import { Drawer as DrawerPrimitive } from "vaul"
 import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { ColorPicker } from "@/components/ui/color-picker"
 import { usePageStore } from "@/stores/page-store"
+import { useThemeStore } from "@/stores/theme-store"
 import { CONVERTIBLE_CARD_TYPES } from "./card-type-picker"
 import { cn } from "@/lib/utils"
 import type { Card, CardType, CardSize } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
+import type { CardTypeFontSizes } from "@/types/theme"
 
 interface MobileCardTypeDrawerProps {
   open: boolean
@@ -22,7 +27,10 @@ export function MobileCardTypeDrawer({
   card,
   onOpenFullEditor,
 }: MobileCardTypeDrawerProps) {
+  const [expanded, setExpanded] = useState(false)
   const updateCard = usePageStore((state) => state.updateCard)
+  const cardTypeFontSizes = useThemeStore((state) => state.cardTypeFontSizes)
+  const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
 
   const handleTypeChange = (newType: CardType) => {
     if (!card) return
@@ -36,6 +44,21 @@ export function MobileCardTypeDrawer({
 
   // Check if the current card type supports sizing
   const supportsSizing = card ? CARD_TYPE_SIZING[card.card_type] : null
+
+  // Font size control
+  const fontSizeKey = card?.card_type as keyof CardTypeFontSizes | undefined
+  const hasFontSize = fontSizeKey && fontSizeKey in cardTypeFontSizes
+  const currentFontSize = hasFontSize ? cardTypeFontSizes[fontSizeKey] : 1
+
+  // Text color control
+  const TEXT_COLOR_TYPES = new Set(['hero', 'horizontal', 'link', 'square', 'video', 'music', 'release'])
+  const hasTextColor = card ? TEXT_COLOR_TYPES.has(card.card_type) : false
+  const currentTextColor = (card?.content as Record<string, unknown>)?.textColor as string || '#ffffff'
+
+  // Reset expanded when card changes
+  useEffect(() => {
+    setExpanded(false)
+  }, [card?.id])
 
   return (
     <DrawerPrimitive.Root
@@ -114,6 +137,59 @@ export function MobileCardTypeDrawer({
               </div>
             )}
           </div>
+
+          {/* Expandable "More" section */}
+          {card && (hasFontSize || hasTextColor) && (
+            <div className="border-t border-border/50">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span>{expanded ? 'Less' : 'More'}</span>
+                <ChevronDown className={cn(
+                  "h-3 w-3 transition-transform duration-200",
+                  expanded && "rotate-180"
+                )} />
+              </button>
+
+              {expanded && (
+                <div className="px-3 pb-2 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  {/* Font Size Slider */}
+                  {hasFontSize && (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Font Size</span>
+                        <span className="text-muted-foreground">{Math.round(currentFontSize * 100)}%</span>
+                      </div>
+                      <Slider
+                        value={[currentFontSize]}
+                        onValueChange={(v) => setCardTypeFontSize(fontSizeKey!, v[0])}
+                        min={0.5}
+                        max={2}
+                        step={0.1}
+                        className="h-6"
+                      />
+                    </div>
+                  )}
+
+                  {/* Text Color Picker */}
+                  {hasTextColor && (
+                    <ColorPicker
+                      label="Text Color"
+                      color={currentTextColor}
+                      onChange={(color) => {
+                        if (!card) return
+                        updateCard(card.id, {
+                          content: { ...card.content, textColor: color }
+                        })
+                      }}
+                      className="text-xs"
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Bottom drag handle - swipe up to dismiss */}
           <div className="flex justify-center pb-2 pt-0.5">
