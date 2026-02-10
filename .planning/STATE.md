@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12 of 18 - Audio System
 Plan: 5 of 5 - Awaiting verification checkpoint
 Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-10 - Completed quick task 056: Departures Board theme with airport display aesthetic
+Last activity: 2026-02-10 - Completed quick task 057: Fix mobile audio playback (lazy AudioEngine init)
 
 Progress: [████████████████████████████░░░░] ~72%
 
@@ -641,6 +641,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 520px board container width | quick-056 | Wider than receipt (320px) for tabular column layout, responsive down to 100% on mobile |
 | Four departures board palettes | quick-056 | Terminal Classic (silver), Amber Display (CRT), Green Screen (phosphor), Heathrow Blue (modern) |
 | Audio maps to classified variant | quick-056 | departures-board audio uses themeVariant="classified" to avoid adding new ThemeVariant across files |
+| Lazy AudioContext init on play() | quick-057 | Mobile browsers require AudioContext creation in user gesture - defer init to first play tap, not useEffect mount |
+| setPendingTrack for deferred loading | quick-057 | Store track URL before engine init, play() loads after init - prevents loadTrack throwing when engine not started |
+| setIsPlaying after await play() | quick-057 | Prevents phantom playing state on mobile when init fails - only set true after successful play |
 
 ## Quick Tasks
 
@@ -699,6 +702,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 054 | iPod audio card with Macintosh-style dark layout | Complete | 8e2db69, 893c6fe |
 | 055 | Receipt paper texture toggle (OFF by default) | Complete | da87b95, e3a614c |
 | 056 | Departures Board theme with airport display aesthetic | Complete | f17b87b, c785150 |
+| 057 | Fix mobile audio playback (lazy AudioEngine init) | Complete | ba30282 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -778,8 +782,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-10
-Last activity: 2026-02-10 - Completed quick-056 (Departures Board theme with airport display aesthetic)
-Stopped at: Completed quick task 056
+Last activity: 2026-02-10 - Completed quick-057 (Fix mobile audio playback)
+Stopped at: Completed quick task 057
 Resume file: None
 
 **Phase 12 In Progress:** Plan 05 awaiting verification. Quick task 054 adds iPod-classic dark audio player with Now Playing screen navigation.
