@@ -55,7 +55,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 300, // Long press before drag starts — allows normal scrolling
-        tolerance: 15, // Generous tolerance so scrolling cancels drag activation
+        tolerance: 3, // Very tight: finger must stay within 3px for 300ms to activate drag
       },
     }),
     useSensor(KeyboardSensor, {
@@ -137,8 +137,7 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
         strategy={rectSortingStrategy}
       >
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
-        {/* touch-none during drag prevents page scrolling while moving a card */}
-        <div className={cn("flex flex-wrap gap-4 w-full", activeCard && "touch-none")}>
+        <div className="flex flex-wrap gap-4 w-full">
           {cards.map((card) => (
             <PreviewSortableCard
               key={card.id}

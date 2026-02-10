@@ -171,21 +171,15 @@ export function PreviewPanel() {
     }
   }, [previewReady])
 
-  // Gesture handling for mobile layout
+  // Drag gesture for panning when zoomed (pinch handled via postMessage from iframe)
   const bind = useGesture(
     {
-      onPinch: ({ offset: [s] }) => {
-        const newScale = baseScaleRef.current * s
-        setScale(Math.max(0.1, Math.min(newScale, 3)))
-      },
-      onDrag: ({ delta: [dx, dy], pinching }) => {
-        if (pinching) return  // Don't drag while pinching
+      onDrag: ({ delta: [dx, dy] }) => {
         setTranslate(prev => ({ x: prev.x + dx, y: prev.y + dy }))
       },
     },
     {
       target: containerRef,
-      pinch: { scaleBounds: { min: 0.1, max: 3 }, rubberband: true },
       drag: { filterTaps: true },
       eventOptions: { passive: false },
     }

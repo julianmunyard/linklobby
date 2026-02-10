@@ -48,7 +48,7 @@ export function FlowGrid({ cards, onReorder }: FlowGridProps) {
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 300, // Long press before drag starts — allows normal scrolling
-        tolerance: 15, // Generous tolerance so scrolling cancels drag activation
+        tolerance: 3, // Very tight: finger must stay within 3px for 300ms to activate drag
       },
     }),
     useSensor(KeyboardSensor, {

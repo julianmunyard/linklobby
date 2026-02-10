@@ -66,7 +66,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 300, // Long press before drag starts — allows normal scrolling
-        tolerance: 15, // Generous tolerance so scrolling cancels drag activation
+        tolerance: 3, // Very tight: finger must stay within 3px for 300ms to activate drag
       },
     }),
     useSensor(KeyboardSensor, {
@@ -180,7 +180,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
         {/* Cards in flow layout - small cards 50% width, big cards 100% width */}
         {/* Click on empty space clears selection */}
         <div
-          className={cn("flex flex-wrap gap-4 min-h-[100px] w-full", activeCard && "touch-none")}
+          className="flex flex-wrap gap-4 min-h-[100px] w-full"
           onClick={(e) => {
             // Only clear if clicking the container itself, not a card
             if (e.target === e.currentTarget) {
