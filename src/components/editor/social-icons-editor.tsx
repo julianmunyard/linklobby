@@ -6,6 +6,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -111,6 +112,12 @@ export function SocialIconsEditor() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 4, // Smaller distance for icons
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Long press before drag starts
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {

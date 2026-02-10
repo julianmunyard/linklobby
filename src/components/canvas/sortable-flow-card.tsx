@@ -42,7 +42,7 @@ export function SortableFlowCard({ card }: SortableFlowCardProps) {
         widthClass,
         // Hide original card during drag - only DragOverlay should be visible
         isDragging && "opacity-0",
-        "cursor-grab active:cursor-grabbing",
+        "cursor-grab active:cursor-grabbing touch-manipulation",
         allowOverflow && "overflow-visible"
       )}
       {...attributes}

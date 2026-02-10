@@ -51,8 +51,8 @@ export function SortableCardList({
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 50, // Short delay before drag starts
-        tolerance: 8, // Allow small movement during delay
+        delay: 250, // Long press before drag starts — allows normal scrolling
+        tolerance: 5, // Small movement allowed during hold
       },
     }),
     useSensor(KeyboardSensor, {

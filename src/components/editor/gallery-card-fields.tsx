@@ -140,7 +140,7 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard }: Gall
     useSensor(PointerSensor),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 50,
+        delay: 250,
         tolerance: 5,
       },
     })

@@ -158,9 +158,10 @@ export function PreviewSortableCard({ card, isSelected, onClick }: PreviewSortab
         "cursor-pointer",
         // Positionable cards use margin classes for positioning
         positionClass,
-        // Only use touch-none for non-interactive cards (needed for dnd-kit drag)
-        // Interactive cards need touch events to pass through for their internal controls
-        !isInteractive && "touch-none",
+        // Use touch-manipulation for non-interactive cards: allows scroll/zoom
+        // but prevents double-tap-zoom. Long-press (250ms) activates drag via TouchSensor.
+        // Interactive cards need touch events to pass through for their internal controls.
+        !isInteractive && "touch-manipulation",
         // Gallery needs overflow visible for full-bleed effect
         card.card_type === 'gallery' && "overflow-visible",
         // Selection highlight - white border with tight ring
