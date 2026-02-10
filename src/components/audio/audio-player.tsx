@@ -527,16 +527,16 @@ export function AudioPlayer({
 
   // ─── SYSTEM SETTINGS / POOLSUITE FM THEME ───
   if (isSystemSettings) {
-    const psColor = 'var(--theme-text)'
+    const psColor = 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
       fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
     }
     // All borders are black, thin, rounded — the Poolsuite way
-    const psBorder = '1px solid var(--theme-text)'
+    const psBorder = '1px solid var(--theme-text, #000000)'
     const psRadius = '4px'
     // Button bg — all buttons use card bg, active state is inset shadow only
-    const btnBg = 'var(--theme-card-bg)'
+    const btnBg = 'var(--theme-card-bg, #F9F0E9)'
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
@@ -620,7 +620,7 @@ export function AudioPlayer({
                 }}
                 className="poolsuite-transport-btn flex items-center justify-center w-10 h-8"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg)',
+                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
                   borderRight: psBorder,
                   borderRadius: 0,
                 }}
@@ -639,7 +639,7 @@ export function AudioPlayer({
                 }}
                 className="poolsuite-transport-btn flex items-center justify-center w-10 h-8"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg)',
+                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
                   borderRight: psBorder,
                   borderRadius: 0,
                 }}
@@ -695,7 +695,7 @@ export function AudioPlayer({
                 onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
                 className="poolsuite-transport-btn px-1.5 py-0 text-[8px] uppercase tracking-wider"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg)',
+                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
                   color: psColor,
                   borderRadius: '3px',
                 }}
@@ -717,8 +717,8 @@ export function AudioPlayer({
                   className="absolute top-0 left-0 h-full z-[1]"
                   style={{
                     width: `${varispeedPercent}%`,
-                    backgroundColor: 'var(--theme-card-bg)',
-                    border: '1px solid var(--theme-text)',
+                    backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
+                    border: '1px solid var(--theme-text, #000000)',
                     borderRadius: '3px',
                   }}
                 />
