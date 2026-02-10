@@ -142,15 +142,15 @@ export function DeparturesBoardLayout({
             {(displayName || title || 'DEPARTURES').toUpperCase()}
           </div>
 
+          {/* Gap between title and content */}
+          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
+
           {/* Column header row */}
           <div className="departures-board-row departures-board-row-header">
             <span className="departures-col-time">TIME</span>
             <span className="departures-col-name">TO</span>
             <span className="departures-col-info">REMARKS</span>
           </div>
-
-          {/* Gap between header and links */}
-          <div className="departures-board-row departures-board-row-blank">&nbsp;</div>
 
           {/* Card rows */}
           {visibleCards.map((card, index) => {
