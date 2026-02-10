@@ -125,6 +125,7 @@ function PreviewContent() {
             receiptPrice: ts.receiptPrice ?? 'PRICELESS',
             receiptStickers: ts.receiptStickers ?? [],
             receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
+            receiptPaperTexture: ts.receiptPaperTexture ?? false,
             ipodStickers: ts.ipodStickers ?? [],
             ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
             macPattern: ts.macPattern ?? '',
