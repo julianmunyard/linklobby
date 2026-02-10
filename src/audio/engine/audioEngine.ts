@@ -118,43 +118,56 @@ class AudioEngine {
   }
 
   /**
-   * iOS silent audio unlock pattern from Munyard Mixer
+   * iOS silent audio unlock — matches Munyard Mixer pattern exactly.
+   * Must be called in a user gesture handler. Awaits audio.play() to ensure
+   * the media channel is actually unlocked before context.resume() is called.
    */
-  ensureUnlocked(): void {
+  private ensureUnlockedElement(): void {
+    if (this.silentAudioElement) return
+
+    const audio = document.createElement('audio')
+    audio.loop = true
+    audio.volume = 0.001
+    audio.preload = 'auto'
+    audio.controls = false
+    ;(audio as any).disableRemotePlayback = true
+    audio.setAttribute('playsinline', 'true')
+    audio.setAttribute('webkit-playsinline', 'true')
+    ;(audio as any).playsInline = true
+    audio.style.display = 'none'
+
+    const huffman = (count: number, repeatStr: string): string => {
+      let e = repeatStr
+      for (; count > 1; count--) e += repeatStr
+      return e
+    }
+    const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
+    audio.src = silence
+    audio.load()
+
+    document.body.appendChild(audio)
+    this.silentAudioElement = audio
+  }
+
+  /**
+   * Unlock iOS media channel by awaiting silent audio.play().
+   * Matches Munyard Mixer: await audio.play() + 20ms delay, then ctx.resume() works.
+   */
+  async ensureUnlocked(): Promise<void> {
     if (!this.isIOS || this.audioUnlocked) return
 
-    if (!this.silentAudioElement) {
-      const audio = document.createElement('audio')
-      audio.loop = true
-      audio.volume = 0.001
-      audio.preload = 'auto'
-      audio.controls = false
-      ;(audio as any).disableRemotePlayback = true
-      audio.setAttribute('playsinline', 'true')
-      audio.setAttribute('webkit-playsinline', 'true')
-      ;(audio as any).playsInline = true
-      audio.style.display = 'none'
+    this.ensureUnlockedElement()
 
-      const huffman = (count: number, repeatStr: string): string => {
-        let e = repeatStr
-        for (; count > 1; count--) e += repeatStr
-        return e
-      }
-      const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
-      audio.src = silence
-      audio.load()
-
-      document.body.appendChild(audio)
-      this.silentAudioElement = audio
-
-      audio.play()
-        .then(() => {
-          this.audioUnlocked = true
-          console.log('iOS media channel unlocked')
-        })
-        .catch((err) => {
-          console.warn('Silent audio unlock failed:', err)
-        })
+    try {
+      // audio.play() is called synchronously in the user gesture — this is the
+      // media activation. Awaiting ensures it actually starts before we proceed.
+      await this.silentAudioElement!.play()
+      this.audioUnlocked = true
+      // Small delay matching Munyard Mixer pattern
+      await new Promise(resolve => setTimeout(resolve, 20))
+      console.log('iOS media channel unlocked')
+    } catch (err) {
+      console.warn('Silent audio unlock failed:', err)
     }
   }
 
@@ -189,26 +202,38 @@ class AudioEngine {
     })
   }
 
-  play(): void {
+  /**
+   * Play — matches Munyard Mixer's playAll() pattern:
+   * 1. iOS: await audio.play() to unlock media channel (first call in gesture)
+   * 2. await ctx.resume() if suspended
+   * 3. Send play command (or loadTrack + pendingPlayAfterLoad if track not loaded)
+   *
+   * This is async but the FIRST await is always a media activation (audio.play()
+   * on iOS, or context.resume() on Android/desktop) which IS in the user gesture.
+   * Unlike the previous broken attempt, there is NO long await (like init()) before
+   * the media activation — init is eager and already complete by the time play runs.
+   */
+  async play(): Promise<void> {
     if (!this.processorNode) {
       console.warn('Cannot play: not initialized')
       return
     }
 
-    // iOS/iPadOS unlock — must fire synchronously within user gesture
-    if (this.isIOS) {
-      this.ensureUnlocked()
+    // iOS: unlock media channel FIRST (audio.play() is the first call in the
+    // gesture, matching Munyard Mixer). Must complete before ctx.resume().
+    if (this.isIOS && !this.audioUnlocked) {
+      await this.ensureUnlocked()
     }
 
-    // Resume AudioContext — MUST be synchronous in user gesture callstack.
-    // On mobile, context is auto-suspended by browser policy; this is the
-    // only chance to resume it. On desktop, context may also be suspended.
-    // NEVER put an await before this line — it breaks the gesture context.
-    this.processorNode.context.resume()
+    // Resume AudioContext — on iOS the media channel is now unlocked so this works.
+    // On Android/desktop, context.resume() IS the first async call in the gesture.
+    if (this.processorNode.context.state !== 'running') {
+      await this.processorNode.context.resume()
+    }
 
     // If track hasn't loaded yet (mobile: downloadAndDecode may have failed
     // while context was auto-suspended), re-send loadTrack now that context
-    // is resumed, and auto-play when the track finishes loading.
+    // is running, and auto-play when the track finishes loading.
     if (!this.isLoadedFlag) {
       if (this.currentUrl) {
         this.processorNode.sendMessageToAudioScope({

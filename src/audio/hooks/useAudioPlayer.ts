@@ -180,8 +180,10 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [])
 
-  // Play function — MUST be synchronous so context.resume() stays in user gesture.
-  // NEVER make this async — an await before context.resume() breaks mobile playback.
+  // Play — calls engine.play() which is async (matches Munyard Mixer's playAll).
+  // The hook fires it without await (fire-and-forget). The first call inside
+  // engine.play() is always a media activation (audio.play on iOS, or
+  // context.resume on Android) which IS in the user gesture callstack.
   const play = useCallback(() => {
     const engine = engineRef.current
 
@@ -190,10 +192,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       embedPlayback.setActiveEmbed(cardId)
     }
 
-    // engine.play() calls context.resume() synchronously within this gesture.
-    // If track is loaded (desktop): resumes + sends play command.
-    // If track NOT loaded (mobile): resumes + re-sends loadTrack + pendingPlayAfterLoad.
-    engine.play()
+    // Fire-and-forget — engine.play() handles iOS unlock + context resume + play.
+    // Catch errors to reset playing state if something fails.
+    engine.play().catch((error) => {
+      console.error('Failed to play:', error)
+      setIsPlaying(false)
+    })
     setIsPlaying(true)
 
     if (onPlay) {
