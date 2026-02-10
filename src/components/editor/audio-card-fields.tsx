@@ -21,9 +21,10 @@ interface AudioCardFieldsProps {
   content: Partial<AudioCardContent>
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
+  themeId?: string
 }
 
-export function AudioCardFields({ content, onChange, cardId }: AudioCardFieldsProps) {
+export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCardFieldsProps) {
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
   const [isUploadingArt, setIsUploadingArt] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -398,33 +399,67 @@ export function AudioCardFields({ content, onChange, cardId }: AudioCardFieldsPr
       <div className="space-y-3">
         <Label>Player Colors</Label>
         <div className="space-y-2">
-          <ColorPicker
-            label="Border"
-            color={content.playerColors?.borderColor || '#3b82f6'}
-            onChange={(color) =>
-              onChange({
-                playerColors: { ...content.playerColors, borderColor: color },
-              })
-            }
-          />
-          <ColorPicker
-            label="Elements"
-            color={content.playerColors?.elementBgColor || '#e5e7eb'}
-            onChange={(color) =>
-              onChange({
-                playerColors: { ...content.playerColors, elementBgColor: color },
-              })
-            }
-          />
-          <ColorPicker
-            label="Accent"
-            color={content.playerColors?.foregroundColor || '#3b82f6'}
-            onChange={(color) =>
-              onChange({
-                playerColors: { ...content.playerColors, foregroundColor: color },
-              })
-            }
-          />
+          {themeId === 'macintosh' ? (
+            <>
+              <ColorPicker
+                label="Window Background"
+                color={content.playerColors?.elementBgColor || '#ffffff'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, elementBgColor: color },
+                  })
+                }
+              />
+              <ColorPicker
+                label="Borders"
+                color={content.playerColors?.borderColor || '#000000'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, borderColor: color },
+                  })
+                }
+              />
+              <ColorPicker
+                label="Checker Fill"
+                color={content.playerColors?.foregroundColor || '#000000'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, foregroundColor: color },
+                  })
+                }
+              />
+            </>
+          ) : (
+            <>
+              <ColorPicker
+                label="Border"
+                color={content.playerColors?.borderColor || '#3b82f6'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, borderColor: color },
+                  })
+                }
+              />
+              <ColorPicker
+                label="Elements"
+                color={content.playerColors?.elementBgColor || '#e5e7eb'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, elementBgColor: color },
+                  })
+                }
+              />
+              <ColorPicker
+                label="Accent"
+                color={content.playerColors?.foregroundColor || '#3b82f6'}
+                onChange={(color) =>
+                  onChange({
+                    playerColors: { ...content.playerColors, foregroundColor: color },
+                  })
+                }
+              />
+            </>
+          )}
         </div>
         <Button
           type="button"

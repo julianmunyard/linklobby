@@ -339,6 +339,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                 content={currentContent as Partial<AudioCardContent>}
                 onChange={handleContentChange}
                 cardId={card.id}
+                themeId={themeId}
               />
             )}
 

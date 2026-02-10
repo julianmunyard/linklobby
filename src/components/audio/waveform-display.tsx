@@ -15,6 +15,8 @@ interface WaveformDisplayProps {
   elementBgColor?: string     // Inactive/unplayed color
   themeVariant?: ThemeVariant
   isPlaying?: boolean         // For VCR status display
+  macCheckerColor?: string    // Macintosh checker fill color
+  macBgColor?: string         // Macintosh background color
   className?: string
 }
 
@@ -42,6 +44,8 @@ export function WaveformDisplay({
   elementBgColor,
   themeVariant,
   isPlaying,
+  macCheckerColor,
+  macBgColor,
   className = ''
 }: WaveformDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -142,13 +146,13 @@ export function WaveformDisplay({
           <div className="h-full flex items-center">
             {isMacOs ? (
               /* Macintosh: full-height checkerboard fill, no border wrapper */
-              <div className="relative w-full h-full border-2 border-black">
+              <div className="relative w-full h-full" style={{ border: `2px solid ${activeColor}` }}>
                 {/* Checkerboard filled portion */}
                 <div
                   className="absolute top-0 left-0 h-full"
                   style={{
                     width: `${progress * 100}%`,
-                    background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
+                    background: `repeating-conic-gradient(${macCheckerColor || '#000'} 0% 25%, ${macBgColor || '#fff'} 0% 50%) 0 0 / 4px 4px`,
                   }}
                 />
               </div>

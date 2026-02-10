@@ -9,6 +9,7 @@ import { useThemeStore } from '@/stores/theme-store'
 import { PLATFORM_ICONS } from '@/components/editor/social-icon-picker'
 import { AudioCard } from './audio-card'
 import type { Card, ReleaseCardContent } from '@/types/card'
+import type { AudioCardContent } from '@/types/audio'
 
 type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
 
@@ -41,7 +42,7 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
     return (
       <WindowWrapper onClick={onClick} isSelected={isSelected}>
         <LinesTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: '#fff' }}>
+        <div style={{ background: (card.content as unknown as AudioCardContent)?.playerColors?.elementBgColor || '#fff' }}>
           <AudioCard card={card} isPreview={isPreview} />
         </div>
       </WindowWrapper>

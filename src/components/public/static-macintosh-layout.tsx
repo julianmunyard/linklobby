@@ -372,7 +372,7 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     return (
       <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
         <LinesTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: '#fff' }}>
+        <div style={{ background: audioContent.playerColors?.elementBgColor || '#fff' }}>
           <AudioPlayer
             tracks={audioContent.tracks || []}
             albumArtUrl={audioContent.albumArtUrl}

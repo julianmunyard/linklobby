@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { Settings } from 'lucide-react'
 import type { AudioTrack, AudioCardContent, ReverbConfig } from '@/types/audio'
@@ -82,6 +82,18 @@ export function AudioPlayer({
       }
     }
   })
+
+  // Marquee overflow detection for Macintosh theme
+  const marqueeContainerRef = useRef<HTMLDivElement>(null)
+  const marqueeTextRef = useRef<HTMLSpanElement>(null)
+  const [isMarqueeNeeded, setIsMarqueeNeeded] = useState(false)
+
+  useEffect(() => {
+    if (!marqueeContainerRef.current || !marqueeTextRef.current) return
+    const container = marqueeContainerRef.current
+    const text = marqueeTextRef.current
+    setIsMarqueeNeeded(text.scrollWidth > container.clientWidth)
+  }, [currentTrackIndex])
 
   if (tracks.length === 0) {
     return (
@@ -263,10 +275,12 @@ export function AudioPlayer({
 
   // ─── MACINTOSH THEME: VCR-style bordered layout with 8-bit pixel aesthetic ───
   if (isMacOs) {
-    const macColor = '#000'
+    const macBg = playerColors?.elementBgColor || '#fff'
+    const macBorder = playerColors?.borderColor || '#000'
+    const macChecker = playerColors?.foregroundColor || '#000'
     const macFont: React.CSSProperties = {
       fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
-      color: macColor
+      color: macBorder
     }
     // 8-bit pixel border clip-path for boxes
     const macPixelClip = `polygon(
@@ -281,10 +295,10 @@ export function AudioPlayer({
       0% 6px, 3px 6px,
       3px 3px, 6px 3px
     )`
-    // Helper: black shell with white interior for 8-bit bordered boxes
+    // Helper: bordered shell with interior for 8-bit bordered boxes
     const MacBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
-      <div style={{ background: '#000', clipPath: macPixelClip, padding: '2px' }}>
-        <div className={cls} style={{ background: '#fff', clipPath: macPixelClip, ...s }}>
+      <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px' }}>
+        <div className={cls} style={{ background: macBg, clipPath: macPixelClip, ...s }}>
           {children}
         </div>
       </div>
@@ -298,47 +312,41 @@ export function AudioPlayer({
     return (
       <div
         className={cn('flex flex-col gap-1.5 p-2', className)}
-        style={{ ...macFont, background: '#fff' }}
+        style={{ ...macFont, background: macBg }}
       >
-        {/* ── PLAY / PAUSE — border just around the word ── */}
-        <div className="px-3 py-2">
+        {/* ── Row 1: PLAY button (left) + Track info (right, ~3/4 width) ── */}
+        <div className="flex items-stretch gap-1.5">
           <button
             onClick={handlePlay}
             disabled={!player.isLoaded && !player.isLoading}
-            className="uppercase tracking-wider cursor-pointer hover:opacity-80"
+            className="uppercase tracking-wider cursor-pointer hover:opacity-80 flex-shrink-0"
             style={{
               opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
             }}
           >
-            <div style={{ background: '#000', clipPath: macPixelClip, padding: '2px', display: 'inline-block' }}>
-              <div style={{ background: '#fff', clipPath: macPixelClip, padding: '4px 12px' }}>
-                <span className="text-sm font-bold">
+            <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
+              <div className="flex items-center h-full" style={{ background: macBg, clipPath: macPixelClip, padding: '0 12px' }}>
+                <span className="text-[11px] font-bold whitespace-nowrap">
                   {player.isPlaying ? 'PAUSE' : 'PLAY'}
                 </span>
               </div>
             </div>
           </button>
+          {currentTrack ? (
+            <div className="flex-1 min-w-0">
+              <MacBox className="px-2 py-0.5 uppercase tracking-wider overflow-hidden flex items-center" style={{ height: '24px' }}>
+                <div ref={marqueeContainerRef} className="whitespace-nowrap text-[10px] font-bold overflow-hidden">
+                  <span ref={marqueeTextRef} className={isMarqueeNeeded ? 'mac-audio-marquee inline-block' : 'inline-block'}>{trackTitle}</span>
+                </div>
+              </MacBox>
+            </div>
+          ) : (
+            <div className="flex-1" />
+          )}
         </div>
 
-        {/* ── Box 2: Track info — marquee scrolling title ── */}
-        {currentTrack && (
-          <MacBox>
-            <div className="px-3 py-2 uppercase tracking-wider overflow-hidden">
-              <div
-                className="mac-audio-marquee whitespace-nowrap text-sm font-bold"
-                style={{ display: 'inline-block' }}
-              >
-                {trackTitle}
-              </div>
-              <div className="text-xs opacity-50">
-                {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
-              </div>
-            </div>
-          </MacBox>
-        )}
-
-        {/* ── Progress — no border box, checkers fill entire space ── */}
-        <div className="px-3 py-2">
+        {/* ── Progress bar — full width, checkers fill ── */}
+        <div className="px-1">
           <WaveformDisplay
             showWaveform={showWaveform}
             waveformData={waveformData}
@@ -346,46 +354,90 @@ export function AudioPlayer({
             currentTime={player.currentTime}
             duration={player.duration}
             onSeek={player.seek}
-            foregroundColor={macColor}
+            foregroundColor={macBorder}
             elementBgColor="transparent"
             themeVariant="mac-os"
             isPlaying={player.isPlaying}
+            macCheckerColor={macChecker}
+            macBgColor={macBg}
           />
         </div>
 
-        {/* ── Bottom row: Varispeed + Mode/Reverb ── */}
-        <div className="flex items-stretch gap-1.5">
-          {/* Varispeed box: speed display + checkerboard slider */}
-          <MacBox className="flex-1 min-w-0 px-3 py-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold font-mono">{player.speed.toFixed(2)}x</span>
-            </div>
-            {/* Tick marks */}
-            <div className="flex justify-between mb-0.5">
-              {[0.5, 1.0, 1.5].map((tick) => (
-                <span key={tick} className="text-[8px] font-mono" style={{ opacity: 0.5 }}>
-                  {tick}x
-                </span>
-              ))}
-            </div>
-            {/* Checkerboard slider — black fill = played, checkers = remaining */}
-            <div className="relative h-5 border-2 border-black">
-              {/* Checkerboard background (full bar) */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px',
-                }}
-              />
-              {/* Black solid fill from left */}
-              <div
-                className="absolute top-0 left-0 h-full"
-                style={{
-                  width: `${((player.speed - 0.5) / 1.0) * 100}%`,
-                  background: '#000',
-                }}
-              />
-              {/* Hidden range input for interaction */}
+        {/* ── Varispeed slider ── */}
+        <div className="flex items-start gap-1.5">
+          <div className="flex-1 min-w-0 px-1">
+            {/* Checkerboard slider with 8-bit rectangle knob */}
+            <div className="relative" style={{ height: '28px' }}>
+              {/* Checkerboard bar — centered vertically, subtle 8-bit corners */}
+              {(() => {
+                const barClip = `polygon(
+                  2px 0, calc(100% - 2px) 0,
+                  calc(100% - 2px) 1px, calc(100% - 1px) 1px,
+                  calc(100% - 1px) 2px, 100% 2px,
+                  100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px),
+                  calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px),
+                  calc(100% - 2px) 100%, 2px 100%,
+                  2px calc(100% - 1px), 1px calc(100% - 1px),
+                  1px calc(100% - 2px), 0 calc(100% - 2px),
+                  0 2px, 1px 2px,
+                  1px 1px, 2px 1px
+                )`
+                return (
+                  <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
+                    <div className="w-full h-full" style={{ background: macBorder, clipPath: barClip, padding: '2px' }}>
+                      <div
+                        className="w-full h-full"
+                        style={{
+                          clipPath: barClip,
+                          background: `repeating-conic-gradient(${macChecker} 0% 25%, ${macBg} 0% 50%) 0 0 / 4px 4px`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Rectangle knob */}
+              {(() => {
+                const knobClip = `polygon(
+                  3px 0, calc(100% - 3px) 0,
+                  calc(100% - 3px) 1px, calc(100% - 2px) 1px,
+                  calc(100% - 2px) 2px, calc(100% - 1px) 2px,
+                  calc(100% - 1px) 3px, 100% 3px,
+                  100% calc(100% - 3px), calc(100% - 1px) calc(100% - 3px),
+                  calc(100% - 1px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px),
+                  calc(100% - 2px) calc(100% - 1px), calc(100% - 3px) calc(100% - 1px),
+                  calc(100% - 3px) 100%, 3px 100%,
+                  3px calc(100% - 1px), 2px calc(100% - 1px),
+                  2px calc(100% - 2px), 1px calc(100% - 2px),
+                  1px calc(100% - 3px), 0 calc(100% - 3px),
+                  0 3px, 1px 3px,
+                  1px 2px, 2px 2px,
+                  2px 1px, 3px 1px
+                )`
+                return (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: `${((player.speed - 0.5) / 1.0) * 100}%`,
+                      top: 0,
+                      bottom: 0,
+                      width: '16px',
+                      marginLeft: '-8px',
+                    }}
+                  >
+                    <div className="w-full h-full" style={{ background: macBorder, clipPath: knobClip, padding: '2px' }}>
+                      <div
+                        className="w-full h-full flex items-center justify-center gap-[4px]"
+                        style={{ background: macBg, clipPath: knobClip }}
+                      >
+                        <div style={{ width: '1px', height: '100%', background: macBorder }} />
+                        <div style={{ width: '1px', height: '100%', background: macBorder }} />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Hidden range input */}
               <input
                 type="range"
                 min="0.5"
@@ -393,26 +445,34 @@ export function AudioPlayer({
                 step="0.01"
                 value={player.speed}
                 onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
-                className="absolute inset-0 w-full h-full cursor-pointer z-10"
+                className="absolute inset-0 w-full h-full cursor-pointer z-20"
                 style={{ opacity: 0 }}
                 aria-label="Varispeed"
               />
             </div>
-          </MacBox>
+            {/* Speed + mode below slider */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <MacBox className="py-0.5 flex items-center justify-center" style={{ width: '52px' }}>
+                <span className="text-[10px] font-bold font-mono">{player.speed.toFixed(2)}x</span>
+              </MacBox>
+              <MacBox className="px-2 py-0.5 flex items-center">
+                <button
+                  onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
+                  className="text-[10px] uppercase tracking-wider font-bold"
+                  style={{ color: 'inherit' }}
+                >
+                  {player.varispeedMode === 'timestretch' ? 'STRETCH' : 'NATURAL'}
+                </button>
+              </MacBox>
+            </div>
+          </div>
 
-          {/* Mode toggle + reverb box */}
-          <MacBox className="flex flex-col items-center gap-1 flex-shrink-0 px-3 py-2">
-            <button
-              onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
-              className="text-[10px] uppercase tracking-wider font-bold"
-              style={{ color: 'inherit' }}
-            >
-              {player.varispeedMode === 'timestretch' ? 'STRETCH' : 'NATURAL'}
-            </button>
+          {/* Reverb — compact, tucked right */}
+          <div className="flex flex-col items-center flex-shrink-0" style={{ transform: 'scale(0.7)', transformOrigin: 'top right', marginBottom: '-8px' }}>
             <ReverbKnob
               mix={player.reverbMix}
               onMixChange={player.setReverbMix}
-              foregroundColor={macColor}
+              foregroundColor={macBorder}
               elementBgColor="transparent"
               themeVariant={themeVariant}
             />
@@ -431,7 +491,7 @@ export function AudioPlayer({
                 }
               />
             )}
-          </MacBox>
+          </div>
         </div>
 
         {/* ── Box 6: Track List (multi-track only) ── */}
@@ -441,21 +501,22 @@ export function AudioPlayer({
               tracks={tracks}
               currentTrackIndex={currentTrackIndex}
               onTrackSelect={handleTrackSelect}
-              foregroundColor={macColor}
+              foregroundColor={macBorder}
               elementBgColor="transparent"
               themeVariant={themeVariant}
             />
           </MacBox>
         )}
 
-        {/* Marquee CSS animation */}
+        {/* Marquee CSS animation — only applied when text overflows */}
         <style>{`
           .mac-audio-marquee {
-            animation: macMarquee 12s linear infinite;
+            animation: macMarquee 18s linear infinite;
           }
           @keyframes macMarquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0%, 10% { transform: translateX(0); }
+            45%, 55% { transform: translateX(calc(-100% + ${marqueeContainerRef.current?.clientWidth ?? 200}px)); }
+            90%, 100% { transform: translateX(0); }
           }
         `}</style>
       </div>
