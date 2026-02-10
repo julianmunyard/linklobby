@@ -163,3 +163,23 @@ Manual testing verified:
    - Added audio card routing in MacintoshCard
    - Added audio card routing in StaticMacintoshLayout
    - Wrapped in Macintosh window chrome with checkerboard title bar
+
+3. **955568a** - fix(quick-053): invert Macintosh audio to white bg with black elements and lines title bar
+
+4. **1b4ad93** - fix(quick-053): 8-bit pixel boxes, marquee title, no TR prefix, varispeed-only slider
+
+5. **693ec2c** - fix(quick-053): border just around PLAY word, full checkerboard bars, no knob slider
+
+6. **75e41b6** - feat(quick-053): polish Macintosh audio player layout and add color editing
+   - Restructured layout: PLAY button + title in one row, full-width progress/varispeed
+   - Conditional marquee (only scrolls when title overflows container)
+   - 8-bit rectangle knob on varispeed with 3-step staircase clip-path corners
+   - Subtle 2-step pixel corners on varispeed bar
+   - Speed + mode displayed in fixed-width MacBox pills below slider
+   - Reverb knob tucked right at 70% scale
+   - Editor color pickers: Window Background, Borders, Checker Fill (macintosh theme)
+   - All hardcoded #000/#fff replaced with dynamic playerColors
+   - WaveformDisplay accepts macCheckerColor/macBgColor for dynamic checkerboard
+   - Card wrappers use elementBgColor for window background
+   - Created /api/audio/delete endpoint (was missing, causing console errors)
+   - Fixed-width speed display prevents layout shift when adjusting varispeed
