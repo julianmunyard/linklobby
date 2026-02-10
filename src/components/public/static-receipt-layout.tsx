@@ -103,6 +103,7 @@ interface StaticReceiptLayoutProps {
   receiptPrice?: string
   receiptStickers?: ReceiptSticker[]
   receiptFloatAnimation?: boolean
+  receiptPaperTexture?: boolean
 }
 
 /**
@@ -122,7 +123,8 @@ export function StaticReceiptLayout({
   showSocialIcons = true,
   receiptPrice = 'PRICELESS',
   receiptStickers = [],
-  receiptFloatAnimation = true
+  receiptFloatAnimation = true,
+  receiptPaperTexture = false
 }: StaticReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
@@ -300,7 +302,7 @@ export function StaticReceiptLayout({
       {/* Receipt paper */}
       <div className="flex justify-center py-8 px-4">
         <div
-          className={cn("receipt-paper relative", receiptFloatAnimation && "receipt-float")}
+          className={cn("receipt-paper relative", receiptFloatAnimation && "receipt-float", receiptPaperTexture && "receipt-paper-texture")}
           style={{
             backgroundColor: 'var(--theme-card-bg)',
             color: 'var(--theme-text)',

@@ -50,6 +50,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
   const receiptStickers = themeSettings?.receiptStickers ?? []
   const receiptFloatAnimation = themeSettings?.receiptFloatAnimation ?? true
+  const receiptPaperTexture = themeSettings?.receiptPaperTexture ?? false
   const ipodStickers = themeSettings?.ipodStickers ?? []
   const ipodTexture = themeSettings?.ipodTexture ?? '/images/metal-texture.jpeg'
   const macPattern = themeSettings?.macPattern ?? ''
@@ -111,6 +112,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         receiptPrice={receiptPrice}
         receiptStickers={receiptStickers}
         receiptFloatAnimation={receiptFloatAnimation}
+        receiptPaperTexture={receiptPaperTexture}
         ipodStickers={ipodStickers}
         ipodTexture={ipodTexture}
         macPattern={macPattern}

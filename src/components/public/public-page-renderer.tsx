@@ -87,6 +87,7 @@ interface PublicPageRendererProps {
   receiptPrice?: string
   receiptStickers?: ReceiptSticker[]
   receiptFloatAnimation?: boolean
+  receiptPaperTexture?: boolean
   // iPod theme
   ipodStickers?: ReceiptSticker[]
   ipodTexture?: string
@@ -145,6 +146,7 @@ export function PublicPageRenderer({
   receiptPrice,
   receiptStickers,
   receiptFloatAnimation,
+  receiptPaperTexture,
   ipodStickers,
   ipodTexture,
   macPattern,
@@ -219,6 +221,7 @@ export function PublicPageRenderer({
         receiptPrice={receiptPrice}
         receiptStickers={receiptStickers}
         receiptFloatAnimation={receiptFloatAnimation}
+        receiptPaperTexture={receiptPaperTexture}
       />
     )
   }
