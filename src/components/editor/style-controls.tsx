@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import type { ThemeId } from '@/types/theme'
+import { isScatterTheme } from '@/types/scatter'
 
 // Themes with list-based layouts where card style controls (border radius, shadows) don't apply
 const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
@@ -35,7 +36,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
   const theme = getTheme(themeId)
 
   // Hide card style controls for list-layout themes
@@ -43,6 +44,36 @@ export function StyleControls() {
 
   return (
     <div className="space-y-5">
+      {/* Scatter Mode Toggle - only for themes that support scatter layouts */}
+      {isScatterTheme(themeId) && (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm">Freeform Layout</Label>
+              <p className="text-xs text-muted-foreground">Position cards freely on canvas</p>
+            </div>
+            <Switch
+              checked={scatterMode}
+              onCheckedChange={setScatterMode}
+            />
+          </div>
+
+          {/* Visitor Drag sub-toggle - appears when scatter mode is enabled */}
+          {scatterMode && (
+            <div className="flex items-center justify-between border-l-2 border-muted pl-4">
+              <div>
+                <Label className="text-sm">Visitor Drag</Label>
+                <p className="text-xs text-muted-foreground">Allow visitors to rearrange cards</p>
+              </div>
+              <Switch
+                checked={visitorDrag}
+                onCheckedChange={setVisitorDrag}
+              />
+            </div>
+          )}
+        </>
+      )}
+
       {/* Border Radius and Card Shadows - only for card-layout themes */}
       {showCardStyleControls && (
         <>
@@ -104,7 +135,7 @@ export function StyleControls() {
       )}
 
       {/* Basic Themes: Center Cards Toggle */}
-      {BASIC_THEMES.includes(themeId) && (
+      {(BASIC_THEMES.includes(themeId) || themeId === 'word-art') && (
         <div className="flex items-center justify-between">
           <div>
             <Label className="text-sm">Center Cards</Label>
