@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.1 of 18 - Scatter Mode
-Plan: 1 of 5 - Complete
-Status: **Phase 12.1 In Progress - Scatter mode foundation complete**
-Last activity: 2026-02-11 - Completed 12.1-01-PLAN.md (scatter types and store actions)
+Plan: 2 of 5 - Complete
+Status: **Phase 12.1 In Progress - Scatter grid components complete**
+Last activity: 2026-02-11 - Completed 12.1-02-PLAN.md (scatter canvas and card components)
 
 Progress: [████████████████████████████░░░░] ~73%
 
@@ -20,12 +20,12 @@ Progress: [███████████████████████
 
 Building freeform card positioning for 5 themes:
 - ✓ Plan 01: Scatter Mode Foundation (types, store toggles, scatter actions)
-- Plan 02: Scatter Grid Component (drag, resize, z-index)
+- ✓ Plan 02: Scatter Grid Component (drag, resize, z-index)
 - Plan 03: Scatter Mode UI Controls (toggle, visitor drag)
 - Plan 04: Public Scatter Mode (visitor interaction)
 - Plan 05: Scatter Persistence (database sync)
 
-**Current status:** Type system and store foundation complete. Ready for scatter grid UI implementation.
+**Current status:** Core scatter canvas and card components complete with react-rnd. Ready for scatter UI controls integration.
 
 ### COMPLETE: Phase 12 - Audio System
 
@@ -667,6 +667,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Pattern on fixed div not body | quick-062 | Pattern rendered by fixed div layer, body gets solid color only as safe area fallback |
 | -50vh/-50vw oversized fixed div | quick-062 | Fixed div extends 50% viewport in all directions for guaranteed full coverage without calc/env |
 | 500px pattern tiles | quick-062 | Pattern tile size increased from 350px to 500px for better visibility on mobile |
+| react-rnd for scatter mode | 12.1-02 | react-rnd library for drag and resize - battle-tested, supports bounds and 8-direction resizing |
+| ResizeObserver for canvas | 12.1-02 | ResizeObserver tracks canvas container dimensions, more accurate than window resize events |
+| Bounds key recalculation | 12.1-02 | Incrementing boundsKey in ScatterCard key forces react-rnd remount for fresh bounds calculation on window resize |
+| Percentage storage, pixel display | 12.1-02 | Store positions as percentages for responsive layouts, convert to pixels for react-rnd rendering |
 
 ## Quick Tasks
 
@@ -810,13 +814,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-11
-Last activity: 2026-02-11 - Completed 12.1-01-PLAN.md (scatter mode foundation)
-Stopped at: Completed Phase 12.1 Plan 01
+Last activity: 2026-02-11 - Completed 12.1-02-PLAN.md (scatter canvas and card components)
+Stopped at: Completed Phase 12.1 Plan 02
 Resume file: None
 
-**Phase 12.1 In Progress:** Plan 01 complete (scatter types and store actions). Ready for Plan 02 (scatter grid component with drag, resize, z-index).
+**Phase 12.1 In Progress:** Plans 01-02 complete (scatter types, store actions, canvas/card components). Ready for Plan 03 (scatter UI controls).
 
-**Next step:** Execute Phase 12.1 Plan 02 - Scatter Grid Component
+**Next step:** Execute Phase 12.1 Plan 03 - Scatter Mode UI Controls
 
 **This session's work (2026-02-03):**
 
