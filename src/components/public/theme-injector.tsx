@@ -1,4 +1,5 @@
 import type { ThemeState, ColorPalette, FontConfig, StyleConfig, BackgroundConfig } from "@/types/theme"
+import { resolveFontFamily } from "@/app/fonts"
 
 interface ThemeInjectorProps {
   themeSettings: ThemeState | null
@@ -52,6 +53,10 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
   const style = themeSettings?.style ?? defaultStyle
   const background = themeSettings?.background ?? defaultBackground
 
+  // Resolve font variable references to actual font-family values server-side
+  const resolvedHeading = resolveFontFamily(fonts.heading)
+  const resolvedBody = resolveFontFamily(fonts.body)
+
   // Build CSS variables object (using Record for custom CSS properties)
   const cssVariables: Record<string, string> = {
     "--bg-color": colors.background,
@@ -62,8 +67,8 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
     "--accent-color": colors.accent,
     "--border-color": colors.border,
 
-    "--heading-font": fonts.heading,
-    "--body-font": fonts.body,
+    "--heading-font": resolvedHeading,
+    "--body-font": resolvedBody,
 
     "--card-radius": `${style.borderRadius}px`,
     "--card-shadow": style.shadowEnabled ? "0 4px 6px rgba(0,0,0,0.1)" : "none",
@@ -72,35 +77,52 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
   // Get theme ID for data-theme attribute
   const themeId = themeSettings?.themeId ?? 'mac-os'
 
+  // Status bar color for mobile safe areas
+  const statusBarColor = background.topBarColor || colors.background
+
+  const isMacintosh = themeId === 'macintosh'
+  const macPattern = themeSettings?.macPattern || ''
+  const macPatternColor = themeSettings?.macPatternColor || '#c0c0c0'
+
+  // Macintosh theme: pattern is rendered by a fixed div in the layout components,
+  // NOT by body. Body just gets solid macPatternColor as a safety net for any area
+  // not covered by the fixed div (e.g. iOS Safari safe areas).
+  // html also gets the solid color as fallback.
+
+  const standardBodyBg = background.type === "solid" || !background.type ? colors.background : "transparent"
+
   return (
     <>
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            :root {
+            html {
+              ${isMacintosh ? `background-color: ${macPatternColor} !important;` : `background-color: ${statusBarColor};`}
+              min-height: 100% !important;
+            }
+            body {
               ${Object.entries(cssVariables)
                 .map(([key, value]) => `${key}: ${value};`)
-                .join("\n            ")}
+                .join("\n              ")}
               --theme-background: ${colors.background};
               --theme-card-bg: ${colors.cardBg};
               --theme-text: ${colors.text};
               --theme-accent: ${colors.accent};
               --theme-border: ${colors.border};
               --theme-link: ${colors.link};
-              --theme-font-heading: ${fonts.heading};
-              --theme-font-body: ${fonts.body};
-              --font-theme-heading: ${fonts.heading};
-              --font-theme-body: ${fonts.body};
+              --theme-font-heading: ${resolvedHeading};
+              --theme-font-body: ${resolvedBody};
+              --font-theme-heading: ${resolvedHeading};
+              --font-theme-body: ${resolvedBody};
               --font-pixter-granular: 'Pixter Granular', monospace;
-            }
-
-            html {
-              data-theme: ${themeId};
-            }
-
-            body {
-              background-color: ${background.type === "solid" || !background.type ? "var(--bg-color)" : "transparent"};
-              color: var(--fg-color);
+              --theme-heading-size: ${fonts.headingSize}rem;
+              --theme-body-size: ${fonts.bodySize}rem;
+              --theme-heading-weight: ${fonts.headingWeight === 'bold' ? '700' : '400'};
+              --theme-border-radius: ${style.borderRadius}px;
+              --theme-shadow-enabled: ${style.shadowEnabled ? '1' : '0'};
+              --theme-blur-intensity: ${style.blurIntensity}px;
+              ${isMacintosh ? `background-color: ${macPatternColor} !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; overflow-x: hidden !important;` : `background-color: ${standardBodyBg} !important;`}
+              color: ${colors.text};
             }
           `,
         }}
