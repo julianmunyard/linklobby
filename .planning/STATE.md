@@ -9,23 +9,34 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 12 of 18 - Audio System
-Plan: 5 of 5 - Awaiting verification checkpoint
-Status: **Phase 12 In Progress - Theme adaptations and analytics complete**
-Last activity: 2026-02-11 - Completed quick task 062: Macintosh pattern bg fixed fullscreen
+Phase: 12.1 of 18 - Scatter Mode
+Plan: 1 of 5 - Complete
+Status: **Phase 12.1 In Progress - Scatter mode foundation complete**
+Last activity: 2026-02-11 - Completed 12.1-01-PLAN.md (scatter types and store actions)
 
-Progress: [████████████████████████████░░░░] ~72%
+Progress: [████████████████████████████░░░░] ~73%
 
-### IN PROGRESS: Phase 12 - Audio System
+### IN PROGRESS: Phase 12.1 - Scatter Mode
 
-Building custom audio player with Superpowered Web Audio:
+Building freeform card positioning for 5 themes:
+- ✓ Plan 01: Scatter Mode Foundation (types, store toggles, scatter actions)
+- Plan 02: Scatter Grid Component (drag, resize, z-index)
+- Plan 03: Scatter Mode UI Controls (toggle, visitor drag)
+- Plan 04: Public Scatter Mode (visitor interaction)
+- Plan 05: Scatter Persistence (database sync)
+
+**Current status:** Type system and store foundation complete. Ready for scatter grid UI implementation.
+
+### COMPLETE: Phase 12 - Audio System
+
+Built custom audio player with Superpowered Web Audio:
 - ✓ Plan 01: Audio Infrastructure Foundation (types, upload API, storage, webpack config)
 - ✓ Plan 02: Audio Engine & Hooks (AudioEngine singleton, useAudioPlayer, useWaveform, iOS unlock)
 - ✓ Plan 03: Audio Player UI Components (player controls, waveform, varispeed, reverb knob, track list)
 - ✓ Plan 04: Audio Card Integration (AudioCard, AudioCardFields, card renderer and editor wiring)
-- ⏸️ Plan 05: Theme-Specific Audio Player Styles (auto tasks complete, awaiting human verification)
+- ✓ Plan 05: Theme-Specific Audio Player Styles (theme-adapted audio players for all 6 themes)
 
-**Current status:** Theme-adapted audio players for all 6 themes, audio play analytics tracking. Awaiting end-to-end verification checkpoint.
+**Phase complete:** Custom audio player with Superpowered Web Audio, theme adaptations, and audio play analytics tracking.
 
 ### COMPLETE: Phase 11 - Analytics, Pixels & Legal
 
@@ -625,6 +636,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Hidden range input with visual thumb overlay | quick-051 | Accessible slider with custom Poolsuite visual styling |
 | No album art in Poolsuite player | quick-051 | Compact card layout - dense efficient player matching reference design |
 | System Settings is compact audio theme | quick-051 | Joins receipt/VCR/classified as compact variant with bordered controls |
+| Per-theme scatter layouts | 12.1-01 | card.content.scatterLayouts keyed by ThemeId allows different card arrangements per theme |
+| Percentage-based scatter positioning | 12.1-01 | ScatterPosition uses percentages (0-100) for responsive layouts across viewport sizes |
+| Grid-based scatter initialization | 12.1-01 | initializeScatterLayout distributes cards in grid pattern when scatter mode first enabled |
+| visitorDrag depends on scatterMode | 12.1-01 | setScatterMode(false) auto-disables visitorDrag (one-way dependency) |
 | SystemSettingsCard wraps audio on public pages | quick-053 | Audio player wrapped in System 7 window chrome on public pages, matching editor preview |
 | CSS variable fallbacks for system-settings player | quick-053 | var(--theme-card-bg, #F9F0E9) and var(--theme-text, #000000) prevent transparent buttons |
 | Macintosh audio hardcoded colors | quick-053 | Use #fff text and #000 bg for Macintosh player - always black/white for authentic 8-bit aesthetic |
@@ -795,13 +810,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-11
-Last activity: 2026-02-11 - Completed quick-062 (Macintosh pattern bg fixed fullscreen)
-Stopped at: Completed quick task 062
+Last activity: 2026-02-11 - Completed 12.1-01-PLAN.md (scatter mode foundation)
+Stopped at: Completed Phase 12.1 Plan 01
 Resume file: None
 
-**Phase 12 In Progress:** Plan 05 awaiting verification. Quick tasks 058-061 complete mobile editing UX: quick settings bar, compact card type drawer, phone frame with pinch-to-zoom, and expandable styling controls.
+**Phase 12.1 In Progress:** Plan 01 complete (scatter types and store actions). Ready for Plan 02 (scatter grid component with drag, resize, z-index).
 
-**Next step:** Verify Phase 12 Plan 05 end-to-end audio functionality
+**Next step:** Execute Phase 12.1 Plan 02 - Scatter Grid Component
 
 **This session's work (2026-02-03):**
 
