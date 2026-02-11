@@ -45,6 +45,8 @@ interface ThemeStore extends ThemeState {
   classifiedDeptText: string        // Classified theme: department line
   classifiedCenterText: string      // Classified theme: center line
   classifiedMessageText: string     // Classified theme: message line
+  scatterMode: boolean       // Whether scatter (freeform) positioning is enabled
+  visitorDrag: boolean       // Whether visitors can drag cards on public page
   hasChanges: boolean     // Track if theme has unsaved changes
 
   // Actions
@@ -77,6 +79,8 @@ interface ThemeStore extends ThemeState {
   setClassifiedDeptText: (text: string) => void
   setClassifiedCenterText: (text: string) => void
   setClassifiedMessageText: (text: string) => void
+  setScatterMode: (enabled: boolean) => void
+  setVisitorDrag: (enabled: boolean) => void
   resetToThemeDefaults: () => void
 
   // Database sync
@@ -151,6 +155,8 @@ export const useThemeStore = create<ThemeStore>()(
       classifiedDeptText: 'War Department',
       classifiedCenterText: 'Classified Message Center',
       classifiedMessageText: 'Incoming Message',
+      scatterMode: false,
+      visitorDrag: false,
       hasChanges: false,
 
       setTheme: (themeId: ThemeId) => {
@@ -389,6 +395,19 @@ export const useThemeStore = create<ThemeStore>()(
         set({ classifiedMessageText: text, hasChanges: true })
       },
 
+      setScatterMode: (enabled: boolean) => {
+        set((state) => ({
+          scatterMode: enabled,
+          // When disabling scatter mode, also disable visitor drag
+          visitorDrag: enabled ? state.visitorDrag : false,
+          hasChanges: true,
+        }))
+      },
+
+      setVisitorDrag: (enabled: boolean) => {
+        set({ visitorDrag: enabled, hasChanges: true })
+      },
+
       resetToThemeDefaults: () => {
         const state = get()
         const defaults = getThemeDefaults(state.themeId)
@@ -444,6 +463,8 @@ export const useThemeStore = create<ThemeStore>()(
           classifiedDeptText: theme.classifiedDeptText ?? 'War Department',
           classifiedCenterText: theme.classifiedCenterText ?? 'Classified Message Center',
           classifiedMessageText: theme.classifiedMessageText ?? 'Incoming Message',
+          scatterMode: theme.scatterMode ?? false,
+          visitorDrag: theme.visitorDrag ?? false,
           hasChanges: false,
         })
       },
@@ -475,6 +496,8 @@ export const useThemeStore = create<ThemeStore>()(
           classifiedDeptText: state.classifiedDeptText,
           classifiedCenterText: state.classifiedCenterText,
           classifiedMessageText: state.classifiedMessageText,
+          scatterMode: state.scatterMode,
+          visitorDrag: state.visitorDrag,
         }
       },
     }),

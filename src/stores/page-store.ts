@@ -5,10 +5,14 @@ import type { Card, CardType, CardSize, HorizontalPosition, MusicCardContent, Re
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
 import { DEFAULT_AUDIO_CONTENT } from '@/types/audio'
 import { CARD_TYPE_SIZING } from '@/types/card'
+import type { ScatterPosition, ScatterLayouts } from '@/types/scatter'
+import { DEFAULT_SCATTER_SIZES } from '@/types/scatter'
+import type { ThemeId } from '@/types/theme'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey, hasDuplicateSortKeys, normalizeSortKeys } from '@/lib/ordering'
 import { getRandomWordArtStyle } from '@/lib/word-art-styles'
 import { useThemeStore } from '@/stores/theme-store'
+import { generateId } from '@/lib/utils'
 
 interface Theme {
   id: string
@@ -45,6 +49,8 @@ interface PageState {
   discardChanges: () => void
   clearCardColorOverrides: () => void
   setAllCardsTransparency: (transparent: boolean) => void
+  updateCardScatterPosition: (cardId: string, themeId: string, position: Partial<ScatterPosition>) => void
+  initializeScatterLayout: (themeId: string) => void
 
   // Computed
   getSortedCards: () => Card[]
@@ -103,7 +109,7 @@ export const usePageStore = create<PageState>()(
     }
 
     const newCard: Card = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       page_id: '', // Set when saving to DB
       card_type: type,
       title: null,
@@ -162,7 +168,7 @@ export const usePageStore = create<PageState>()(
 
     const newCard: Card = {
       ...cardToDuplicate,
-      id: crypto.randomUUID(),
+      id: generateId(),
       sortKey: newSortKey,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -302,6 +308,90 @@ export const usePageStore = create<PageState>()(
     })),
     hasChanges: true,
   })),
+
+  updateCardScatterPosition: (cardId, themeId, position) => set((state) => ({
+    cards: state.cards.map(card => {
+      if (card.id !== cardId) return card
+      const currentLayouts = (card.content as Record<string, unknown>).scatterLayouts as ScatterLayouts || {}
+      const currentPosition = currentLayouts[themeId as ThemeId]
+      return {
+        ...card,
+        content: {
+          ...card.content,
+          scatterLayouts: {
+            ...currentLayouts,
+            [themeId]: {
+              ...currentPosition,
+              ...position,
+            }
+          }
+        }
+      }
+    }),
+    hasChanges: true,
+  })),
+
+  initializeScatterLayout: (themeId) => set((state) => {
+    const cardCount = state.cards.length
+    if (cardCount === 0) return state
+
+    // Calculate grid dimensions based on card count
+    const cols = Math.ceil(Math.sqrt(cardCount))
+    const rows = Math.ceil(cardCount / cols)
+
+    // Spacing between cards (in percentages)
+    const spacingX = 10
+    const spacingY = 10
+
+    return {
+      cards: state.cards.map((card, index) => {
+        // Check if card already has scatter position for this theme
+        const currentLayouts = (card.content as Record<string, unknown>).scatterLayouts as ScatterLayouts || {}
+        if (currentLayouts[themeId as ThemeId]) {
+          return card // Already initialized, skip
+        }
+
+        // Get default size for this card type
+        const defaultSize = DEFAULT_SCATTER_SIZES[card.card_type] || { width: 30, height: 20 }
+
+        // Calculate grid position
+        const col = index % cols
+        const row = Math.floor(index / cols)
+
+        // Calculate position with spacing
+        const availableWidth = 100 - spacingX * (cols + 1)
+        const availableHeight = 100 - spacingY * (rows + 1)
+        const cellWidth = availableWidth / cols
+        const cellHeight = availableHeight / rows
+
+        // Center card in its grid cell
+        const x = spacingX + col * (cellWidth + spacingX) + (cellWidth - defaultSize.width) / 2
+        const y = spacingY + row * (cellHeight + spacingY) + (cellHeight - defaultSize.height) / 2
+
+        // Create scatter position
+        const scatterPosition: ScatterPosition = {
+          x: Math.max(0, Math.min(100 - defaultSize.width, x)),
+          y: Math.max(0, Math.min(100 - defaultSize.height, y)),
+          width: defaultSize.width,
+          height: defaultSize.height,
+          zIndex: index,
+        }
+
+        return {
+          ...card,
+          content: {
+            ...card.content,
+            scatterLayouts: {
+              ...currentLayouts,
+              [themeId]: scatterPosition,
+            }
+          },
+          updated_at: new Date().toISOString(),
+        }
+      }),
+      hasChanges: true,
+    }
+  }),
 
   getSortedCards: () => {
     return sortCardsBySortKey(get().cards)

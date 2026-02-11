@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -129,6 +129,8 @@ export interface ThemeState {
   classifiedDeptText?: string        // Classified theme: department line (default 'War Department')
   classifiedCenterText?: string      // Classified theme: center line (default 'Classified Message Center')
   classifiedMessageText?: string     // Classified theme: message line (default 'Incoming Message')
+  scatterMode?: boolean       // Whether scatter (freeform) positioning is enabled
+  visitorDrag?: boolean       // Whether visitors can drag cards on public page
   pixels?: {  // Tracking pixel configuration
     facebookPixelId?: string  // Facebook Pixel ID for ad retargeting
     gaMeasurementId?: string  // Google Analytics GA4 Measurement ID
