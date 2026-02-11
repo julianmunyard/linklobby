@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
+import { usePageStore } from '@/stores/page-store'
 import type { ThemeId } from '@/types/theme'
 import { isScatterTheme } from '@/types/scatter'
 
@@ -54,7 +55,14 @@ export function StyleControls() {
             </div>
             <Switch
               checked={scatterMode}
-              onCheckedChange={setScatterMode}
+              onCheckedChange={(checked) => {
+                setScatterMode(checked)
+                if (checked) {
+                  // Initialize scatter layout on the editor's page store
+                  // so cards get scatterLayouts before being sent to preview
+                  usePageStore.getState().initializeScatterLayout(themeId)
+                }
+              }}
             />
           </div>
 

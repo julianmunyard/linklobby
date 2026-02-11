@@ -170,6 +170,11 @@ export function PreviewPanel() {
         case "SELECT_CARD":
           selectCard(event.data.payload.cardId)
           break
+        case "SCATTER_POSITION_UPDATE": {
+          const { cardId, themeId: scatterThemeId, position } = event.data.payload
+          usePageStore.getState().updateCardScatterPosition(cardId, scatterThemeId, position)
+          break
+        }
         case "UPDATE_STICKER":
           updateReceiptSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break

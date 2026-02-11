@@ -21,13 +21,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   const themeId = useThemeStore((state) => state.themeId)
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const updateCardScatterPosition = usePageStore((state) => state.updateCardScatterPosition)
-  const initializeScatterLayout = usePageStore((state) => state.initializeScatterLayout)
   const selectCard = usePageStore((state) => state.selectCard)
-
-  // Initialize scatter layout on mount and theme change
-  useEffect(() => {
-    initializeScatterLayout(themeId)
-  }, [themeId, initializeScatterLayout])
 
   // Measure canvas dimensions with ResizeObserver
   useEffect(() => {
@@ -71,6 +65,19 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     setMaxZIndex(max)
   }, [cards, themeId])
 
+  // Send scatter position update to parent editor via postMessage
+  const sendScatterUpdate = useCallback((cardId: string, position: Record<string, number>) => {
+    // Update local page store (for immediate re-render in preview)
+    updateCardScatterPosition(cardId, themeId, position)
+    // Also notify parent editor so editor's page store stays in sync
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SCATTER_POSITION_UPDATE', payload: { cardId, themeId, position } },
+        window.location.origin
+      )
+    }
+  }, [themeId, updateCardScatterPosition])
+
   // Convert pixel position to percentage and update store
   const handleDragStop = useCallback((cardId: string, pixelX: number, pixelY: number) => {
     if (canvasWidth === 0 || canvasHeight === 0) return
@@ -78,8 +85,8 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     const percentX = (pixelX / canvasWidth) * 100
     const percentY = (pixelY / canvasHeight) * 100
 
-    updateCardScatterPosition(cardId, themeId, { x: percentX, y: percentY })
-  }, [canvasWidth, canvasHeight, themeId, updateCardScatterPosition])
+    sendScatterUpdate(cardId, { x: percentX, y: percentY })
+  }, [canvasWidth, canvasHeight, sendScatterUpdate])
 
   // Convert pixel dimensions to percentage and update store
   const handleResizeStop = useCallback((
@@ -96,20 +103,20 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     const percentX = (pixelX / canvasWidth) * 100
     const percentY = (pixelY / canvasHeight) * 100
 
-    updateCardScatterPosition(cardId, themeId, {
+    sendScatterUpdate(cardId, {
       x: percentX,
       y: percentY,
       width: percentW,
       height: percentH,
     })
-  }, [canvasWidth, canvasHeight, themeId, updateCardScatterPosition])
+  }, [canvasWidth, canvasHeight, sendScatterUpdate])
 
   // Bring card to front by incrementing z-index
   const handleBringToFront = useCallback((cardId: string) => {
     const newZ = maxZIndex + 1
-    updateCardScatterPosition(cardId, themeId, { zIndex: newZ })
+    sendScatterUpdate(cardId, { zIndex: newZ })
     setMaxZIndex(newZ)
-  }, [maxZIndex, themeId, updateCardScatterPosition])
+  }, [maxZIndex, sendScatterUpdate])
 
   // Handle canvas background click to deselect
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
@@ -125,7 +132,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   return (
     <div
       ref={canvasRef}
-      className="relative w-full min-h-full overflow-hidden"
+      className="relative w-full min-h-screen overflow-hidden"
       style={{ touchAction: 'none' }}
       onClick={handleCanvasClick}
     >
