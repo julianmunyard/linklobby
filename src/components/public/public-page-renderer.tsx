@@ -241,8 +241,8 @@ export function PublicPageRenderer({
     // Scatter mode overrides normal theme layout
     if (isScatterLayout) {
       return (
-        <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
-          <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1">
+        <div className="h-screen flex flex-col text-theme-text overflow-hidden">
+          <div className="w-full px-4 pt-4 shrink-0">
             <StaticProfileHeader
               displayName={displayName}
               bio={bio}
@@ -264,14 +264,14 @@ export function PublicPageRenderer({
               fuzzyIntensity={fuzzyIntensity}
               fuzzySpeed={fuzzySpeed}
             />
+          </div>
 
-            <div className="mt-2 w-full">
-              <StaticScatterCanvas
-                cards={cards}
-                themeId={themeId}
-                visitorDrag={visitorDrag}
-              />
-            </div>
+          <div className="flex-1 relative w-full px-4">
+            <StaticScatterCanvas
+              cards={cards}
+              themeId={themeId}
+              visitorDrag={visitorDrag}
+            />
           </div>
 
           <LegalFooter username={username} />
@@ -362,8 +362,8 @@ export function PublicPageRenderer({
     // Scatter mode overrides normal theme layout
     if (isScatterLayout) {
       return (
-        <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
-          <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1">
+        <div className="h-screen flex flex-col text-theme-text overflow-hidden">
+          <div className="w-full px-4 pt-4 shrink-0">
             <StaticProfileHeader
               displayName={displayName}
               bio={bio}
@@ -385,14 +385,14 @@ export function PublicPageRenderer({
               fuzzyIntensity={fuzzyIntensity}
               fuzzySpeed={fuzzySpeed}
             />
+          </div>
 
-            <div className="mt-2 w-full">
-              <StaticScatterCanvas
-                cards={cards}
-                themeId={themeId}
-                visitorDrag={visitorDrag}
-              />
-            </div>
+          <div className="flex-1 relative w-full px-4">
+            <StaticScatterCanvas
+              cards={cards}
+              themeId={themeId}
+              visitorDrag={visitorDrag}
+            />
           </div>
 
           <LegalFooter username={username} />
@@ -418,6 +418,51 @@ export function PublicPageRenderer({
     )
   }
 
+  // If there's a social-icons card, render icons at card position (not in header)
+  const hasSocialIconsCard = cards.some(c => c.card_type === 'social-icons')
+  const showSocialIconsInHeader = showSocialIcons && !hasSocialIconsCard
+
+  // Scatter mode: viewport-locked layout with footer pinned at bottom (takes priority over frame)
+  if (isScatterLayout) {
+    return (
+      <div className="h-screen flex flex-col text-theme-text overflow-hidden">
+        <div className="w-full px-4 pt-4 shrink-0">
+          <StaticProfileHeader
+            displayName={displayName}
+            bio={bio}
+            avatarUrl={avatarUrl}
+            avatarFeather={avatarFeather}
+            showAvatar={showAvatar}
+            showTitle={showTitle}
+            titleSize={titleSize}
+            showLogo={showLogo}
+            logoUrl={logoUrl}
+            logoScale={logoScale}
+            profileLayout={profileLayout}
+            headerTextColor={headerTextColor}
+            socialIconColor={socialIconColor}
+            showSocialIcons={showSocialIconsInHeader}
+            socialIconsJson={socialIconsJson}
+            socialIconSize={socialIconSize}
+            fuzzyEnabled={fuzzyEnabled}
+            fuzzyIntensity={fuzzyIntensity}
+            fuzzySpeed={fuzzySpeed}
+          />
+        </div>
+
+        <div className="flex-1 relative w-full px-4">
+          <StaticScatterCanvas
+            cards={cards}
+            themeId={themeId!}
+            visitorDrag={visitorDrag}
+          />
+        </div>
+
+        <LegalFooter username={username} />
+      </div>
+    )
+  }
+
   // Get frame insets if a frame overlay is active with fit content enabled
   const frameOverlay = background?.frameOverlay
   const frameFitContent = background?.frameFitContent ?? true // Default to true
@@ -427,10 +472,6 @@ export function PublicPageRenderer({
   const frameZoom = background?.frameZoom ?? 1
   const framePosX = background?.framePositionX ?? 0
   const framePosY = background?.framePositionY ?? 0
-
-  // If there's a social-icons card, render icons at card position (not in header)
-  const hasSocialIconsCard = cards.some(c => c.card_type === 'social-icons')
-  const showSocialIconsInHeader = showSocialIcons && !hasSocialIconsCard
 
   // When frame is active with fit content, position content within frame bounds
   if (frameInsets) {
@@ -476,24 +517,16 @@ export function PublicPageRenderer({
             fuzzySpeed={fuzzySpeed}
           />
 
-          {/* Card Grid or Scatter Canvas */}
+          {/* Card Grid */}
           <div className="mt-2">
-            {isScatterLayout ? (
-              <StaticScatterCanvas
-                cards={cards}
-                themeId={themeId!}
-                visitorDrag={visitorDrag}
-              />
-            ) : (
-              <StaticFlowGrid
-                cards={cards}
-                socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
-                socialIconSize={socialIconSize}
-                socialIconColor={socialIconColor}
-                headerTextColor={headerTextColor}
-                themeId={themeId}
-              />
-            )}
+            <StaticFlowGrid
+              cards={cards}
+              socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
+              socialIconSize={socialIconSize}
+              socialIconColor={socialIconColor}
+              headerTextColor={headerTextColor}
+              themeId={themeId}
+            />
           </div>
 
           {/* Legal Footer */}
@@ -530,24 +563,16 @@ export function PublicPageRenderer({
           fuzzySpeed={fuzzySpeed}
         />
 
-        {/* Card Grid or Scatter Canvas */}
+        {/* Card Grid */}
         <div className="mt-2 w-full">
-          {isScatterLayout ? (
-            <StaticScatterCanvas
-              cards={cards}
-              themeId={themeId!}
-              visitorDrag={visitorDrag}
-            />
-          ) : (
-            <StaticFlowGrid
-              cards={cards}
-              socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
-              socialIconSize={socialIconSize}
-              socialIconColor={socialIconColor}
-              headerTextColor={headerTextColor}
-              themeId={themeId}
-            />
-          )}
+          <StaticFlowGrid
+            cards={cards}
+            socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
+            socialIconSize={socialIconSize}
+            socialIconColor={socialIconColor}
+            headerTextColor={headerTextColor}
+            themeId={themeId}
+          />
         </div>
       </div>
 

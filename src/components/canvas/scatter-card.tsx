@@ -131,7 +131,7 @@ export function ScatterCard({
         isSelected && 'ring-2 ring-blue-500'
       )}
     >
-      <div className="w-full h-full overflow-hidden">
+      <div className="w-full h-full overflow-hidden pointer-events-none">
         <CardRenderer card={card} isPreview={true} themeId={themeId} />
       </div>
     </Rnd>

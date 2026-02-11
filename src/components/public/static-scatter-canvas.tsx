@@ -45,19 +45,6 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
   // Filter visible cards
   const visibleCards = cards.filter(c => c.is_visible)
 
-  // Calculate container bounds based on card positions
-  const calculateMinHeight = () => {
-    let maxY = 50 // Minimum height (50vh)
-    visibleCards.forEach(card => {
-      const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
-      const scatterPos = scatterLayouts[themeId]
-      if (scatterPos) {
-        const cardBottom = scatterPos.y + scatterPos.height
-        maxY = Math.max(maxY, cardBottom)
-      }
-    })
-    return `${maxY + 10}vh` // Add 10vh padding at bottom
-  }
 
   // Handle pointer/touch drag start
   const handleDragStart = (e: React.PointerEvent, cardId: string) => {
@@ -134,8 +121,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
 
   return (
     <div
-      className="relative w-full"
-      style={{ minHeight: calculateMinHeight() }}
+      className="relative w-full h-full"
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
       onPointerLeave={handleDragEnd}
