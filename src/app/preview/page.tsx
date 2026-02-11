@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { SelectableFlowGrid } from "@/components/canvas/selectable-flow-grid"
+import { ScatterCanvas } from "@/components/canvas/scatter-canvas"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
 import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
@@ -16,6 +17,7 @@ import { ClassifiedLayout } from "@/components/cards/classified-layout"
 import { DeparturesBoardLayout } from "@/components/cards/departures-board-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
+import { isScatterTheme } from "@/types/scatter"
 import type { Card } from "@/types/card"
 import type { Profile } from "@/types/profile"
 import type { ThemeState } from "@/types/theme"
@@ -68,7 +70,7 @@ function PreviewContent() {
   const [state, setState] = useState<PageState>(defaultState)
   const [isReady, setIsReady] = useState(false)
   const { clearSelection } = useMultiSelectContext()
-  const { background, themeId, centerCards } = useThemeStore()
+  const { background, themeId, centerCards, scatterMode } = useThemeStore()
   const displayName = useProfileStore((s) => s.displayName)
 
   // Send SELECT_CARD message to parent editor
@@ -96,9 +98,25 @@ function PreviewContent() {
 
   useEffect(() => {
     // Handle incoming messages from parent editor
-    const handleMessage = (event: MessageEvent<PreviewMessage>) => {
+    const handleMessage = (event: MessageEvent) => {
       // Security: only accept messages from same origin
       if (event.origin !== window.location.origin) {
+        return
+      }
+
+      // Handle scroll forwarded from parent (iframe has pointer-events: none on mobile)
+      if (event.data?.type === "SCROLL") {
+        window.scrollBy(0, event.data.payload.deltaY)
+        return
+      }
+
+      // Handle tap forwarded from parent (iframe has pointer-events: none on mobile)
+      if (event.data?.type === "TAP") {
+        const { x, y } = event.data.payload
+        const el = document.elementFromPoint(x, y)
+        if (el) {
+          ;(el as HTMLElement).click()
+        }
         return
       }
 
@@ -137,6 +155,8 @@ function PreviewContent() {
             classifiedDeptText: ts.classifiedDeptText ?? 'War Department',
             classifiedCenterText: ts.classifiedCenterText ?? 'Classified Message Center',
             classifiedMessageText: ts.classifiedMessageText ?? 'Incoming Message',
+            scatterMode: ts.scatterMode ?? false,
+            visitorDrag: ts.visitorDrag ?? false,
           })
         }
       }
@@ -158,62 +178,96 @@ function PreviewContent() {
     }
   }, [])
 
-  // Forward pinch gestures to parent for zoom control
-  // Single-finger touches stay in the iframe (scroll, card taps)
-  // Two-finger pinch is detected here and forwarded via postMessage
-  const initialPinchDistRef = useRef(0)
-
+  // Detect two-finger pinch inside iframe and forward to parent for CSS transform zoom
+  // Single-finger gestures (scroll, tap, long-press drag) pass through to dnd-kit natively
   useEffect(() => {
     if (window.parent === window) return // Not in iframe
 
-    const getDistance = (touches: TouchList) => {
-      const [t1, t2] = [touches[0], touches[1]]
+    // Tell compositor: allow scroll but NOT zoom — prevents native zoom before JS even fires
+    document.documentElement.style.touchAction = 'pan-y'
+
+    let initialDistance = 0
+    let lastMidpoint = { x: 0, y: 0 }
+    let isPinching = false
+
+    function getDistance(t1: Touch, t2: Touch) {
       return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
     }
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        initialPinchDistRef.current = getDistance(e.touches)
+    function getMidpoint(t1: Touch, t2: Touch) {
+      return {
+        x: (t1.clientX + t2.clientX) / 2,
+        y: (t1.clientY + t2.clientY) / 2,
+      }
+    }
+
+    function handleTouchStart(e: TouchEvent) {
+      if (e.touches.length >= 2 && !isPinching) {
         e.preventDefault()
-        window.parent.postMessage(
-          { type: "PINCH_START" },
-          window.location.origin
-        )
+        isPinching = true
+        initialDistance = getDistance(e.touches[0], e.touches[1])
+        lastMidpoint = getMidpoint(e.touches[0], e.touches[1])
+        // Lock ALL native gestures during pinch (prevents scroll jank)
+        document.documentElement.style.touchAction = 'none'
+        window.parent.postMessage({ type: "PINCH_START" }, window.location.origin)
       }
     }
 
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2 && initialPinchDistRef.current > 0) {
-        const currentDist = getDistance(e.touches)
-        const scale = currentDist / initialPinchDistRef.current
+    function handleTouchMove(e: TouchEvent) {
+      if (e.touches.length >= 2) {
         e.preventDefault()
-        window.parent.postMessage(
-          { type: "PINCH_UPDATE", payload: { scale } },
-          window.location.origin
-        )
+        if (!isPinching) {
+          // Pinch started mid-move (edge case)
+          isPinching = true
+          initialDistance = getDistance(e.touches[0], e.touches[1])
+          lastMidpoint = getMidpoint(e.touches[0], e.touches[1])
+          document.documentElement.style.touchAction = 'none'
+          window.parent.postMessage({ type: "PINCH_START" }, window.location.origin)
+          return
+        }
+        const currentDistance = getDistance(e.touches[0], e.touches[1])
+        const currentMidpoint = getMidpoint(e.touches[0], e.touches[1])
+        const scale = currentDistance / initialDistance
+        const deltaX = currentMidpoint.x - lastMidpoint.x
+        const deltaY = currentMidpoint.y - lastMidpoint.y
+        lastMidpoint = currentMidpoint
+
+        window.parent.postMessage({
+          type: "PINCH_UPDATE",
+          payload: { scale, deltaX, deltaY }
+        }, window.location.origin)
+      } else if (isPinching) {
+        // Still in pinch mode but only 1 finger left — prevent scroll jank during transition
+        e.preventDefault()
       }
     }
 
-    const onTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2 && initialPinchDistRef.current > 0) {
-        initialPinchDistRef.current = 0
-        window.parent.postMessage(
-          { type: "PINCH_END" },
-          window.location.origin
-        )
+    function handleTouchEnd(e: TouchEvent) {
+      if (isPinching && e.touches.length < 2) {
+        isPinching = false
+        // Restore scroll (pan-y) after pinch ends
+        document.documentElement.style.touchAction = 'pan-y'
+        window.parent.postMessage({ type: "PINCH_END" }, window.location.origin)
       }
     }
 
-    document.addEventListener('touchstart', onTouchStart, { passive: false })
-    document.addEventListener('touchmove', onTouchMove, { passive: false })
-    document.addEventListener('touchend', onTouchEnd)
-    document.addEventListener('touchcancel', onTouchEnd)
+    document.addEventListener('touchstart', handleTouchStart, { passive: false })
+    document.addEventListener('touchmove', handleTouchMove, { passive: false })
+    document.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+    // Prevent Safari gesture events that cause native zoom glitch
+    const preventGesture = (e: Event) => e.preventDefault()
+    document.addEventListener('gesturestart', preventGesture, { passive: false } as AddEventListenerOptions)
+    document.addEventListener('gesturechange', preventGesture, { passive: false } as AddEventListenerOptions)
+    document.addEventListener('gestureend', preventGesture, { passive: false } as AddEventListenerOptions)
 
     return () => {
-      document.removeEventListener('touchstart', onTouchStart)
-      document.removeEventListener('touchmove', onTouchMove)
-      document.removeEventListener('touchend', onTouchEnd)
-      document.removeEventListener('touchcancel', onTouchEnd)
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleTouchEnd)
+      document.removeEventListener('gesturestart', preventGesture)
+      document.removeEventListener('gesturechange', preventGesture)
+      document.removeEventListener('gestureend', preventGesture)
     }
   }, [])
 
@@ -451,6 +505,8 @@ function PreviewContent() {
                 <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
                 <p className="text-muted-foreground text-sm max-w-[300px]">Add cards in the editor to build your link-in-bio page.</p>
               </div>
+            ) : scatterMode && isScatterTheme(themeId) ? (
+              <ScatterCanvas cards={state.cards} />
             ) : (
               <SelectableFlowGrid
                 cards={state.cards}
@@ -534,8 +590,11 @@ function PreviewContent() {
               Add cards in the editor to build your link-in-bio page. Changes will appear here in real-time.
             </p>
           </div>
+        ) : scatterMode && isScatterTheme(themeId) ? (
+          // Scatter mode: freeform card positioning
+          <ScatterCanvas cards={state.cards} />
         ) : (
-          // Card rendering using SelectableFlowGrid with box selection and shift-click
+          // Flow mode: card rendering using SelectableFlowGrid with box selection and shift-click
           <SelectableFlowGrid
             cards={state.cards}
             selectedCardId={state.selectedCardId}

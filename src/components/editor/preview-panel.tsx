@@ -16,13 +16,15 @@ export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile")
   const [previewReady, setPreviewReady] = useState(false)
   const [mobileScale, setMobileScale] = useState(1)
-  const [scale, setScale] = useState(1)
-  const [translate, setTranslate] = useState({ x: 0, y: 0 })
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const phoneFrameRef = useRef<HTMLDivElement>(null)
   const baseScaleRef = useRef(1)
   const scaleRef = useRef(1)
+  const translateRef = useRef({ x: 0, y: 0 })
   const lastTapRef = useRef(0)
+  const iframePinchingRef = useRef(false) // true when iframe is handling a pinch
+  const pinchStartScaleRef = useRef(1)
   const isMobileLayout = useIsMobileLayout()
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
@@ -33,8 +35,13 @@ export function PreviewPanel() {
   const updateIpodSticker = useThemeStore((state) => state.updateIpodSticker)
   const { saveCards } = useCards()
 
-  // Keep ref in sync for stale closure access in message handlers
-  useEffect(() => { scaleRef.current = scale }, [scale])
+  // Direct DOM update for phone frame transform — bypasses React for smooth gestures
+  const updateFrameTransform = useCallback(() => {
+    if (phoneFrameRef.current) {
+      phoneFrameRef.current.style.transform =
+        `translate(${translateRef.current.x}px, ${translateRef.current.y}px) scale(${scaleRef.current})`
+    }
+  }, [])
 
   // Calculate scale to fit mobile preview in container
   const updateMobileScale = useCallback(() => {
@@ -49,8 +56,10 @@ export function PreviewPanel() {
     const newScale = Math.min(scaleX, scaleY, 1) // Don't scale up, only down
     setMobileScale(newScale)
     baseScaleRef.current = newScale
-    setScale(newScale)
-  }, [])
+    scaleRef.current = newScale
+    translateRef.current = { x: 0, y: 0 }
+    updateFrameTransform()
+  }, [updateFrameTransform])
 
   // Update scale on mount and resize
   useEffect(() => {
@@ -63,8 +72,6 @@ export function PreviewPanel() {
   }, [updateMobileScale])
 
   // Deselect card and save any pending changes
-  // IMPORTANT: Save FIRST, before deselecting (which unmounts the editor)
-  // Read hasChanges directly from store to avoid stale closure bug
   const handleDeselect = async () => {
     const currentHasChanges = usePageStore.getState().hasChanges
     if (currentHasChanges) {
@@ -77,12 +84,56 @@ export function PreviewPanel() {
   const handleDoubleTap = () => {
     const now = Date.now()
     if (now - lastTapRef.current < 300) {
-      // Double tap - reset to fit
-      setScale(baseScaleRef.current)
-      setTranslate({ x: 0, y: 0 })
+      scaleRef.current = baseScaleRef.current
+      translateRef.current = { x: 0, y: 0 }
+      updateFrameTransform()
     }
     lastTapRef.current = now
   }
+
+  // Convert screen coordinates to iframe-local coordinates
+  const screenToIframeCoords = useCallback((screenX: number, screenY: number) => {
+    const iframe = iframeRef.current
+    if (!iframe) return null
+    const rect = iframe.getBoundingClientRect()
+    if (screenX < rect.left || screenX > rect.right || screenY < rect.top || screenY > rect.bottom) {
+      return null // Outside iframe
+    }
+    return {
+      x: (screenX - rect.left) / rect.width * MOBILE_WIDTH,
+      y: (screenY - rect.top) / rect.height * MOBILE_HEIGHT,
+    }
+  }, [])
+
+  // Forward scroll to iframe
+  const forwardScroll = useCallback((deltaY: number) => {
+    const iframe = iframeRef.current
+    if (iframe?.contentWindow) {
+      // Convert screen delta to iframe scroll delta (account for current zoom)
+      const iframeDelta = deltaY / scaleRef.current
+      iframe.contentWindow.postMessage(
+        { type: "SCROLL", payload: { deltaY: iframeDelta } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  // Forward tap to iframe
+  const forwardTap = useCallback((screenX: number, screenY: number) => {
+    const coords = screenToIframeCoords(screenX, screenY)
+    if (coords) {
+      const iframe = iframeRef.current
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(
+          { type: "TAP", payload: coords },
+          window.location.origin
+        )
+      }
+    } else {
+      // Tapped outside the iframe (on container background) — deselect
+      handleDeselect()
+    }
+  }, [screenToIframeCoords, handleDeselect])
 
   // Send state to preview iframe
   const sendToPreview = () => {
@@ -90,9 +141,8 @@ export function PreviewPanel() {
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
-      // Get theme state snapshot (exclude actions)
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, scatterMode, visitorDrag } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, scatterMode, visitorDrag }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
@@ -111,12 +161,10 @@ export function PreviewPanel() {
           break
         case "REORDER_CARDS":
           reorderCards(event.data.payload.activeId, event.data.payload.overId)
-          // Save immediately after reorder - don't wait for debounce
           saveCards()
           break
         case "REORDER_MULTIPLE_CARDS":
           reorderMultipleCards(event.data.payload.cardIds, event.data.payload.targetIndex)
-          // Save immediately after reorder - don't wait for debounce
           saveCards()
           break
         case "SELECT_CARD":
@@ -129,15 +177,21 @@ export function PreviewPanel() {
           updateIpodSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break
         case "PINCH_START":
-          baseScaleRef.current = scaleRef.current
+          iframePinchingRef.current = true
+          pinchStartScaleRef.current = scaleRef.current
           break
         case "PINCH_UPDATE": {
-          const newScale = baseScaleRef.current * event.data.payload.scale
-          setScale(Math.max(0.1, Math.min(newScale, 3)))
+          const { scale, deltaX, deltaY } = event.data.payload
+          scaleRef.current = Math.max(0.1, Math.min(pinchStartScaleRef.current * scale, 3))
+          translateRef.current = {
+            x: translateRef.current.x + deltaX * scaleRef.current,
+            y: translateRef.current.y + deltaY * scaleRef.current,
+          }
+          updateFrameTransform()
           break
         }
         case "PINCH_END":
-          // Pinch finished, scale is already set
+          iframePinchingRef.current = false
           break
       }
     }
@@ -145,6 +199,20 @@ export function PreviewPanel() {
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
   }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateReceiptSticker, updateIpodSticker])
+
+  // Prevent native zoom on the parent page (Safari gesture events)
+  useEffect(() => {
+    if (!isMobileLayout) return
+    const prevent = (e: Event) => e.preventDefault()
+    document.addEventListener('gesturestart', prevent, { passive: false } as AddEventListenerOptions)
+    document.addEventListener('gesturechange', prevent, { passive: false } as AddEventListenerOptions)
+    document.addEventListener('gestureend', prevent, { passive: false } as AddEventListenerOptions)
+    return () => {
+      document.removeEventListener('gesturestart', prevent)
+      document.removeEventListener('gesturechange', prevent)
+      document.removeEventListener('gestureend', prevent)
+    }
+  }, [isMobileLayout])
 
   // Send initial state when preview becomes ready
   useEffect(() => {
@@ -171,16 +239,46 @@ export function PreviewPanel() {
     }
   }, [previewReady])
 
-  // Drag gesture for panning when zoomed (pinch handled via postMessage from iframe)
+  // Gesture handler for the mobile preview container background
+  // iframe has pointer-events: auto — single-finger gestures (scroll, tap, drag) handled natively
+  // Two-finger pinch on iframe is intercepted and forwarded via postMessage (PINCH_START/UPDATE/END)
+  // This handler covers pinch on the background area + tap-to-deselect + background scroll forwarding
   const bind = useGesture(
     {
-      onDrag: ({ delta: [dx, dy] }) => {
-        setTranslate(prev => ({ x: prev.x + dx, y: prev.y + dy }))
+      onPinch: ({ first, offset: [s], origin: [ox, oy], memo }) => {
+        if (iframePinchingRef.current) return // iframe is handling the pinch
+        scaleRef.current = Math.max(0.1, Math.min(s, 3))
+        if (first) {
+          updateFrameTransform()
+          return { ox, oy }
+        }
+        if (memo) {
+          translateRef.current = {
+            x: translateRef.current.x + (ox - memo.ox),
+            y: translateRef.current.y + (oy - memo.oy),
+          }
+        }
+        updateFrameTransform()
+        return { ox, oy }
+      },
+      onDrag: ({ delta: [, dy], pinching, tap, xy: [x, y], first, event }) => {
+        if (pinching) return // Don't scroll while pinching
+        if (tap) {
+          handleDoubleTap()
+          forwardTap(x, y)
+          return
+        }
+        // Single-finger drag → scroll the iframe content
+        forwardScroll(-dy)
       },
     },
     {
       target: containerRef,
       drag: { filterTaps: true },
+      pinch: {
+        from: () => [scaleRef.current, 0],
+        scaleBounds: { min: 0.1, max: 3 },
+      },
       eventOptions: { passive: false },
     }
   )
@@ -188,19 +286,18 @@ export function PreviewPanel() {
   const isMobilePreviewMode = previewMode === "mobile"
 
   // On mobile layout: render iframe in phone frame with gestures
+  // iframe has pointer-events: auto — single-finger gestures work natively (scroll, tap, drag-to-reorder)
+  // Two-finger pinch inside iframe is detected and forwarded to parent via postMessage
   if (isMobileLayout) {
     return (
       <div className="h-full flex flex-col bg-muted/30">
         <div
           ref={containerRef}
-          className="flex-1 min-h-0 bg-muted/30 flex items-center justify-center overflow-hidden"
-          style={{ touchAction: 'none' }}
-          onClick={(e) => {
-            handleDoubleTap()
-            handleDeselect()
-          }}
+          className="flex-1 min-h-0 bg-muted/30 flex items-center justify-center overflow-hidden select-none"
+          style={{ touchAction: 'none', WebkitTouchCallout: 'none' } as React.CSSProperties}
         >
           <div
+            ref={phoneFrameRef}
             className="bg-background shadow-lg overflow-hidden"
             style={{
               width: MOBILE_WIDTH,
@@ -209,14 +306,16 @@ export function PreviewPanel() {
               borderWidth: '4px',
               borderColor: 'hsl(var(--foreground) / 0.1)',
               borderStyle: 'solid',
-              transform: `scale(${scale}) translate(${translate.x}px, ${translate.y}px)`,
+              transform: `translate(${translateRef.current.x}px, ${translateRef.current.y}px) scale(${scaleRef.current})`,
               transformOrigin: 'center center',
+              willChange: 'transform',
             }}
           >
             <iframe
               ref={iframeRef}
               src="/preview"
               className="w-full h-full border-0"
+              style={{ pointerEvents: 'auto', touchAction: 'pan-y' }}
               title="Page preview"
             />
           </div>
