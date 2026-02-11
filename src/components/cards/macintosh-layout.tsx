@@ -48,7 +48,7 @@ export function MacintoshLayout({
   )
 
   const bgStyle = macPattern
-    ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
+    ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat' as const, backgroundSize: '500px auto' as const, imageRendering: 'pixelated' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
   // When frame is active, constrain content inside frame bounds
@@ -56,6 +56,7 @@ export function MacintoshLayout({
   const contentStyle: React.CSSProperties = hasFrame
     ? {
         position: 'fixed',
+        zIndex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
         width: `${100 - frameInsets.left - frameInsets.right}vw`,
@@ -70,19 +71,21 @@ export function MacintoshLayout({
         padding: 0,
         overscrollBehavior: 'none',
         position: 'relative',
+        zIndex: 1,
       }
 
   return (
     <>
-    {/* Fixed background layer - always viewport-level */}
+    {/* Fixed background layer — z-index 0 above body, content at z-index 1 above this.
+        Oversized by 50% in every direction to guarantee full coverage on all devices/safe areas. */}
     <div
       style={{
         position: 'fixed',
-        top: '-5vh',
-        left: '-5vw',
-        right: '-5vw',
-        bottom: '-5vh',
-        zIndex: -1,
+        top: '-50vh',
+        left: '-50vw',
+        right: '-50vw',
+        bottom: '-50vh',
+        zIndex: 0,
         ...bgStyle,
       }}
     />

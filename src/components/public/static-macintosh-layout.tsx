@@ -130,13 +130,14 @@ export function StaticMacintoshLayout({
 
   const bgColor = macPatternColor || '#c0c0c0'
   const bgStyle = macPattern
-    ? { backgroundColor: bgColor, backgroundImage: `url(${macPattern})`, backgroundSize: 'cover' as const, backgroundPosition: 'center' as const, backgroundBlendMode: 'multiply' as const }
+    ? { backgroundColor: bgColor, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat' as const, backgroundSize: '500px auto' as const, imageRendering: 'pixelated' as const, backgroundBlendMode: 'multiply' as const }
     : { background: DEFAULT_DESKTOP_BG }
 
   const hasFrame = !!frameInsets
   const contentStyle: React.CSSProperties = hasFrame
     ? {
         position: 'fixed',
+        zIndex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
         width: `${100 - frameInsets.left - frameInsets.right}vw`,
@@ -148,20 +149,26 @@ export function StaticMacintoshLayout({
       }
     : {
         minHeight: '100vh',
-        padding: '0 0 0 0',
+        paddingTop: '0',
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
         position: 'relative' as const,
+        zIndex: 1,
       }
 
   return (
     <>
-      {/* Fixed background that extends slightly beyond viewport to cover overscroll */}
+      {/* Fixed background — z-index 0 sits above body bg, content at z-index 1 sits above this.
+          Oversized by 50% in every direction to guarantee full coverage on all devices/safe areas. */}
       <div
-        className="fixed -z-10"
+        className="fixed"
         style={{
-          top: '-5vh',
-          left: '-5vw',
-          right: '-5vw',
-          bottom: '-5vh',
+          zIndex: 0,
+          top: '-50vh',
+          left: '-50vw',
+          right: '-50vw',
+          bottom: '-50vh',
           ...bgStyle,
         }}
       />
