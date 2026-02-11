@@ -10,22 +10,22 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.1 of 18 - Scatter Mode
-Plan: 2 of 5 - Complete
-Status: **Phase 12.1 In Progress - Scatter grid components complete**
-Last activity: 2026-02-11 - Completed 12.1-02-PLAN.md (scatter canvas and card components)
+Plan: 3 of 5 - Complete
+Status: **Phase 12.1 In Progress - Scatter UI controls integrated**
+Last activity: 2026-02-11 - Completed 12.1-03-PLAN.md (scatter mode UI controls)
 
-Progress: [████████████████████████████░░░░] ~73%
+Progress: [████████████████████████████░░░░] ~74%
 
 ### IN PROGRESS: Phase 12.1 - Scatter Mode
 
 Building freeform card positioning for 5 themes:
 - ✓ Plan 01: Scatter Mode Foundation (types, store toggles, scatter actions)
 - ✓ Plan 02: Scatter Grid Component (drag, resize, z-index)
-- Plan 03: Scatter Mode UI Controls (toggle, visitor drag)
+- ✓ Plan 03: Scatter Mode UI Controls (toggle, visitor drag, preview panel wiring)
 - Plan 04: Public Scatter Mode (visitor interaction)
 - Plan 05: Scatter Persistence (database sync)
 
-**Current status:** Core scatter canvas and card components complete with react-rnd. Ready for scatter UI controls integration.
+**Current status:** Scatter mode toggle integrated into editor UI, preview panel switches between flow and scatter layouts. Ready for public scatter mode and persistence.
 
 ### COMPLETE: Phase 12 - Audio System
 
@@ -640,6 +640,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Percentage-based scatter positioning | 12.1-01 | ScatterPosition uses percentages (0-100) for responsive layouts across viewport sizes |
 | Grid-based scatter initialization | 12.1-01 | initializeScatterLayout distributes cards in grid pattern when scatter mode first enabled |
 | visitorDrag depends on scatterMode | 12.1-01 | setScatterMode(false) auto-disables visitorDrag (one-way dependency) |
+| Scatter toggle before border radius | 12.1-03 | Freeform Layout toggle positioned at top of style controls for visual prominence |
+| Visitor drag indented with border | 12.1-03 | border-l-2 indentation shows visitor drag is a child toggle of scatter mode |
+| Conditional scatter rendering | 12.1-03 | Preview renders ScatterCanvas only when scatterMode=true AND isScatterTheme(themeId) |
 | SystemSettingsCard wraps audio on public pages | quick-053 | Audio player wrapped in System 7 window chrome on public pages, matching editor preview |
 | CSS variable fallbacks for system-settings player | quick-053 | var(--theme-card-bg, #F9F0E9) and var(--theme-text, #000000) prevent transparent buttons |
 | Macintosh audio hardcoded colors | quick-053 | Use #fff text and #000 bg for Macintosh player - always black/white for authentic 8-bit aesthetic |
@@ -814,13 +817,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-11
-Last activity: 2026-02-11 - Completed 12.1-02-PLAN.md (scatter canvas and card components)
-Stopped at: Completed Phase 12.1 Plan 02
+Last activity: 2026-02-11 - Completed 12.1-03-PLAN.md (scatter mode UI controls)
+Stopped at: Completed Phase 12.1 Plan 03
 Resume file: None
 
-**Phase 12.1 In Progress:** Plans 01-02 complete (scatter types, store actions, canvas/card components). Ready for Plan 03 (scatter UI controls).
+**Phase 12.1 In Progress:** Plans 01-03 complete (scatter foundation, canvas/card components, UI controls). Ready for Plan 04 (public scatter mode).
 
-**Next step:** Execute Phase 12.1 Plan 03 - Scatter Mode UI Controls
+**Next step:** Execute Phase 12.1 Plan 04 - Public Scatter Mode
 
 **This session's work (2026-02-03):**
 
