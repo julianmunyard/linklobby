@@ -153,7 +153,10 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
       ref={canvasRef}
       className="relative w-full min-h-screen overflow-hidden"
       style={{ touchAction: arrangeMode ? 'none' : 'auto' }}
-      onClick={handleCanvasClick}
+      onClick={(e) => {
+        e.stopPropagation()
+        handleCanvasClick(e)
+      }}
     >
       {/* Grid overlay — only in arrange mode */}
       {arrangeMode && (

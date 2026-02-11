@@ -1317,28 +1317,12 @@ html, body {
    Scatter Mode Resize Handles
    ======================================== */
 
-/* Corner resize handles — Canva/Photoshop style */
-.scatter-resize-handle {
-  opacity: 0 !important;
-  transition: opacity 0.15s !important;
-  z-index: 10 !important;
+/* Scatter card — hide corner handles until hover */
+.scatter-card [class*="cursor-n"] {
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.scatter-card:hover .scatter-resize-handle,
-.scatter-card.ring-2 .scatter-resize-handle {
-  opacity: 1 !important;
+.scatter-card:hover [class*="cursor-n"] {
+  opacity: 1;
 }
-
-.scatter-resize-handle-corner {
-  width: 14px !important;
-  height: 14px !important;
-  background: white !important;
-  border: 2px solid #3b82f6 !important;
-  border-radius: 2px !important;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.2) !important;
-}
-
-.scatter-resize-handle-tr { cursor: nesw-resize !important; }
-.scatter-resize-handle-bl { cursor: nesw-resize !important; }
-.scatter-resize-handle-tl { cursor: nwse-resize !important; }
-.scatter-resize-handle-br { cursor: nwse-resize !important; }

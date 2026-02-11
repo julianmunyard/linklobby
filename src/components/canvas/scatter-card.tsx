@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { Rnd } from 'react-rnd'
 import type { Card } from '@/types/card'
 import type { ScatterPosition } from '@/types/scatter'
@@ -57,7 +57,9 @@ export function ScatterCard({
   onSelect,
 }: ScatterCardProps) {
   const contentRef = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState<number | null>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [measuredHeight, setMeasuredHeight] = useState<number>(0)
+  const isDraggingCorner = useRef(false)
 
   // Get scatter position for this theme from card content, or compute default
   const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
@@ -68,41 +70,92 @@ export function ScatterCard({
   const pixelY = (scatterPos.y / 100) * canvasHeight
   const pixelWidth = (scatterPos.width / 100) * canvasWidth
 
-  // Measure actual content height so Rnd container fits the card exactly
+  // Measure actual content height so container fits the card exactly
   useEffect(() => {
     if (!contentRef.current) return
-    const measure = () => {
-      if (contentRef.current) {
-        setContentHeight(contentRef.current.scrollHeight)
+    const observer = new ResizeObserver((entries) => {
+      if (!isDraggingCorner.current) {
+        setMeasuredHeight(entries[0].contentRect.height)
       }
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
+    })
     observer.observe(contentRef.current)
     return () => observer.disconnect()
-  }, [pixelWidth, card.content, card.card_type])
+  }, [])
 
-  // Use measured height, falling back to stored percentage height until measured
-  const pixelHeight = contentHeight ?? (scatterPos.height / 100) * canvasHeight
+  const pixelHeight = measuredHeight || (scatterPos.height / 100) * canvasHeight
 
-  const noResize = {
-    top: false, right: false, bottom: false, left: false,
-    topRight: false, bottomRight: false, bottomLeft: false, topLeft: false,
-  }
+  // Custom corner scale — CSS transform during drag, commit on release
+  const handleCornerDown = useCallback((corner: 'tl' | 'tr' | 'bl' | 'br') => (e: React.PointerEvent) => {
+    if (!arrangeMode || !measuredHeight) return
+    e.stopPropagation()
+    e.preventDefault()
 
-  const cornerOnly = {
-    top: false, right: false, bottom: false, left: false,
-    topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
-  }
+    isDraggingCorner.current = true
+    onBringToFront(card.id)
+
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+
+    const rndEl = wrapper.parentElement
+    if (!rndEl) return
+    const rect = rndEl.getBoundingClientRect()
+
+    // Anchor = opposite corner (viewport coords)
+    const anchorX = corner.includes('l') ? rect.right : rect.left
+    const anchorY = corner.includes('t') ? rect.bottom : rect.top
+
+    const startDist = Math.hypot(e.clientX - anchorX, e.clientY - anchorY)
+    const startW = pixelWidth
+    const startH = measuredHeight
+
+    // Scale from the opposite corner
+    const origins: Record<string, string> = {
+      tl: 'bottom right', tr: 'bottom left',
+      bl: 'top right', br: 'top left',
+    }
+    wrapper.style.transformOrigin = origins[corner]
+
+    let finalScale = 1
+
+    const onMove = (me: PointerEvent) => {
+      const currentDist = Math.hypot(me.clientX - anchorX, me.clientY - anchorY)
+      finalScale = Math.max(0.15, currentDist / startDist)
+      wrapper.style.transform = `scale(${finalScale})`
+    }
+
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+
+      // Reset CSS transform
+      wrapper.style.transform = ''
+      wrapper.style.transformOrigin = ''
+      isDraggingCorner.current = false
+
+      if (finalScale === 1) return
+
+      // Compute new dimensions and position
+      const newW = startW * finalScale
+      const newH = startH * finalScale
+      let newX = pixelX
+      let newY = pixelY
+      if (corner.includes('l')) newX = pixelX + startW - newW
+      if (corner.includes('t')) newY = pixelY + startH - newH
+
+      onResizeStop(card.id, newW, newH, newX, newY)
+    }
+
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+  }, [arrangeMode, measuredHeight, pixelWidth, pixelX, pixelY, card.id, onResizeStop, onBringToFront])
 
   return (
     <Rnd
       size={{ width: pixelWidth, height: pixelHeight }}
       position={{ x: pixelX, y: pixelY }}
       bounds="parent"
-      lockAspectRatio={arrangeMode}
       disableDragging={!arrangeMode}
-      enableResizing={arrangeMode ? cornerOnly : noResize}
+      enableResizing={false}
       style={{
         touchAction: arrangeMode ? 'none' : 'auto',
         zIndex: scatterPos.zIndex,
@@ -116,16 +169,6 @@ export function ScatterCard({
         if (!arrangeMode) return
         onDragStop(card.id, d.x, d.y)
       }}
-      onResizeStop={(e, direction, ref, delta, position) => {
-        if (!arrangeMode) return
-        onResizeStop(
-          card.id,
-          ref.offsetWidth,
-          ref.offsetHeight,
-          position.x,
-          position.y
-        )
-      }}
       onMouseDown={() => {
         if (!arrangeMode) {
           onSelect(card.id)
@@ -136,19 +179,37 @@ export function ScatterCard({
           onSelect(card.id)
         }
       }}
-      resizeHandleClasses={arrangeMode ? {
-        topRight: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-tr',
-        bottomRight: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-br',
-        bottomLeft: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-bl',
-        topLeft: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-tl',
-      } : undefined}
       className={cn(
         'scatter-card',
-        isSelected && 'ring-2 ring-blue-500'
+        isSelected && arrangeMode && 'ring-2 ring-blue-500'
       )}
     >
-      <div ref={contentRef} className="w-full pointer-events-none">
-        <CardRenderer card={card} isPreview={true} themeId={themeId} />
+      <div ref={wrapperRef} className="relative w-full h-full">
+        <div ref={contentRef} className="w-full pointer-events-none">
+          <CardRenderer card={card} isPreview={true} themeId={themeId} />
+        </div>
+
+        {/* Corner scale handles */}
+        {arrangeMode && (
+          <>
+            <div
+              className="absolute -top-[7px] -left-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+              onPointerDown={handleCornerDown('tl')}
+            />
+            <div
+              className="absolute -top-[7px] -right-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+              onPointerDown={handleCornerDown('tr')}
+            />
+            <div
+              className="absolute -bottom-[7px] -left-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+              onPointerDown={handleCornerDown('bl')}
+            />
+            <div
+              className="absolute -bottom-[7px] -right-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+              onPointerDown={handleCornerDown('br')}
+            />
+          </>
+        )}
       </div>
     </Rnd>
   )
