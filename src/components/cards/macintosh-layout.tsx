@@ -7,7 +7,22 @@ import { useThemeStore } from '@/stores/theme-store'
 import type { Card } from '@/types/card'
 
 const TITLE_FONT = "var(--font-pix-chicago), 'Chicago', monospace"
-const DEFAULT_DESKTOP_BG = 'repeating-conic-gradient(#c0c0c0 0% 25%, #d8d8d8 0% 50%) 0 0 / 4px 4px'
+
+/** Lighten a hex color by a factor (1.0 = no change, 1.15 = 15% lighter) */
+function lightenHex(hex: string, factor: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const lr = Math.min(255, Math.round(r + (255 - r) * (factor - 1)))
+  const lg = Math.min(255, Math.round(g + (255 - g) * (factor - 1)))
+  const lb = Math.min(255, Math.round(b + (255 - b) * (factor - 1)))
+  return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`
+}
+
+function makeCheckerboard(color: string): string {
+  const lighter = lightenHex(color, 1.15)
+  return `repeating-conic-gradient(${color} 0% 25%, ${lighter} 0% 50%) 0 0 / 4px 4px`
+}
 
 interface FrameInsets {
   top: number
@@ -47,9 +62,11 @@ export function MacintoshLayout({
     [cards]
   )
 
-  const bgStyle = macPattern
-    ? { backgroundColor: macPatternColor, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat' as const, backgroundSize: '500px auto' as const, imageRendering: 'pixelated' as const, backgroundBlendMode: 'multiply' as const }
-    : { background: DEFAULT_DESKTOP_BG }
+  // For PNG patterns, use two layers (pattern + color overlay with mix-blend-mode)
+  // because background-blend-mode doesn't work reliably on iOS Safari.
+  // For the default checkerboard, the color is baked into the CSS gradient.
+  const usePatternLayers = !!macPattern
+  const checkerboardBg = makeCheckerboard(macPatternColor)
 
   // When frame is active, constrain content inside frame bounds
   const hasFrame = !!frameInsets
@@ -78,17 +95,17 @@ export function MacintoshLayout({
     <>
     {/* Fixed background layer — z-index 0 above body, content at z-index 1 above this.
         Oversized by 50% in every direction to guarantee full coverage on all devices/safe areas. */}
-    <div
-      style={{
-        position: 'fixed',
-        top: '-50vh',
-        left: '-50vw',
-        right: '-50vw',
-        bottom: '-50vh',
-        zIndex: 0,
-        ...bgStyle,
-      }}
-    />
+    {usePatternLayers ? (
+      /* Two-layer approach for PNG patterns: pattern + color overlay.
+         Uses mix-blend-mode instead of background-blend-mode for iOS Safari compatibility. */
+      <div style={{ position: 'fixed', zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: '500px auto', imageRendering: 'pixelated' as const }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: macPatternColor, mixBlendMode: 'multiply' }} />
+      </div>
+    ) : (
+      /* Default checkerboard: color baked into CSS gradient, no blend mode needed */
+      <div style={{ position: 'fixed', zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh', background: checkerboardBg }} />
+    )}
     <div style={contentStyle}>
       {/* Mac Menu Bar */}
       <div

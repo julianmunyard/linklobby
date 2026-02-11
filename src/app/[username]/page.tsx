@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { fetchPublicPageData } from "@/lib/supabase/public"
 import { PublicPageRenderer } from "@/components/public/public-page-renderer"
 import { ThemeInjector } from "@/components/public/theme-injector"
@@ -75,8 +75,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
       {/* Inject theme CSS variables server-side */}
       <ThemeInjector themeSettings={themeSettings} />
 
-      {/* Background (solid, image, or video) */}
-      <StaticBackground background={background} />
+      {/* Background (solid, image, or video) — Macintosh uses html bg instead */}
+      {themeId !== 'macintosh' && <StaticBackground background={background} />}
 
       {/* Dim overlay (if enabled) */}
       <StaticDimOverlay background={background} />
@@ -155,6 +155,24 @@ export default async function PublicPage({ params }: PublicPageProps) {
  * Dynamically creates title, description, and Open Graph tags
  * based on profile data
  */
+export async function generateViewport({ params }: PublicPageProps): Promise<Viewport> {
+  const { username } = await params
+  const data = await fetchPublicPageData(username)
+
+  const isMacintosh = data?.page?.theme_settings?.themeId === 'macintosh'
+
+  const themeColor = isMacintosh
+    ? '#ffffff'
+    : (data?.page?.theme_settings?.background?.topBarColor
+      || data?.page?.theme_settings?.colors?.background
+      || '#000000')
+
+  return {
+    viewportFit: 'cover',
+    themeColor,
+  }
+}
+
 export async function generateMetadata({ params }: PublicPageProps): Promise<Metadata> {
   const { username } = await params
   const data = await fetchPublicPageData(username)

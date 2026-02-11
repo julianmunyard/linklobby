@@ -84,10 +84,8 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
   const macPattern = themeSettings?.macPattern || ''
   const macPatternColor = themeSettings?.macPatternColor || '#c0c0c0'
 
-  // Macintosh theme: pattern is rendered by a fixed div in the layout components,
-  // NOT by body. Body just gets solid macPatternColor as a safety net for any area
-  // not covered by the fixed div (e.g. iOS Safari safe areas).
-  // html also gets the solid color as fallback.
+  // Macintosh theme: pattern rendered by fixed div in layout components (stationary).
+  // Body/html get solid macPatternColor as fallback for iOS Safari safe areas.
 
   const standardBodyBg = background.type === "solid" || !background.type ? colors.background : "transparent"
 
@@ -97,7 +95,7 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
         dangerouslySetInnerHTML={{
           __html: `
             html {
-              ${isMacintosh ? `background-color: ${macPatternColor} !important;` : `background-color: ${statusBarColor};`}
+              ${isMacintosh ? `background-color: #ffffff !important;` : `background-color: ${statusBarColor};`}
               min-height: 100% !important;
             }
             body {
