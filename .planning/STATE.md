@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.1 of 18 - Scatter Mode
-Plan: 3 of 5 - Complete
-Status: **Phase 12.1 In Progress - Scatter UI controls integrated**
-Last activity: 2026-02-11 - Completed 12.1-03-PLAN.md (scatter mode UI controls)
+Plan: 4 of 5 - Complete
+Status: **Phase 12.1 In Progress - Public scatter mode complete**
+Last activity: 2026-02-11 - Completed 12.1-04-PLAN.md (public scatter mode rendering)
 
-Progress: [████████████████████████████░░░░] ~74%
+Progress: [████████████████████████████░░░░] ~75%
 
 ### IN PROGRESS: Phase 12.1 - Scatter Mode
 
@@ -22,10 +22,10 @@ Building freeform card positioning for 5 themes:
 - ✓ Plan 01: Scatter Mode Foundation (types, store toggles, scatter actions)
 - ✓ Plan 02: Scatter Grid Component (drag, resize, z-index)
 - ✓ Plan 03: Scatter Mode UI Controls (toggle, visitor drag, preview panel wiring)
-- Plan 04: Public Scatter Mode (visitor interaction)
+- ✓ Plan 04: Public Scatter Mode (StaticScatterCanvas, visitor drag, public page routing)
 - Plan 05: Scatter Persistence (database sync)
 
-**Current status:** Scatter mode toggle integrated into editor UI, preview panel switches between flow and scatter layouts. Ready for public scatter mode and persistence.
+**Current status:** Public pages render scatter layouts with optional visitor drag. Artist arrangements display correctly on public pages. Ready for database persistence layer.
 
 ### COMPLETE: Phase 12 - Audio System
 
@@ -674,6 +674,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | ResizeObserver for canvas | 12.1-02 | ResizeObserver tracks canvas container dimensions, more accurate than window resize events |
 | Bounds key recalculation | 12.1-02 | Incrementing boundsKey in ScatterCard key forces react-rnd remount for fresh bounds calculation on window resize |
 | Percentage storage, pixel display | 12.1-02 | Store positions as percentages for responsive layouts, convert to pixels for react-rnd rendering |
+| Visitor drag uses pointer events | 12.1-04 | Native pointer/touch events instead of react-dnd-kit for lighter weight, server-renderable when visitorDrag=false |
+| 8px drag threshold for click vs drag | 12.1-04 | < 8px movement = click (follows link), >= 8px = drag - prevents accidental drags on taps |
+| Ephemeral drag offsets | 12.1-04 | Visitor drag positions stored in useState, reset on refresh - artist layout is source of truth |
 
 ## Quick Tasks
 
@@ -817,13 +820,13 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-11
-Last activity: 2026-02-11 - Completed 12.1-03-PLAN.md (scatter mode UI controls)
-Stopped at: Completed Phase 12.1 Plan 03
+Last activity: 2026-02-11 - Completed 12.1-04-PLAN.md (public scatter mode rendering)
+Stopped at: Completed Phase 12.1 Plan 04
 Resume file: None
 
-**Phase 12.1 In Progress:** Plans 01-03 complete (scatter foundation, canvas/card components, UI controls). Ready for Plan 04 (public scatter mode).
+**Phase 12.1 In Progress:** Plans 01-04 complete (scatter foundation, canvas/card components, UI controls, public scatter mode). Ready for Plan 05 (scatter persistence).
 
-**Next step:** Execute Phase 12.1 Plan 04 - Public Scatter Mode
+**Next step:** Execute Phase 12.1 Plan 05 - Scatter Persistence
 
 **This session's work (2026-02-03):**
 
