@@ -449,7 +449,14 @@ Plans:
 9. Mobile-first: mobile preview is source of truth, scales proportionally to desktop
 10. Click vs drag distinction: tap/click = follow link, hold+move = drag (no delay)
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 12.1-01-PLAN.md — Scatter types, store actions, and theme toggles
+- [ ] 12.1-02-PLAN.md — ScatterCanvas and ScatterCard with react-rnd
+- [ ] 12.1-03-PLAN.md — Editor integration (style toggle, preview panel wiring)
+- [ ] 12.1-04-PLAN.md — Public page scatter rendering and visitor drag
+- [ ] 12.1-05-PLAN.md — Build verification and end-to-end human testing
 
 ---
 
@@ -585,6 +592,7 @@ Plans:
 | Legal compliance | 11 | Cookie consent, privacy policy, GDPR |
 | Sustainable business | 12.5 | Stripe billing, subscription management |
 | Inclusive design | 16 | WCAG 2.1 AA, keyboard nav, screen readers |
+| Freeform canvas layout | 12.1 | Scatter mode - drag anywhere, resize freely |
 
 ---
 
@@ -608,6 +616,7 @@ Based on competitive analysis, suggested tier structure:
 | Templates | ✓ | ✓ | ✓ |
 | Basic analytics | ✓ | ✓ | ✓ |
 | Audio players | ✓ | ✓ | ✓ |
+| Scatter mode | ✓ | ✓ | ✓ |
 | Remove branding | - | ✓ | ✓ |
 | Email collection | - | ✓ | ✓ |
 | QR codes | - | ✓ | ✓ |
@@ -626,7 +635,7 @@ Based on competitive analysis, suggested tier structure:
 | Milestone | Phases | Key Deliverables | Target |
 |-----------|--------|------------------|--------|
 | **v1.0 MVP** | 4.2-9.5 | Import, context menu, profile, editor polish, media cards, advanced cards, themes, public pages, integrations, onboarding | TBD |
-| **v1.1 Growth** | 10-12.5 | Fan tools, analytics+pixels+legal, audio players, billing | TBD |
+| **v1.1 Growth** | 10-12.5 | Fan tools, analytics+pixels+legal, audio players, scatter mode, billing | TBD |
 | **v1.2 Pro** | 13-16 | Tour dates, custom domains, advanced analytics, accessibility | TBD |
 
 ---
@@ -651,5 +660,5 @@ Based on competitive analysis, suggested tier structure:
 
 ---
 
-*Last updated: 2026-02-06*
+*Last updated: 2026-02-11*
 *Based on: COMPETITORS.md competitive analysis*
