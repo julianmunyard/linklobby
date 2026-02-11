@@ -95,7 +95,9 @@ export function ScatterCard({
     ? baseHeightRef.current * scale
     : (scatterPos.height / 100) * canvasHeight
 
-  // Custom corner scale — CSS transform during drag, commit on release
+  // Custom corner scale — translate+scale with constant top-left origin
+  // During drag: wrapper gets translate(tx,ty) scale(s) to anchor opposite corner
+  // On release: commit new position = old position + translate offset (no visual jump)
   const handleCornerDown = useCallback((corner: 'tl' | 'tr' | 'bl' | 'br') => (e: React.PointerEvent) => {
     if (!arrangeMode || !baseReady) return
     e.stopPropagation()
@@ -107,29 +109,28 @@ export function ScatterCard({
     const wrapper = wrapperRef.current
     if (!wrapper) return
 
-    // Visual rect of the scaled wrapper
     const rect = wrapper.getBoundingClientRect()
-
-    // Anchor = opposite corner in viewport coords
     const anchorX = corner.includes('l') ? rect.right : rect.left
     const anchorY = corner.includes('t') ? rect.bottom : rect.top
-
     const startDist = Math.hypot(e.clientX - anchorX, e.clientY - anchorY)
     const startScale = scale
-
-    // Scale from the opposite corner
-    const origins: Record<string, string> = {
-      tl: 'bottom right', tr: 'bottom left',
-      bl: 'top right', br: 'top left',
-    }
-    wrapper.style.transformOrigin = origins[corner]
+    const bw = baseWidthRef.current
+    const bh = baseHeightRef.current
 
     let finalScale = startScale
+    let tx = 0
+    let ty = 0
 
     const onMove = (me: PointerEvent) => {
       const currentDist = Math.hypot(me.clientX - anchorX, me.clientY - anchorY)
       finalScale = Math.max(0.1, startScale * (currentDist / startDist))
-      wrapper.style.transform = `scale(${finalScale})`
+
+      // Translate to keep the opposite corner fixed (origin stays top-left)
+      const dScale = startScale - finalScale
+      tx = corner.includes('l') ? bw * dScale : 0
+      ty = corner.includes('t') ? bh * dScale : 0
+
+      wrapper.style.transform = `translate(${tx}px, ${ty}px) scale(${finalScale})`
     }
 
     const onUp = () => {
@@ -139,30 +140,17 @@ export function ScatterCard({
 
       if (Math.abs(finalScale - startScale) < 0.01) {
         wrapper.style.transform = `scale(${startScale})`
-        wrapper.style.transformOrigin = 'top left'
         return
       }
 
-      // New visual dimensions
-      const bw = baseWidthRef.current
-      const bh = baseHeightRef.current
-      const newVisualW = bw * finalScale
-      const newVisualH = bh * finalScale
-      const currentVisualH = bh * startScale
+      const newW = bw * finalScale
+      const newH = bh * finalScale
 
-      // New position — anchor the opposite corner
-      let newX = pixelX
-      let newY = pixelY
-      if (corner === 'tl') {
-        newX = pixelX + pixelWidth - newVisualW
-        newY = pixelY + currentVisualH - newVisualH
-      } else if (corner === 'tr') {
-        newY = pixelY + currentVisualH - newVisualH
-      } else if (corner === 'bl') {
-        newX = pixelX + pixelWidth - newVisualW
-      }
+      // New Rnd position = old position + translate offset, clamped to canvas
+      let newX = Math.max(0, Math.min(pixelX + tx, canvasWidth - newW))
+      let newY = Math.max(0, Math.min(pixelY + ty, canvasHeight - newH))
 
-      onResizeStop(card.id, newVisualW, newVisualH, newX, newY)
+      onResizeStop(card.id, newW, newH, newX, newY)
     }
 
     document.addEventListener('pointermove', onMove)

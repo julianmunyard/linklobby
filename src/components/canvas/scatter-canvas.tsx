@@ -80,17 +80,20 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     }
   }, [themeId, updateCardScatterPosition])
 
-  // Convert pixel position to percentage and update store
+  // Convert pixel position to percentage and update store (clamped to canvas)
   const handleDragStop = useCallback((cardId: string, pixelX: number, pixelY: number) => {
     if (canvasWidth === 0 || canvasHeight === 0) return
 
-    const percentX = (pixelX / canvasWidth) * 100
-    const percentY = (pixelY / canvasHeight) * 100
+    const clampedX = Math.max(0, pixelX)
+    const clampedY = Math.max(0, pixelY)
+
+    const percentX = (clampedX / canvasWidth) * 100
+    const percentY = (clampedY / canvasHeight) * 100
 
     sendScatterUpdate(cardId, { x: percentX, y: percentY })
   }, [canvasWidth, canvasHeight, sendScatterUpdate])
 
-  // Convert pixel dimensions to percentage and update store
+  // Convert pixel dimensions to percentage and update store (clamped to canvas)
   const handleResizeStop = useCallback((
     cardId: string,
     pixelW: number,
@@ -100,10 +103,13 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   ) => {
     if (canvasWidth === 0 || canvasHeight === 0) return
 
+    const clampedX = Math.max(0, Math.min(pixelX, canvasWidth - pixelW))
+    const clampedY = Math.max(0, Math.min(pixelY, canvasHeight - pixelH))
+
     const percentW = (pixelW / canvasWidth) * 100
     const percentH = (pixelH / canvasHeight) * 100
-    const percentX = (pixelX / canvasWidth) * 100
-    const percentY = (pixelY / canvasHeight) * 100
+    const percentX = (clampedX / canvasWidth) * 100
+    const percentY = (clampedY / canvasHeight) * 100
 
     sendScatterUpdate(cardId, {
       x: percentX,

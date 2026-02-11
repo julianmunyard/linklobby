@@ -121,7 +121,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
 
   return (
     <div
-      className="relative w-full h-full"
+      className="relative w-full h-full overflow-hidden"
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
       onPointerLeave={handleDragEnd}
@@ -143,6 +143,10 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             </div>
           )
         }
+
+        // Clamp positions so cards stay within canvas bounds
+        const clampedX = Math.max(0, Math.min(scatterPos.x, 100 - scatterPos.width))
+        const clampedY = Math.max(0, Math.min(scatterPos.y, 100 - (scatterPos.height || 0)))
 
         // Apply ephemeral drag offset if visitor drag is enabled
         const offset = dragOffsets[card.id] || { x: 0, y: 0 }
@@ -183,8 +187,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
                   visitorDrag && 'cursor-move'
                 )}
                 style={{
-                  left: `${scatterPos.x}%`,
-                  top: `${scatterPos.y}%`,
+                  left: `${clampedX}%`,
+                  top: `${clampedY}%`,
                   width: `${scatterPos.width}%`,
                   height: `${scatterPos.height}%`,
                   zIndex: scatterPos.zIndex,
@@ -210,8 +214,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
                 visitorDrag && 'cursor-move'
               )}
               style={{
-                left: `${scatterPos.x}%`,
-                top: `${scatterPos.y}%`,
+                left: `${clampedX}%`,
+                top: `${clampedY}%`,
                 width: `${scatterPos.width}%`,
                 height: `${scatterPos.height}%`,
                 zIndex: scatterPos.zIndex,
@@ -240,8 +244,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               visitorDrag && 'cursor-move'
             )}
             style={{
-              left: `${scatterPos.x}%`,
-              top: `${scatterPos.y}%`,
+              left: `${clampedX}%`,
+              top: `${clampedY}%`,
               width: `${scatterPos.width}%`,
               height: `${scatterPos.height}%`,
               zIndex: scatterPos.zIndex,
