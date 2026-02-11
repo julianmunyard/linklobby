@@ -35,20 +35,20 @@ export const SCATTER_THEMES: ThemeId[] = [
  * is first activated for a theme. Used to initialize card sizes.
  */
 export const DEFAULT_SCATTER_SIZES: Record<string, { width: number; height: number }> = {
-  hero: { width: 40, height: 30 },
-  square: { width: 25, height: 25 },
-  horizontal: { width: 45, height: 12 },
-  link: { width: 30, height: 8 },
-  text: { width: 30, height: 10 },
-  video: { width: 35, height: 25 },
-  gallery: { width: 35, height: 30 },
-  game: { width: 30, height: 30 },
-  music: { width: 35, height: 15 },
-  audio: { width: 45, height: 20 },
-  release: { width: 30, height: 35 },
-  'email-collection': { width: 35, height: 20 },
-  'social-icons': { width: 30, height: 8 },
-  mini: { width: 15, height: 8 },
+  hero: { width: 60, height: 40 },
+  square: { width: 45, height: 45 },
+  horizontal: { width: 65, height: 12 },
+  link: { width: 60, height: 10 },
+  text: { width: 55, height: 10 },
+  video: { width: 60, height: 40 },
+  gallery: { width: 60, height: 40 },
+  game: { width: 50, height: 40 },
+  music: { width: 60, height: 15 },
+  audio: { width: 65, height: 25 },
+  release: { width: 50, height: 50 },
+  'email-collection': { width: 60, height: 25 },
+  'social-icons': { width: 50, height: 10 },
+  mini: { width: 30, height: 8 },
 }
 
 /**

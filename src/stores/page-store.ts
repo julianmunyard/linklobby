@@ -340,8 +340,8 @@ export const usePageStore = create<PageState>()(
     const rows = Math.ceil(cardCount / cols)
 
     // Spacing between cards (in percentages)
-    const spacingX = 10
-    const spacingY = 10
+    const spacingX = 5
+    const spacingY = 5
 
     return {
       cards: state.cards.map((card, index) => {
@@ -352,7 +352,7 @@ export const usePageStore = create<PageState>()(
         }
 
         // Get default size for this card type
-        const defaultSize = DEFAULT_SCATTER_SIZES[card.card_type] || { width: 30, height: 20 }
+        const defaultSize = DEFAULT_SCATTER_SIZES[card.card_type] || { width: 50, height: 20 }
 
         // Calculate grid position
         const col = index % cols

@@ -25,12 +25,12 @@ interface ScatterCardProps {
 }
 
 function getDefaultPosition(cardIndex: number, totalCards: number, cardType: string): ScatterPosition {
-  const defaults = DEFAULT_SCATTER_SIZES[cardType] || { width: 30, height: 20 }
+  const defaults = DEFAULT_SCATTER_SIZES[cardType] || { width: 50, height: 20 }
   const cols = Math.ceil(Math.sqrt(totalCards))
   const row = Math.floor(cardIndex / cols)
   const col = cardIndex % cols
-  const spacingX = 10
-  const spacingY = 10
+  const spacingX = 5
+  const spacingY = 5
 
   return {
     x: spacingX + col * ((100 - 2 * spacingX) / cols),
@@ -58,10 +58,7 @@ export function ScatterCard({
 }: ScatterCardProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
-  const baseWidthRef = useRef<number>(0)
-  const baseHeightRef = useRef<number>(0)
-  const isDraggingCorner = useRef(false)
-  const [baseReady, setBaseReady] = useState(false)
+  const [contentHeight, setContentHeight] = useState(0)
 
   // Get scatter position for this theme from card content, or compute default
   const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
@@ -72,63 +69,65 @@ export function ScatterCard({
   const pixelY = (scatterPos.y / 100) * canvasHeight
   const pixelWidth = (scatterPos.width / 100) * canvasWidth
 
-  // Capture base dimensions once — content renders at these dimensions forever,
-  // CSS transform: scale() handles all visual resizing (no reflow)
+  // Content renders at full canvasWidth, CSS-scaled to pixelWidth.
+  // This ensures cards always render at full fidelity regardless of target size.
+  const scale = canvasWidth > 0 ? pixelWidth / canvasWidth : 1
+
+  // Measure content height (at full canvasWidth rendering)
   useEffect(() => {
     if (!contentRef.current) return
     const observer = new ResizeObserver((entries) => {
-      if (baseWidthRef.current === 0 && entries[0].contentRect.width > 0) {
-        baseWidthRef.current = entries[0].contentRect.width
-        baseHeightRef.current = entries[0].contentRect.height
-        setBaseReady(true)
-      }
+      const h = entries[0].contentRect.height
+      if (h > 0) setContentHeight(h)
     })
     observer.observe(contentRef.current)
     return () => observer.disconnect()
   }, [])
 
-  // Scale factor: stored width / base width
-  const scale = baseReady && baseWidthRef.current > 0
-    ? pixelWidth / baseWidthRef.current
-    : 1
-  const visualHeight = baseReady
-    ? baseHeightRef.current * scale
+  // Visual height = full-width content height × scale
+  const visualHeight = contentHeight > 0
+    ? contentHeight * scale
     : (scatterPos.height / 100) * canvasHeight
 
-  // Custom corner scale — translate+scale with constant top-left origin
-  // During drag: wrapper gets translate(tx,ty) scale(s) to anchor opposite corner
-  // On release: commit new position = old position + translate offset (no visual jump)
+  // Corner scale: DOM manipulation during drag, store update on release.
+  // Uses translate+scale with constant top-left origin to anchor opposite corner.
   const handleCornerDown = useCallback((corner: 'tl' | 'tr' | 'bl' | 'br') => (e: React.PointerEvent) => {
-    if (!arrangeMode || !baseReady) return
+    if (!arrangeMode) return
     e.stopPropagation()
     e.preventDefault()
-
-    isDraggingCorner.current = true
     onBringToFront(card.id)
 
     const wrapper = wrapperRef.current
     if (!wrapper) return
 
-    const rect = wrapper.getBoundingClientRect()
-    const anchorX = corner.includes('l') ? rect.right : rect.left
-    const anchorY = corner.includes('t') ? rect.bottom : rect.top
-    const startDist = Math.hypot(e.clientX - anchorX, e.clientY - anchorY)
+    const startClientX = e.clientX
+    const startClientY = e.clientY
     const startScale = scale
-    const bw = baseWidthRef.current
-    const bh = baseHeightRef.current
+    const startVisualW = pixelWidth
+    const startVisualH = visualHeight
 
     let finalScale = startScale
     let tx = 0
     let ty = 0
 
     const onMove = (me: PointerEvent) => {
-      const currentDist = Math.hypot(me.clientX - anchorX, me.clientY - anchorY)
-      finalScale = Math.max(0.1, startScale * (currentDist / startDist))
+      let dx = me.clientX - startClientX
+      let dy = me.clientY - startClientY
 
-      // Translate to keep the opposite corner fixed (origin stays top-left)
-      const dScale = startScale - finalScale
-      tx = corner.includes('l') ? bw * dScale : 0
-      ty = corner.includes('t') ? bh * dScale : 0
+      // For left/top corners, moving left/up increases size
+      if (corner.includes('l')) dx = -dx
+      if (corner.includes('t')) dy = -dy
+
+      // Use larger delta for uniform scaling
+      const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy
+      const ratio = Math.max(0.15, (startVisualW + delta) / startVisualW)
+      finalScale = startScale * ratio
+
+      // Translate to keep opposite corner fixed (origin stays top-left)
+      const dW = startVisualW - startVisualW * ratio
+      const dH = startVisualH - startVisualH * ratio
+      tx = corner.includes('l') ? dW : 0
+      ty = corner.includes('t') ? dH : 0
 
       wrapper.style.transform = `translate(${tx}px, ${ty}px) scale(${finalScale})`
     }
@@ -136,26 +135,26 @@ export function ScatterCard({
     const onUp = () => {
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
-      isDraggingCorner.current = false
 
-      if (Math.abs(finalScale - startScale) < 0.01) {
+      // No significant change — reset
+      if (Math.abs(finalScale - startScale) < 0.005) {
         wrapper.style.transform = `scale(${startScale})`
         return
       }
 
-      const newW = bw * finalScale
-      const newH = bh * finalScale
+      const newW = canvasWidth * finalScale
+      const newH = contentHeight * finalScale
 
-      // New Rnd position = old position + translate offset, clamped to canvas
-      let newX = Math.max(0, Math.min(pixelX + tx, canvasWidth - newW))
-      let newY = Math.max(0, Math.min(pixelY + ty, canvasHeight - newH))
+      // New position = old position + translate offset, clamped to canvas
+      const newX = Math.max(0, Math.min(pixelX + tx, canvasWidth - newW))
+      const newY = Math.max(0, Math.min(pixelY + ty, canvasHeight - newH))
 
       onResizeStop(card.id, newW, newH, newX, newY)
     }
 
     document.addEventListener('pointermove', onMove)
     document.addEventListener('pointerup', onUp)
-  }, [arrangeMode, baseReady, scale, pixelWidth, pixelX, pixelY, card.id, onResizeStop, onBringToFront])
+  }, [arrangeMode, scale, pixelWidth, visualHeight, pixelX, pixelY, canvasWidth, canvasHeight, contentHeight, card.id, onResizeStop, onBringToFront])
 
   return (
     <Rnd
@@ -170,12 +169,10 @@ export function ScatterCard({
         cursor: arrangeMode ? 'grab' : 'pointer',
       }}
       onDragStart={() => {
-        if (!arrangeMode) return
-        onBringToFront(card.id)
+        if (arrangeMode) onBringToFront(card.id)
       }}
       onDragStop={(e, d) => {
-        if (!arrangeMode) return
-        onDragStop(card.id, d.x, d.y)
+        if (arrangeMode) onDragStop(card.id, d.x, d.y)
       }}
       onMouseDown={() => {
         if (!arrangeMode) onSelect(card.id)
@@ -188,43 +185,43 @@ export function ScatterCard({
         isSelected && arrangeMode && 'ring-2 ring-blue-500'
       )}
     >
-      {/* Content wrapper — always at base dimensions, CSS scale for visual resize */}
+      {/* Content wrapper — renders at full canvasWidth, CSS-scaled to target size.
+          pointerEvents:none lets clicks pass through to Rnd for drag/select. */}
       <div
         ref={wrapperRef}
-        className="relative"
         style={{
-          width: baseReady ? baseWidthRef.current : '100%',
-          height: baseReady ? baseHeightRef.current : '100%',
-          transform: baseReady ? `scale(${scale})` : undefined,
+          width: canvasWidth,
+          transform: `scale(${scale})`,
           transformOrigin: 'top left',
+          pointerEvents: 'none',
         }}
       >
-        <div ref={contentRef} className="w-full pointer-events-none">
+        <div ref={contentRef} className="w-full">
           <CardRenderer card={card} isPreview={true} themeId={themeId} />
         </div>
-
-        {/* Corner scale handles */}
-        {arrangeMode && (
-          <>
-            <div
-              className="absolute -top-[7px] -left-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
-              onPointerDown={handleCornerDown('tl')}
-            />
-            <div
-              className="absolute -top-[7px] -right-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
-              onPointerDown={handleCornerDown('tr')}
-            />
-            <div
-              className="absolute -bottom-[7px] -left-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
-              onPointerDown={handleCornerDown('bl')}
-            />
-            <div
-              className="absolute -bottom-[7px] -right-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
-              onPointerDown={handleCornerDown('br')}
-            />
-          </>
-        )}
       </div>
+
+      {/* Corner scale handles — positioned on Rnd container (not inside scaled wrapper) */}
+      {arrangeMode && (
+        <>
+          <div
+            className="absolute -top-[7px] -left-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+            onPointerDown={handleCornerDown('tl')}
+          />
+          <div
+            className="absolute -top-[7px] -right-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+            onPointerDown={handleCornerDown('tr')}
+          />
+          <div
+            className="absolute -bottom-[7px] -left-[7px] w-[14px] h-[14px] cursor-nesw-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+            onPointerDown={handleCornerDown('bl')}
+          />
+          <div
+            className="absolute -bottom-[7px] -right-[7px] w-[14px] h-[14px] cursor-nwse-resize z-10 bg-white border-2 border-blue-500 rounded-sm shadow-sm"
+            onPointerDown={handleCornerDown('br')}
+          />
+        </>
+      )}
     </Rnd>
   )
 }
