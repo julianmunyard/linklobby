@@ -1317,13 +1317,8 @@ html, body {
    Scatter Mode Resize Handles
    ======================================== */
 
-/* Base resize handle styling */
+/* Base resize handle — large invisible hit area with small visible dot */
 .scatter-resize-handle {
-  width: 8px !important;
-  height: 8px !important;
-  background: #3b82f6 !important;
-  border: 1px solid white !important;
-  border-radius: 50% !important;
   opacity: 0 !important;
   transition: opacity 0.2s !important;
   z-index: 10 !important;
@@ -1335,21 +1330,49 @@ html, body {
   opacity: 1 !important;
 }
 
-/* Corner handles slightly larger */
-.scatter-resize-handle-corner {
-  width: 10px !important;
-  height: 10px !important;
-}
-
-/* Position edge handles in the center of their edge */
+/* Edge handles — wide strips along each edge for easy grabbing */
 .scatter-resize-handle-top,
 .scatter-resize-handle-bottom {
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  height: 12px !important;
+  left: 8px !important;
+  right: 8px !important;
+  width: auto !important;
+  cursor: ns-resize !important;
+  background: linear-gradient(to right, transparent 30%, #3b82f6 45%, #3b82f6 55%, transparent 70%) !important;
+  background-size: 100% 3px !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
 }
 
 .scatter-resize-handle-left,
 .scatter-resize-handle-right {
+  width: 12px !important;
+  top: 8px !important;
+  bottom: 8px !important;
+  height: auto !important;
+  cursor: ew-resize !important;
+  background: linear-gradient(to bottom, transparent 30%, #3b82f6 45%, #3b82f6 55%, transparent 70%) !important;
+  background-size: 3px 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+/* Corner handles — large square hit areas with visible dot */
+.scatter-resize-handle-corner {
+  width: 20px !important;
+  height: 20px !important;
+  position: relative !important;
+}
+
+.scatter-resize-handle-corner::after {
+  content: '' !important;
+  position: absolute !important;
+  width: 10px !important;
+  height: 10px !important;
+  background: #3b82f6 !important;
+  border: 2px solid white !important;
+  border-radius: 50% !important;
   top: 50% !important;
-  transform: translateY(-50%) !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
 }
