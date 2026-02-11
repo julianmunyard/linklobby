@@ -39,6 +39,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 10: Fan Tools *(email, QR, release mode)* ✓
 - [x] Phase 11: Analytics & Pixels *(tracking pixels, cookie consent, legal compliance)* ✓
 - [ ] Phase 12: Audio System
+- [ ] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)*
 - [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
 
 ### Pro Milestone (v1.2)
@@ -429,6 +430,26 @@ Plans:
 - [ ] 12-03-PLAN.md -- Audio player UI components (controls, varispeed, reverb, waveform, track list)
 - [ ] 12-04-PLAN.md -- Audio card component, editor fields, and card system wiring
 - [ ] 12-05-PLAN.md -- Theme-specific player styling, analytics tracking, and verification
+
+---
+
+#### Phase 12.1: Scatter Mode
+**Goal:** Artists can toggle freeform card positioning on select themes — drag cards anywhere, resize freely, save layout. Optional visitor drag on public pages.
+**Competitive context:** UNIQUE DIFFERENTIATOR - no competitor offers freeform canvas positioning
+
+**Success Criteria:**
+1. Scatter mode toggle for 5 themes: Mac OS, Instagram Reels, System Settings, Macintosh, Word Art
+2. Artist can freely drag cards anywhere on canvas (totally free, visual grid overlay for optional alignment)
+3. Artist can freely resize cards by dragging corners/edges, content scales perfectly
+4. Z-index: last moved card goes to front
+5. Cards constrained within canvas bounds
+6. Positions and sizes stored as percentages, per-theme (switching themes preserves each theme's layout)
+7. Public page renders exact artist arrangement
+8. Optional visitor drag toggle — visitors can move cards on public page (resets on refresh)
+9. Mobile-first: mobile preview is source of truth, scales proportionally to desktop
+10. Click vs drag distinction: tap/click = follow link, hold+move = drag (no delay)
+
+**Plans:** TBD
 
 ---
 
