@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import { Rnd } from 'react-rnd'
 import type { Card } from '@/types/card'
 import type { ScatterPosition } from '@/types/scatter'
@@ -55,6 +56,9 @@ export function ScatterCard({
   onBringToFront,
   onSelect,
 }: ScatterCardProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [contentHeight, setContentHeight] = useState<number | null>(null)
+
   // Get scatter position for this theme from card content, or compute default
   const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
   const scatterPos = scatterLayouts[themeId] || getDefaultPosition(cardIndex, totalCards, card.card_type)
@@ -63,7 +67,23 @@ export function ScatterCard({
   const pixelX = (scatterPos.x / 100) * canvasWidth
   const pixelY = (scatterPos.y / 100) * canvasHeight
   const pixelWidth = (scatterPos.width / 100) * canvasWidth
-  const pixelHeight = (scatterPos.height / 100) * canvasHeight
+
+  // Measure actual content height so Rnd container fits the card exactly
+  useEffect(() => {
+    if (!contentRef.current) return
+    const measure = () => {
+      if (contentRef.current) {
+        setContentHeight(contentRef.current.scrollHeight)
+      }
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(contentRef.current)
+    return () => observer.disconnect()
+  }, [pixelWidth, card.content, card.card_type])
+
+  // Use measured height, falling back to stored percentage height until measured
+  const pixelHeight = contentHeight ?? (scatterPos.height / 100) * canvasHeight
 
   const noResize = {
     top: false, right: false, bottom: false, left: false,
@@ -127,7 +147,7 @@ export function ScatterCard({
         isSelected && 'ring-2 ring-blue-500'
       )}
     >
-      <div className="w-full h-full overflow-hidden pointer-events-none">
+      <div ref={contentRef} className="w-full pointer-events-none">
         <CardRenderer card={card} isPreview={true} themeId={themeId} />
       </div>
     </Rnd>
