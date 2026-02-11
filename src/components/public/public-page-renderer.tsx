@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { StaticProfileHeader } from "./static-profile-header"
 import { StaticFlowGrid } from "./static-flow-grid"
+import { StaticScatterCanvas } from "./static-scatter-canvas"
 import { StaticVcrMenuLayout } from "./static-vcr-menu-layout"
 import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import { StaticReceiptLayout } from "./static-receipt-layout"
@@ -12,6 +13,7 @@ import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
+import { isScatterTheme } from "@/types/scatter"
 
 // Frame inset config - defines the "screen" area for frames (as percentages of viewport)
 const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; right: number }> = {
@@ -104,6 +106,9 @@ interface PublicPageRendererProps {
   classifiedMessageText?: string
   // Social icon size
   socialIconSize?: number
+  // Scatter mode
+  scatterMode?: boolean
+  visitorDrag?: boolean
   // Cards
   cards: Card[]
 }
@@ -158,8 +163,12 @@ export function PublicPageRenderer({
   classifiedCenterText,
   classifiedMessageText,
   socialIconSize,
+  scatterMode = false,
+  visitorDrag = false,
   cards,
 }: PublicPageRendererProps) {
+  // Check if current theme supports scatter mode
+  const isScatterLayout = scatterMode && themeId && isScatterTheme(themeId)
   // VCR Menu theme uses completely different layout
   if (themeId === 'vcr-menu') {
     // Parse social icons from JSON for VCR theme
@@ -227,8 +236,49 @@ export function PublicPageRenderer({
     )
   }
 
-  // Macintosh theme uses Mac desktop layout
+  // Macintosh theme uses Mac desktop layout (or scatter if enabled)
   if (themeId === 'macintosh') {
+    // Scatter mode overrides normal theme layout
+    if (isScatterLayout) {
+      return (
+        <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
+          <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1">
+            <StaticProfileHeader
+              displayName={displayName}
+              bio={bio}
+              avatarUrl={avatarUrl}
+              avatarFeather={avatarFeather}
+              showAvatar={showAvatar}
+              showTitle={showTitle}
+              titleSize={titleSize}
+              showLogo={showLogo}
+              logoUrl={logoUrl}
+              logoScale={logoScale}
+              profileLayout={profileLayout}
+              headerTextColor={headerTextColor}
+              socialIconColor={socialIconColor}
+              showSocialIcons={showSocialIcons}
+              socialIconsJson={socialIconsJson}
+              socialIconSize={socialIconSize}
+              fuzzyEnabled={fuzzyEnabled}
+              fuzzyIntensity={fuzzyIntensity}
+              fuzzySpeed={fuzzySpeed}
+            />
+
+            <div className="mt-2 w-full">
+              <StaticScatterCanvas
+                cards={cards}
+                themeId={themeId}
+                visitorDrag={visitorDrag}
+              />
+            </div>
+          </div>
+
+          <LegalFooter username={username} />
+        </div>
+      )
+    }
+
     const macFrameOverlay = background?.frameOverlay
     const macFrameFitContent = background?.frameFitContent ?? true
     const macFrameInsets = macFrameOverlay && macFrameFitContent ? FRAME_INSETS[macFrameOverlay] : null
@@ -290,8 +340,8 @@ export function PublicPageRenderer({
     )
   }
 
-  // Departures Board theme uses airport departures display layout
-  if (themeId === 'departures-board') {
+  // Departures Board themes use airport departures display layout
+  if (themeId === 'departures-board' || themeId === 'departures-board-led') {
     const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
     return (
       <StaticDeparturesBoardLayout
@@ -302,12 +352,54 @@ export function PublicPageRenderer({
         bodySize={bodySize}
         socialIcons={socialIcons}
         showSocialIcons={showSocialIcons}
+        isLed={themeId === 'departures-board-led'}
       />
     )
   }
 
-  // Word Art theme uses word art text layout
+  // Word Art theme uses word art text layout (or scatter if enabled)
   if (themeId === 'word-art') {
+    // Scatter mode overrides normal theme layout
+    if (isScatterLayout) {
+      return (
+        <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
+          <div className="w-full max-w-2xl mx-auto px-4 py-8 flex-1">
+            <StaticProfileHeader
+              displayName={displayName}
+              bio={bio}
+              avatarUrl={avatarUrl}
+              avatarFeather={avatarFeather}
+              showAvatar={showAvatar}
+              showTitle={showTitle}
+              titleSize={titleSize}
+              showLogo={showLogo}
+              logoUrl={logoUrl}
+              logoScale={logoScale}
+              profileLayout={profileLayout}
+              headerTextColor={headerTextColor}
+              socialIconColor={socialIconColor}
+              showSocialIcons={showSocialIcons}
+              socialIconsJson={socialIconsJson}
+              socialIconSize={socialIconSize}
+              fuzzyEnabled={fuzzyEnabled}
+              fuzzyIntensity={fuzzyIntensity}
+              fuzzySpeed={fuzzySpeed}
+            />
+
+            <div className="mt-2 w-full">
+              <StaticScatterCanvas
+                cards={cards}
+                themeId={themeId}
+                visitorDrag={visitorDrag}
+              />
+            </div>
+          </div>
+
+          <LegalFooter username={username} />
+        </div>
+      )
+    }
+
     const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
 
     return (
@@ -320,6 +412,8 @@ export function PublicPageRenderer({
         socialIcons={socialIcons}
         socialIconColor={socialIconColor}
         wordArtTitleStyle={wordArtTitleStyle}
+        centerCards={centerCards}
+        showSocialIcons={showSocialIcons}
       />
     )
   }
@@ -358,33 +452,39 @@ export function PublicPageRenderer({
           paddingBottom: `${frameInsets.bottom}vh`,
         }}
       >
-        <div className="w-full max-w-2xl mx-auto px-4 flex flex-col min-h-full">
-          <div className="flex-1">
-            {/* Profile Header */}
-            <StaticProfileHeader
-              displayName={displayName}
-              bio={bio}
-              avatarUrl={avatarUrl}
-              avatarFeather={avatarFeather}
-              showAvatar={showAvatar}
-              showTitle={showTitle}
-              titleSize={titleSize}
-              showLogo={showLogo}
-              logoUrl={logoUrl}
-              logoScale={logoScale}
-              profileLayout={profileLayout}
-              headerTextColor={headerTextColor}
-              socialIconColor={socialIconColor}
-              showSocialIcons={showSocialIconsInHeader}
-              socialIconsJson={socialIconsJson}
-              socialIconSize={socialIconSize}
-              fuzzyEnabled={fuzzyEnabled}
-              fuzzyIntensity={fuzzyIntensity}
-              fuzzySpeed={fuzzySpeed}
-            />
+        <div className="w-full max-w-2xl mx-auto px-4">
+          {/* Profile Header */}
+          <StaticProfileHeader
+            displayName={displayName}
+            bio={bio}
+            avatarUrl={avatarUrl}
+            avatarFeather={avatarFeather}
+            showAvatar={showAvatar}
+            showTitle={showTitle}
+            titleSize={titleSize}
+            showLogo={showLogo}
+            logoUrl={logoUrl}
+            logoScale={logoScale}
+            profileLayout={profileLayout}
+            headerTextColor={headerTextColor}
+            socialIconColor={socialIconColor}
+            showSocialIcons={showSocialIconsInHeader}
+            socialIconsJson={socialIconsJson}
+            socialIconSize={socialIconSize}
+            fuzzyEnabled={fuzzyEnabled}
+            fuzzyIntensity={fuzzyIntensity}
+            fuzzySpeed={fuzzySpeed}
+          />
 
-            {/* Card Grid */}
-            <div className="mt-2">
+          {/* Card Grid or Scatter Canvas */}
+          <div className="mt-2">
+            {isScatterLayout ? (
+              <StaticScatterCanvas
+                cards={cards}
+                themeId={themeId!}
+                visitorDrag={visitorDrag}
+              />
+            ) : (
               <StaticFlowGrid
                 cards={cards}
                 socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
@@ -393,10 +493,10 @@ export function PublicPageRenderer({
                 headerTextColor={headerTextColor}
                 themeId={themeId}
               />
-            </div>
+            )}
           </div>
 
-          {/* Legal Footer - always at bottom */}
+          {/* Legal Footer */}
           <LegalFooter username={username} />
         </div>
       </div>
@@ -405,7 +505,7 @@ export function PublicPageRenderer({
 
   // Default layout (no frame or frame without fit content)
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
       <div className={`w-full max-w-2xl mx-auto px-4 py-8 flex-1${centerCards ? ' flex flex-col items-center justify-center' : ''}`}>
         {/* Profile Header */}
         <StaticProfileHeader
@@ -430,16 +530,24 @@ export function PublicPageRenderer({
           fuzzySpeed={fuzzySpeed}
         />
 
-        {/* Card Grid */}
+        {/* Card Grid or Scatter Canvas */}
         <div className="mt-2 w-full">
-          <StaticFlowGrid
-            cards={cards}
-            socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
-            socialIconSize={socialIconSize}
-            socialIconColor={socialIconColor}
-            headerTextColor={headerTextColor}
-            themeId={themeId}
-          />
+          {isScatterLayout ? (
+            <StaticScatterCanvas
+              cards={cards}
+              themeId={themeId!}
+              visitorDrag={visitorDrag}
+            />
+          ) : (
+            <StaticFlowGrid
+              cards={cards}
+              socialIconsJson={hasSocialIconsCard ? socialIconsJson : undefined}
+              socialIconSize={socialIconSize}
+              socialIconColor={socialIconColor}
+              headerTextColor={headerTextColor}
+              themeId={themeId}
+            />
+          )}
         </div>
       </div>
 
