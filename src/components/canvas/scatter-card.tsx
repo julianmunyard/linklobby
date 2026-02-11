@@ -3,42 +3,61 @@
 import { Rnd } from 'react-rnd'
 import type { Card } from '@/types/card'
 import type { ScatterPosition } from '@/types/scatter'
+import { DEFAULT_SCATTER_SIZES } from '@/types/scatter'
 import { CardRenderer } from '@/components/cards/card-renderer'
 import { cn } from '@/lib/utils'
 
 interface ScatterCardProps {
   card: Card
+  cardIndex: number
+  totalCards: number
   themeId: string
   canvasWidth: number
   canvasHeight: number
   maxZIndex: number
   isSelected: boolean
+  arrangeMode: boolean
   onDragStop: (cardId: string, x: number, y: number) => void
   onResizeStop: (cardId: string, width: number, height: number, x: number, y: number) => void
   onBringToFront: (cardId: string) => void
   onSelect: (cardId: string) => void
 }
 
+function getDefaultPosition(cardIndex: number, totalCards: number, cardType: string): ScatterPosition {
+  const defaults = DEFAULT_SCATTER_SIZES[cardType] || { width: 30, height: 20 }
+  const cols = Math.ceil(Math.sqrt(totalCards))
+  const row = Math.floor(cardIndex / cols)
+  const col = cardIndex % cols
+  const spacingX = 10
+  const spacingY = 10
+
+  return {
+    x: spacingX + col * ((100 - 2 * spacingX) / cols),
+    y: spacingY + row * ((100 - 2 * spacingY) / Math.ceil(totalCards / cols)),
+    width: defaults.width,
+    height: defaults.height,
+    zIndex: cardIndex,
+  }
+}
+
 export function ScatterCard({
   card,
+  cardIndex,
+  totalCards,
   themeId,
   canvasWidth,
   canvasHeight,
   maxZIndex,
   isSelected,
+  arrangeMode,
   onDragStop,
   onResizeStop,
   onBringToFront,
   onSelect,
 }: ScatterCardProps) {
-  // Get scatter position for this theme from card content
+  // Get scatter position for this theme from card content, or compute default
   const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
-  const scatterPos = scatterLayouts[themeId]
-
-  // If no scatter position exists for this theme, don't render (initialization pending)
-  if (!scatterPos) {
-    return null
-  }
+  const scatterPos = scatterLayouts[themeId] || getDefaultPosition(cardIndex, totalCards, card.card_type)
 
   // Convert percentage positions to pixels
   const pixelX = (scatterPos.x / 100) * canvasWidth
@@ -46,33 +65,39 @@ export function ScatterCard({
   const pixelWidth = (scatterPos.width / 100) * canvasWidth
   const pixelHeight = (scatterPos.height / 100) * canvasHeight
 
+  const noResize = {
+    top: false, right: false, bottom: false, left: false,
+    topRight: false, bottomRight: false, bottomLeft: false, topLeft: false,
+  }
+
+  const allResize = {
+    top: true, right: true, bottom: true, left: true,
+    topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
+  }
+
   return (
     <Rnd
       size={{ width: pixelWidth, height: pixelHeight }}
       position={{ x: pixelX, y: pixelY }}
       bounds="parent"
-      enableResizing={{
-        top: true,
-        right: true,
-        bottom: true,
-        left: true,
-        topRight: true,
-        bottomRight: true,
-        bottomLeft: true,
-        topLeft: true,
-      }}
+      disableDragging={!arrangeMode}
+      enableResizing={arrangeMode ? allResize : noResize}
       style={{
-        touchAction: 'none',
+        touchAction: arrangeMode ? 'none' : 'auto',
         zIndex: scatterPos.zIndex,
+        cursor: arrangeMode ? 'grab' : 'pointer',
       }}
       onDragStart={() => {
+        if (!arrangeMode) return
         onBringToFront(card.id)
         onSelect(card.id)
       }}
       onDragStop={(e, d) => {
+        if (!arrangeMode) return
         onDragStop(card.id, d.x, d.y)
       }}
       onResizeStop={(e, direction, ref, delta, position) => {
+        if (!arrangeMode) return
         onResizeStop(
           card.id,
           ref.offsetWidth,
@@ -81,9 +106,17 @@ export function ScatterCard({
           position.y
         )
       }}
-      onMouseDown={() => onSelect(card.id)}
-      onTouchStart={() => onSelect(card.id)}
-      resizeHandleClasses={{
+      onMouseDown={() => {
+        if (!arrangeMode) {
+          onSelect(card.id)
+        }
+      }}
+      onTouchStart={() => {
+        if (!arrangeMode) {
+          onSelect(card.id)
+        }
+      }}
+      resizeHandleClasses={arrangeMode ? {
         top: 'scatter-resize-handle scatter-resize-handle-top',
         right: 'scatter-resize-handle scatter-resize-handle-right',
         bottom: 'scatter-resize-handle scatter-resize-handle-bottom',
@@ -92,7 +125,7 @@ export function ScatterCard({
         bottomRight: 'scatter-resize-handle scatter-resize-handle-corner',
         bottomLeft: 'scatter-resize-handle scatter-resize-handle-corner',
         topLeft: 'scatter-resize-handle scatter-resize-handle-corner',
-      }}
+      } : undefined}
       className={cn(
         'scatter-card',
         isSelected && 'ring-2 ring-blue-500'

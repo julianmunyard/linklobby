@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { Move, MousePointer } from 'lucide-react'
 import type { Card } from '@/types/card'
 import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
@@ -16,6 +17,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   const [canvasHeight, setCanvasHeight] = useState(0)
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [boundsKey, setBoundsKey] = useState(0)
+  const [arrangeMode, setArrangeMode] = useState(true)
 
   // Read from stores
   const themeId = useThemeStore((state) => state.themeId)
@@ -118,11 +120,28 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     setMaxZIndex(newZ)
   }, [maxZIndex, sendScatterUpdate])
 
+  // Handle card selection — in edit mode, also notify parent for property editing
+  const handleSelect = useCallback((cardId: string) => {
+    selectCard(cardId)
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+    }
+  }, [selectCard])
+
   // Handle canvas background click to deselect
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    // Only deselect if clicking the canvas background (not a card)
+    // Only deselect if clicking the canvas background (not a card or the toggle)
     if (e.target === e.currentTarget) {
       selectCard(null)
+      if (window.parent !== window) {
+        window.parent.postMessage(
+          { type: 'SELECT_CARD', payload: { cardId: null } },
+          window.location.origin
+        )
+      }
     }
   }, [selectCard])
 
@@ -133,37 +152,68 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     <div
       ref={canvasRef}
       className="relative w-full min-h-screen overflow-hidden"
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: arrangeMode ? 'none' : 'auto' }}
       onClick={handleCanvasClick}
     >
-      {/* Grid overlay */}
-      <div className="absolute inset-0 pointer-events-none z-[999]">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: '8.333% 8.333%',
-          }}
-        />
-      </div>
+      {/* Grid overlay — only in arrange mode */}
+      {arrangeMode && (
+        <div className="absolute inset-0 pointer-events-none z-[999]">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)
+              `,
+              backgroundSize: '8.333% 8.333%',
+            }}
+          />
+        </div>
+      )}
+
+      {/* Mode toggle button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setArrangeMode((prev) => !prev)
+        }}
+        className="fixed bottom-6 left-6 z-[1000] flex items-center gap-2 px-4 py-2.5 rounded-full shadow-lg transition-colors text-sm font-medium"
+        style={{
+          backgroundColor: arrangeMode ? 'hsl(217 91% 60%)' : 'hsl(0 0% 15%)',
+          color: 'white',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
+      >
+        {arrangeMode ? (
+          <>
+            <Move className="h-4 w-4" />
+            Arrange
+          </>
+        ) : (
+          <>
+            <MousePointer className="h-4 w-4" />
+            Edit
+          </>
+        )}
+      </button>
 
       {/* Render cards with react-rnd */}
-      {canvasWidth > 0 && canvasHeight > 0 && visibleCards.map((card) => (
+      {canvasWidth > 0 && canvasHeight > 0 && visibleCards.map((card, index) => (
         <ScatterCard
           key={`${card.id}-${boundsKey}`}
           card={card}
+          cardIndex={index}
+          totalCards={visibleCards.length}
           themeId={themeId}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
           maxZIndex={maxZIndex}
           isSelected={selectedCardId === card.id}
+          arrangeMode={arrangeMode}
           onDragStop={handleDragStop}
           onResizeStop={handleResizeStop}
           onBringToFront={handleBringToFront}
-          onSelect={selectCard}
+          onSelect={handleSelect}
         />
       ))}
     </div>
