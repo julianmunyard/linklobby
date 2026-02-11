@@ -131,9 +131,9 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     }
   }, [selectCard])
 
-  // Handle canvas background click to deselect
+  // Handle canvas background click to deselect — only in edit mode
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    // Only deselect if clicking the canvas background (not a card or the toggle)
+    if (arrangeMode) return
     if (e.target === e.currentTarget) {
       selectCard(null)
       if (window.parent !== window) {
@@ -143,7 +143,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
         )
       }
     }
-  }, [selectCard])
+  }, [selectCard, arrangeMode])
 
   // Filter visible cards only
   const visibleCards = cards.filter((card) => card.is_visible)

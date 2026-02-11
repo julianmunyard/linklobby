@@ -90,7 +90,6 @@ export function ScatterCard({
       onDragStart={() => {
         if (!arrangeMode) return
         onBringToFront(card.id)
-        onSelect(card.id)
       }}
       onDragStop={(e, d) => {
         if (!arrangeMode) return
