@@ -70,8 +70,8 @@ export function ScatterCard({
     topRight: false, bottomRight: false, bottomLeft: false, topLeft: false,
   }
 
-  const allResize = {
-    top: true, right: true, bottom: true, left: true,
+  const cornerOnly = {
+    top: false, right: false, bottom: false, left: false,
     topRight: true, bottomRight: true, bottomLeft: true, topLeft: true,
   }
 
@@ -80,8 +80,9 @@ export function ScatterCard({
       size={{ width: pixelWidth, height: pixelHeight }}
       position={{ x: pixelX, y: pixelY }}
       bounds="parent"
+      lockAspectRatio={arrangeMode}
       disableDragging={!arrangeMode}
-      enableResizing={arrangeMode ? allResize : noResize}
+      enableResizing={arrangeMode ? cornerOnly : noResize}
       style={{
         touchAction: arrangeMode ? 'none' : 'auto',
         zIndex: scatterPos.zIndex,
@@ -116,14 +117,10 @@ export function ScatterCard({
         }
       }}
       resizeHandleClasses={arrangeMode ? {
-        top: 'scatter-resize-handle scatter-resize-handle-top',
-        right: 'scatter-resize-handle scatter-resize-handle-right',
-        bottom: 'scatter-resize-handle scatter-resize-handle-bottom',
-        left: 'scatter-resize-handle scatter-resize-handle-left',
-        topRight: 'scatter-resize-handle scatter-resize-handle-corner',
-        bottomRight: 'scatter-resize-handle scatter-resize-handle-corner',
-        bottomLeft: 'scatter-resize-handle scatter-resize-handle-corner',
-        topLeft: 'scatter-resize-handle scatter-resize-handle-corner',
+        topRight: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-tr',
+        bottomRight: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-br',
+        bottomLeft: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-bl',
+        topLeft: 'scatter-resize-handle scatter-resize-handle-corner scatter-resize-handle-tl',
       } : undefined}
       className={cn(
         'scatter-card',

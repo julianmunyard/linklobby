@@ -1317,62 +1317,28 @@ html, body {
    Scatter Mode Resize Handles
    ======================================== */
 
-/* Base resize handle — large invisible hit area with small visible dot */
+/* Corner resize handles — Canva/Photoshop style */
 .scatter-resize-handle {
   opacity: 0 !important;
-  transition: opacity 0.2s !important;
+  transition: opacity 0.15s !important;
   z-index: 10 !important;
 }
 
-/* Show handles on hover or when selected */
 .scatter-card:hover .scatter-resize-handle,
 .scatter-card.ring-2 .scatter-resize-handle {
   opacity: 1 !important;
 }
 
-/* Edge handles — wide strips along each edge for easy grabbing */
-.scatter-resize-handle-top,
-.scatter-resize-handle-bottom {
-  height: 12px !important;
-  left: 8px !important;
-  right: 8px !important;
-  width: auto !important;
-  cursor: ns-resize !important;
-  background: linear-gradient(to right, transparent 30%, #3b82f6 45%, #3b82f6 55%, transparent 70%) !important;
-  background-size: 100% 3px !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-}
-
-.scatter-resize-handle-left,
-.scatter-resize-handle-right {
-  width: 12px !important;
-  top: 8px !important;
-  bottom: 8px !important;
-  height: auto !important;
-  cursor: ew-resize !important;
-  background: linear-gradient(to bottom, transparent 30%, #3b82f6 45%, #3b82f6 55%, transparent 70%) !important;
-  background-size: 3px 100% !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-}
-
-/* Corner handles — large square hit areas with visible dot */
 .scatter-resize-handle-corner {
-  width: 20px !important;
-  height: 20px !important;
-  position: relative !important;
+  width: 14px !important;
+  height: 14px !important;
+  background: white !important;
+  border: 2px solid #3b82f6 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.2) !important;
 }
 
-.scatter-resize-handle-corner::after {
-  content: '' !important;
-  position: absolute !important;
-  width: 10px !important;
-  height: 10px !important;
-  background: #3b82f6 !important;
-  border: 2px solid white !important;
-  border-radius: 50% !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-}
+.scatter-resize-handle-tr { cursor: nesw-resize !important; }
+.scatter-resize-handle-bl { cursor: nesw-resize !important; }
+.scatter-resize-handle-tl { cursor: nwse-resize !important; }
+.scatter-resize-handle-br { cursor: nwse-resize !important; }
