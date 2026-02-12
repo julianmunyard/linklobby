@@ -43,9 +43,14 @@ export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
         styleConfig.className
       )}
     >
-      <span className="blinkie-text">
-        {card.title || 'Untitled'}
-      </span>
+      <div className="blinkie-text">
+        <div>{card.title || 'Untitled'}</div>
+        {card.description && (
+          <div style={{ fontSize: '9px', opacity: 0.8, marginTop: '2px' }}>
+            {card.description}
+          </div>
+        )}
+      </div>
     </Wrapper>
   )
 }

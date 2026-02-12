@@ -51,12 +51,11 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
       return <TextCard card={card} isPreview={isPreview} />
     case "link":
     case "mini": {
-      // Use BlinkieLink for blinkies theme, otherwise normal LinkCard
+      // Blinkies theme: link/mini cards ARE the blinky badge — no ThemedCardWrapper
       if (effectiveThemeId === 'blinkies') {
-        cardContent = <BlinkieLink card={card} isPreview={isPreview} />
-      } else {
-        cardContent = <LinkCard card={card} isPreview={isPreview} />
+        return <BlinkieLink card={card} isPreview={isPreview} />
       }
+      cardContent = <LinkCard card={card} isPreview={isPreview} />
       break
     }
     case "video":

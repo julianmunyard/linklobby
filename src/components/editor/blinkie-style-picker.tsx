@@ -23,13 +23,18 @@ export function BlinkieStylePicker({ currentStyle, onStyleChange }: BlinkieStyle
             type="button"
             onClick={() => onStyleChange(styleId)}
             className={cn(
-              'relative overflow-hidden transition-all',
+              'relative overflow-hidden transition-all rounded-sm',
               currentStyle === styleId && 'ring-2 ring-primary ring-offset-2'
             )}
           >
-            {/* Mini blinky preview */}
-            <div className={cn('blinkie-badge', styleConfig.className)}>
-              <span className="blinkie-text">{styleConfig.name}</span>
+            {/* Mini blinky preview - override badge sizing for picker */}
+            <div
+              className={cn('blinkie-badge', styleConfig.className)}
+              style={{ minHeight: '28px', padding: '6px 8px' }}
+            >
+              <span className="blinkie-text" style={{ fontSize: '9px' }}>
+                {styleConfig.name}
+              </span>
             </div>
           </button>
         ))}

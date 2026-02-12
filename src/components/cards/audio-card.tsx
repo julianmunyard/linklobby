@@ -26,6 +26,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'ipod-classic': 'ipod-classic',
     'vcr-menu': 'vcr-menu',
     'classified': 'classified',
+    'blinkies': 'system-settings',
     'departures-board': 'classified',  // Dark theme - use classified variant
     'departures-board-led': 'classified',
   }
@@ -62,6 +63,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
       showWaveform={content.showWaveform ?? true}
       looping={content.looping ?? false}
       autoplay={content.autoplay ?? false}
+      transparentBackground={content.transparentBackground ?? false}
       reverbConfig={content.reverbConfig}
       playerColors={content.playerColors}
       cardId={card.id}

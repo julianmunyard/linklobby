@@ -1344,41 +1344,39 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
-  max-width: 200px;
   width: 100%;
-  margin: 4px auto;
+  min-height: 44px;
+  padding: 12px 16px;
   overflow: hidden;
   position: relative;
   image-rendering: pixelated;
-  border-width: 1px;
-  border-style: solid;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  border-radius: var(--theme-border-radius, 6px);
+  transition: transform 0.1s ease, opacity 0.15s ease;
 }
 
 .blinkie-badge:hover {
-  transform: scale(1.02);
+  opacity: 0.9;
+  transform: scale(1.01);
 }
 
 .blinkie-text {
   position: relative;
   z-index: 1;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 10px;
-  line-height: 1;
+  font-size: 11px;
+  line-height: 1.3;
   letter-spacing: 0.5px;
-  padding: 0 6px;
   font-family: var(--font-pix-chicago), var(--font-chikarego), monospace;
+  text-align: center;
+  word-break: break-word;
 }
 
 /* 1. Classic Pink - sparkle shimmer */
 .blinkie-classic-pink {
   background: linear-gradient(90deg, #ff69b4 0%, #ff1493 25%, #ff69b4 50%, #ff1493 75%, #ff69b4 100%);
   background-size: 200% 100%;
-  border-color: #ff1493;
   animation: blinkie-shimmer 2s linear infinite;
 }
 
@@ -1396,7 +1394,6 @@ html, body {
 .blinkie-rainbow {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
   background-size: 200% 100%;
-  border-color: currentColor;
   animation: blinkie-rainbow 3s linear infinite;
 }
 
@@ -1413,7 +1410,6 @@ html, body {
 /* 3. Starry - twinkling stars */
 .blinkie-starry {
   background: #1a0033;
-  border-color: #4a0080;
 }
 
 .blinkie-starry::before {
@@ -1440,7 +1436,6 @@ html, body {
 /* 4. Neon - pulsing glow */
 .blinkie-neon {
   background: #0a0a0a;
-  border-color: #0ff;
 }
 
 .blinkie-neon .blinkie-text {
@@ -1456,7 +1451,6 @@ html, body {
 /* 5. Hearts - scrolling hearts */
 .blinkie-hearts {
   background: #ffb6c1;
-  border-color: #ff69b4;
   overflow: hidden;
 }
 
@@ -1488,7 +1482,6 @@ html, body {
 .blinkie-pastel {
   background: linear-gradient(90deg, #ffb3d9, #c9b3ff, #b3ffe0, #ffd9b3);
   background-size: 300% 100%;
-  border-color: #d8bfd8;
   animation: blinkie-pastel-shift 4s ease infinite;
 }
 
@@ -1505,7 +1498,6 @@ html, body {
 /* 7. Matrix - digital rain */
 .blinkie-matrix {
   background: #000;
-  border-color: #003300;
   overflow: hidden;
 }
 
@@ -1540,7 +1532,6 @@ html, body {
 /* 8. Glitter - sparkle effect */
 .blinkie-glitter {
   background: #ffd700;
-  border-color: #daa520;
   overflow: hidden;
 }
 
@@ -1574,7 +1565,6 @@ html, body {
 .blinkie-flame {
   background: linear-gradient(0deg, #ff4500 0%, #ff8c00 50%, #ffd700 100%);
   background-size: 100% 200%;
-  border-color: #ff4500;
   animation: blinkie-flames 1.5s ease infinite;
 }
 
@@ -1593,7 +1583,6 @@ html, body {
 .blinkie-ocean {
   background: linear-gradient(90deg, #006994, #00b4d8, #48cae4, #00b4d8, #006994);
   background-size: 200% 100%;
-  border-color: #006994;
   animation: blinkie-waves 3s ease-in-out infinite;
 }
 
