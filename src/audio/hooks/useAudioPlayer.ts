@@ -11,6 +11,7 @@ interface UseAudioPlayerOptions {
   cardId: string
   trackUrl?: string
   looping?: boolean
+  autoplay?: boolean
   reverbConfig?: ReverbConfig
   onPlay?: () => void
   onPause?: () => void
@@ -39,7 +40,7 @@ interface UseAudioPlayerReturn {
 }
 
 export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerReturn {
-  const { cardId, trackUrl, looping = false, reverbConfig, onPlay, onPause, onEnded } = options
+  const { cardId, trackUrl, looping = false, autoplay = false, reverbConfig, onPlay, onPause, onEnded } = options
 
   // EmbedPlaybackProvider integration for one-at-a-time playback
   const embedPlayback = useOptionalEmbedPlayback()
@@ -66,6 +67,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
   // call because activeEmbedId state creates a new context object).
   const embedPlaybackRef = useRef(embedPlayback)
   embedPlaybackRef.current = embedPlayback
+  // Stable ref for autoplay — avoids re-triggering effects when prop changes
+  const autoplayRef = useRef(autoplay)
+  autoplayRef.current = autoplay
 
   // Initialize engine eagerly on mount — AudioContext is created here.
   // On desktop, context starts running. On mobile, browser auto-suspends it.
@@ -91,6 +95,14 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
         setDuration(dur)
         setIsLoaded(true)
         setIsLoading(false)
+        // Autoplay: trigger play after track loads (public pages only)
+        if (autoplayRef.current && !engine.isPlaying()) {
+          engine.play()
+          setIsPlaying(true)
+          if (embedPlaybackRef.current) {
+            embedPlaybackRef.current.setActiveEmbed(cardId)
+          }
+        }
       },
       onEnded: () => {
         setIsPlaying(false)

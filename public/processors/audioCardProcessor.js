@@ -3,12 +3,10 @@
 // Ported from Munyard Mixer's timelineProcessor.js + SuperpoweredRegion.js
 // Single-track playback with AdvancedAudioPlayer + Reverb
 //
-// KEY PATTERN (from Munyard Mixer):
-// - processAudio() ALWAYS processes when track is loaded (no "playing" flag gate)
-// - AudioContext suspend/resume on the main thread controls whether processAudio is called
-// - The AdvancedAudioPlayer is ALWAYS in "playing" state internally
-// - "play" command is essentially a no-op (like Munyard Mixer's handleCommand("play"))
-// - "pause" is handled by AudioContext.suspend() on the main thread, not here
+// Play/pause is controlled by a `playing` flag in the processor.
+// When playing=false, processAudio outputs silence (AudioContext stays running).
+// AudioContext.resume() is only used on the main thread for browser autoplay policy.
+// This decouples play/pause from AudioContext state transitions.
 
 import { SuperpoweredWebAudio } from "/SP-es6.js";
 
@@ -23,6 +21,7 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
 
   // State
   loaded = false;
+  playing = false;  // Gated by play/stop commands — controls audio output
   trackUrl = null;
   audioDuration = 0;
   currentPlaybackRate = 1.0;
@@ -120,14 +119,14 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
       }
     }
 
-    // Position at start (same as Munyard Mixer)
+    // Ensure player is positioned at start and playing
     this.player.setPosition(0);
-    // Ensure player is playing (should already be from onReady, but match Munyard Mixer pattern)
     this.player.play();
 
     // Track is loaded and ready
     this.loaded = true;
     this.ended = false;
+    this.playing = true;
 
     this.sendMessageToMainScope({
       event: "loaded",
@@ -151,14 +150,13 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
             this.ended = false;
           }
           this.player.play();
+          this.playing = true;
           this.debugFirstProcess = true; // Re-enable debug log for next processAudio
         }
         break;
 
-      case "pause":
-        // In Munyard Mixer, there is NO pause handler in the processor.
-        // AudioContext.suspend() on the main thread stops processAudio from being called.
-        // No-op here.
+      case "stop":
+        this.playing = false;
         break;
 
       case "seek": {
@@ -236,12 +234,11 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
     // Always clear output (same as SuperpoweredTimeline.processTimeline first line)
     this.Superpowered.memorySet(outputBuffer.pointer, 0, buffersize * 8);
 
-    // KEY PATTERN FROM MUNYARD MIXER:
-    // processTimeline() has NO "playing" flag check. It ALWAYS processes all tracks.
-    // AudioContext.suspend()/resume() controls whether this method is even called.
-    // When AudioContext is suspended, this method is NOT called = silence.
-    // When AudioContext is running, this method IS called = audio plays.
-    if (!this.loaded || this.ended) {
+    // Gate audio output: silence when not loaded, ended, or stopped.
+    // The `playing` flag is set by play/stop commands from the main thread.
+    // AudioContext stays running — the processor outputs silence instead of
+    // relying on context.suspend() to prevent processAudio from being called.
+    if (!this.loaded || this.ended || !this.playing) {
       return true;
     }
 
@@ -326,6 +323,7 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
       // Same as SuperpoweredTimeline loop detection
       if (!this.looping && durationMs > 0 && positionMs >= durationMs - 100) {
         this.ended = true;
+        this.playing = false;
         this.sendMessageToMainScope({ event: "ended" });
       }
     }

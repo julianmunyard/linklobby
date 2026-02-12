@@ -39,6 +39,7 @@ interface AudioPlayerProps {
   albumArtUrl?: string
   showWaveform?: boolean
   looping?: boolean
+  autoplay?: boolean
   reverbConfig?: ReverbConfig
   playerColors?: AudioCardContent['playerColors']
   cardId: string
@@ -54,6 +55,7 @@ export function AudioPlayer({
   albumArtUrl,
   showWaveform = true,
   looping = false,
+  autoplay = false,
   reverbConfig,
   playerColors,
   cardId,
@@ -73,6 +75,7 @@ export function AudioPlayer({
     cardId,
     trackUrl: currentTrackUrl,
     looping,
+    autoplay,
     reverbConfig,
     onEnded: () => {
       // Auto-advance to next track if multi-track and not looping

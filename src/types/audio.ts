@@ -31,6 +31,7 @@ export interface AudioCardContent {
   currentTrackIndex?: number     // Default 0
   showWaveform?: boolean         // true = waveform, false = progress bar (default true)
   looping?: boolean              // Artist-set loop toggle (default false)
+  autoplay?: boolean             // Auto-play on page load (default false)
   reverbConfig?: ReverbConfig    // Artist-configured reverb parameters
   playerColors?: PlayerColors    // 3 color customization fields
   transparentBackground?: boolean

@@ -27,6 +27,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'vcr-menu': 'vcr-menu',
     'classified': 'classified',
     'departures-board': 'classified',  // Dark theme - use classified variant
+    'departures-board-led': 'classified',
   }
   const themeVariant = themeVariantMap[themeId] || 'instagram-reels'
 
@@ -60,6 +61,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
       albumArtUrl={content.albumArtUrl}
       showWaveform={content.showWaveform ?? true}
       looping={content.looping ?? false}
+      autoplay={content.autoplay ?? false}
       reverbConfig={content.reverbConfig}
       playerColors={content.playerColors}
       cardId={card.id}

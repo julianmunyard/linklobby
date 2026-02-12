@@ -2,10 +2,9 @@
 // Superpowered AudioWorklet engine for LinkLobby audio card
 // Ported from Munyard Mixer's thomasAudioEngine.js pattern
 //
-// KEY PATTERN (from Munyard Mixer):
-// - Play = AudioContext.resume() + send play command to processor
-// - Pause = AudioContext.suspend()
-// - The processor's processAudio() runs whenever AudioContext is running
+// Play/pause is decoupled from AudioContext state:
+// - Play = AudioContext.resume() (for browser policy) + send play command to processor
+// - Pause = send stop command to processor (context stays running, processor outputs silence)
 // - Track loading is done via Superpowered.downloadAndDecode() inside the processor
 //
 import { SuperpoweredGlue, SuperpoweredWebAudio } from '@superpoweredsdk/web'
@@ -57,18 +56,26 @@ class AudioEngine {
           this.durationSeconds = message.data.duration
           this.isLoadedFlag = true
           console.log(`AudioEngine: Track loaded (${this.durationSeconds.toFixed(2)}s)`)
-          if (this.callbacks.onLoaded) {
-            this.callbacks.onLoaded(this.durationSeconds)
-          }
 
-          // Mobile: if user tapped play before track finished loading, play now
+          // Processor sets playing=true after loadAsset (matches old behavior where
+          // processAudio always ran when loaded). If we don't want audio yet, send
+          // stop BEFORE firing callbacks — this way autoplay's play() arrives after
+          // the stop and correctly overrides it.
           if (this.pendingPlayAfterLoad) {
             this.pendingPlayAfterLoad = false
+            // Already playing from loadAsset — just sync engine state
+            this.isPlayingFlag = true
+            console.log('AudioEngine: auto-play after pending load')
+          } else if (!this.isPlayingFlag) {
+            // Nobody requested play — silence the processor
             this.processorNode.sendMessageToAudioScope({
               type: 'command',
-              data: { command: 'play' }
+              data: { command: 'stop' }
             })
-            console.log('AudioEngine: auto-play after pending load')
+          }
+
+          if (this.callbacks.onLoaded) {
+            this.callbacks.onLoaded(this.durationSeconds)
           }
         }
 
@@ -82,7 +89,7 @@ class AudioEngine {
 
         if (message.event === 'ended') {
           this.isPlayingFlag = false
-          if (this.processorNode) this.processorNode.context.suspend()
+          // Processor already set playing=false — no need to suspend context
           if (this.callbacks.onEnded) {
             this.callbacks.onEnded()
           }
@@ -319,8 +326,12 @@ class AudioEngine {
 
     this.pendingPlayAfterLoad = false
 
-    // Suspend AudioContext — this stops processAudio() from being called
-    this.processorNode.context.suspend()
+    // Send stop command to processor — silences output without suspending context.
+    // AudioContext stays running; the processor's playing flag gates audio output.
+    this.processorNode.sendMessageToAudioScope({
+      type: 'command',
+      data: { command: 'stop' }
+    })
 
     this.isPlayingFlag = false
     console.log('AudioEngine: pause')

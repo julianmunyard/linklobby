@@ -17,11 +17,12 @@ The audio system uses Superpowered Web Audio SDK with an AudioWorklet processor 
 ### Architecture Quick Reference
 
 - **Singleton:** `getAudioEngine()` returns one `AudioEngine` instance per page load
-- **Play/Pause mechanism:** `context.resume()` / `context.suspend()` — the processor's `processAudio()` has NO playing flag; AudioContext state controls whether it runs
-- **Processor:** `public/processors/audioCardProcessor.js` — always processes audio when loaded, outputs silence when not loaded
-- **Hook:** `src/audio/hooks/useAudioPlayer.ts` — manages engine lifecycle per component
+- **Play/Pause mechanism:** Processor has a `playing` flag. Play sends `play` command (sets flag true), pause sends `stop` command (sets flag false). `context.resume()` is only used for browser autoplay policy, NOT for play/pause control. AudioContext stays running — the processor outputs silence when `playing=false`.
+- **Processor:** `public/processors/audioCardProcessor.js` — outputs audio when `loaded && playing && !ended`, silence otherwise
+- **Hook:** `src/audio/hooks/useAudioPlayer.ts` — manages engine lifecycle per component, supports `autoplay` option
 - **Engine:** `src/audio/engine/audioEngine.ts` — Superpowered AudioWorklet engine
 - **Retry:** play() verifies playback after 150ms, retries up to 5 times with increasing delays
+- **Autoplay:** When `autoplay=true`, `useAudioPlayer` triggers `engine.play()` in the `onLoaded` callback after track finishes loading
 
 ### Debugging Audio Issues Checklist
 

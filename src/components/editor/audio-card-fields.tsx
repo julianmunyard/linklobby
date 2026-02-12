@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { ReverbConfigModal } from '@/components/audio/reverb-config-modal'
-import { cn } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
 import { uploadCardImageBlob } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -60,7 +60,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       setIsUploadingTrack(true)
       setUploadProgress(0)
 
-      const trackId = crypto.randomUUID()
+      const trackId = generateId()
       const formData = new FormData()
       formData.append('file', file)
       formData.append('cardId', cardId)
@@ -152,8 +152,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB')
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('Image must be less than 20MB')
       return
     }
 
@@ -376,6 +376,22 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
           <Switch
             checked={content.looping ?? false}
             onCheckedChange={(checked) => onChange({ looping: checked })}
+          />
+        </div>
+      </div>
+
+      {/* Autoplay Toggle */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Autoplay</Label>
+            <p className="text-xs text-muted-foreground">
+              Play automatically when visitors load the page
+            </p>
+          </div>
+          <Switch
+            checked={content.autoplay ?? false}
+            onCheckedChange={(checked) => onChange({ autoplay: checked })}
           />
         </div>
       </div>

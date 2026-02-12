@@ -96,6 +96,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             'receipt': 'receipt',
             'classified': 'classified',
             'departures-board': 'classified',  // Dark theme - use classified variant
+            'departures-board-led': 'classified',
             'mac-os': 'mac-os',
             'macintosh': 'mac-os',
             'ipod-classic': 'ipod-classic',
@@ -109,6 +110,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
               albumArtUrl={audioContent.albumArtUrl}
               showWaveform={audioContent.showWaveform ?? true}
               looping={audioContent.looping ?? false}
+              autoplay={audioContent.autoplay ?? false}
               reverbConfig={audioContent.reverbConfig}
               playerColors={audioContent.playerColors}
               cardId={card.id}
@@ -157,8 +159,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
               "transition-all",
               widthClass,
               positionClass,
-              // Gallery needs overflow visible for full-bleed effect
-              card.card_type === 'gallery' && "overflow-visible"
+              card.card_type === 'gallery' && "overflow-hidden"
             )}
           >
             <CardRenderer card={card} themeId={themeId} />
