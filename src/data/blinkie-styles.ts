@@ -1,5 +1,5 @@
 // src/data/blinkie-styles.ts
-// Auto-generated from blinkies.cafe blinkieData.js (283 styles)
+// Auto-generated from blinkies.cafe blinkieData.js (245 styles)
 
 // Real blinkie style definitions from blinkies.cafe repo
 // Each style matches the original blinkieData.js format
@@ -24,7 +24,7 @@ export interface BlinkieStyleDef {
 
 export type BlinkieStyleId = keyof typeof BLINKIE_STYLES
 
-// Auto-generated from blinkies.cafe blinkieData.js (283 styles)
+// Auto-generated from blinkies.cafe blinkieData.js (245 styles)
 export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0283-purplelace': {
     name: "sweet dreams", bgID: "0283-purplelace", frames: 4, delay: 17, colour: "#ffffff", font: "green screen", fontsize: 12, x: -1, y: 0, outline: "#d499ea", tags: ["user","pink","transparent","2024may"],
@@ -56,9 +56,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0275-bunnybounce': {
     name: "bunny mode", bgID: "0275-bunnybounce", frames: 4, delay: 8, colour: "#ff6699", font: "monogramextended", fontsize: 16, x: 6, y: 1, tags: ["nature","pink","user","nikki"],
   },
-  '0272-disabledpride': {
-    name: "Disabled Pride", bgID: "0272-disabledpride", frames: 2, delay: 15, colour: "#d7f9ff", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -1, y: 0, outline: "#0d677c", tags: ["user","soleil","2024mar"],
-  },
   '0271-chronicmigraines': {
     name: "Chronic Migraines", bgID: "0271-chronicmigraines", frames: 2, delay: 15, colour: "#c6f53d", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -18, y: 0, outline: "#04949c", tags: ["user","soleil","2024mar"],
   },
@@ -77,29 +74,8 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0265-wheelchair': {
     name: "Wheelchair User!", bgID: "0265-wheelchair", frames: 2, delay: 15, colour: "#ff02aa", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -4, y: 0, outline: "#720089", tags: ["user","pink","soleil","2024mar"],
   },
-  '0274-wlwpride': {
-    name: "He's my Girl", bgID: "0274-wlwpride", frames: 2, delay: 15, colour: "#fc04ac", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -1, y: 0, outline: "#5d0484", tags: ["user","soleil","2024mar"],
-  },
-  '0273-mlmpride': {
-    name: "Strong & Proud", bgID: "0273-mlmpride", frames: 2, delay: 15, colour: "#ba3bff", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -1, y: 0, outline: "#540494", tags: ["user","soleil","2024mar"],
-  },
   '0266-lovefool': {
     name: "LOVEFOOL", bgID: "0266-lovefool", frames: 2, delay: 15, colour: "#ffa6c9", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -1, y: 0, outline: "#ff569d", tags: ["love","user","pink","soleil","2024mar"],
-  },
-  '0264-adhd': {
-    name: "ADHD!", bgID: "0264-adhd", frames: 2, delay: 10, colour: "#FFFFFF", font: "04b_19", fontsize: 14, fontweight: "bold", x: -8, y: 0, outline: "#000000", tags: ["flag","user","proxy","2024feb"],
-  },
-  '0263-demongender': {
-    name: "demongender", bgID: "0263-demongender", frames: 2, delay: 10, colour: "#FFFFFF", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -12, y: 0, outline: "#000000", tags: ["flag","user","proxy","2024feb"],
-  },
-  '0262-wolfgender': {
-    name: "wolfgender", bgID: "0262-wolfgender", frames: 2, delay: 12, colour: "#000000", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -4, y: 0, outline: "#E1AC2C", tags: ["flag","user","proxy","2024feb"],
-  },
-  '0261-werewolfgender': {
-    name: "werewolfgender", bgID: "0261-werewolfgender", frames: 2, delay: 10, colour: "#000000", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -8, y: 0, outline: "#FFC200", tags: ["flag","user","proxy","2024feb"],
-  },
-  '0260-doggender': {
-    name: "doggender pride", bgID: "0260-doggender", frames: 2, delay: 10, colour: "#950079", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -15, y: 0, outline: "#FFE59A", tags: ["flag","user","proxy","2024feb"],
   },
   '0259-spiralpastel': {
     name: "Hypnotizedddd", bgID: "0259-spiralpastel", frames: 2, delay: 20, colour: "#ff8400", font: "digitaldisco", fontsize: 16, x: 7, y: 0, shadow: ["#ffcff4","#d5faff"], shadowx: [4,-4], shadowy: [-2,2], tags: ["rainbow","user","pawpr1nc3"],
@@ -179,12 +155,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0234-mbavdoublenegativeangeldevil': {
     name: "Double Negative", bgID: "0234-mbavdoublenegativeangeldevil", frames: 2, delay: 17, colour: "#ffffff", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["fandom","spooky","anakin"],
   },
-  '0233-mbav3cheersforevil': {
-    name: "3 Cheers for Evil", bgID: "0233-mbav3cheersforevil", frames: 4, delay: 10, colour: "#d30a0a", font: "doublehomicide", fontsize: 16, x: -1, y: 0, tags: ["fandom","spooky","anakin"],
-  },
-  '0232-mbavblooddrivenurse': {
-    name: "Blood Drive &", bgID: "0232-mbavblooddrivenurse", frames: 2, delay: 13, colour: "#280000", font: "hydratinglip", fontsize: 13, x: -12, y: 0, tags: ["fandom","spooky","anakin"],
-  },
   '0231-treeforest': {
     name: "Forest Walker", bgID: "0231-treeforest", frames: 2, delay: 18, colour: "#1d592b", font: "alagard", fontsize: 16, x: -20, y: -1, outline: "#b7f0bd", tags: ["nature","user","proxy"],
   },
@@ -232,12 +202,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   },
   '0216-cinderella': {
     name: "Cinderella", bgID: "0216-cinderella", frames: 2, delay: 10, colour: "#56bae4", font: "alagard", fontsize: 16, x: -12, y: -1, tags: ["occasion","fandom","anakin"],
-  },
-  '0215-pridetransparent': {
-    name: "{   Rainbow  Flag   }", bgID: "0215-pridetransparent", frames: 8, delay: 10, colour: ["#f03e3d","#fe5722","#feeb3b","#4caf50","#03a9f3","#3f51b5","#673ab7","#ea6793"], font: "{pixelflag}", fontsize: 16, x: -1, y: 0, tags: ["rainbow","plain","anakin"],
-  },
-  '0214-rainbowtransparent': {
-    name: "{   Rainbow  Banner   }", bgID: "0214-rainbowtransparent", frames: 6, delay: 10, colour: ["#f06292","#ff9800","#ffeb3b","#76ff03","#00bcd4","#e040fb"], font: "{pixelflag}", fontsize: 16, x: -1, y: 0, tags: ["rainbow","plain","anakin"],
   },
   '0206-nyancat': {
     name: "Nyan Nyan Nyan", bgID: "0206-nyancat", frames: 12, delay: 6, colour: "#ffffff", font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 14, y: 1, outline: "#013368", tags: ["rainbow","anakin"],
@@ -344,9 +308,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0178-mikuwink2': {
     name: "Miku fan!!", bgID: "0178-mikuwink2", frames: 10, delay: 10, colour: ["#16446d","#16446d","#16446d","#16446d","#16446d","#16446d","#16446d","#16446d","#16446d","#16446d"], font: "grapesoda", fontsize: 16, x: -29, y: 0, tags: ["fandom"],
   },
-  '0160-pupgender': {
-    name: "pupgender pride", bgID: "0160-pupgender", frames: 2, delay: 10, colour: ["#fe5852","#fe5852"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -13, y: 0, tags: ["flag"],
-  },
   '0177-splatoonoctolingyellow': {
     name: "u octopi my <3", bgID: "0177-splatoonoctolingyellow", frames: 2, delay: 10, colour: ["#ffffff","#ffffff"], font: "hydratinglip", fontsize: 13, x: 0, y: 0, outline: ["#000000","#000000"], tags: ["fandom","anakin"],
   },
@@ -368,29 +329,17 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0171-jerma': {
     name: "JERMA985", bgID: "0171-jerma", frames: 2, delay: 10, colour: ["#1faab8","#1faab8"], font: "grapesoda", fontsize: 16, x: -3, y: 0, shadow: ["#085e80","#085e80"], shadowx: 1, shadowy: 1, tags: ["fandom","anakin"],
   },
-  '0142-virusgender': {
-    name: "i'm a virus", bgID: "0142-virusgender", frames: 2, delay: 10, colour: ["#00adac","#00adac"], font: "green screen", fontsize: 12, x: 0, y: 0, outline: ["#000000","#000000"], tags: ["flag"],
-  },
-  '0170-bigender': {
-    name: "bigender pride", bgID: "0170-bigender", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff"], tags: ["lgbtq","flag"],
-  },
   '0169-topsurgery': {
     name: "top surgery :D", bgID: "0169-topsurgery", frames: 2, delay: 10, colour: ["#a22633","#a22633"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -14, y: 0, tags: ["lgbtq","occasion"],
   },
   '0143-webkinz': {
     name: "Webkinz", bgID: "0143-webkinz", frames: 2, delay: 10, colour: ["#ffffff","#ffffff"], font: "grapesoda", fontsize: 16, x: -15, y: 0, outline: ["#1014a9","#1014a9"], tags: ["fandom"],
   },
-  '0168-catgender': {
-    name: "you know, like *nya*", bgID: "0168-catgender", frames: 2, delay: 10, colour: ["#ffffff","#ffffff"], font: "moonaco", fontsize: 16, x: -11, y: 0, outline: ["#000000","#000000"], tags: ["flag"],
-  },
   '0163-cherry': {
     name: "cherry flavoured love", bgID: "0163-cherry", frames: 2, delay: 20, colour: ["#ff004c","#ff004c"], font: "moonaco", fontsize: 16, x: 11, y: 0, tags: ["food"],
   },
   '0162-cherry': {
     name: "cherry kisses", bgID: "0162-cherry", frames: 2, delay: 20, colour: ["#ff004c","#ff004c"], font: "moonaco", fontsize: 16, x: 0, y: 0, tags: ["food"],
-  },
-  '0161-genderqueer': {
-    name: "genderqueer pride", bgID: "0161-genderqueer", frames: 2, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","ceoofcrimes","user"],
   },
   '0152-honeyslime': {
     name: "sweet as honey", bgID: "0152-honeyslime", frames: 2, delay: 20, colour: ["#531007","#531007"], font: "hydratinglip", fontsize: 13, x: -1, y: 0, tags: ["fandom","otigan","user"],
@@ -415,9 +364,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   },
   '0140-hsroxy': {
     name: "rogue of void", bgID: "0140-hsroxy", frames: 2, delay: 10, colour: ["#ff6ff2","#ff6ff2"], font: "monogramextended", fontsize: 16, x: -14, y: 1, tags: ["fandom"],
-  },
-  '0139-robotgender': {
-    name: "my gender is robot lol", bgID: "0139-robotgender", frames: 2, delay: 10, colour: ["#ffffff","#ffffff"], font: "moonaco", fontsize: 16, x: -12, y: 0, outline: ["#000000","#000000"], tags: ["flag"],
   },
   '0159-toontrap': {
     name: "i love trap gags", bgID: "0159-toontrap", frames: 2, delay: 10, colour: ["#9a1d1b","#9a1d1b"], font: "grapesoda", fontsize: 16, x: 0, y: 0, tags: ["fandom","anakin"],
@@ -458,14 +404,8 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0144-pokeball': {
     name: "I choose you!! <3", bgID: "0144-pokeball", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "grapesoda", fontsize: 16, x: -9, y: 0, tags: ["fandom","pokemon"],
   },
-  '0141-digigender': {
-    name: "i'm digital", bgID: "0141-digigender", frames: 4, delay: 10, colour: ["#000000","#000000","#000000","#000000"], font: "green screen", fontsize: 12, x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["flag"],
-  },
   '0136-clock': {
     name: "This user is time blind", bgID: "0136-clock", frames: 8, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000","#000000","#000000","#000000"], font: "moonaco", fontsize: 16, x: 7, y: 0, tags: [],
-  },
-  '0137-catgender': {
-    name: "you know, like *nya*", bgID: "0137-catgender", frames: 2, delay: 10, colour: ["#ffffff","#ffffff"], font: "moonaco", fontsize: 16, x: -13, y: 0, outline: ["#000000","#000000"], tags: ["flag"],
   },
   '0149-ty': {
     name: "I /heart beanie babies", bgID: "0149-ty", frames: 2, delay: 10, colour: ["#ff0606","#ff0606"], font: "moonaco", fontsize: 16, x: 11, y: 0, tags: ["fandom","anakin"],
@@ -551,9 +491,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0109-gradientgreen': {
     name: "Verdant Zenith", bgID: "0109-gradientgreen", frames: 2, delay: 10, colour: ["#165a4c","#165a4c"], font: "moonaco", fontsize: 16, x: 0, y: 0, tags: ["plain","anakin"],
   },
-  '0108-crewmate': {
-    name: "happy pride!!", bgID: "0108-crewmate", frames: 8, delay: 10, colour: ["#03a9f3","#3f51b5","#673ab7","#ea6793","#f03e3d","#fe5722","#feeb3b","#4caf50"], font: "04b_19", fontsize: 14, x: 0, y: 0, tags: ["rainbow","occasion","fandom","anakin"],
-  },
   '0107-gradientorange': {
     name: "Radiant Dawn", bgID: "0107-gradientorange", frames: 2, delay: 10, colour: ["#7a183f","#7a183f"], font: "moonaco", fontsize: 16, x: 0, y: 0, tags: ["plain","anakin"],
   },
@@ -610,57 +547,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   },
   '0089-kiss': {
     name: "*~ mwah!! ~*", bgID: "0089-kiss", frames: 3, delay: 22, colour: ["#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["love","pink"],
-  },
-  '0084-agender': {
-    name: "agender pride", bgID: "0084-agender", frames: 6, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0087-demisexual': {
-    name: "demisexual pride", bgID: "0087-demisexual", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -12, y: 0, outline: ["#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0083-demiromantic': {
-    name: "demiromantic pride", bgID: "0083-demiromantic", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -12, y: 0, outline: ["#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0082-aromantic': {
-    name: "aromantic pride", bgID: "0082-aromantic", frames: 4, delay: 10, colour: ["#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0081-asexual': {
-    name: "asexual pride", bgID: "0081-asexual", frames: 4, delay: 10, colour: ["#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0080-genderfluid': {
-    name: "genderfluid pride", bgID: "0080-genderfluid", frames: 4, delay: 10, colour: ["#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0079-nonbinary': {
-    name: "non-binary pride", bgID: "0079-nonbinary", frames: 4, delay: 10, colour: ["#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0078-intersex': {
-    name: "intersex pride", bgID: "0078-intersex", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: -12, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0077-demiboy': {
-    name: "demiboy pride", bgID: "0077-demiboy", frames: 5, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0076-demigirl': {
-    name: "demigirl pride", bgID: "0076-demigirl", frames: 5, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0075-demigender': {
-    name: "demigender pride", bgID: "0075-demigender", frames: 5, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0074-pan': {
-    name: "pan pride", bgID: "0074-pan", frames: 3, delay: 10, colour: ["#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag","anakin"],
-  },
-  '0073-gay': {
-    name: "gay pride", bgID: "0073-gay", frames: 4, delay: 10, colour: ["#ffffff","#ffffff","#ffffff","#ffffff"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#000000","#000000","#000000","#000000"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0072-lesbian': {
-    name: "lesbian pride", bgID: "0072-lesbian", frames: 5, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#ffffff","#ffffff","#ffffff","#ffffff","#ffffff"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0071-bi': {
-    name: "bi pride", bgID: "0071-bi", frames: 5, delay: 10, colour: ["#ffffff","#ffffff","#ffffff","#ffffff","#ffffff"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#000000","#000000","#000000","#000000","#000000"], tags: ["lgbtq","flag","anakin"],
-  },
-  '0023-trans-pride': {
-    name: "this user is trains", bgID: "0023-trans-pride", frames: 5, delay: 10, colour: ["#000000","#000000","#000000","#000000","#000000"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, tags: ["lgbtq","flag"],
-  },
-  '0014-pride': {
-    name: "kinda gay tbh...", bgID: "0014-pride", frames: 4, delay: 10, colour: ["#ffffff","#ffffff","#ffffff","#ffffff"], font: "pixeloid sans", fontsize: 9, fontweight: "bold", x: 0, y: 0, outline: ["#000000","#000000","#000000","#000000"], tags: ["lgbtq","flag"],
   },
   '0088-cow': {
     name: "happy MOO 2 U !!!", bgID: "0088-cow", frames: 2, delay: 10, colour: ["#000000","#000000"], font: "pixeloid sans", fontsize: 9, x: -14, y: 0, tags: ["nature"],
