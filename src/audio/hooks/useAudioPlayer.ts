@@ -61,6 +61,11 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
   // Stable ref for onEnded to avoid re-running effect on every render
   const onEndedRef = useRef(onEnded)
   onEndedRef.current = onEnded
+  // Stable ref for embedPlayback — avoids re-triggering the init effect when
+  // the provider context value changes (which happens on every setActiveEmbed
+  // call because activeEmbedId state creates a new context object).
+  const embedPlaybackRef = useRef(embedPlayback)
+  embedPlaybackRef.current = embedPlayback
 
   // Initialize engine eagerly on mount — AudioContext is created here.
   // On desktop, context starts running. On mobile, browser auto-suspends it.
@@ -90,8 +95,8 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       onEnded: () => {
         setIsPlaying(false)
         setProgress(1)
-        if (embedPlayback) {
-          embedPlayback.clearActiveEmbed(cardId)
+        if (embedPlaybackRef.current) {
+          embedPlaybackRef.current.clearActiveEmbed(cardId)
         }
         if (onEndedRef.current) {
           onEndedRef.current()
@@ -103,7 +108,7 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       }
     })
 
-    // Clean up on unmount
+    // Clean up on unmount only (not on dependency changes)
     return () => {
       // Pause playback
       if (engine.isPlaying()) {
@@ -111,16 +116,16 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       }
 
       // Unregister from EmbedPlaybackProvider
-      if (embedPlayback) {
-        embedPlayback.unregisterEmbed(cardId)
+      if (embedPlaybackRef.current) {
+        embedPlaybackRef.current.unregisterEmbed(cardId)
       }
     }
-  }, [cardId, embedPlayback])
+  }, [cardId])
 
-  // Register with EmbedPlaybackProvider
+  // Register with EmbedPlaybackProvider (uses ref to avoid re-triggering on context changes)
   useEffect(() => {
-    if (embedPlayback) {
-      embedPlayback.registerEmbed(cardId, () => {
+    if (embedPlaybackRef.current) {
+      embedPlaybackRef.current.registerEmbed(cardId, () => {
         // Pause callback for coordination
         const engine = engineRef.current
         if (engine.isPlaying()) {
@@ -131,11 +136,11 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
 
     return () => {
-      if (embedPlayback) {
-        embedPlayback.unregisterEmbed(cardId)
+      if (embedPlaybackRef.current) {
+        embedPlaybackRef.current.unregisterEmbed(cardId)
       }
     }
-  }, [cardId, embedPlayback])
+  }, [cardId])
 
   // Load track when URL changes
   useEffect(() => {
@@ -180,10 +185,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     }
   }, [])
 
-  // Play — calls engine.play() which is async (matches Munyard Mixer's playAll).
-  // The hook fires it without await (fire-and-forget). The first call inside
-  // engine.play() is always a media activation (audio.play on iOS, or
-  // context.resume on Android) which IS in the user gesture callstack.
+  // Play — MUST be synchronous. engine.play() calls context.resume()
+  // synchronously in the user gesture callstack. Making this async or
+  // adding awaits before play() breaks mobile browser gesture detection.
   const play = useCallback(() => {
     const engine = engineRef.current
 
@@ -192,12 +196,8 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       embedPlayback.setActiveEmbed(cardId)
     }
 
-    // Fire-and-forget — engine.play() handles iOS unlock + context resume + play.
-    // Catch errors to reset playing state if something fails.
-    engine.play().catch((error) => {
-      console.error('Failed to play:', error)
-      setIsPlaying(false)
-    })
+    // Synchronous — context.resume() must be in user gesture callstack
+    engine.play()
     setIsPlaying(true)
 
     if (onPlay) {
