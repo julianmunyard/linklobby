@@ -10,6 +10,10 @@ import { usePageStore } from '@/stores/page-store'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import { ScatterCard } from './scatter-card'
 
+// Max width for position mapping — matches StaticScatterCanvas on the public page.
+// On wide screens (desktop preview), the layout stays phone-sized and centers.
+const MOBILE_MAX_WIDTH = 500
+
 interface ScatterCanvasProps {
   cards: Card[]
 }
@@ -17,7 +21,6 @@ interface ScatterCanvasProps {
 export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [canvasWidth, setCanvasWidth] = useState(0)
-  const [referenceHeight, setReferenceHeight] = useState(0)  // Width-based reference for y-coordinate mapping (matches public page)
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [arrangeMode, setArrangeMode] = useState(true)
 
@@ -47,14 +50,14 @@ export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
   const updateCardScatterPosition = usePageStore((state) => state.updateCardScatterPosition)
   const selectCard = usePageStore((state) => state.selectCard)
 
-  // referenceHeight is derived from canvasWidth so the coordinate system
-  // is purely width-relative. This ensures the preview iframe (375×667)
-  // produces identical positions to the public page (real viewport).
-  useEffect(() => {
-    if (canvasWidth > 0) {
-      setReferenceHeight(canvasWidth)
-    }
-  }, [canvasWidth])
+  // Positioning reference: capped at phone width on desktop preview.
+  // On phones / mobile preview this equals canvasWidth (no change).
+  // On desktop preview it's MOBILE_MAX_WIDTH, matching the public page.
+  const positioningWidth = Math.min(canvasWidth, MOBILE_MAX_WIDTH)
+  // Center offset: pushes the phone-width layout to the center on wide screens
+  const centerOffset = (canvasWidth - positioningWidth) / 2
+  // Y reference equals positioning width (width-based, matches public page)
+  const referenceHeight = positioningWidth
 
   // Measure canvas width with ResizeObserver (for x-coordinate mapping)
   useEffect(() => {
@@ -276,8 +279,9 @@ export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
             cardIndex={index}
             totalCards={visibleCards.length}
             themeId={themeId}
-            canvasWidth={canvasWidth}
+            canvasWidth={positioningWidth}
             referenceHeight={referenceHeight}
+            centerOffset={centerOffset}
             maxZIndex={maxZIndex}
             isSelected={selectedCardId === card.id}
             arrangeMode={arrangeMode}

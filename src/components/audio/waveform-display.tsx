@@ -108,7 +108,7 @@ export function WaveformDisplay({
   }, [isDragging])
 
   return (
-    <div className={`${isCompact ? 'space-y-1' : 'space-y-2'} ${className}`}>
+    <div data-no-drag className={`${isCompact ? 'space-y-1' : 'space-y-2'} ${className}`}>
       {/* Waveform or Progress Bar */}
       <div
         ref={containerRef}

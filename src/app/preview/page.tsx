@@ -494,36 +494,38 @@ function PreviewContent() {
             '--page-padding-x': '1rem',
           } as React.CSSProperties}
         >
-            <ProfileHeader />
-            {!hasCards ? (
-              <div className="flex flex-col items-center justify-center min-h-full text-center">
-                <div className="rounded-full bg-muted p-6 mb-4">
-                  <svg className="h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
+            <div className="max-w-[500px] mx-auto w-full">
+              <ProfileHeader />
+              {!hasCards ? (
+                <div className="flex flex-col items-center justify-center min-h-full text-center">
+                  <div className="rounded-full bg-muted p-6 mb-4">
+                    <svg className="h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
+                  <p className="text-muted-foreground text-sm max-w-[300px]">Add cards in the editor to build your link-in-bio page.</p>
                 </div>
-                <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
-                <p className="text-muted-foreground text-sm max-w-[300px]">Add cards in the editor to build your link-in-bio page.</p>
-              </div>
-            ) : scatterMode && isScatterTheme(themeId) ? (
-              <ScatterCanvas cards={state.cards} />
-            ) : (
-              <SelectableFlowGrid
-                cards={state.cards}
-                selectedCardId={state.selectedCardId}
-                onReorder={(activeId, overId) => {
-                  if (window.parent !== window) {
-                    window.parent.postMessage({ type: "REORDER_CARDS", payload: { activeId, overId } }, window.location.origin)
-                  }
-                }}
-                onReorderMultiple={(cardIds, targetIndex) => {
-                  if (window.parent !== window) {
-                    window.parent.postMessage({ type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } }, window.location.origin)
-                  }
-                }}
-                onCardClick={handleCardClick}
-              />
-            )}
+              ) : scatterMode && isScatterTheme(themeId) ? (
+                <ScatterCanvas cards={state.cards} />
+              ) : (
+                <SelectableFlowGrid
+                  cards={state.cards}
+                  selectedCardId={state.selectedCardId}
+                  onReorder={(activeId, overId) => {
+                    if (window.parent !== window) {
+                      window.parent.postMessage({ type: "REORDER_CARDS", payload: { activeId, overId } }, window.location.origin)
+                    }
+                  }}
+                  onReorderMultiple={(cardIds, targetIndex) => {
+                    if (window.parent !== window) {
+                      window.parent.postMessage({ type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } }, window.location.origin)
+                    }
+                  }}
+                  onCardClick={handleCardClick}
+                />
+              )}
+            </div>
         </div>
 
         {/* Noise overlay */}
@@ -564,61 +566,63 @@ function PreviewContent() {
         {/* Dim overlay */}
         <DimOverlay />
 
-        {/* Profile Header at top */}
-        <ProfileHeader />
+        <div className="max-w-[500px] mx-auto w-full">
+          {/* Profile Header at top */}
+          <ProfileHeader />
 
-        {!hasCards ? (
-          // Empty state when no cards
-          <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-            <div className="rounded-full bg-muted p-6 mb-4">
-              <svg
-                className="h-12 w-12 text-muted-foreground"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
+          {!hasCards ? (
+            // Empty state when no cards
+            <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+              <div className="rounded-full bg-muted p-6 mb-4">
+                <svg
+                  className="h-12 w-12 text-muted-foreground"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
+              <p className="text-muted-foreground text-sm max-w-[300px]">
+                Add cards in the editor to build your link-in-bio page. Changes will appear here in real-time.
+              </p>
             </div>
-            <h2 className="text-lg font-semibold mb-2">Your page is empty</h2>
-            <p className="text-muted-foreground text-sm max-w-[300px]">
-              Add cards in the editor to build your link-in-bio page. Changes will appear here in real-time.
-            </p>
-          </div>
-        ) : scatterMode && isScatterTheme(themeId) ? (
-          // Scatter mode: freeform card positioning
-          <ScatterCanvas cards={state.cards} />
-        ) : (
-          // Flow mode: card rendering using SelectableFlowGrid with box selection and shift-click
-          <SelectableFlowGrid
-            cards={state.cards}
-            selectedCardId={state.selectedCardId}
-            onReorder={(activeId, overId) => {
-              // Send reorder message to parent editor
-              if (window.parent !== window) {
-                window.parent.postMessage(
-                  { type: "REORDER_CARDS", payload: { activeId, overId } },
-                  window.location.origin
-                )
-              }
-            }}
-            onReorderMultiple={(cardIds, targetIndex) => {
-              // Send multi-reorder message to parent editor
-              if (window.parent !== window) {
-                window.parent.postMessage(
-                  { type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } },
-                  window.location.origin
-                )
-              }
-            }}
-            onCardClick={handleCardClick}
-          />
-        )}
+          ) : scatterMode && isScatterTheme(themeId) ? (
+            // Scatter mode: freeform card positioning
+            <ScatterCanvas cards={state.cards} />
+          ) : (
+            // Flow mode: card rendering using SelectableFlowGrid with box selection and shift-click
+            <SelectableFlowGrid
+              cards={state.cards}
+              selectedCardId={state.selectedCardId}
+              onReorder={(activeId, overId) => {
+                // Send reorder message to parent editor
+                if (window.parent !== window) {
+                  window.parent.postMessage(
+                    { type: "REORDER_CARDS", payload: { activeId, overId } },
+                    window.location.origin
+                  )
+                }
+              }}
+              onReorderMultiple={(cardIds, targetIndex) => {
+                // Send multi-reorder message to parent editor
+                if (window.parent !== window) {
+                  window.parent.postMessage(
+                    { type: "REORDER_MULTIPLE_CARDS", payload: { cardIds, targetIndex } },
+                    window.location.origin
+                  )
+                }
+              }}
+              onCardClick={handleCardClick}
+            />
+          )}
+        </div>
       </div>
 
       {/* Noise overlay */}

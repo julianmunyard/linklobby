@@ -315,7 +315,7 @@ class AudioEngine {
           // Schedule next verification
           this.schedulePlaybackVerification(attempt + 1)
         } else {
-          console.error(`AudioEngine: playback failed after ${maxAttempts} attempts (context: ${ctxState})`)
+          console.warn(`AudioEngine: playback not progressing after ${maxAttempts} attempts (context: ${ctxState})`)
         }
       }
     }, delay)

@@ -37,7 +37,7 @@ export function TrackList({
   const bgColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div data-no-drag className={`space-y-1 ${className}`}>
       {tracks.map((track, index) => {
         const isCurrent = index === currentTrackIndex
 

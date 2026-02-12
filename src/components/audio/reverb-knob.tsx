@@ -95,7 +95,7 @@ export function ReverbKnob({
   const indicatorEnd = knobCenter - knobRadius + 2
 
   return (
-    <div className={`flex flex-col items-center ${isCompact ? 'gap-0.5' : 'gap-2'} ${className}`}>
+    <div data-no-drag className={`flex flex-col items-center ${isCompact ? 'gap-0.5' : 'gap-2'} ${className}`}>
       {/* Knob */}
       <div
         ref={knobRef}

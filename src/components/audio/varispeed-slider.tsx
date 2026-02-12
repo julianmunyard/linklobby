@@ -65,7 +65,7 @@ export function VarispeedSlider({
   const filledPercent = ((speed - 0.5) / (1.5 - 0.5)) * 100
 
   return (
-    <div className={`flex flex-col ${isCompact ? 'gap-1' : 'gap-2'} ${className}`}>
+    <div data-no-drag className={`flex flex-col ${isCompact ? 'gap-1' : 'gap-2'} ${className}`}>
       {/* Speed display and mode toggle */}
       <div className="flex items-center justify-between">
         <span className={`font-mono font-bold ${isCompact ? 'text-xs' : 'text-sm'}`} style={{ color: activeColor }}>

@@ -40,6 +40,7 @@ interface AudioPlayerProps {
   showWaveform?: boolean
   looping?: boolean
   autoplay?: boolean
+  transparentBackground?: boolean
   reverbConfig?: ReverbConfig
   playerColors?: AudioCardContent['playerColors']
   cardId: string
@@ -56,6 +57,7 @@ export function AudioPlayer({
   showWaveform = true,
   looping = false,
   autoplay = false,
+  transparentBackground = false,
   reverbConfig,
   playerColors,
   cardId,
@@ -149,7 +151,7 @@ export function AudioPlayer({
   // Color overrides per theme
   // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
   const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : isIpodClassic ? 'var(--theme-text, #3d3c39)' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
-  const effectiveElementBgColor = (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
+  const effectiveElementBgColor = transparentBackground ? 'transparent' : (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
   if (isVcr) {
@@ -316,7 +318,7 @@ export function AudioPlayer({
     return (
       <div
         className={cn('flex flex-col gap-1.5 p-2', className)}
-        style={{ ...macFont, background: macBg }}
+        style={{ ...macFont, background: transparentBackground ? 'transparent' : macBg }}
       >
         {/* ── Row 1: PLAY button (left) + Track info (right, ~3/4 width) ── */}
         <div className="flex items-stretch gap-1.5">
@@ -368,7 +370,7 @@ export function AudioPlayer({
         </div>
 
         {/* ── Varispeed slider ── */}
-        <div className="flex items-start gap-1.5">
+        <div data-no-drag className="flex items-start gap-1.5">
           <div className="flex-1 min-w-0 px-1">
             {/* Checkerboard slider with 8-bit rectangle knob */}
             <div className="relative" style={{ height: '28px' }}>
@@ -673,7 +675,7 @@ export function AudioPlayer({
     const psBorder = '1px solid var(--theme-text, #000000)'
     const psRadius = '4px'
     // Button bg — all buttons use card bg, active state is inset shadow only
-    const btnBg = 'var(--theme-card-bg, #F9F0E9)'
+    const btnBg = transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)'
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
@@ -757,7 +759,7 @@ export function AudioPlayer({
                 }}
                 className="poolsuite-transport-btn flex items-center justify-center w-10 h-8"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
+                  backgroundColor: btnBg,
                   borderRight: psBorder,
                   borderRadius: 0,
                 }}
@@ -776,7 +778,7 @@ export function AudioPlayer({
                 }}
                 className="poolsuite-transport-btn flex items-center justify-center w-10 h-8"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
+                  backgroundColor: btnBg,
                   borderRight: psBorder,
                   borderRadius: 0,
                 }}
@@ -806,7 +808,7 @@ export function AudioPlayer({
         </div>
 
         {/* ── Box 3: Progress + Varispeed + Reverb (combined) ── */}
-        <div className="flex items-stretch gap-2">
+        <div data-no-drag className="flex items-stretch gap-2">
           {/* Left: Progress + Varispeed stacked */}
           <div className="flex-1 min-w-0 px-3 py-2" style={psBox}>
             {/* Progress bar (uses WaveformDisplay for full scrub support) */}
@@ -832,7 +834,7 @@ export function AudioPlayer({
                 onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
                 className="poolsuite-transport-btn px-1.5 py-0 text-[8px] uppercase tracking-wider"
                 style={{
-                  backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
+                  backgroundColor: btnBg,
                   color: psColor,
                   borderRadius: '3px',
                 }}
@@ -854,7 +856,7 @@ export function AudioPlayer({
                   className="absolute top-0 left-0 h-full z-[1]"
                   style={{
                     width: `${varispeedPercent}%`,
-                    backgroundColor: 'var(--theme-card-bg, #F9F0E9)',
+                    backgroundColor: transparentBackground ? psColor : btnBg,
                     border: '1px solid var(--theme-text, #000000)',
                     borderRadius: '3px',
                   }}
@@ -965,7 +967,7 @@ export function AudioPlayer({
     return (
       <div
         className={cn('flex flex-col gap-1.5 p-2', className)}
-        style={{ ...ipodFont, background: ipodBg }}
+        style={{ ...ipodFont, background: transparentBackground ? 'transparent' : ipodBg }}
       >
         {/* ── Row 1: PLAY button (left) + Track info (right, ~3/4 width) ── */}
         <div className="flex items-stretch gap-1.5">
@@ -1017,7 +1019,7 @@ export function AudioPlayer({
         </div>
 
         {/* ── Varispeed slider ── */}
-        <div className="flex items-start gap-1.5">
+        <div data-no-drag className="flex items-start gap-1.5">
           <div className="flex-1 min-w-0 px-1">
             {/* Checkerboard slider with 8-bit rectangle knob */}
             <div className="relative" style={{ height: '28px' }}>

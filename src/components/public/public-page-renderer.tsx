@@ -411,7 +411,7 @@ export function PublicPageRenderer({
           paddingBottom: `${frameInsets.bottom}vh`,
         }}
       >
-        <div className="w-full max-w-2xl mx-auto px-4">
+        <div className="w-full max-w-[500px] mx-auto px-4">
           {/* Profile Header */}
           <StaticProfileHeader
             displayName={displayName}
@@ -457,7 +457,7 @@ export function PublicPageRenderer({
   // Default layout (no frame or frame without fit content)
   return (
     <div className="min-h-screen flex flex-col text-theme-text overflow-x-hidden">
-      <div className={`w-full max-w-2xl mx-auto px-4 py-8 flex-1${centerCards ? ' flex flex-col items-center justify-center' : ''}`}>
+      <div className={`w-full max-w-[500px] mx-auto px-4 py-8 flex-1${centerCards ? ' flex flex-col items-center justify-center' : ''}`}>
         {/* Profile Header */}
         <StaticProfileHeader
           displayName={displayName}

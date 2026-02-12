@@ -12,8 +12,9 @@ interface ScatterCardProps {
   cardIndex: number
   totalCards: number
   themeId: string
-  canvasWidth: number
-  referenceHeight: number  // Width-based reference for y-coordinate mapping (equals canvasWidth for consistency)
+  canvasWidth: number      // Positioning width (may be capped at MOBILE_MAX_WIDTH on wide screens)
+  referenceHeight: number  // Width-based reference for y-coordinate mapping (equals canvasWidth)
+  centerOffset: number     // Horizontal offset to center phone-width layout on wide screens (0 on mobile)
   maxZIndex: number
   isSelected: boolean
   arrangeMode: boolean
@@ -56,6 +57,7 @@ export function ScatterCard({
   themeId,
   canvasWidth,
   referenceHeight,
+  centerOffset,
   maxZIndex,
   isSelected,
   arrangeMode,
@@ -81,8 +83,8 @@ export function ScatterCard({
   const scatterPos = scatterLayouts[themeId] || getDefaultPosition(cardIndex, card)
 
   // Convert percentage positions to pixels
-  // x maps to canvas width; y maps to referenceHeight (equals canvasWidth for consistency)
-  const pixelX = (scatterPos.x / 100) * canvasWidth
+  // x maps to canvasWidth (positioning width) offset by centerOffset; y maps to referenceHeight
+  const pixelX = centerOffset + (scatterPos.x / 100) * canvasWidth
   const pixelY = (scatterPos.y / 100) * referenceHeight
   // Scale: width as fraction (1.0 = full canvas for regular, 1.0 = natural size for fit-content)
   const scale = scatterPos.width / 100
@@ -128,8 +130,8 @@ export function ScatterCard({
       const tx = pixelX + dx
       const ty = pixelY + dy
       const visualW = elW * scale
-      const maxTx = Math.max(0, canvasWidth - visualW)
-      const cx = Math.max(0, Math.min(maxTx, tx))
+      const maxTx = Math.max(centerOffset, centerOffset + canvasWidth - visualW)
+      const cx = Math.max(centerOffset, Math.min(maxTx, tx))
       const cy = Math.max(0, ty)
       lastTx = cx
       lastTy = cy
@@ -149,7 +151,7 @@ export function ScatterCard({
 
       el.style.transform = `translate(${lastTx}px, ${lastTy}px) scale(${scale})`
       onUpdate(card.id, {
-        x: (lastTx / canvasWidth) * 100,
+        x: ((lastTx - centerOffset) / canvasWidth) * 100,
         y: (lastTy / referenceHeight) * 100,
         zIndex: maxZIndex + 1,
       })
@@ -157,7 +159,7 @@ export function ScatterCard({
 
     document.addEventListener('pointermove', onMove)
     document.addEventListener('pointerup', onUp)
-  }, [isDragMode, pixelX, pixelY, scale, canvasWidth, referenceHeight, scatterPos.zIndex, maxZIndex, card.id, onUpdate, onTap])
+  }, [isDragMode, pixelX, pixelY, scale, canvasWidth, centerOffset, referenceHeight, scatterPos.zIndex, maxZIndex, card.id, onUpdate, onTap])
 
   // Should Moveable render? For interactive cards, ONLY in resize mode (never drag).
   // Moveable's event interception (preventDefault on Gesto) blocks audio/video controls.
@@ -248,8 +250,8 @@ export function ScatterCard({
             const [tx, ty] = e.translate
             const { w } = cachedDims.current
             const visualW = w * scale
-            const maxTx = Math.max(0, canvasWidth - visualW)
-            const cx = Math.max(0, Math.min(maxTx, tx))
+            const maxTx = Math.max(centerOffset, centerOffset + canvasWidth - visualW)
+            const cx = Math.max(centerOffset, Math.min(maxTx, tx))
             const cy = Math.max(0, ty)
             e.target.style.transform = `translate(${cx}px, ${cy}px) scale(${scale})`
           }}
@@ -262,12 +264,12 @@ export function ScatterCard({
             const [tx, ty] = e.lastEvent.translate
             const { w } = cachedDims.current
             const visualW = w * scale
-            const maxTx = Math.max(0, canvasWidth - visualW)
-            const cx = Math.max(0, Math.min(maxTx, tx))
+            const maxTx = Math.max(centerOffset, centerOffset + canvasWidth - visualW)
+            const cx = Math.max(centerOffset, Math.min(maxTx, tx))
             const cy = Math.max(0, ty)
             e.target.style.transform = `translate(${cx}px, ${cy}px) scale(${scale})`
             onUpdate(card.id, {
-              x: (cx / canvasWidth) * 100,
+              x: ((cx - centerOffset) / canvasWidth) * 100,
               y: (cy / referenceHeight) * 100,
               zIndex: maxZIndex + 1,
             })
@@ -294,13 +296,13 @@ export function ScatterCard({
             const newScale = newWidth / 100
             const { w } = cachedDims.current
             const visualW = w * newScale
-            const maxTx = Math.max(0, canvasWidth - visualW)
-            const cx = Math.max(0, Math.min(maxTx, tx))
+            const maxTx = Math.max(centerOffset, centerOffset + canvasWidth - visualW)
+            const cx = Math.max(centerOffset, Math.min(maxTx, tx))
             const cy = Math.max(0, ty)
             e.target.style.transform = `translate(${cx}px, ${cy}px) scale(${newScale})`
             onUpdate(card.id, {
               width: newWidth,
-              x: (cx / canvasWidth) * 100,
+              x: ((cx - centerOffset) / canvasWidth) * 100,
               y: (cy / referenceHeight) * 100,
               zIndex: maxZIndex + 1,
             })
