@@ -126,7 +126,8 @@ export function VarispeedSlider({
                 style={{
                   background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${filledPercent}%, transparent ${filledPercent}%, transparent 100%)`,
                   WebkitAppearance: 'none',
-                  outline: 'none'
+                  outline: 'none',
+                  touchAction: 'none',
                 }}
               />
             </div>
@@ -142,7 +143,8 @@ export function VarispeedSlider({
               style={{
                 background: `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${filledPercent}%, ${bgColor} ${filledPercent}%, ${bgColor} 100%)`,
                 WebkitAppearance: 'none',
-                outline: 'none'
+                outline: 'none',
+                touchAction: 'none',
               }}
             />
           )}

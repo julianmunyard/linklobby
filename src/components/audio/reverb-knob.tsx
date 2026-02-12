@@ -100,7 +100,7 @@ export function ReverbKnob({
       <div
         ref={knobRef}
         className="relative cursor-pointer select-none"
-        style={{ width: knobSize, height: knobSize }}
+        style={{ width: knobSize, height: knobSize, touchAction: 'none' }}
         onMouseDown={(e) => handleStart(e.clientY)}
         onTouchStart={(e) => handleStart(e.touches[0].clientY)}
       >
@@ -111,10 +111,10 @@ export function ReverbKnob({
             const tickAngle = minAngle + ((maxAngle - minAngle) / tickCount) * i
             const tickRad = ((tickAngle - 90) * Math.PI) / 180
 
-            const x1 = knobCenter + innerTickR * Math.cos(tickRad)
-            const y1 = knobCenter + innerTickR * Math.sin(tickRad)
-            const x2 = knobCenter + outerTickR * Math.cos(tickRad)
-            const y2 = knobCenter + outerTickR * Math.sin(tickRad)
+            const x1 = Math.round((knobCenter + innerTickR * Math.cos(tickRad)) * 100) / 100
+            const y1 = Math.round((knobCenter + innerTickR * Math.sin(tickRad)) * 100) / 100
+            const x2 = Math.round((knobCenter + outerTickR * Math.cos(tickRad)) * 100) / 100
+            const y2 = Math.round((knobCenter + outerTickR * Math.sin(tickRad)) * 100) / 100
 
             return (
               <line
