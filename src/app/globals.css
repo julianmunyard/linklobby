@@ -78,6 +78,118 @@ html, body {
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'offical emotes.';
+  src: url('/fonts/offical-emotes.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'monogramextended';
+  src: url('/fonts/monogram-extended.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'lanapixel';
+  src: url('/fonts/LanaPixel.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'pixelpoiiz';
+  src: url('/fonts/pixelpoiiz.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'doublehomicide';
+  src: url('/fonts/DoubleHomicide.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'hydratinglip';
+  src: url('/fonts/HydratingLip.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'fipps';
+  src: url('/fonts/Fipps-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fipps';
+  src: url('/fonts/Fipps-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'pixel icons compilation';
+  src: url('/fonts/Pixel Icons Compilation.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: '{pixelflag}';
+  src: url('/fonts/{PixelFlag}.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'green screen';
+  src: url('/fonts/Greenscr.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'digitaldisco';
+  src: url('/fonts/DigitalDisco.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: '04b_19';
+  src: url('/fonts/04B_19__.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'bm army';
+  src: url('/fonts/BMarmy.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'hud';
+  src: url('/fonts/hud.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dogica';
+  src: url('/fonts/dogica.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* VCR Menu Font */
 @font-face {

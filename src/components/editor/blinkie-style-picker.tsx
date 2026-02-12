@@ -3,7 +3,7 @@
 
 import { useRef, useEffect } from 'react'
 import { Label } from '@/components/ui/label'
-import { BLINKIE_STYLES, type BlinkieStyleDef } from '@/components/cards/blinkie-link'
+import { BLINKIE_STYLES, type BlinkieStyleDef } from '@/data/blinkie-styles'
 import { cn } from '@/lib/utils'
 
 interface BlinkieStylePickerProps {
