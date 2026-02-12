@@ -105,7 +105,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
         const scatterPos = scatterLayouts[themeId]
         if (scatterPos && containerWidth > 0 && referenceHeight > 0) {
-          const cardRenderW = Math.min(512, containerWidth)
+          const cardRenderW = containerWidth
           const scale = scatterPos.width / 100
           const storedPxX = (scatterPos.x / 100) * containerWidth
           const storedPxY = (scatterPos.y / 100) * referenceHeight

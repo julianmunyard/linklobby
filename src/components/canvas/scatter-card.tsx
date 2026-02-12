@@ -13,7 +13,7 @@ interface ScatterCardProps {
   totalCards: number
   themeId: string
   canvasWidth: number
-  referenceHeight: number  // Fixed viewport height for y-coordinate mapping (canvas can grow beyond this)
+  referenceHeight: number  // Width-based reference for y-coordinate mapping (equals canvasWidth for consistency)
   maxZIndex: number
   isSelected: boolean
   arrangeMode: boolean
@@ -81,7 +81,7 @@ export function ScatterCard({
   const scatterPos = scatterLayouts[themeId] || getDefaultPosition(cardIndex, card)
 
   // Convert percentage positions to pixels
-  // x maps to canvas width; y maps to referenceHeight (viewport height, stable reference)
+  // x maps to canvas width; y maps to referenceHeight (equals canvasWidth for consistency)
   const pixelX = (scatterPos.x / 100) * canvasWidth
   const pixelY = (scatterPos.y / 100) * referenceHeight
   // Scale: width as fraction (1.0 = full canvas for regular, 1.0 = natural size for fit-content)
