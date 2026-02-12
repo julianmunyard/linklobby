@@ -142,8 +142,13 @@ export function ScatterCard({
             }
             const [sx] = e.lastEvent.scale
             const [tx, ty] = e.lastEvent.drag.translate
+            // Regular cards: width is % of canvas (max 100 = full width).
+            // Fit-content cards: width is a scale multiplier (100 = 1x natural size),
+            // so values > 100 are valid (e.g., 150 = 1.5x natural). The Moveable
+            // setMaxScaleSize constraint already limits visual size to canvas width.
+            const maxWidth = isFitContent ? 500 : 100
             onUpdate(card.id, {
-              width: Math.max(15, Math.min(100, sx * 100)),
+              width: Math.max(15, Math.min(maxWidth, sx * 100)),
               x: Math.max(0, (tx / canvasWidth) * 100),
               y: Math.max(0, (ty / canvasHeight) * 100),
               zIndex: maxZIndex + 1,
