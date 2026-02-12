@@ -50,9 +50,13 @@ function BlinkiePreview({ styleDef, label }: { styleDef: BlinkieStyleDef; label:
       const fontSize = Math.min(styleDef.fontsize, 14)
       ctx.font = `${styleDef.fontweight || 'normal'} ${fontSize}px "${styleDef.font}"`
       ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
+      // Use alphabetic baseline + measureText to match ImageMagick's
+      // -gravity Center centering (pixel fonts have unusual em-box metrics)
+      ctx.textBaseline = 'alphabetic'
+      const metrics = ctx.measureText(label)
+      const cy = (H / 2) + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2
       ctx.fillStyle = colours[fi]
-      ctx.fillText(label, W / 2, H / 2)
+      ctx.fillText(label, W / 2, cy)
     }
 
     async function init() {

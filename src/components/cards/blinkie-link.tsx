@@ -250,10 +250,17 @@ export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
       const fontWeight = style.fontweight || 'normal'
       ctx.font = `${fontWeight} ${fontSize}px "${style.font}"`
       ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
+      // Use alphabetic baseline + measureText to match ImageMagick's
+      // -gravity Center, which centers on actual glyph bounds rather
+      // than the em-box middle (pixel fonts have unusual metrics)
+      ctx.textBaseline = 'alphabetic'
 
       const cx = (w / 2) + (style.x * SCALE)
-      const cy = (h / 2) + (style.y * SCALE)
+      const targetCy = (h / 2) + (style.y * SCALE)
+
+      // Compute true visual center Y from actual glyph bounding box
+      const metrics = ctx.measureText(text)
+      const cy = targetCy + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2
 
       // Outline (4 offset copies in cardinal directions)
       if (style.outline) {
