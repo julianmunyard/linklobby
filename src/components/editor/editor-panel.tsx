@@ -43,16 +43,26 @@ function EmptyState({ icon, title, description }: EmptyStateProps) {
 const VALID_TABS = ["links", "design", "schedule", "insights", "settings"]
 
 interface EditorPanelProps {
+  initialTab?: string | null
   initialDesignTab?: string | null
+  onTabConsumed?: () => void
   onDesignTabConsumed?: () => void
 }
 
-export function EditorPanel({ initialDesignTab, onDesignTabConsumed }: EditorPanelProps = {}) {
+export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTabConsumed, onDesignTabConsumed }: EditorPanelProps = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get("tab")
-  const initialTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
-  const [activeTab, setActiveTab] = useState(initialTab)
+  const defaultTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "links"
+  const [activeTab, setActiveTab] = useState(defaultTab)
+
+  // Watch for initialTab prop to switch top-level tab
+  useEffect(() => {
+    if (initialTabProp && VALID_TABS.includes(initialTabProp)) {
+      setActiveTab(initialTabProp)
+      onTabConsumed?.()
+    }
+  }, [initialTabProp, onTabConsumed])
 
   // Watch for initialDesignTab changes
   useEffect(() => {

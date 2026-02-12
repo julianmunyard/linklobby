@@ -72,8 +72,8 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB')
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('Image must be less than 20MB')
       return
     }
 

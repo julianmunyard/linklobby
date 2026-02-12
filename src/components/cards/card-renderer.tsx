@@ -20,9 +20,10 @@ import type { Card } from "@/types/card"
 interface CardRendererProps {
   card: Card
   isPreview?: boolean
+  themeId?: string  // Pass through for public pages where Zustand store isn't available
 }
 
-export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
+export function CardRenderer({ card, isPreview = false, themeId }: CardRendererProps) {
   // Render card content
   let cardContent: React.ReactNode
 
@@ -56,7 +57,7 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
       cardContent = <GameCard card={card} isPreview={isPreview} />
       break
     case "audio":
-      cardContent = <AudioCard card={card} isPreview={isPreview} />
+      cardContent = <AudioCard card={card} isPreview={isPreview} themeIdOverride={themeId} />
       break
     case "music":
       cardContent = <MusicCard card={card} isPreview={isPreview} />
@@ -94,7 +95,7 @@ export function CardRenderer({ card, isPreview = false }: CardRendererProps) {
 
   // Wrap with themed wrapper
   return (
-    <ThemedCardWrapper cardType={card.card_type} content={card.content}>
+    <ThemedCardWrapper cardType={card.card_type} content={card.content} themeIdOverride={themeId}>
       {cardContent}
     </ThemedCardWrapper>
   )

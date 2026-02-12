@@ -158,14 +158,18 @@ export function StaticMacintoshLayout({
     ? {
         position: 'fixed',
         zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
         overflowY: 'auto',
         overflowX: 'hidden',
         width: `${100 - frameInsets.left - frameInsets.right}vw`,
         left: `${frameInsets.left}vw`,
-        top: `${frameInsets.top}vh`,
-        bottom: `${frameInsets.bottom}vh`,
+        top: 0,
+        bottom: 0,
         transform: `scale(${frameZoom}) translate(${framePosX}%, ${framePosY}%)`,
         transformOrigin: 'center center',
+        WebkitOverflowScrolling: 'touch' as const,
+        overscrollBehavior: 'none' as const,
       }
     : {
         position: 'fixed' as const,
@@ -174,6 +178,8 @@ export function StaticMacintoshLayout({
         right: 0,
         bottom: 0,
         zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column' as const,
         overflowY: 'auto' as const,
         overflowX: 'hidden' as const,
         WebkitOverflowScrolling: 'touch' as const,
@@ -197,6 +203,11 @@ export function StaticMacintoshLayout({
         <div className="fixed" style={{ zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh', background: checkerboardBg }} />
       )}
       <div style={contentStyle}>
+      {/* White spacer above menu bar for frame — unified bar with status bar.
+          +1vh buffer clears the frame's curved inner edge on desktop aspect ratios. */}
+      {hasFrame && frameInsets && (
+        <div style={{ height: `${frameInsets.top + 1}vh`, background: '#fff', position: 'sticky', top: 0, zIndex: 101 }} />
+      )}
       {/* Mac Menu Bar */}
       <div
         style={{
@@ -211,7 +222,7 @@ export function StaticMacintoshLayout({
           fontSize: '12px',
           color: '#000',
           position: hasFrame ? 'sticky' : 'fixed',
-          top: 0,
+          top: hasFrame && frameInsets ? `${frameInsets.top + 1}vh` : 0,
           left: 0,
           right: 0,
           zIndex: 100,
@@ -228,7 +239,7 @@ export function StaticMacintoshLayout({
         </div>
       </div>
 
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
       {/* Spacer for fixed menu bar */}
       <div style={{ height: hasFrame ? '24px' : '52px' }} />
 
@@ -259,8 +270,8 @@ export function StaticMacintoshLayout({
         })}
       </div>
 
-      {/* Legal footer */}
-      <footer className="mt-12 pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
+      {/* Legal footer — pinned to bottom via mt-auto */}
+      <footer className="mt-auto pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
         <div className="flex items-center justify-center gap-4" style={{ color: '#000' }}>
           <Link
             href={`/privacy?username=${username}`}
@@ -280,6 +291,10 @@ export function StaticMacintoshLayout({
           Powered by LinkLobby
         </div>
       </footer>
+      {/* Extra padding so last card scrolls clear of frame bottom border */}
+      {hasFrame && frameInsets && (
+        <div style={{ height: `${frameInsets.bottom}vh` }} />
+      )}
       </div>
     </div>
     </>
@@ -924,7 +939,7 @@ function StaticMap({ card }: { card: Card }) {
             position: 'relative',
             overflow: 'hidden',
             cursor: zoom > 1 ? 'grab' : 'default',
-            touchAction: 'none',
+            touchAction: zoom > 1 ? 'none' : 'auto',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

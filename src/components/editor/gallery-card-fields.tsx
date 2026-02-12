@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { useThemeStore } from '@/stores/theme-store'
+import { generateId } from '@/lib/utils'
 import { Circle, Rows3, X, Loader2, Plus, Crop, GripVertical } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
@@ -189,7 +190,7 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard }: Gall
 
         // Create new image entry
         newImages.push({
-          id: crypto.randomUUID(),
+          id: generateId(),
           url: result.url,
           alt: file.name.replace(/\.[^/.]+$/, ''), // filename without extension
           storagePath: result.path,

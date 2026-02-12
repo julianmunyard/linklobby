@@ -1,11 +1,12 @@
 // src/lib/supabase/storage.ts
 import { createClient } from "./client"
+import { generateId } from '@/lib/utils'
 
 const BUCKET_NAME = "card-images"
 const PROFILE_BUCKET = "profile-images"
 const VIDEO_BUCKET = "card-videos"
 const AUDIO_BUCKET = "card-audio"
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
 const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
 
@@ -20,7 +21,7 @@ export async function uploadCardImage(
 ): Promise<UploadResult> {
   // Validate file size
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error("Image must be less than 5MB")
+    throw new Error("Image must be less than 20MB")
   }
 
   // Validate file type
@@ -32,7 +33,7 @@ export async function uploadCardImage(
 
   // Generate unique filename: cardId/uuid.ext
   const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg"
-  const fileName = `${cardId}/${crypto.randomUUID()}.${fileExt}`
+  const fileName = `${cardId}/${generateId()}.${fileExt}`
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
@@ -63,14 +64,14 @@ export async function uploadCardImageBlob(
 ): Promise<UploadResult> {
   // Validate blob size
   if (blob.size > MAX_FILE_SIZE) {
-    throw new Error("Image must be less than 5MB")
+    throw new Error("Image must be less than 20MB")
   }
 
   const supabase = createClient()
 
   // Generate unique filename: cardId/uuid.jpg
   // Always .jpg since getCroppedImg outputs JPEG
-  const fileName = `${cardId}/${crypto.randomUUID()}.jpg`
+  const fileName = `${cardId}/${generateId()}.jpg`
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
@@ -119,16 +120,16 @@ export async function uploadProfileImage(
   userId: string,
   type: ProfileImageType
 ): Promise<UploadResult> {
-  // Validate blob size (use same 5MB limit)
+  // Validate blob size (use same 20MB limit)
   if (blob.size > MAX_FILE_SIZE) {
-    throw new Error("Image must be less than 5MB")
+    throw new Error("Image must be less than 20MB")
   }
 
   const supabase = createClient()
 
   // Generate unique filename: userId/type-uuid.jpg
   // Always .jpg since getCroppedImg outputs JPEG
-  const fileName = `${userId}/${type}-${crypto.randomUUID()}.jpg`
+  const fileName = `${userId}/${type}-${generateId()}.jpg`
 
   const { data, error } = await supabase.storage
     .from(PROFILE_BUCKET)
@@ -192,7 +193,7 @@ export async function uploadCardVideo(
   const supabase = createClient()
 
   // Generate unique filename: cardId/uuid.ext (fileExt already defined above)
-  const fileName = `${cardId}/${crypto.randomUUID()}.${fileExt}`
+  const fileName = `${cardId}/${generateId()}.${fileExt}`
 
   const { data, error } = await supabase.storage
     .from(VIDEO_BUCKET)

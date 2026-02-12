@@ -61,9 +61,9 @@ export function ImageUpload({
       return
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be less than 5MB")
+    // Validate file size (20MB limit)
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Image must be less than 20MB")
       return
     }
 
@@ -202,7 +202,7 @@ export function ImageUpload({
                 Remove
               </button>
             )}
-            <span className="text-xs text-muted-foreground">Max 5MB · Click to crop</span>
+            <span className="text-xs text-muted-foreground">Max 20MB · Click to crop</span>
           </div>
 
           <input

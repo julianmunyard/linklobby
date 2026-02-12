@@ -1,5 +1,6 @@
 import type { Card } from '@/types/card'
 import { generateAppendKey } from '@/lib/ordering'
+import { generateId } from '@/lib/utils'
 
 interface MacLink {
   title: string
@@ -56,7 +57,7 @@ export function migrateToMacintosh(cards: Card[]): Card[] {
       }
     } else if (macLinks.length > 0) {
       result.push({
-        id: crypto.randomUUID(),
+        id: generateId(),
         page_id: '',
         card_type: 'hero',
         title: null,
@@ -79,7 +80,7 @@ export function migrateToMacintosh(cards: Card[]): Card[] {
   )
   if (!hasCalc) {
     result.push({
-      id: crypto.randomUUID(),
+      id: generateId(),
       page_id: '',
       card_type: 'hero',
       title: null,
@@ -111,7 +112,7 @@ export function migrateToMacintosh(cards: Card[]): Card[] {
   )
   if (!hasMap) {
     result.push({
-      id: crypto.randomUUID(),
+      id: generateId(),
       page_id: '',
       card_type: 'hero',
       title: null,
@@ -203,7 +204,7 @@ export function migrateFromMacintosh(cards: Card[]): Card[] {
   // 3. Create link cards for genuinely new URLs
   for (const link of newLinks) {
     result.push({
-      id: crypto.randomUUID(),
+      id: generateId(),
       page_id: '',
       card_type: 'link',
       title: link.title || null,

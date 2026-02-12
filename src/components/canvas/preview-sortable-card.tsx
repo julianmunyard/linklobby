@@ -74,6 +74,19 @@ interface PreviewSortableCardProps {
 // Card types that need full interactivity (touch/mouse events pass through)
 const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game', 'social-icons', 'audio']
 
+// Document-level touch tracking — shared by all card instances.
+// Element-level onTouchMove stops firing once the browser handles scrolling
+// (due to touch-manipulation CSS), but document-level listeners always fire.
+let _touchTrackingInit = false
+let _touchMoved = false
+
+function initTouchTracking() {
+  if (_touchTrackingInit || typeof document === 'undefined') return
+  _touchTrackingInit = true
+  document.addEventListener('touchstart', () => { _touchMoved = false }, { passive: true })
+  document.addEventListener('touchmove', () => { _touchMoved = true }, { passive: true })
+}
+
 /**
  * Preview-specific sortable card that intercepts link clicks and calls onClick instead.
  * Used in the preview iframe to enable click-to-select functionality.
@@ -81,6 +94,9 @@ const INTERACTIVE_CARD_TYPES = ['gallery', 'video', 'game', 'social-icons', 'aud
  * Includes data-selectable-id for box selection integration.
  */
 export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: PreviewSortableCardProps) {
+  // Ensure document-level touch tracking is active
+  initTouchTracking()
+
   // Check if release card should be hidden (countdown ended + hide action)
   if (shouldHideReleaseCard(card)) {
     return null
@@ -109,6 +125,8 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
     // Prevent sub-pixel rendering artifacts (white lines)
     backfaceVisibility: 'hidden' as const,
     WebkitBackfaceVisibility: 'hidden' as const,
+    // Prevent iOS long-press callout (copy/paste/share menu)
+    WebkitTouchCallout: 'none' as const,
   }
 
   // Mini cards use w-fit with margin positioning
@@ -139,11 +157,12 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
   // Interactive cards (gallery, video, game) need full pointer/touch events
   const isInteractive = INTERACTIVE_CARD_TYPES.includes(card.card_type)
 
-  // Handle click - select the card
+  // Handle click - select the card (suppressed after any scroll gesture)
   function handleClick(e: React.MouseEvent) {
-    // Prevent default link navigation
     e.preventDefault()
     e.stopPropagation()
+    // If any touch movement happened since touchstart, this was a scroll — not a tap
+    if (_touchMoved) return
     onClick?.(e)
   }
 
@@ -153,7 +172,7 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
       style={style}
       data-selectable-id={card.id}
       className={cn(
-        "relative transition-opacity duration-150",
+        "relative transition-opacity duration-150 select-none",
         widthClass,
         isDragging && "opacity-0",
         isDimmed && "opacity-40",
@@ -164,8 +183,7 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
         // but prevents double-tap-zoom. Long-press (250ms) activates drag via TouchSensor.
         // Interactive cards need touch events to pass through for their internal controls.
         !isInteractive && "touch-manipulation",
-        // Gallery needs overflow visible for full-bleed effect
-        card.card_type === 'gallery' && "overflow-visible",
+        card.card_type === 'gallery' && "overflow-hidden",
         // Selection highlight - white border with tight ring
         isSelected && "ring-2 ring-white ring-offset-1 ring-offset-background rounded-lg"
       )}
@@ -185,6 +203,7 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
               className="absolute inset-0 z-[5] cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation()
+                if (_touchMoved) return
                 onClick?.(e)
               }}
             />
@@ -205,6 +224,7 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
+                if (_touchMoved) return
                 onClick?.(e)
               }}
               className="bg-black/70 hover:bg-black/90 text-white rounded-full p-2"

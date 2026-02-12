@@ -1,6 +1,7 @@
 // src/stores/profile-store.ts
 import { create } from 'zustand'
 import { generateKeyBetween } from 'fractional-indexing'
+import { generateId } from '@/lib/utils'
 import type {
   Profile,
   SocialIcon,
@@ -132,7 +133,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
   addSocialIcon: (platform, url) =>
     set((state) => {
       const newIcon: SocialIcon = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         platform,
         url,
         sortKey: generateAppendKey(state.socialIcons),

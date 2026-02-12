@@ -15,7 +15,6 @@ import { MobileFAB } from "./mobile-fab"
 import { MobileSelectToggle, MobileSelectionBar } from "./mobile-select-mode"
 import { MobileQuickSettings } from "./mobile-quick-settings"
 import { MobileCardTypeDrawer } from "./mobile-card-type-drawer"
-import { isConvertibleType } from "./card-type-picker"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import { useOnline } from "@/hooks/use-online"
 import { usePageStore } from "@/stores/page-store"
@@ -29,6 +28,7 @@ export function EditorLayout() {
   const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const [typeDrawerOpen, setTypeDrawerOpen] = useState(false)
+  const [initialTab, setInitialTab] = useState<string | null>(null)
   const [initialDesignTab, setInitialDesignTab] = useState<string | null>(null)
   const isMobileLayout = useIsMobileLayout()
   const isOnline = useOnline()
@@ -50,17 +50,14 @@ export function EditorLayout() {
     }
   }, [])
 
-  // On mobile, show type drawer for convertible cards, full editor for others
+  // On mobile, always show type drawer when a card is selected
+  // Drawer shows quick settings for any card type, "Full Editor" button for deep editing
   useEffect(() => {
     if (isMobileLayout && selectedCardId) {
-      const card = usePageStore.getState().cards.find(c => c.id === selectedCardId)
-      if (card && isConvertibleType(card.card_type)) {
-        // Convertible cards: show compact type drawer first
-        setTypeDrawerOpen(true)
-      } else {
-        // Non-convertible cards: go straight to full editor
-        setMobileSheetOpen(true)
-      }
+      setTypeDrawerOpen(true)
+      // Close bottom sheet so user sees the quick drawer first
+      setMobileSheetOpen(false)
+      setInitialDesignTab(null)
     }
   }, [isMobileLayout, selectedCardId])
 
@@ -99,6 +96,13 @@ export function EditorLayout() {
             setInitialDesignTab(subTab)
             setMobileSheetOpen(true)
           }}
+          onQuickSettingsOpen={() => {
+            // Close card type drawer so it doesn't overlap the quick settings drawer
+            setTypeDrawerOpen(false)
+            if (usePageStore.getState().hasChanges) {
+              saveCards()
+            }
+          }}
         />
 
         {/* Mobile selection bar (shows when in select mode with selected cards) */}
@@ -109,9 +113,13 @@ export function EditorLayout() {
           open={typeDrawerOpen}
           onOpenChange={(open) => {
             setTypeDrawerOpen(open)
-            // Flush save immediately when drawer closes so changes persist
-            if (!open && usePageStore.getState().hasChanges) {
-              saveCards()
+            if (!open) {
+              // Clear selection so tapping the same card reopens the drawer
+              usePageStore.getState().selectCard(null)
+              // Flush save immediately when drawer closes so changes persist
+              if (usePageStore.getState().hasChanges) {
+                saveCards()
+              }
             }
           }}
           card={selectedCard}
@@ -126,8 +134,24 @@ export function EditorLayout() {
           <PreviewPanel />
         </div>
 
-        {/* FAB button for adding cards */}
-        <MobileFAB onClick={() => setMobileSheetOpen(true)} />
+        {/* FAB stack: Presets, Design, Add Card */}
+        <MobileFAB
+          onAddCard={() => {
+            setInitialTab('links')
+            setInitialDesignTab(null)
+            setMobileSheetOpen(true)
+          }}
+          onOpenDesign={() => {
+            setInitialTab(null)
+            setInitialDesignTab('colors')
+            setMobileSheetOpen(true)
+          }}
+          onOpenPresets={() => {
+            setInitialTab(null)
+            setInitialDesignTab('presets')
+            setMobileSheetOpen(true)
+          }}
+        />
 
         {/* Bottom sheet with editor */}
         <MobileBottomSheet
@@ -135,6 +159,7 @@ export function EditorLayout() {
           onOpenChange={(open) => {
             setMobileSheetOpen(open)
             if (!open) {
+              setInitialTab(null)
               setInitialDesignTab(null)
               setTypeDrawerOpen(false)
             }
@@ -142,7 +167,9 @@ export function EditorLayout() {
           title="Editor"
         >
           <EditorPanel
+            initialTab={initialTab}
             initialDesignTab={initialDesignTab}
+            onTabConsumed={() => setInitialTab(null)}
             onDesignTabConsumed={() => setInitialDesignTab(null)}
           />
         </MobileBottomSheet>

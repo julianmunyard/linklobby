@@ -162,6 +162,13 @@ export const auxMono = localFont({
   display: 'swap',
 })
 
+// LED Board theme font
+export const ledDotMatrix = localFont({
+  src: '../../public/fonts/led-dot-matrix.ttf',
+  variable: '--font-led-dot-matrix',
+  display: 'swap',
+})
+
 // Local custom fonts (retro/pixel style)
 export const autoMission = localFont({
   src: '../../public/fonts/auto-mission.otf',
@@ -283,8 +290,9 @@ export const fontVariables = [
   courierPrime.variable,
   // Classified font
   specialElite.variable,
-  // Departures Board font
+  // Departures Board fonts
   auxMono.variable,
+  ledDotMatrix.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -326,7 +334,55 @@ export const CURATED_FONTS = [
   { id: 'courier-prime', name: 'Courier Prime', variable: 'var(--font-courier-prime)', category: 'retro' as const },
   { id: 'special-elite', name: 'Special Elite', variable: 'var(--font-special-elite)', category: 'retro' as const },
   { id: 'aux-mono', name: 'Aux Mono', variable: 'var(--font-aux-mono)', category: 'retro' as const },
+  { id: 'led-dot-matrix', name: 'LED Dot Matrix', variable: 'var(--font-led-dot-matrix)', category: 'retro' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
 export type FontCategory = 'sans' | 'serif' | 'display' | 'retro'
+
+/**
+ * Server-side font resolver: maps CSS variable references to actual font-family values.
+ * Used by ThemeInjector to inline resolved fonts so public pages don't need
+ * client-side resolution (no double-indirection through CSS variables).
+ */
+export const FONT_FAMILY_MAP: Record<string, string> = {
+  'var(--font-geist-sans)': inter.style.fontFamily,
+  'var(--font-inter)': inter.style.fontFamily,
+  'var(--font-jakarta)': plusJakartaSans.style.fontFamily,
+  'var(--font-sora)': sora.style.fontFamily,
+  'var(--font-space-grotesk)': spaceGrotesk.style.fontFamily,
+  'var(--font-dm-sans)': dmSans.style.fontFamily,
+  'var(--font-outfit)': outfit.style.fontFamily,
+  'var(--font-manrope)': manrope.style.fontFamily,
+  'var(--font-josefin)': josefinSans.style.fontFamily,
+  'var(--font-playfair)': playfairDisplay.style.fontFamily,
+  'var(--font-cormorant)': cormorantGaramond.style.fontFamily,
+  'var(--font-instrument)': instrumentSerif.style.fontFamily,
+  'var(--font-fraunces)': fraunces.style.fontFamily,
+  'var(--font-bebas-neue)': bebasNeue.style.fontFamily,
+  'var(--font-archivo-black)': archivoBlack.style.fontFamily,
+  'var(--font-syne)': syne.style.fontFamily,
+  'var(--font-krona)': kronaOne.style.fontFamily,
+  'var(--font-auto-mission)': autoMission.style.fontFamily,
+  'var(--font-new-york)': newYork.style.fontFamily,
+  'var(--font-pix-chicago)': pixChicago.style.fontFamily,
+  'var(--font-village)': village.style.fontFamily,
+  'var(--font-chikarego)': chiKareGo.style.fontFamily,
+  'var(--font-ishmeria)': ishmeria.style.fontFamily,
+  'var(--font-pixolde)': pixolde.style.fontFamily,
+  'var(--font-pixter-granular)': pixterGranular.style.fontFamily,
+  'var(--font-chiq)': chiqReducedBold.style.fontFamily,
+  'var(--font-chicago)': chicago.style.fontFamily,
+  'var(--font-ticket-de-caisse)': ticketDeCaisse.style.fontFamily,
+  'var(--font-hypermarket)': hypermarket.style.fontFamily,
+  'var(--font-vt323)': vt323.style.fontFamily,
+  'var(--font-courier-prime)': courierPrime.style.fontFamily,
+  'var(--font-special-elite)': specialElite.style.fontFamily,
+  'var(--font-aux-mono)': auxMono.style.fontFamily,
+  'var(--font-led-dot-matrix)': ledDotMatrix.style.fontFamily,
+}
+
+/** Resolve a font variable reference to its actual font-family value */
+export function resolveFontFamily(varRef: string): string {
+  return FONT_FAMILY_MAP[varRef] ?? varRef
+}

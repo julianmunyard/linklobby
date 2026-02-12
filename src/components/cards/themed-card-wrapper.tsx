@@ -11,16 +11,18 @@ interface ThemedCardWrapperProps {
   cardType: CardType
   className?: string
   content?: Record<string, unknown>
+  themeIdOverride?: string
 }
 
 // Card types fully exempt from theming (no wrapper styling)
-const EXEMPT_CARD_TYPES: CardType[] = ['game', 'gallery']
+const EXEMPT_CARD_TYPES: CardType[] = ['game']
 
 // Card types that skip Mac OS traffic lights but still get other theme styling
 const SKIP_MACOS_CHROME: CardType[] = []
 
-export function ThemedCardWrapper({ children, cardType, className, content }: ThemedCardWrapperProps) {
-  const { themeId, style } = useThemeStore()
+export function ThemedCardWrapper({ children, cardType, className, content, themeIdOverride }: ThemedCardWrapperProps) {
+  const { themeId: storeThemeId, style } = useThemeStore()
+  const themeId = themeIdOverride || storeThemeId
   const isTransparent = content?.transparentBackground === true
   const noBorder = content?.noBorder === true
 
@@ -35,10 +37,8 @@ export function ThemedCardWrapper({ children, cardType, className, content }: Th
 
   // Exempt cards get minimal wrapper
   if (EXEMPT_CARD_TYPES.includes(cardType)) {
-    // Gallery needs overflow visible for full-bleed effect
-    const allowOverflow = cardType === 'gallery'
     return (
-      <div className={cn(allowOverflow ? "overflow-visible" : "overflow-hidden", className)}>
+      <div className={cn("overflow-hidden", className)}>
         {children}
       </div>
     )

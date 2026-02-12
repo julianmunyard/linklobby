@@ -119,7 +119,7 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
               --theme-border-radius: ${style.borderRadius}px;
               --theme-shadow-enabled: ${style.shadowEnabled ? '1' : '0'};
               --theme-blur-intensity: ${style.blurIntensity}px;
-              ${isMacintosh ? `background-color: ${macPatternColor} !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; overflow-x: hidden !important;` : `background-color: ${standardBodyBg} !important;`}
+              ${isMacintosh ? `background-color: #ffffff !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; overflow-x: hidden !important;` : `background-color: ${standardBodyBg} !important;`}
               color: ${colors.text};
             }
           `,

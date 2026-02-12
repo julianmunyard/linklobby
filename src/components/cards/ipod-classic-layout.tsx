@@ -63,6 +63,10 @@ export function IpodClassicLayout({
   const accumulatedRotation = useRef(0)
   const DEGREES_PER_ITEM = 30 // Rotate 30 degrees to move one item
 
+  // Tap detection on touch wheel — distinguish taps from scroll gestures
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
+  const touchMovedRef = useRef(false)
+
   // Filter to only visible cards and sort by sortKey
   const visibleCards = sortCardsBySortKey(cards.filter(c => c.is_visible !== false))
 
@@ -377,9 +381,11 @@ export function IpodClassicLayout({
     document.addEventListener('mouseup', handleMouseUp)
   }
 
-  // Touch handlers for wheel
+  // Touch handlers for wheel — with tap detection for button zones
   const handleWheelTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() }
+    touchMovedRef.current = false
     const rect = wheelRef.current?.getBoundingClientRect()
     if (rect) {
       lastAngleRef.current = getAngleFromCenter(touch.clientX, touch.clientY, rect)
@@ -388,12 +394,60 @@ export function IpodClassicLayout({
   }
 
   const handleWheelTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchMovedRef.current = true
     const touch = e.touches[0]
     handleWheelMove(touch.clientX, touch.clientY)
   }
 
-  const handleWheelTouchEnd = () => {
+  const handleWheelTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     lastAngleRef.current = null
+
+    // Detect tap: short duration + no significant movement
+    const start = touchStartRef.current
+    if (start && !touchMovedRef.current) {
+      const duration = Date.now() - start.time
+      if (duration < 300) {
+        const rect = wheelRef.current?.getBoundingClientRect()
+        if (rect) {
+          const centerX = rect.left + rect.width / 2
+          const centerY = rect.top + rect.height / 2
+          const dx = start.x - centerX
+          const dy = start.y - centerY
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const radius = rect.width / 2
+
+          // Only trigger if tap is on the wheel ring (not center button area)
+          if (dist > radius * 0.3) {
+            // Determine which quadrant: top=menu, left=prev, right=next, bottom=play
+            if (Math.abs(dx) > Math.abs(dy)) {
+              if (dx < 0) {
+                // Left — prev/back
+                if (currentScreen !== 'main') goBack()
+              } else {
+                // Right — next/forward
+                handleWheelClick('center')
+              }
+            } else {
+              if (dy < 0) {
+                // Top — menu
+                handleWheelClick('menu')
+              } else {
+                // Bottom — play/pause
+                if (currentScreen === 'nowplaying') {
+                  const engine = getAudioEngine()
+                  if (engine.isPlaying()) {
+                    engine.pause()
+                  } else if (engine.isLoaded()) {
+                    engine.play()
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    touchStartRef.current = null
   }
 
   // Sticker drag handlers

@@ -9,7 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon } from 'lucide-react'
+import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone } from 'lucide-react'
 import type { BackgroundConfig } from '@/types/theme'
 
 // Available frame overlays
@@ -25,6 +25,7 @@ const MAC_PATTERN_OPTIONS = [
   { id: 'pattern-2', label: 'Cross', path: '/images/mac-patterns/pattern-2.png' },
   { id: 'pattern-3', label: 'Grid', path: '/images/mac-patterns/pattern-3.png' },
   { id: 'pattern-4', label: 'Scale', path: '/images/mac-patterns/pattern-4.png' },
+  { id: 'pattern-5', label: 'Micro', path: '/images/mac-patterns/pattern-5.png' },
 ] as const
 
 export function BackgroundControls() {
@@ -146,13 +147,29 @@ export function BackgroundControls() {
     setBackground({ ...background, dimIntensity: value[0] })
   }
 
+  // Status bar color picker (shared by all themes)
+  const statusBarSection = (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Smartphone className="w-4 h-4 text-muted-foreground" />
+        <Label className="text-xs font-medium text-muted-foreground">Status Bar Color</Label>
+      </div>
+      <p className="text-xs text-muted-foreground -mt-2">Controls the color around the camera and safe areas on mobile</p>
+      <ColorPicker
+        label="Color"
+        color={background.topBarColor || '#000000'}
+        onChange={(color) => setBackground({ ...background, topBarColor: color })}
+      />
+    </div>
+  )
+
   // Macintosh theme has its own background system
   if (themeId === 'macintosh') {
     return (
       <div className="space-y-6">
         <div>
           <Label className="text-xs font-medium text-muted-foreground mb-3 block">Desktop Pattern</Label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-6 gap-2">
             {MAC_PATTERN_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
@@ -295,6 +312,12 @@ export function BackgroundControls() {
             </div>
           )}
         </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border" />
+
+        {/* Status Bar Color */}
+        {statusBarSection}
       </div>
     )
   }
@@ -648,6 +671,12 @@ export function BackgroundControls() {
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Status Bar Color */}
+      {statusBarSection}
     </div>
   )
 }

@@ -236,49 +236,8 @@ export function PublicPageRenderer({
     )
   }
 
-  // Macintosh theme uses Mac desktop layout (or scatter if enabled)
+  // Macintosh theme uses Mac desktop layout
   if (themeId === 'macintosh') {
-    // Scatter mode overrides normal theme layout
-    if (isScatterLayout) {
-      return (
-        <div className="h-screen flex flex-col text-theme-text overflow-hidden">
-          <div className="w-full px-4 pt-4 shrink-0">
-            <StaticProfileHeader
-              displayName={displayName}
-              bio={bio}
-              avatarUrl={avatarUrl}
-              avatarFeather={avatarFeather}
-              showAvatar={showAvatar}
-              showTitle={showTitle}
-              titleSize={titleSize}
-              showLogo={showLogo}
-              logoUrl={logoUrl}
-              logoScale={logoScale}
-              profileLayout={profileLayout}
-              headerTextColor={headerTextColor}
-              socialIconColor={socialIconColor}
-              showSocialIcons={showSocialIcons}
-              socialIconsJson={socialIconsJson}
-              socialIconSize={socialIconSize}
-              fuzzyEnabled={fuzzyEnabled}
-              fuzzyIntensity={fuzzyIntensity}
-              fuzzySpeed={fuzzySpeed}
-            />
-          </div>
-
-          <div className="flex-1 relative w-full px-4">
-            <StaticScatterCanvas
-              cards={cards}
-              themeId={themeId}
-              visitorDrag={visitorDrag}
-            />
-          </div>
-
-          <LegalFooter username={username} />
-        </div>
-      )
-    }
-
     const macFrameOverlay = background?.frameOverlay
     const macFrameFitContent = background?.frameFitContent ?? true
     const macFrameInsets = macFrameOverlay && macFrameFitContent ? FRAME_INSETS[macFrameOverlay] : null
@@ -357,49 +316,8 @@ export function PublicPageRenderer({
     )
   }
 
-  // Word Art theme uses word art text layout (or scatter if enabled)
+  // Word Art theme uses word art text layout
   if (themeId === 'word-art') {
-    // Scatter mode overrides normal theme layout
-    if (isScatterLayout) {
-      return (
-        <div className="h-screen flex flex-col text-theme-text overflow-hidden">
-          <div className="w-full px-4 pt-4 shrink-0">
-            <StaticProfileHeader
-              displayName={displayName}
-              bio={bio}
-              avatarUrl={avatarUrl}
-              avatarFeather={avatarFeather}
-              showAvatar={showAvatar}
-              showTitle={showTitle}
-              titleSize={titleSize}
-              showLogo={showLogo}
-              logoUrl={logoUrl}
-              logoScale={logoScale}
-              profileLayout={profileLayout}
-              headerTextColor={headerTextColor}
-              socialIconColor={socialIconColor}
-              showSocialIcons={showSocialIcons}
-              socialIconsJson={socialIconsJson}
-              socialIconSize={socialIconSize}
-              fuzzyEnabled={fuzzyEnabled}
-              fuzzyIntensity={fuzzyIntensity}
-              fuzzySpeed={fuzzySpeed}
-            />
-          </div>
-
-          <div className="flex-1 relative w-full px-4">
-            <StaticScatterCanvas
-              cards={cards}
-              themeId={themeId}
-              visitorDrag={visitorDrag}
-            />
-          </div>
-
-          <LegalFooter username={username} />
-        </div>
-      )
-    }
-
     const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
 
     return (
@@ -425,7 +343,7 @@ export function PublicPageRenderer({
   // Scatter mode: viewport-locked layout with footer pinned at bottom (takes priority over frame)
   if (isScatterLayout) {
     return (
-      <div className="h-screen flex flex-col text-theme-text overflow-hidden">
+      <div className="min-h-screen flex flex-col text-theme-text">
         <div className="w-full px-4 pt-4 shrink-0">
           <StaticProfileHeader
             displayName={displayName}

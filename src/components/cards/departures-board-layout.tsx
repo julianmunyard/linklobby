@@ -10,6 +10,7 @@ import { AudioPlayer } from '@/components/audio/audio-player'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import { useProfileStore } from '@/stores/profile-store'
+import { useThemeStore } from '@/stores/theme-store'
 import { Globe, Mail, Music } from 'lucide-react'
 import {
   SiInstagram, SiTiktok, SiYoutube, SiSpotify, SiX,
@@ -42,6 +43,17 @@ function genTime(index: number): string {
   return `${String(display).padStart(2, '0')}:${min}${suffix}`
 }
 
+// Render text as individual LED character cells
+function renderLedCells(text: string): React.ReactNode {
+  return (
+    <span className="led-text">
+      {text.split('').map((char, i) => (
+        <span key={i} className="led-cell">{char === ' ' ? '\u00A0' : char}</span>
+      ))}
+    </span>
+  )
+}
+
 interface DeparturesBoardLayoutProps {
   title: string
   cards: Card[]
@@ -64,6 +76,9 @@ export function DeparturesBoardLayout({
   const displayName = useProfileStore((s) => s.displayName)
   const socialIcons = useProfileStore((s) => s.socialIcons)
   const showSocialIcons = useProfileStore((s) => s.showSocialIcons)
+  const themeId = useThemeStore((s) => s.themeId)
+  const isLed = themeId === 'departures-board-led'
+  const t = (text: string) => isLed ? renderLedCells(text) : text
 
   const releaseCards = cards.filter(c => {
     if (c.is_visible === false || c.card_type !== 'release' || !isReleaseContent(c.content)) return false
@@ -134,12 +149,12 @@ export function DeparturesBoardLayout({
           className="departures-board"
           style={{
             color: 'var(--theme-text)',
-            fontFamily: 'var(--font-aux-mono)',
+            fontFamily: 'var(--font-theme-body)',
           }}
         >
           {/* Title row - centered */}
           <div className="departures-board-row departures-board-row-title">
-            {(displayName || title || 'DEPARTURES').toUpperCase()}
+            {t((displayName || title || 'DEPARTURES').toUpperCase())}
           </div>
 
           {/* Gap between title and content */}
@@ -147,9 +162,9 @@ export function DeparturesBoardLayout({
 
           {/* Column header row */}
           <div className="departures-board-row departures-board-row-header">
-            <span className="departures-col-time">TIME</span>
-            <span className="departures-col-name">TO</span>
-            <span className="departures-col-info">REMARKS</span>
+            <span className="departures-col-time">{t('TIME')}</span>
+            <span className="departures-col-name">{t('TO')}</span>
+            <span className="departures-col-info">{t('REMARKS')}</span>
           </div>
 
           {/* Card rows */}
@@ -160,7 +175,7 @@ export function DeparturesBoardLayout({
             if (card.card_type === 'text') {
               return (
                 <div key={card.id} className="departures-board-row departures-board-row-section">
-                  {displayText.toUpperCase()}
+                  {t(displayText.toUpperCase())}
                 </div>
               )
             }
@@ -196,9 +211,9 @@ export function DeparturesBoardLayout({
                 )}
                 onClick={() => handleCardClick(card, index)}
               >
-                <span className="departures-col-time">{genTime(index)}</span>
-                <span className="departures-col-name">{displayText.toUpperCase()}</span>
-                <span className="departures-col-info" >ON TIME</span>
+                <span className="departures-col-time">{t(genTime(index))}</span>
+                <span className="departures-col-name">{t(displayText.toUpperCase())}</span>
+                <span className="departures-col-info">{t('ON TIME')}</span>
               </button>
             )
           })}
@@ -232,7 +247,7 @@ export function DeparturesBoardLayout({
                       )}
                     </span>
                     <span className="departures-col-name">
-                      {(releaseTitle || artistName || 'NEW RELEASE').toUpperCase()}
+                      {t((releaseTitle || artistName || 'NEW RELEASE').toUpperCase())}
                     </span>
                     <span className="departures-col-info">
                       {preSaveUrl ? (
@@ -240,10 +255,10 @@ export function DeparturesBoardLayout({
                           className="underline uppercase"
                                                     onClick={() => { if (!isPreview) window.open(preSaveUrl, '_blank', 'noopener,noreferrer') }}
                         >
-                          {preSaveButtonText.toUpperCase()}
+                          {t(preSaveButtonText.toUpperCase())}
                         </button>
                       ) : (
-                        <span style={{ color: 'var(--theme-accent)' }}>BOARDING</span>
+                        <span style={{ color: 'var(--theme-accent)' }}>{t('BOARDING')}</span>
                       )}
                     </span>
                   </>
@@ -254,9 +269,9 @@ export function DeparturesBoardLayout({
                       className="departures-col-name uppercase"
                       onClick={() => { if (!isPreview && afterCountdownUrl) window.open(afterCountdownUrl, '_blank', 'noopener,noreferrer') }}
                     >
-                      {(afterCountdownText || 'OUT NOW').toUpperCase()}
+                      {t((afterCountdownText || 'OUT NOW').toUpperCase())}
                     </button>
-                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ARRIVED</span>
+                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>{t('ARRIVED')}</span>
                   </>
                 ) : null}
               </div>

@@ -19,8 +19,8 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
   // Use mini font size for mini cards, link font size otherwise
   const fontSize = card.card_type === 'mini' ? cardTypeFontSizes.mini : cardTypeFontSizes.link
 
-  const Wrapper = card.url && isPreview ? "a" : "div"
-  const wrapperProps = card.url && isPreview
+  const Wrapper = card.url && !isPreview ? "a" : "div"
+  const wrapperProps = card.url && !isPreview
     ? { href: card.url, target: "_blank", rel: "noopener noreferrer" }
     : {}
 

@@ -35,7 +35,7 @@ const FIT_CONTENT_TYPES = new Set(['text', 'social-icons'])
 export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: StaticScatterCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
-  const [referenceHeight, setReferenceHeight] = useState(0)  // Stable viewport height for y-coordinate mapping
+  const [referenceHeight, setReferenceHeight] = useState(0)  // Width-based reference for y-coordinate mapping (matches editor preview)
 
   // Ephemeral drag offsets (reset on refresh)
   const [dragOffsets, setDragOffsets] = useState<Record<string, DragOffset>>({})
@@ -43,10 +43,13 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
   const [dragDistance, setDragDistance] = useState(0)
 
-  // Capture viewport height for stable y-coordinate reference
+  // referenceHeight is derived from containerWidth so the coordinate system
+  // is purely width-relative — identical to the editor preview.
   useEffect(() => {
-    setReferenceHeight(window.innerHeight)
-  }, [])
+    if (containerWidth > 0) {
+      setReferenceHeight(containerWidth)
+    }
+  }, [containerWidth])
 
   // Measure container width
   useEffect(() => {
@@ -149,7 +152,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
   // Dynamic min-height: at least viewport, grows to contain all cards
   const dynamicMinHeight = useMemo(() => {
     if (referenceHeight === 0) return '100vh'
-    let maxBottom = referenceHeight
+    let maxBottom = 0
     visibleCards.forEach(card => {
       const layouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
       const pos = layouts[themeId]
@@ -158,7 +161,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         maxBottom = Math.max(maxBottom, pixelY + referenceHeight * 0.5)
       }
     })
-    return `${maxBottom}px`
+    // Use CSS max() so canvas is always at least viewport height
+    return maxBottom > 0 ? `max(100vh, ${maxBottom}px)` : '100vh'
   }, [visibleCards, themeId, referenceHeight])
 
   // Empty state
@@ -180,11 +184,9 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
       onPointerLeave={handleDragEnd}
     >
       {containerWidth > 0 && referenceHeight > 0 && (() => {
-        // On wide screens, render card CONTENT at a phone-like width so text,
-        // images, and layouts look identical to mobile. Positions still map to
-        // the full viewport so cards can be placed anywhere on screen.
-        // On mobile (< reference), cards use their natural container width.
-        const CARD_RENDER_WIDTH = Math.min(512, containerWidth)
+        // Card content renders at full container width (same as editor preview).
+        // Scale is then applied via CSS transform to match the stored width %.
+        const CARD_RENDER_WIDTH = containerWidth
 
         return visibleCards.map((card) => {
         // Get scatter position for this theme

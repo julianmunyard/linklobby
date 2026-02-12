@@ -5,7 +5,7 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   KeyboardSensor,
   useSensor,
@@ -47,15 +47,15 @@ export function PreviewFlowGrid({ cards, selectedCardId, onReorder, onCardClick 
   }, [])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8, // Prevent accidental drags
+        distance: 8, // Prevent accidental drags (mouse/desktop only)
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 300, // Long press before drag starts — allows normal scrolling
-        tolerance: 3, // Very tight: finger must stay within 3px for 300ms to activate drag
+        delay: 800, // Must hold finger down ~1 second before drag activates
+        tolerance: 10, // Allow slight finger drift during hold, but any scroll cancels
       },
     }),
     useSensor(KeyboardSensor, {

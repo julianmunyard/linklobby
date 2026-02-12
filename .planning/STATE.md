@@ -741,7 +741,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 060 | Card type drawer size and top slide | Complete | 94acf5e |
 | 061 | Mobile phone zoom and drawer expand | Complete | e72eb1f, 429a19e |
 | 062 | Macintosh pattern bg fixed fullscreen | Complete | 21d2b3f, 79bf951 |
-| 063 | Fix audio card not working in scatter mode | Complete | pending |
+| 063 | Fix audio card not working in scatter mode | Complete | a1f777f |
 
 ## Phase 10 Progress (IN PROGRESS)
 

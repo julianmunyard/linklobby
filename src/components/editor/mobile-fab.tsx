@@ -1,32 +1,69 @@
 "use client"
 
-import { Plus } from "lucide-react"
+import { Plus, Paintbrush, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface MobileFABProps {
-  onClick: () => void
+  onAddCard: () => void
+  onOpenDesign: () => void
+  onOpenPresets: () => void
 }
 
 /**
- * Floating Action Button for mobile.
- * Fixed at bottom-right corner for adding cards.
+ * Floating Action Button stack for mobile.
+ * Three vertically stacked buttons (bottom-right):
+ *   Top:    Presets (theme selection)
+ *   Middle: Design (colors, background, style, header)
+ *   Bottom: + (add card / links tab)
  * Hidden on desktop (md:hidden).
  */
-export function MobileFAB({ onClick }: MobileFABProps) {
+export function MobileFAB({ onAddCard, onOpenDesign, onOpenPresets }: MobileFABProps) {
   return (
-    <Button
-      size="icon-lg"
-      onClick={onClick}
+    <div
       className={cn(
-        "fixed bottom-6 right-6 z-50",
-        "h-14 w-14 rounded-full shadow-lg",
-        "md:hidden", // Only visible on mobile
-        "touch-none" // Prevent scroll conflicts
+        "fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3",
+        "md:hidden" // Only visible on mobile
       )}
-      aria-label="Add card"
     >
-      <Plus className="h-6 w-6" />
-    </Button>
+      {/* Presets FAB */}
+      <Button
+        size="icon-lg"
+        onClick={onOpenPresets}
+        className={cn(
+          "h-14 w-14 rounded-full shadow-lg",
+          "touch-none"
+        )}
+        aria-label="Theme presets"
+      >
+        <Palette className="h-6 w-6" />
+      </Button>
+
+      {/* Design FAB */}
+      <Button
+        size="icon-lg"
+        onClick={onOpenDesign}
+        className={cn(
+          "h-14 w-14 rounded-full shadow-lg",
+          "touch-none"
+        )}
+        aria-label="Design settings"
+      >
+        <Paintbrush className="h-6 w-6" />
+      </Button>
+
+      {/* Add card FAB */}
+      <Button
+        size="icon-lg"
+        onClick={onAddCard}
+        className={cn(
+          "h-14 w-14 rounded-full shadow-lg",
+          "touch-none"
+        )}
+        aria-label="Add card"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+    </div>
   )
 }

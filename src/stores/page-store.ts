@@ -6,7 +6,6 @@ import { DEFAULT_EMAIL_COLLECTION_CONTENT } from '@/types/fan-tools'
 import { DEFAULT_AUDIO_CONTENT } from '@/types/audio'
 import { CARD_TYPE_SIZING } from '@/types/card'
 import type { ScatterPosition, ScatterLayouts } from '@/types/scatter'
-import { DEFAULT_SCATTER_SIZES } from '@/types/scatter'
 import type { ThemeId } from '@/types/theme'
 import { generateKeyBetween } from 'fractional-indexing'
 import { generateAppendKey, generateMoveKey, generateInsertKey, sortCardsBySortKey, hasDuplicateSortKeys, normalizeSortKeys } from '@/lib/ordering'
@@ -51,6 +50,7 @@ interface PageState {
   setAllCardsTransparency: (transparent: boolean) => void
   updateCardScatterPosition: (cardId: string, themeId: string, position: Partial<ScatterPosition>) => void
   initializeScatterLayout: (themeId: string) => void
+  copyScatterPositions: (fromThemeId: string, toThemeId: string) => void
 
   // Computed
   getSortedCards: () => Card[]
@@ -335,47 +335,96 @@ export const usePageStore = create<PageState>()(
     const cardCount = state.cards.length
     if (cardCount === 0) return state
 
-    // Calculate grid dimensions based on card count
-    const cols = Math.ceil(Math.sqrt(cardCount))
-    const rows = Math.ceil(cardCount / cols)
+    // Simulate flex-wrap flow grid layout so scatter positions match the ordered view.
+    // The flow grid uses flex-wrap with gap-4 (16px ≈ 4.66% of ~343px editor canvas).
+    const GAP_PCT = 4.66
+    const SMALL_WIDTH = (100 - GAP_PCT) / 2 // ≈ 47.67% — matches calc(50% - 0.5rem)
 
-    // Spacing between cards (in percentages)
-    const spacingX = 5
-    const spacingY = 5
+    // Width mapping to match flow grid sizing
+    function getFlowWidth(card: Card): number {
+      // Fit-content cards in scatter mode use width as scale factor
+      if (card.card_type === 'text' || card.card_type === 'social-icons') return 100
+      if (card.card_type === 'mini') return 20
+      // Full-width types
+      if (card.card_type === 'link' || card.card_type === 'horizontal') return 100
+      if (CARD_TYPE_SIZING[card.card_type] === null) return 100
+      // Size-based: big = full width, small = half row
+      return card.size !== 'small' ? 100 : SMALL_WIDTH
+    }
 
+    // Estimated card heights as % of viewport (for row stacking)
+    function getEstimatedHeight(card: Card): number {
+      const isSmall = card.size === 'small'
+      switch (card.card_type) {
+        case 'hero': return isSmall ? 25 : 38
+        case 'square': return isSmall ? 30 : 60
+        case 'horizontal': return 13
+        case 'link': return 11
+        case 'text': return 8
+        case 'mini': return 6
+        case 'video': return isSmall ? 25 : 38
+        case 'gallery': return isSmall ? 38 : 60
+        case 'game': return isSmall ? 30 : 50
+        case 'audio': return 30
+        case 'music': return 12
+        case 'release': return isSmall ? 30 : 50
+        case 'email-collection': return 22
+        case 'social-icons': return 8
+        default: return 15
+      }
+    }
+
+    // Sort cards to match flow grid order and simulate flex-wrap
+    const sorted = sortCardsBySortKey(state.cards)
+    const visible = sorted.filter(c => c.is_visible)
+    const positions = new Map<string, ScatterPosition>()
+
+    let currentX = 0
+    let currentY = 0
+    let rowMaxHeight = 0
+
+    visible.forEach((card, index) => {
+      const width = getFlowWidth(card)
+      const height = getEstimatedHeight(card)
+
+      // Check if card fits in remaining row space
+      if (currentX > 0 && currentX + width > 100 + 0.5) {
+        // Start new row
+        currentY += rowMaxHeight + GAP_PCT
+        currentX = 0
+        rowMaxHeight = 0
+      }
+
+      positions.set(card.id, {
+        x: currentX,
+        y: currentY,
+        width,
+        height: 10,
+        zIndex: index,
+      })
+
+      rowMaxHeight = Math.max(rowMaxHeight, height)
+
+      if (width >= 100) {
+        // Full-width card: advance to next row
+        currentY += height + GAP_PCT
+        currentX = 0
+        rowMaxHeight = 0
+      } else {
+        currentX += width + GAP_PCT
+      }
+    })
+
+    // Apply positions to cards that don't already have scatter positions
     return {
-      cards: state.cards.map((card, index) => {
-        // Check if card already has scatter position for this theme
+      cards: state.cards.map(card => {
         const currentLayouts = (card.content as Record<string, unknown>).scatterLayouts as ScatterLayouts || {}
         if (currentLayouts[themeId as ThemeId]) {
           return card // Already initialized, skip
         }
 
-        // Get default size for this card type
-        const defaultSize = DEFAULT_SCATTER_SIZES[card.card_type] || { width: 50, height: 20 }
-
-        // Calculate grid position
-        const col = index % cols
-        const row = Math.floor(index / cols)
-
-        // Calculate position with spacing
-        const availableWidth = 100 - spacingX * (cols + 1)
-        const availableHeight = 100 - spacingY * (rows + 1)
-        const cellWidth = availableWidth / cols
-        const cellHeight = availableHeight / rows
-
-        // Center card in its grid cell
-        const x = spacingX + col * (cellWidth + spacingX) + (cellWidth - defaultSize.width) / 2
-        const y = spacingY + row * (cellHeight + spacingY) + (cellHeight - defaultSize.height) / 2
-
-        // Create scatter position
-        const scatterPosition: ScatterPosition = {
-          x: Math.max(0, Math.min(100 - defaultSize.width, x)),
-          y: Math.max(0, Math.min(100 - defaultSize.height, y)),
-          width: defaultSize.width,
-          height: defaultSize.height,
-          zIndex: index,
-        }
+        const pos = positions.get(card.id)
+        if (!pos) return card // Hidden card, skip
 
         return {
           ...card,
@@ -383,7 +432,7 @@ export const usePageStore = create<PageState>()(
             ...card.content,
             scatterLayouts: {
               ...currentLayouts,
-              [themeId]: scatterPosition,
+              [themeId]: pos,
             }
           },
           updated_at: new Date().toISOString(),
@@ -391,6 +440,31 @@ export const usePageStore = create<PageState>()(
       }),
       hasChanges: true,
     }
+  }),
+
+  copyScatterPositions: (fromThemeId, toThemeId) => set((state) => {
+    let changed = false
+    const updatedCards = state.cards.map((card) => {
+      const currentLayouts = (card.content as Record<string, unknown>).scatterLayouts as ScatterLayouts || {}
+      const sourcePos = currentLayouts[fromThemeId as ThemeId]
+      if (sourcePos) {
+        changed = true
+        return {
+          ...card,
+          content: {
+            ...card.content,
+            scatterLayouts: {
+              ...currentLayouts,
+              [toThemeId]: { ...sourcePos },
+            }
+          },
+          updated_at: new Date().toISOString(),
+        }
+      }
+      return card
+    })
+    if (!changed) return state
+    return { cards: updatedCards, hasChanges: true }
   }),
 
   getSortedCards: () => {

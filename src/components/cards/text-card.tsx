@@ -16,8 +16,8 @@ export function TextCard({ card, isPreview = false }: TextCardProps) {
   const textColor = content.textColor
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.text)
 
-  const Wrapper = card.url && isPreview ? "a" : "div"
-  const wrapperProps = card.url && isPreview
+  const Wrapper = card.url && !isPreview ? "a" : "div"
+  const wrapperProps = card.url && !isPreview
     ? { href: card.url, target: "_blank", rel: "noopener noreferrer" }
     : {}
 

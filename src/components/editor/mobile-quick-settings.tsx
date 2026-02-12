@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Palette, Sparkles, Image, User } from "lucide-react"
+import { Palette, Sparkles, Image, User, Frame, Moon } from "lucide-react"
 import {
   Drawer,
   DrawerContent,
@@ -24,9 +24,10 @@ import type { ProfileLayout } from "@/types/profile"
 
 interface MobileQuickSettingsProps {
   onOpenFullSettings: (subTab: string) => void
+  onQuickSettingsOpen?: () => void
 }
 
-export function MobileQuickSettings({ onOpenFullSettings }: MobileQuickSettingsProps) {
+export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }: MobileQuickSettingsProps) {
   const [activeDrawer, setActiveDrawer] = useState<string | null>(null)
 
   const handleButtonClick = (drawer: string) => {
@@ -34,6 +35,8 @@ export function MobileQuickSettings({ onOpenFullSettings }: MobileQuickSettingsP
       setActiveDrawer(null)
     } else {
       setActiveDrawer(drawer)
+      // Notify parent so it can close other panels (e.g. card type drawer)
+      onQuickSettingsOpen?.()
     }
   }
 
@@ -52,6 +55,10 @@ export function MobileQuickSettings({ onOpenFullSettings }: MobileQuickSettingsP
   const setStyle = useThemeStore((state) => state.setStyle)
   const background = useThemeStore((state) => state.background)
   const setBackground = useThemeStore((state) => state.setBackground)
+  const macPattern = useThemeStore((state) => state.macPattern)
+  const macPatternColor = useThemeStore((state) => state.macPatternColor)
+  const setMacPattern = useThemeStore((state) => state.setMacPattern)
+  const setMacPatternColor = useThemeStore((state) => state.setMacPatternColor)
 
   // Profile store
   const displayName = useProfileStore((state) => state.displayName)
@@ -296,58 +303,221 @@ export function MobileQuickSettings({ onOpenFullSettings }: MobileQuickSettingsP
             <DrawerTitle>Background Settings</DrawerTitle>
           </DrawerHeader>
           <div className="flex-1 overflow-y-auto touch-pan-y p-4 space-y-4">
-            {/* Background type selector */}
-            <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-2 block">Type</Label>
-              <ToggleGroup
-                type="single"
-                value={background.type}
-                onValueChange={(value) => {
-                  if (!value) return
-                  if (value === 'solid') {
-                    setBackground({ ...background, type: 'solid', value: background.type === 'solid' ? background.value : colors.background })
-                  } else if (value === 'image') {
-                    setBackground({ ...background, type: 'image', value: background.type === 'image' ? background.value : '' })
-                  } else if (value === 'video') {
-                    setBackground({ ...background, type: 'video', value: background.type === 'video' ? background.value : '' })
-                  }
-                }}
-                className="justify-start"
-              >
-                <ToggleGroupItem value="solid" className="text-xs">
-                  Solid
-                </ToggleGroupItem>
-                <ToggleGroupItem value="image" className="text-xs">
-                  Image
-                </ToggleGroupItem>
-                <ToggleGroupItem value="video" className="text-xs">
-                  Video
-                </ToggleGroupItem>
-              </ToggleGroup>
+            {/* Macintosh theme: desktop pattern */}
+            {themeId === 'macintosh' ? (
+              <>
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground mb-2 block">Desktop Pattern</Label>
+                  <div className="grid grid-cols-6 gap-2">
+                    {[
+                      { id: '', label: 'Default', path: '', preview: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 4px 4px' },
+                      { id: 'pattern-1', label: 'Checker', path: '/images/mac-patterns/pattern-1.png' },
+                      { id: 'pattern-2', label: 'Cross', path: '/images/mac-patterns/pattern-2.png' },
+                      { id: 'pattern-3', label: 'Grid', path: '/images/mac-patterns/pattern-3.png' },
+                      { id: 'pattern-4', label: 'Scale', path: '/images/mac-patterns/pattern-4.png' },
+                      { id: 'pattern-5', label: 'Micro', path: '/images/mac-patterns/pattern-5.png' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        onClick={() => setMacPattern(opt.path)}
+                        className={cn(
+                          "aspect-square rounded border-2 overflow-hidden transition-all",
+                          macPattern === opt.path
+                            ? "border-primary ring-2 ring-primary/30"
+                            : "border-border hover:border-muted-foreground"
+                        )}
+                        title={opt.label}
+                      >
+                        {opt.path ? (
+                          <img
+                            src={opt.path}
+                            alt={opt.label}
+                            className="w-full h-full object-cover"
+                            style={{ imageRendering: 'pixelated' }}
+                          />
+                        ) : (
+                          <div className="w-full h-full" style={{ background: opt.preview }} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <ColorPicker
+                  label="Background Color"
+                  color={macPatternColor}
+                  onChange={setMacPatternColor}
+                />
+              </>
+            ) : (
+              <>
+                {/* Standard themes: background type selector */}
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground mb-2 block">Type</Label>
+                  <ToggleGroup
+                    type="single"
+                    value={background.type}
+                    onValueChange={(value) => {
+                      if (!value) return
+                      if (value === 'solid') {
+                        setBackground({ ...background, type: 'solid', value: background.type === 'solid' ? background.value : colors.background })
+                      } else if (value === 'image') {
+                        setBackground({ ...background, type: 'image', value: background.type === 'image' ? background.value : '' })
+                      } else if (value === 'video') {
+                        setBackground({ ...background, type: 'video', value: background.type === 'video' ? background.value : '' })
+                      }
+                    }}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="solid" className="text-xs">Solid</ToggleGroupItem>
+                    <ToggleGroupItem value="image" className="text-xs">Image</ToggleGroupItem>
+                    <ToggleGroupItem value="video" className="text-xs">Video</ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {background.type === 'solid' && (
+                  <ColorPicker
+                    label="Background Color"
+                    color={background.value}
+                    onChange={(value) => setBackground({ ...background, type: 'solid', value })}
+                  />
+                )}
+
+                {background.type === 'image' && (
+                  <p className="text-xs text-muted-foreground">
+                    Use full settings to upload a background image
+                  </p>
+                )}
+
+                {background.type === 'video' && (
+                  <p className="text-xs text-muted-foreground">
+                    Use full settings to upload a background video
+                  </p>
+                )}
+              </>
+            )}
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Frame Overlay */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Frame className="w-3.5 h-3.5 text-muted-foreground" />
+                <Label className="text-xs font-medium text-muted-foreground">Frame Overlay</Label>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  { id: '', label: 'None', path: '' },
+                  { id: 'awge-tv', label: 'AWGE TV', path: '/frames/awge-tv.png' },
+                ].map((frame) => (
+                  <Button
+                    key={frame.id}
+                    variant={background.frameOverlay === frame.path || (!background.frameOverlay && !frame.path) ? 'default' : 'outline'}
+                    size="sm"
+                    className="text-xs h-8"
+                    onClick={() => setBackground({
+                      ...background,
+                      frameOverlay: frame.path || undefined,
+                      ...(frame.path
+                        ? { frameFitContent: true }
+                        : { frameZoom: undefined, framePositionX: undefined, framePositionY: undefined, frameFitContent: undefined })
+                    })}
+                  >
+                    {frame.label}
+                  </Button>
+                ))}
+              </div>
+              {background.frameOverlay && (
+                <div className="space-y-3 pl-3 border-l-2 border-border">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Fit Content</Label>
+                    <Switch
+                      checked={background.frameFitContent ?? true}
+                      onCheckedChange={(checked) => setBackground({ ...background, frameFitContent: checked })}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Zoom</span><span>{(background.frameZoom ?? 1).toFixed(2)}x</span>
+                    </div>
+                    <Slider value={[background.frameZoom ?? 1]} onValueChange={([v]) => setBackground({ ...background, frameZoom: v })} min={0.5} max={2} step={0.05} />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Position X</span><span>{background.framePositionX ?? 0}%</span>
+                    </div>
+                    <Slider value={[background.framePositionX ?? 0]} onValueChange={([v]) => setBackground({ ...background, framePositionX: v })} min={-50} max={50} step={1} />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Position Y</span><span>{background.framePositionY ?? 0}%</span>
+                    </div>
+                    <Slider value={[background.framePositionY ?? 0]} onValueChange={([v]) => setBackground({ ...background, framePositionY: v })} min={-50} max={50} step={1} />
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Solid color picker */}
-            {background.type === 'solid' && (
-              <ColorPicker
-                label="Background Color"
-                color={background.value}
-                onChange={(value) => setBackground({ ...background, type: 'solid', value })}
-              />
-            )}
+            {/* Divider */}
+            <div className="h-px bg-border" />
 
-            {/* Image upload message */}
-            {background.type === 'image' && (
-              <p className="text-sm text-muted-foreground">
-                Use full settings to upload a background image
-              </p>
-            )}
+            {/* Noise Overlay */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Label className="text-xs font-medium text-muted-foreground">Noise</Label>
+                </div>
+                <Switch
+                  checked={background.noiseOverlay ?? false}
+                  onCheckedChange={(checked) => setBackground({ ...background, noiseOverlay: checked })}
+                />
+              </div>
+              {background.noiseOverlay && (
+                <div className="space-y-1 pl-3 border-l-2 border-border">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Intensity</span><span>{background.noiseIntensity ?? 15}%</span>
+                  </div>
+                  <Slider value={[background.noiseIntensity ?? 15]} onValueChange={([v]) => setBackground({ ...background, noiseIntensity: v })} min={5} max={50} step={1} />
+                </div>
+              )}
+            </div>
 
-            {/* Video upload message */}
-            {background.type === 'video' && (
-              <p className="text-sm text-muted-foreground">
-                Use full settings to upload a background video
-              </p>
-            )}
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Dim Overlay */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Moon className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Label className="text-xs font-medium text-muted-foreground">Dim</Label>
+                </div>
+                <Switch
+                  checked={background.dimOverlay ?? false}
+                  onCheckedChange={(checked) => setBackground({ ...background, dimOverlay: checked })}
+                />
+              </div>
+              {background.dimOverlay && (
+                <div className="space-y-1 pl-3 border-l-2 border-border">
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Intensity</span><span>{background.dimIntensity ?? 40}%</span>
+                  </div>
+                  <Slider value={[background.dimIntensity ?? 40]} onValueChange={([v]) => setBackground({ ...background, dimIntensity: v })} min={10} max={80} step={5} />
+                </div>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Status bar color */}
+            <ColorPicker
+              label="Status Bar Color"
+              color={background.topBarColor || '#000000'}
+              onChange={(color) => setBackground({ ...background, topBarColor: color })}
+            />
 
             {/* Full settings button */}
             <Button

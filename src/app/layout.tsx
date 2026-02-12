@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
-import { ThemeApplicator } from '@/components/theme-applicator'
 import { EmbedPlaybackProvider } from '@/components/providers/embed-provider'
 import { fontVariables } from './fonts'
 import './globals.css'
@@ -28,9 +27,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <EmbedPlaybackProvider>
-            <ThemeApplicator>
-              {children}
-            </ThemeApplicator>
+            {children}
           </EmbedPlaybackProvider>
         </ThemeProvider>
       </body>

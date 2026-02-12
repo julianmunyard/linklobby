@@ -40,6 +40,17 @@ function genTime(index: number): string {
   return `${String(display).padStart(2, '0')}:${min}${suffix}`
 }
 
+// Render text as individual LED character cells
+function renderLedCells(text: string): React.ReactNode {
+  return (
+    <span className="led-text">
+      {text.split('').map((char, i) => (
+        <span key={i} className="led-cell">{char === ' ' ? '\u00A0' : char}</span>
+      ))}
+    </span>
+  )
+}
+
 interface StaticDeparturesBoardLayoutProps {
   username: string
   title: string
@@ -48,6 +59,7 @@ interface StaticDeparturesBoardLayoutProps {
   bodySize?: number
   socialIcons?: SocialIcon[]
   showSocialIcons?: boolean
+  isLed?: boolean
 }
 
 export function StaticDeparturesBoardLayout({
@@ -56,11 +68,13 @@ export function StaticDeparturesBoardLayout({
   cards,
   socialIcons = [],
   showSocialIcons = true,
+  isLed = false,
 }: StaticDeparturesBoardLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const t = (text: string) => isLed ? renderLedCells(text) : text
 
   useEffect(() => { setIsMounted(true) }, [])
   useEffect(() => { containerRef.current?.focus() }, [])
@@ -124,12 +138,12 @@ export function StaticDeparturesBoardLayout({
           className="departures-board"
           style={{
             color: 'var(--theme-text)',
-            fontFamily: 'var(--font-aux-mono)',
+            fontFamily: 'var(--font-theme-body)',
           }}
         >
           {/* Title row */}
           <div className="departures-board-row departures-board-row-title">
-            {(title || 'DEPARTURES').toUpperCase()}
+            {t((title || 'DEPARTURES').toUpperCase())}
           </div>
 
           {/* Gap between title and content */}
@@ -137,9 +151,9 @@ export function StaticDeparturesBoardLayout({
 
           {/* Column header row */}
           <div className="departures-board-row departures-board-row-header">
-            <span className="departures-col-time">TIME</span>
-            <span className="departures-col-name">TO</span>
-            <span className="departures-col-info">REMARKS</span>
+            <span className="departures-col-time">{t('TIME')}</span>
+            <span className="departures-col-name">{t('TO')}</span>
+            <span className="departures-col-info">{t('REMARKS')}</span>
           </div>
 
           {/* Card rows */}
@@ -149,7 +163,7 @@ export function StaticDeparturesBoardLayout({
             if (card.card_type === 'text') {
               return (
                 <div key={card.id} className="departures-board-row departures-board-row-section" data-card-id={card.id}>
-                  {displayText.toUpperCase()}
+                  {t(displayText.toUpperCase())}
                 </div>
               )
             }
@@ -183,9 +197,9 @@ export function StaticDeparturesBoardLayout({
                 onClick={() => handleCardClick(card, index)}
                 data-card-id={card.id}
               >
-                <span className="departures-col-time">{genTime(index)}</span>
-                <span className="departures-col-name">{displayText.toUpperCase()}</span>
-                <span className="departures-col-info" >ON TIME</span>
+                <span className="departures-col-time">{t(genTime(index))}</span>
+                <span className="departures-col-name">{t(displayText.toUpperCase())}</span>
+                <span className="departures-col-info">{t('ON TIME')}</span>
               </button>
             )
           })}
@@ -219,7 +233,7 @@ export function StaticDeparturesBoardLayout({
                       )}
                     </span>
                     <span className="departures-col-name">
-                      {(releaseTitle || artistName || 'NEW RELEASE').toUpperCase()}
+                      {t((releaseTitle || artistName || 'NEW RELEASE').toUpperCase())}
                     </span>
                     <span className="departures-col-info">
                       {preSaveUrl ? (
@@ -229,10 +243,10 @@ export function StaticDeparturesBoardLayout({
                           rel="noopener noreferrer"
                           className="underline uppercase"
                                                   >
-                          {preSaveButtonText.toUpperCase()}
+                          {t(preSaveButtonText.toUpperCase())}
                         </a>
                       ) : (
-                        <span style={{ color: 'var(--theme-accent)' }}>BOARDING</span>
+                        <span style={{ color: 'var(--theme-accent)' }}>{t('BOARDING')}</span>
                       )}
                     </span>
                   </>
@@ -245,9 +259,9 @@ export function StaticDeparturesBoardLayout({
                       rel="noopener noreferrer"
                       className="departures-col-name uppercase"
                     >
-                      {(afterCountdownText || 'OUT NOW').toUpperCase()}
+                      {t((afterCountdownText || 'OUT NOW').toUpperCase())}
                     </a>
-                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>ARRIVED</span>
+                    <span className="departures-col-info" style={{ color: 'var(--theme-accent)' }}>{t('ARRIVED')}</span>
                   </>
                 ) : null}
               </div>
