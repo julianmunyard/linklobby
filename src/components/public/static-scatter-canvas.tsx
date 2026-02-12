@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { CardRenderer } from '@/components/cards/card-renderer'
+import { AudioPlayer } from '@/components/audio/audio-player'
+import { SystemSettingsCard } from '@/components/cards/system-settings-card'
 import type { Card } from '@/types/card'
+import { isAudioContent } from '@/types/card'
+import type { AudioCardContent } from '@/types/audio'
 import type { ScatterPosition } from '@/types/scatter'
 import { cn } from '@/lib/utils'
 
@@ -211,7 +215,68 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         const offset = dragOffsets[card.id] || { x: 0, y: 0 }
         const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
 
-        // All card types: use CardRenderer with matching transform approach
+        // Audio cards: render AudioPlayer directly, bypassing CardRenderer/AudioCard
+        // (AudioCard relies on Zustand store not available on public pages)
+        // Matches the same pattern used in StaticFlowGrid
+        if (card.card_type === 'audio' && isAudioContent(card.content)) {
+          const audioContent = card.content as AudioCardContent
+          const variantMap: Record<string, string> = {
+            'system-settings': 'system-settings',
+            'vcr-menu': 'vcr-menu',
+            'receipt': 'receipt',
+            'classified': 'classified',
+            'departures-board': 'classified',
+            'departures-board-led': 'classified',
+            'mac-os': 'mac-os',
+            'macintosh': 'mac-os',
+            'ipod-classic': 'ipod-classic',
+            'instagram-reels': 'instagram-reels',
+          }
+          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+
+          const audioPlayer = (
+            <AudioPlayer
+              tracks={audioContent.tracks || []}
+              albumArtUrl={audioContent.albumArtUrl}
+              showWaveform={audioContent.showWaveform ?? true}
+              looping={audioContent.looping ?? false}
+              reverbConfig={audioContent.reverbConfig}
+              playerColors={audioContent.playerColors}
+              cardId={card.id}
+              pageId={card.page_id}
+              themeVariant={themeVariant}
+            />
+          )
+
+          const audioInner = themeId === 'system-settings'
+            ? <SystemSettingsCard cardType="audio">{audioPlayer}</SystemSettingsCard>
+            : (
+              <div
+                className="overflow-hidden bg-theme-card-bg border border-theme-border"
+                style={{ borderRadius: 'var(--theme-border-radius)' }}
+              >
+                {audioPlayer}
+              </div>
+            )
+
+          return (
+            <div
+              key={card.id}
+              data-card-id={card.id}
+              className="absolute"
+              style={{
+                width: CARD_RENDER_WIDTH,
+                transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
+                transformOrigin: 'top left',
+                zIndex: scatterPos.zIndex,
+              }}
+            >
+              {audioInner}
+            </div>
+          )
+        }
+
+        // All other card types: use CardRenderer
         return (
           <div
             key={card.id}
