@@ -1314,15 +1314,23 @@ html, body {
 }
 
 /* ========================================
-   Scatter Mode Resize Handles
+   Scatter Mode — react-moveable controls
    ======================================== */
 
-/* Scatter card — hide corner handles until hover */
-.scatter-card [class*="cursor-n"] {
-  opacity: 0;
-  transition: opacity 0.15s;
+/* Style moveable control handles (corner scale handles) */
+.moveable-control {
+  background: white !important;
+  border: 2px solid hsl(217 91% 60%) !important;
+  border-radius: 3px !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: -7px !important;
+  margin-left: -7px !important;
 }
 
-.scatter-card:hover [class*="cursor-n"] {
-  opacity: 1;
+/* Moveable guideline (selection outline) */
+.moveable-line.moveable-direction {
+  background: hsl(217 91% 60%) !important;
+  height: 2px !important;
+  width: 2px !important;
 }

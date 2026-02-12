@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Move, MousePointer } from 'lucide-react'
 import type { Card } from '@/types/card'
+import type { ScatterPosition } from '@/types/scatter'
 import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
 import { ScatterCard } from './scatter-card'
@@ -16,7 +17,6 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   const [canvasWidth, setCanvasWidth] = useState(0)
   const [canvasHeight, setCanvasHeight] = useState(0)
   const [maxZIndex, setMaxZIndex] = useState(0)
-  const [boundsKey, setBoundsKey] = useState(0)
   const [arrangeMode, setArrangeMode] = useState(true)
 
   // Read from stores
@@ -37,14 +37,10 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
       }
     }
 
-    // Initial measurement
     updateDimensions()
 
-    // Set up ResizeObserver
     const resizeObserver = new ResizeObserver(() => {
       updateDimensions()
-      // Increment bounds key to force react-rnd to recalculate bounds
-      setBoundsKey((k) => k + 1)
     })
 
     resizeObserver.observe(canvasRef.current)
@@ -67,11 +63,9 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     setMaxZIndex(max)
   }, [cards, themeId])
 
-  // Send scatter position update to parent editor via postMessage
-  const sendScatterUpdate = useCallback((cardId: string, position: Record<string, number>) => {
-    // Update local page store (for immediate re-render in preview)
+  // Send scatter position update to local store + parent editor via postMessage
+  const sendScatterUpdate = useCallback((cardId: string, position: Partial<ScatterPosition>) => {
     updateCardScatterPosition(cardId, themeId, position)
-    // Also notify parent editor so editor's page store stays in sync
     if (window.parent !== window) {
       window.parent.postMessage(
         { type: 'SCATTER_POSITION_UPDATE', payload: { cardId, themeId, position } },
@@ -80,44 +74,10 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     }
   }, [themeId, updateCardScatterPosition])
 
-  // Convert pixel position to percentage and update store (clamped to canvas)
-  const handleDragStop = useCallback((cardId: string, pixelX: number, pixelY: number) => {
-    if (canvasWidth === 0 || canvasHeight === 0) return
-
-    const clampedX = Math.max(0, pixelX)
-    const clampedY = Math.max(0, pixelY)
-
-    const percentX = (clampedX / canvasWidth) * 100
-    const percentY = (clampedY / canvasHeight) * 100
-
-    sendScatterUpdate(cardId, { x: percentX, y: percentY })
-  }, [canvasWidth, canvasHeight, sendScatterUpdate])
-
-  // Convert pixel dimensions to percentage and update store (clamped to canvas)
-  const handleResizeStop = useCallback((
-    cardId: string,
-    pixelW: number,
-    pixelH: number,
-    pixelX: number,
-    pixelY: number
-  ) => {
-    if (canvasWidth === 0 || canvasHeight === 0) return
-
-    const clampedX = Math.max(0, Math.min(pixelX, canvasWidth - pixelW))
-    const clampedY = Math.max(0, Math.min(pixelY, canvasHeight - pixelH))
-
-    const percentW = (pixelW / canvasWidth) * 100
-    const percentH = (pixelH / canvasHeight) * 100
-    const percentX = (clampedX / canvasWidth) * 100
-    const percentY = (clampedY / canvasHeight) * 100
-
-    sendScatterUpdate(cardId, {
-      x: percentX,
-      y: percentY,
-      width: percentW,
-      height: percentH,
-    })
-  }, [canvasWidth, canvasHeight, sendScatterUpdate])
+  // Unified update callback for ScatterCard
+  const handleUpdate = useCallback((cardId: string, position: Partial<ScatterPosition>) => {
+    sendScatterUpdate(cardId, position)
+  }, [sendScatterUpdate])
 
   // Bring card to front by incrementing z-index
   const handleBringToFront = useCallback((cardId: string) => {
@@ -126,7 +86,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     setMaxZIndex(newZ)
   }, [maxZIndex, sendScatterUpdate])
 
-  // Handle card selection — in edit mode, also notify parent for property editing
+  // Handle card selection — notify parent for property editing
   const handleSelect = useCallback((cardId: string) => {
     selectCard(cardId)
     if (window.parent !== window) {
@@ -206,21 +166,19 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
         )}
       </button>
 
-      {/* Render cards with react-rnd */}
+      {/* Render scatter cards with react-moveable */}
       {canvasWidth > 0 && canvasHeight > 0 && visibleCards.map((card, index) => (
         <ScatterCard
-          key={`${card.id}-${boundsKey}`}
+          key={card.id}
           card={card}
           cardIndex={index}
           totalCards={visibleCards.length}
           themeId={themeId}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
-          maxZIndex={maxZIndex}
           isSelected={selectedCardId === card.id}
           arrangeMode={arrangeMode}
-          onDragStop={handleDragStop}
-          onResizeStop={handleResizeStop}
+          onUpdate={handleUpdate}
           onBringToFront={handleBringToFront}
           onSelect={handleSelect}
         />
