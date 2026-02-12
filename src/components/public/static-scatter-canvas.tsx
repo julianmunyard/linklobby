@@ -216,9 +216,11 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
                     <div className="w-10 h-1 rounded-full bg-white/20" />
                   </div>
                 )}
-                <SystemSettingsCard cardType="audio">
-                  {audioPlayer}
-                </SystemSettingsCard>
+                <div style={{ touchAction: 'none' }}>
+                  <SystemSettingsCard cardType="audio">
+                    {audioPlayer}
+                  </SystemSettingsCard>
+                </div>
               </div>
             )
           }
@@ -248,7 +250,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               )}
               <div
                 className="w-full overflow-hidden bg-theme-card-bg border border-theme-border"
-                style={{ borderRadius: 'var(--theme-border-radius)' }}
+                style={{ borderRadius: 'var(--theme-border-radius)', touchAction: 'none' }}
               >
                 {audioPlayer}
               </div>
