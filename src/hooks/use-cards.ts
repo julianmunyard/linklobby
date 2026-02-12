@@ -91,11 +91,11 @@ export function useCards() {
     try {
       setError(null)
 
-      // Get cards from store (they may have been modified)
-      const currentCards = usePageStore.getState().cards
+      // Snapshot cards reference before save — used to detect concurrent changes
+      const cardsSnapshot = usePageStore.getState().cards
 
       // For each card, upsert in database with retry (handles both new and existing cards)
-      const promises = currentCards.map((card) =>
+      const promises = cardsSnapshot.map((card) =>
         saveWithRetry(() =>
           fetch(`/api/cards/${card.id}`, {
             method: "PUT",
@@ -121,7 +121,13 @@ export function useCards() {
       )
 
       await Promise.all(promises)
-      markSaved()
+
+      // Only mark as saved if no new changes came in during the async save.
+      // If cards changed (e.g. scatter position update during save), hasChanges
+      // stays true so auto-save will re-trigger and capture the new state.
+      if (usePageStore.getState().cards === cardsSnapshot) {
+        markSaved()
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to save"
       setError(message)

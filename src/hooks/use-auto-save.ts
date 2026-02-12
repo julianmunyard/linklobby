@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useCallback } from "react"
+import { useEffect, useRef, useCallback, useState } from "react"
 import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
@@ -60,6 +60,10 @@ export function useAutoSave(debounceMs = 1000) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isSavingRef = useRef(false)
   const pendingChangesRef = useRef(false)
+  // Incremented after each save to force the effect to re-evaluate.
+  // Handles the case where hasChanges stays true (changes during save)
+  // and the effect wouldn't otherwise re-fire since deps didn't change.
+  const [saveVersion, setSaveVersion] = useState(0)
 
   // Combined check for any changes
   const hasChanges = cardHasChanges || profileHasChanges || themeHasChanges
@@ -112,6 +116,12 @@ export function useAutoSave(debounceMs = 1000) {
       if (success) {
         pendingChangesRef.current = false
       }
+
+      // Force effect re-evaluation: if changes happened during the async save,
+      // hasChanges is still true but the effect won't re-fire because the dep
+      // value didn't change. Incrementing saveVersion triggers a re-render
+      // so the effect runs again and schedules another save if needed.
+      setSaveVersion(v => v + 1)
     }, debounceMs)
 
     return () => {
@@ -119,7 +129,7 @@ export function useAutoSave(debounceMs = 1000) {
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [hasChanges, cardHasChanges, profileHasChanges, themeHasChanges, saveCards, debounceMs, isLoading])
+  }, [hasChanges, cardHasChanges, profileHasChanges, themeHasChanges, saveCards, debounceMs, isLoading, saveVersion])
 
   // Add global blur listener to save when user clicks away from inputs
   useEffect(() => {
