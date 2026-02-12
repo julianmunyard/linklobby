@@ -350,9 +350,6 @@ export const BLINKIE_STYLES: Record<string, BlinkieStyleDef> = {
   '0167-saw': {
     name: "GAS GAS GAS", bgID: "0167-saw", frames: 2, delay: 10, colour: ["#babdc2","#adb1b5"], font: "doublehomicide", fontsize: 16, x: 2, y: 0, tags: ["spooky","anakin"],
   },
-  '0165-jennifersbody': {
-    name: "I am a god", bgID: "0165-jennifersbody", frames: 2, delay: 10, colour: ["#ff0000","#ff0000"], font: "doublehomicide", fontsize: 16, x: -21, y: 0, tags: ["fandom","spooky"],
-  },
   '0164-bloodylips': {
     name: "Hell is a teen girl", bgID: "0164-bloodylips", frames: 2, delay: 10, colour: ["#ff0000","#ff0000"], font: "hydratinglip", fontsize: 13, x: -14, y: 0, tags: ["fandom","spooky"],
   },
