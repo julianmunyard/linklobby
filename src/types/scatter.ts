@@ -26,6 +26,7 @@ export const SCATTER_THEMES: ThemeId[] = [
   'mac-os',
   'instagram-reels',
   'system-settings',
+  'blinkies',
 ]
 
 /**

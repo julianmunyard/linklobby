@@ -71,6 +71,7 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
       )
 
     case 'system-settings':
+    case 'blinkies':
       return (
         <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent}>
           {children}

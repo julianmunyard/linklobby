@@ -16,7 +16,7 @@ import { getTheme, getThemeDefaults } from '@/lib/themes'
 import { useProfileStore } from '@/stores/profile-store'
 
 // Themes where text color auto-syncs to header title and social icon color
-const SYNC_TEXT_COLOR_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
+const SYNC_TEXT_COLOR_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'blinkies']
 
 function syncHeaderColors(themeId: ThemeId, textColor: string) {
   if (!SYNC_TEXT_COLOR_THEMES.includes(themeId)) return

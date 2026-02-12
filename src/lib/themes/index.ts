@@ -3,6 +3,7 @@ import type { ThemeId, ThemeConfig, ColorPalette, FontConfig, StyleConfig } from
 import { macOsTheme } from './mac-os'
 import { instagramReelsTheme } from './instagram-reels'
 import { systemSettingsTheme } from './system-settings'
+import { blinkiesTheme } from './blinkies'
 import { vcrMenuTheme } from './vcr-menu'
 import { ipodClassicTheme } from './ipod-classic'
 import { receiptTheme } from './receipt'
@@ -17,6 +18,7 @@ export const THEMES: ThemeConfig[] = [
   macOsTheme,
   instagramReelsTheme,
   systemSettingsTheme,
+  blinkiesTheme,
   vcrMenuTheme,
   ipodClassicTheme,
   receiptTheme,
@@ -28,7 +30,7 @@ export const THEMES: ThemeConfig[] = [
   departuresBoardLedTheme,
 ]
 
-export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh', 'word-art', 'lanyard-badge', 'classified', 'departures-board', 'departures-board-led']
+export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'blinkies', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh', 'word-art', 'lanyard-badge', 'classified', 'departures-board', 'departures-board-led']
 
 export function getTheme(id: ThemeId): ThemeConfig | undefined {
   return THEMES.find((theme) => theme.id === id)

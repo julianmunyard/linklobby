@@ -20,7 +20,7 @@ const THEME_CATEGORIES = [
     id: 'custom-link-page',
     name: 'Custom Link Page',
     description: 'Card-based layouts with rich visual customisation',
-    themeIds: ['mac-os', 'instagram-reels', 'system-settings'] as ThemeId[],
+    themeIds: ['mac-os', 'instagram-reels', 'system-settings', 'blinkies'] as ThemeId[],
   },
   {
     id: 'designer',
