@@ -1334,3 +1334,275 @@ html, body {
   height: 2px !important;
   width: 2px !important;
 }
+
+/* ========================================
+   Blinkie animations
+   ======================================== */
+
+/* Base blinkie badge styles */
+.blinkie-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  max-width: 200px;
+  width: 100%;
+  margin: 4px auto;
+  overflow: hidden;
+  position: relative;
+  image-rendering: pixelated;
+  border-width: 1px;
+  border-style: solid;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.blinkie-badge:hover {
+  transform: scale(1.02);
+}
+
+.blinkie-text {
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  padding: 0 6px;
+  font-family: var(--font-pix-chicago), var(--font-chikarego), monospace;
+}
+
+/* 1. Classic Pink - sparkle shimmer */
+.blinkie-classic-pink {
+  background: linear-gradient(90deg, #ff69b4 0%, #ff1493 25%, #ff69b4 50%, #ff1493 75%, #ff69b4 100%);
+  background-size: 200% 100%;
+  border-color: #ff1493;
+  animation: blinkie-shimmer 2s linear infinite;
+}
+
+.blinkie-classic-pink .blinkie-text {
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes blinkie-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* 2. Rainbow - hue rotation */
+.blinkie-rainbow {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  background-size: 200% 100%;
+  border-color: currentColor;
+  animation: blinkie-rainbow 3s linear infinite;
+}
+
+.blinkie-rainbow .blinkie-text {
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes blinkie-rainbow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* 3. Starry - twinkling stars */
+.blinkie-starry {
+  background: #1a0033;
+  border-color: #4a0080;
+}
+
+.blinkie-starry::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, white 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.6;
+  animation: blinkie-twinkle 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.blinkie-starry .blinkie-text {
+  color: #fff;
+  text-shadow: 0 0 4px #fff, 0 0 8px #a080ff;
+}
+
+@keyframes blinkie-twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* 4. Neon - pulsing glow */
+.blinkie-neon {
+  background: #0a0a0a;
+  border-color: #0ff;
+}
+
+.blinkie-neon .blinkie-text {
+  color: #0ff;
+  animation: blinkie-neon-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes blinkie-neon-glow {
+  0%, 100% { text-shadow: 0 0 2px #0ff, 0 0 4px #0ff; }
+  50% { text-shadow: 0 0 4px #0ff, 0 0 8px #0ff, 0 0 12px #0ff; }
+}
+
+/* 5. Hearts - scrolling hearts */
+.blinkie-hearts {
+  background: #ffb6c1;
+  border-color: #ff69b4;
+  overflow: hidden;
+}
+
+.blinkie-hearts::before {
+  content: '♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥ ♥';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #ff1493;
+  opacity: 0.3;
+  white-space: nowrap;
+  animation: blinkie-scroll 4s linear infinite;
+  pointer-events: none;
+}
+
+.blinkie-hearts .blinkie-text {
+  color: #8b0000;
+  font-weight: bold;
+}
+
+@keyframes blinkie-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* 6. Pastel - cycling gradient */
+.blinkie-pastel {
+  background: linear-gradient(90deg, #ffb3d9, #c9b3ff, #b3ffe0, #ffd9b3);
+  background-size: 300% 100%;
+  border-color: #d8bfd8;
+  animation: blinkie-pastel-shift 4s ease infinite;
+}
+
+.blinkie-pastel .blinkie-text {
+  color: #333;
+  font-weight: 500;
+}
+
+@keyframes blinkie-pastel-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 7. Matrix - digital rain */
+.blinkie-matrix {
+  background: #000;
+  border-color: #003300;
+  overflow: hidden;
+}
+
+.blinkie-matrix::before {
+  content: '1010011010100101101001010110101001011010010101101010';
+  position: absolute;
+  inset: 0;
+  font-size: 6px;
+  color: #00ff00;
+  opacity: 0.2;
+  white-space: nowrap;
+  animation: blinkie-matrix-rain 3s linear infinite;
+  pointer-events: none;
+  letter-spacing: 1px;
+}
+
+.blinkie-matrix .blinkie-text {
+  color: #00ff00;
+  animation: blinkie-matrix-flicker 0.15s steps(2) infinite;
+}
+
+@keyframes blinkie-matrix-rain {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(20px); }
+}
+
+@keyframes blinkie-matrix-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
+
+/* 8. Glitter - sparkle effect */
+.blinkie-glitter {
+  background: #ffd700;
+  border-color: #daa520;
+  overflow: hidden;
+}
+
+.blinkie-glitter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, white 1px, transparent 1px),
+    radial-gradient(circle at 60% 70%, white 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, white 1px, transparent 1px),
+    radial-gradient(circle at 40% 80%, white 1px, transparent 1px);
+  background-size: 30px 30px, 40px 40px, 35px 35px, 45px 45px;
+  opacity: 0.8;
+  animation: blinkie-sparkle 0.5s steps(2) infinite;
+  pointer-events: none;
+}
+
+.blinkie-glitter .blinkie-text {
+  color: #8b4513;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes blinkie-sparkle {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(2px, 2px); }
+}
+
+/* 9. Flame - rising fire */
+.blinkie-flame {
+  background: linear-gradient(0deg, #ff4500 0%, #ff8c00 50%, #ffd700 100%);
+  background-size: 100% 200%;
+  border-color: #ff4500;
+  animation: blinkie-flames 1.5s ease infinite;
+}
+
+.blinkie-flame .blinkie-text {
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+  font-weight: bold;
+}
+
+@keyframes blinkie-flames {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 0% 100%; }
+}
+
+/* 10. Ocean - wave motion */
+.blinkie-ocean {
+  background: linear-gradient(90deg, #006994, #00b4d8, #48cae4, #00b4d8, #006994);
+  background-size: 200% 100%;
+  border-color: #006994;
+  animation: blinkie-waves 3s ease-in-out infinite;
+}
+
+.blinkie-ocean .blinkie-text {
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes blinkie-waves {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}

@@ -6,6 +6,7 @@ import { HorizontalLink } from "./horizontal-link"
 import { SquareCard } from "./square-card"
 import { SocialIconsCard } from "./social-icons-card"
 import { LinkCard } from "./link-card"
+import { BlinkieLink } from "./blinkie-link"
 import { TextCard } from "./text-card"
 import { VideoCard } from "./video-card"
 import { GalleryCard } from "./gallery-card"
@@ -15,6 +16,7 @@ import { MusicCard } from "./music-card"
 import { EmailCollectionCard } from "./email-collection-card"
 import { ReleaseCard } from "./release-card"
 import { ThemedCardWrapper } from "./themed-card-wrapper"
+import { useThemeStore } from "@/stores/theme-store"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -24,6 +26,10 @@ interface CardRendererProps {
 }
 
 export function CardRenderer({ card, isPreview = false, themeId }: CardRendererProps) {
+  // Get theme from store for editor preview, or use themeId prop for public pages
+  const storeThemeId = useThemeStore((s) => s.themeId)
+  const effectiveThemeId = themeId || storeThemeId
+
   // Render card content
   let cardContent: React.ReactNode
 
@@ -44,9 +50,15 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
       // Text cards are plain text without any card wrapper
       return <TextCard card={card} isPreview={isPreview} />
     case "link":
-    case "mini":
-      cardContent = <LinkCard card={card} isPreview={isPreview} />
+    case "mini": {
+      // Use BlinkieLink for blinkies theme, otherwise normal LinkCard
+      if (effectiveThemeId === 'blinkies') {
+        cardContent = <BlinkieLink card={card} isPreview={isPreview} />
+      } else {
+        cardContent = <LinkCard card={card} isPreview={isPreview} />
+      }
       break
+    }
     case "video":
       cardContent = <VideoCard card={card} isPreview={isPreview} />
       break
