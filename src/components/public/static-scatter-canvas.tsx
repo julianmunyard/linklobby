@@ -191,33 +191,11 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
         const scatterPos = scatterLayouts[themeId]
 
-        // Fall back to stacked vertical layout if no scatter position
-        if (!scatterPos) {
-          return (
-            <div
-              key={card.id}
-              data-card-id={card.id}
-              className="w-full mb-4"
-            >
-              <CardRenderer card={card} themeId={themeId} />
-            </div>
-          )
-        }
-
-        // Card content renders at CARD_RENDER_WIDTH (phone-like), then scale
-        // is applied on top. Positions use the full viewport.
-        const isFitContent = FIT_CONTENT_TYPES.has(card.card_type)
-        const scale = scatterPos.width / 100
-        const pixelX = (scatterPos.x / 100) * containerWidth
-        const pixelY = (scatterPos.y / 100) * referenceHeight
-
-        // Apply ephemeral drag offset if visitor drag is enabled
-        const offset = dragOffsets[card.id] || { x: 0, y: 0 }
-        const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
-
-        // Audio cards: render AudioPlayer directly, bypassing CardRenderer/AudioCard
-        // (AudioCard relies on Zustand store not available on public pages)
-        // Matches the same pattern used in StaticFlowGrid
+        // Audio cards: ALWAYS render AudioPlayer directly, bypassing CardRenderer/AudioCard.
+        // AudioCard relies on Zustand store (useThemeStore) not available on public pages.
+        // This must happen BEFORE the scatterPos check — cards without saved positions
+        // still need direct AudioPlayer rendering to work on public pages.
+        // Matches the same pattern used in StaticFlowGrid.
         if (card.card_type === 'audio' && isAudioContent(card.content)) {
           const audioContent = card.content as AudioCardContent
           const variantMap: Record<string, string> = {
@@ -259,22 +237,62 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               </div>
             )
 
+          // If card has a scatter position, render absolutely positioned
+          if (scatterPos) {
+            const scale = scatterPos.width / 100
+            const pixelX = (scatterPos.x / 100) * containerWidth
+            const pixelY = (scatterPos.y / 100) * referenceHeight
+            const offset = dragOffsets[card.id] || { x: 0, y: 0 }
+            const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
+
+            return (
+              <div
+                key={card.id}
+                data-card-id={card.id}
+                className="absolute"
+                style={{
+                  width: CARD_RENDER_WIDTH,
+                  transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
+                  transformOrigin: 'top left',
+                  zIndex: scatterPos.zIndex,
+                }}
+              >
+                {audioInner}
+              </div>
+            )
+          }
+
+          // No scatter position — stacked fallback (still bypass CardRenderer)
           return (
-            <div
-              key={card.id}
-              data-card-id={card.id}
-              className="absolute"
-              style={{
-                width: CARD_RENDER_WIDTH,
-                transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
-                transformOrigin: 'top left',
-                zIndex: scatterPos.zIndex,
-              }}
-            >
+            <div key={card.id} data-card-id={card.id} className="w-full mb-4" style={{ maxWidth: CARD_RENDER_WIDTH }}>
               {audioInner}
             </div>
           )
         }
+
+        // Fall back to stacked vertical layout if no scatter position
+        if (!scatterPos) {
+          return (
+            <div
+              key={card.id}
+              data-card-id={card.id}
+              className="w-full mb-4"
+            >
+              <CardRenderer card={card} themeId={themeId} />
+            </div>
+          )
+        }
+
+        // Card content renders at CARD_RENDER_WIDTH (phone-like), then scale
+        // is applied on top. Positions use the full viewport.
+        const isFitContent = FIT_CONTENT_TYPES.has(card.card_type)
+        const scale = scatterPos.width / 100
+        const pixelX = (scatterPos.x / 100) * containerWidth
+        const pixelY = (scatterPos.y / 100) * referenceHeight
+
+        // Apply ephemeral drag offset if visitor drag is enabled
+        const offset = dragOffsets[card.id] || { x: 0, y: 0 }
+        const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
 
         // All other card types: use CardRenderer
         return (
