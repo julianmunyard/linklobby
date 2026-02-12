@@ -37,7 +37,7 @@ export function LinkCardFields({ content, onChange, cardType = 'link' }: LinkCar
       {/* Blinky style picker (only for blinkies theme) */}
       {showBlinkiePicker && (
         <BlinkieStylePicker
-          currentStyle={content.blinkieStyle || 'classic-pink'}
+          currentStyle={content.blinkieStyle || '0008-pink'}
           onStyleChange={(style) => onChange({ blinkieStyle: style })}
         />
       )}
