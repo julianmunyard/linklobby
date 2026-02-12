@@ -198,19 +198,24 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               <div
                 key={card.id}
                 data-card-id={card.id}
-                className={cn(
-                  'absolute',
-                  visitorDrag && 'cursor-move'
-                )}
+                className="absolute"
                 style={{
                   width: containerWidth || '100%',
                   transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
                   transformOrigin: 'top left',
                   zIndex: scatterPos.zIndex,
-                  touchAction: visitorDrag ? 'none' : undefined,
                 }}
-                onPointerDown={(e) => handleDragStart(e, card.id)}
               >
+                {/* Drag handle — only this strip triggers drag, audio controls stay interactive */}
+                {visitorDrag && (
+                  <div
+                    className="cursor-move flex items-center justify-center py-1.5"
+                    style={{ touchAction: 'none' }}
+                    onPointerDown={(e) => handleDragStart(e, card.id)}
+                  >
+                    <div className="w-10 h-1 rounded-full bg-white/20" />
+                  </div>
+                )}
                 <SystemSettingsCard cardType="audio">
                   {audioPlayer}
                 </SystemSettingsCard>
@@ -223,19 +228,24 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             <div
               key={card.id}
               data-card-id={card.id}
-              className={cn(
-                'absolute',
-                visitorDrag && 'cursor-move'
-              )}
+              className="absolute"
               style={{
                 width: containerWidth || '100%',
                 transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
                 transformOrigin: 'top left',
                 zIndex: scatterPos.zIndex,
-                touchAction: visitorDrag ? 'none' : undefined,
               }}
-              onPointerDown={(e) => handleDragStart(e, card.id)}
             >
+              {/* Drag handle — only this strip triggers drag, audio controls stay interactive */}
+              {visitorDrag && (
+                <div
+                  className="cursor-move flex items-center justify-center py-1.5"
+                  style={{ touchAction: 'none' }}
+                  onPointerDown={(e) => handleDragStart(e, card.id)}
+                >
+                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                </div>
+              )}
               <div
                 className="w-full overflow-hidden bg-theme-card-bg border border-theme-border"
                 style={{ borderRadius: 'var(--theme-border-radius)' }}
