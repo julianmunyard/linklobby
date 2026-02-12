@@ -176,8 +176,10 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       if (initPromiseRef.current) {
         await initPromiseRef.current
       }
-      // Store URL on engine even if loadTrack throws (for pendingPlayAfterLoad)
-      engine.setPendingTrack(url)
+      // engine.loadTrack() handles currentUrl + isLoadedFlag internally.
+      // DO NOT call engine.setPendingTrack() here — it resets isLoadedFlag,
+      // which defeats the short-circuit in loadTrack() and forces a redundant
+      // re-download on every React Strict Mode re-mount.
       await engine.loadTrack(url)
     } catch (error) {
       console.error('Failed to load track:', error)

@@ -106,8 +106,13 @@ class AudioEngine {
       // Connect to audio output — use the node's own context to avoid mismatch
       this.processorNode.connect(this.processorNode.context.destination)
 
-      // Suspend until play is called
-      this.processorNode.context.suspend()
+      // DO NOT explicitly suspend the context here.
+      // Browser autoplay policy already suspends new AudioContexts created outside
+      // user gestures. Explicitly suspending before the context has ever processed
+      // a frame can cause resume() to fail in certain timing conditions (e.g. when
+      // the AudioPlayer mounts after a measurement cycle in scatter/freeform mode).
+      // play() calls context.resume() which handles both browser auto-suspension
+      // and any other suspended state.
 
       this.started = true
       console.log('AudioEngine initialized (Superpowered)')
@@ -118,57 +123,54 @@ class AudioEngine {
   }
 
   /**
-   * iOS silent audio unlock — matches Munyard Mixer pattern exactly.
-   * Must be called in a user gesture handler. Awaits audio.play() to ensure
-   * the media channel is actually unlocked before context.resume() is called.
+   * iOS silent audio unlock pattern from Munyard Mixer.
+   * Must be called in a user gesture handler. audio.play() fires in the gesture
+   * context (fire-and-forget). When it completes, retries context.resume() to
+   * ensure the AudioContext is actually running after the media channel unlocks.
    */
-  private ensureUnlockedElement(): void {
-    if (this.silentAudioElement) return
-
-    const audio = document.createElement('audio')
-    audio.loop = true
-    audio.volume = 0.001
-    audio.preload = 'auto'
-    audio.controls = false
-    ;(audio as any).disableRemotePlayback = true
-    audio.setAttribute('playsinline', 'true')
-    audio.setAttribute('webkit-playsinline', 'true')
-    ;(audio as any).playsInline = true
-    audio.style.display = 'none'
-
-    const huffman = (count: number, repeatStr: string): string => {
-      let e = repeatStr
-      for (; count > 1; count--) e += repeatStr
-      return e
-    }
-    const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
-    audio.src = silence
-    audio.load()
-
-    document.body.appendChild(audio)
-    this.silentAudioElement = audio
-  }
-
-  /**
-   * Unlock iOS media channel by awaiting silent audio.play().
-   * Matches Munyard Mixer: await audio.play() + 20ms delay, then ctx.resume() works.
-   */
-  async ensureUnlocked(): Promise<void> {
+  private ensureUnlocked(): void {
     if (!this.isIOS || this.audioUnlocked) return
 
-    this.ensureUnlockedElement()
+    if (!this.silentAudioElement) {
+      const audio = document.createElement('audio')
+      audio.loop = true
+      audio.volume = 0.001
+      audio.preload = 'auto'
+      audio.controls = false
+      ;(audio as any).disableRemotePlayback = true
+      audio.setAttribute('playsinline', 'true')
+      audio.setAttribute('webkit-playsinline', 'true')
+      ;(audio as any).playsInline = true
+      audio.style.display = 'none'
 
-    try {
-      // audio.play() is called synchronously in the user gesture — this is the
-      // media activation. Awaiting ensures it actually starts before we proceed.
-      await this.silentAudioElement!.play()
-      this.audioUnlocked = true
-      // Small delay matching Munyard Mixer pattern
-      await new Promise(resolve => setTimeout(resolve, 20))
-      console.log('iOS media channel unlocked')
-    } catch (err) {
-      console.warn('Silent audio unlock failed:', err)
+      const huffman = (count: number, repeatStr: string): string => {
+        let e = repeatStr
+        for (; count > 1; count--) e += repeatStr
+        return e
+      }
+      const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
+      audio.src = silence
+      audio.load()
+
+      document.body.appendChild(audio)
+      this.silentAudioElement = audio
     }
+
+    // Fire-and-forget audio.play() — called in user gesture context.
+    // When it completes, retry context.resume() in case the first call
+    // didn't work (iOS requires media channel unlock before resume).
+    this.silentAudioElement.play()
+      .then(() => {
+        this.audioUnlocked = true
+        console.log('iOS media channel unlocked')
+        // Ensure AudioContext is running now that media is unlocked
+        if (this.processorNode?.context.state !== 'running') {
+          this.processorNode.context.resume()
+        }
+      })
+      .catch((err: unknown) => {
+        console.warn('Silent audio unlock failed:', err)
+      })
   }
 
   async loadTrack(url: string): Promise<void> {
@@ -203,37 +205,31 @@ class AudioEngine {
   }
 
   /**
-   * Play — matches Munyard Mixer's playAll() pattern:
-   * 1. iOS: await audio.play() to unlock media channel (first call in gesture)
-   * 2. await ctx.resume() if suspended
-   * 3. Send play command (or loadTrack + pendingPlayAfterLoad if track not loaded)
-   *
-   * This is async but the FIRST await is always a media activation (audio.play()
-   * on iOS, or context.resume() on Android/desktop) which IS in the user gesture.
-   * Unlike the previous broken attempt, there is NO long await (like init()) before
-   * the media activation — init is eager and already complete by the time play runs.
+   * Play — synchronous call in user gesture callstack.
+   * context.resume() MUST be called synchronously (no awaits before it)
+   * or mobile browsers won't honour the gesture.
+   * Playback verification retries after 200ms (matching Munyard Mixer pattern).
    */
-  async play(): Promise<void> {
+  play(): void {
     if (!this.processorNode) {
       console.warn('Cannot play: not initialized')
       return
     }
 
-    // iOS: unlock media channel FIRST (audio.play() is the first call in the
-    // gesture, matching Munyard Mixer). Must complete before ctx.resume().
-    if (this.isIOS && !this.audioUnlocked) {
-      await this.ensureUnlocked()
+    // iOS/iPadOS unlock — must fire synchronously within user gesture
+    if (this.isIOS) {
+      this.ensureUnlocked()
     }
 
-    // Resume AudioContext — on iOS the media channel is now unlocked so this works.
-    // On Android/desktop, context.resume() IS the first async call in the gesture.
-    if (this.processorNode.context.state !== 'running') {
-      await this.processorNode.context.resume()
-    }
+    // Resume AudioContext — MUST be synchronous in user gesture callstack.
+    // On mobile, context is auto-suspended by browser policy; this is the
+    // only chance to resume it. On desktop, context may also be suspended.
+    // NEVER put an await before this line — it breaks the gesture context.
+    const resumePromise = this.processorNode.context.resume()
 
     // If track hasn't loaded yet (mobile: downloadAndDecode may have failed
     // while context was auto-suspended), re-send loadTrack now that context
-    // is running, and auto-play when the track finishes loading.
+    // is resumed, and auto-play when the track finishes loading.
     if (!this.isLoadedFlag) {
       if (this.currentUrl) {
         this.processorNode.sendMessageToAudioScope({
@@ -256,7 +252,66 @@ class AudioEngine {
     })
 
     this.isPlayingFlag = true
-    console.log('AudioEngine: play')
+    console.log('AudioEngine: play (context.state:', this.processorNode.context.state + ')')
+
+    // Insurance: when context confirms running, re-send play command.
+    // context.resume() is called synchronously above (preserving user gesture),
+    // but the state transition may not be instant. The Promise resolves when
+    // the context is actually 'running'.
+    if (resumePromise) {
+      resumePromise.then(() => {
+        if (this.isPlayingFlag && this.processorNode && this.isLoadedFlag) {
+          this.processorNode.sendMessageToAudioScope({
+            type: 'command',
+            data: { command: 'play' }
+          })
+        }
+      }).catch(() => {
+        // Swallow — verification retries handle failures
+      })
+    }
+
+    // Verify playback started — retries multiple times with increasing delays
+    this.schedulePlaybackVerification()
+  }
+
+  /**
+   * After play(), verify audio is actually progressing. If not, retry.
+   * Retries up to 5 times with increasing delays. Each retry:
+   * 1. Checks context.state and calls resume() if not 'running'
+   * 2. Re-sends play command to the processor
+   * 3. Schedules next verification
+   */
+  private schedulePlaybackVerification(attempt = 0): void {
+    const maxAttempts = 5
+    const delays = [150, 300, 500, 1000, 2000]
+    const delay = delays[Math.min(attempt, delays.length - 1)]
+    const initialTime = this.currentTimeSeconds
+
+    setTimeout(() => {
+      if (!this.isPlayingFlag || !this.isLoadedFlag || !this.processorNode) return
+
+      const progressed = this.currentTimeSeconds > initialTime + 0.005
+      if (!progressed) {
+        const ctxState = this.processorNode.context.state
+        if (attempt < maxAttempts) {
+          console.log(`AudioEngine: playback not progressing (attempt ${attempt + 1}/${maxAttempts}, context: ${ctxState}), retrying...`)
+          // Ensure context is running
+          if (ctxState !== 'running') {
+            this.processorNode.context.resume()
+          }
+          // Re-send play command
+          this.processorNode.sendMessageToAudioScope({
+            type: 'command',
+            data: { command: 'play' }
+          })
+          // Schedule next verification
+          this.schedulePlaybackVerification(attempt + 1)
+        } else {
+          console.error(`AudioEngine: playback failed after ${maxAttempts} attempts (context: ${ctxState})`)
+        }
+      }
+    }, delay)
   }
 
   pause(): void {
