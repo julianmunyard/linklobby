@@ -11,6 +11,16 @@ interface BlinkieStylePickerProps {
   onStyleChange: (style: string) => void
 }
 
+// Collect all unique blinkie font names for preloading
+const BLINKIE_FONTS = [...new Set(Object.values(BLINKIE_STYLES).map(s => s.font))]
+
+// Wait for all blinkie fonts to be loaded by the browser
+function waitForFonts(): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve()
+  const loads = BLINKIE_FONTS.map(f => document.fonts.load(`16px "${f}"`).catch(() => {}))
+  return Promise.all(loads).then(() => {})
+}
+
 // Mini blinkie preview rendered on canvas
 function BlinkiePreview({ styleDef, label }: { styleDef: BlinkieStyleDef; label: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -23,52 +33,70 @@ function BlinkiePreview({ styleDef, label }: { styleDef: BlinkieStyleDef; label:
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    let cancelled = false
+
     const W = 150
     const H = 20
-    let frameIndex = 0
-    let loadedCount = 0
 
-    const images: HTMLImageElement[] = Array(styleDef.frames)
-    for (let i = 0; i < styleDef.frames; i++) {
-      const img = new Image()
-      img.onload = () => {
-        loadedCount++
-        if (loadedCount === styleDef.frames) {
-          // Draw first frame
-          drawFrame(0)
-          // Animate
-          if (styleDef.frames > 1) {
-            timerRef.current = setInterval(() => {
-              frameIndex = (frameIndex + 1) % styleDef.frames
-              drawFrame(frameIndex)
-            }, styleDef.delay * 10)
-          }
-        }
-      }
-      img.onerror = () => { loadedCount++ }
-      img.src = `/blinkies/${styleDef.bgID}-${i}.png`
-      images[i] = img
-    }
-
-    function drawFrame(fi: number) {
+    function drawFrame(fi: number, images: HTMLImageElement[]) {
       const img = images[fi]
       if (!img || !ctx) return
       ctx.clearRect(0, 0, W, H)
       ctx.imageSmoothingEnabled = false
       ctx.drawImage(img, 0, 0, W, H)
 
-      // Draw label text
+      // Draw label text — only use the blinkie's own font, no fallbacks
       const colours = Array.isArray(styleDef.colour) ? styleDef.colour : Array(styleDef.frames).fill(styleDef.colour)
       const fontSize = Math.min(styleDef.fontsize, 14)
-      ctx.font = `${styleDef.fontweight || 'normal'} ${fontSize}px "${styleDef.font}", moonaco, monospace`
+      ctx.font = `${styleDef.fontweight || 'normal'} ${fontSize}px "${styleDef.font}"`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.fillStyle = colours[fi]
       ctx.fillText(label, W / 2, H / 2)
     }
 
+    async function init() {
+      // Wait for blinkie fonts to load before any drawing
+      await waitForFonts()
+      if (cancelled) return
+
+      // Load all background frame images
+      const images = await new Promise<HTMLImageElement[]>((resolve) => {
+        const imgs: HTMLImageElement[] = Array(styleDef.frames)
+        let loaded = 0
+        for (let i = 0; i < styleDef.frames; i++) {
+          const img = new Image()
+          img.onload = img.onerror = () => {
+            loaded++
+            if (loaded === styleDef.frames) resolve(imgs)
+          }
+          img.src = `/blinkies/${styleDef.bgID}-${i}.png`
+          imgs[i] = img
+        }
+      })
+
+      if (cancelled) return
+
+      let frameIndex = 0
+
+      // Draw first frame
+      drawFrame(0, images)
+
+      // Animate
+      if (styleDef.frames > 1) {
+        timerRef.current = setInterval(() => {
+          frameIndex = (frameIndex + 1) % styleDef.frames
+          drawFrame(frameIndex, images)
+        }, styleDef.delay * 10)
+      }
+    }
+
+    init()
+
     return () => {
+      cancelled = true
       if (timerRef.current) clearInterval(timerRef.current)
+      timerRef.current = null
     }
   }, [styleDef, label])
 

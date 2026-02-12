@@ -1,7 +1,7 @@
 // src/components/cards/blinkie-link.tsx
 'use client'
 
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect } from 'react'
 import type { Card, LinkCardContent } from '@/types/card'
 
 interface BlinkieLinkProps {
@@ -190,69 +190,34 @@ const BLINKIE_H = 20
 // Scale factor for crisp rendering
 const SCALE = 3
 
+// Collect all unique blinkie font names for preloading
+const BLINKIE_FONTS = [...new Set(Object.values(BLINKIE_STYLES).map(s => s.font))]
+
+// Wait for all blinkie fonts to be loaded by the browser
+function waitForFonts(): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve()
+  // Ask the browser to load each font face we need
+  const loads = BLINKIE_FONTS.map(f => document.fonts.load(`16px "${f}"`).catch(() => {}))
+  return Promise.all(loads).then(() => {})
+}
+
 export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
   const content = card.content as LinkCardContent
   const blinkieStyle = content.blinkieStyle || '0008-pink'
   const styleDef = BLINKIE_STYLES[blinkieStyle] || BLINKIE_STYLES['0008-pink']
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const frameRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const imagesRef = useRef<HTMLImageElement[]>([])
-  const loadedRef = useRef(false)
 
-  const text = card.title || 'Untitled'
+  // Store mutable values in refs so the animation loop always reads fresh
+  // values without causing the effect to re-run
+  const textRef = useRef(card.title || 'Untitled')
+  textRef.current = card.title || 'Untitled'
 
-  // Draw a single frame onto the canvas
-  const drawFrame = useCallback((ctx: CanvasRenderingContext2D, frameIndex: number) => {
-    const img = imagesRef.current[frameIndex]
-    if (!img) return
+  const styleRef = useRef(styleDef)
+  styleRef.current = styleDef
 
-    const w = BLINKIE_W * SCALE
-    const h = BLINKIE_H * SCALE
-
-    // Clear and draw background frame
-    ctx.clearRect(0, 0, w, h)
-    ctx.imageSmoothingEnabled = false
-    ctx.drawImage(img, 0, 0, w, h)
-
-    // Text settings
-    const colours = eachFrame(styleDef.colour, styleDef.frames)
-    const fontSize = styleDef.fontsize * SCALE
-    const fontWeight = styleDef.fontweight || 'normal'
-    ctx.font = `${fontWeight} ${fontSize}px "${styleDef.font}", moonaco, monospace`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-
-    const cx = (w / 2) + (styleDef.x * SCALE)
-    const cy = (h / 2) + (styleDef.y * SCALE)
-
-    // Outline (4 offset copies in cardinal directions)
-    if (styleDef.outline) {
-      const outlines = eachFrame(styleDef.outline, styleDef.frames)
-      ctx.fillStyle = outlines[frameIndex]
-      const off = SCALE
-      ctx.fillText(text, cx + off, cy)
-      ctx.fillText(text, cx - off, cy)
-      ctx.fillText(text, cx, cy + off)
-      ctx.fillText(text, cx, cy - off)
-    }
-
-    // Shadow
-    if (styleDef.shadow) {
-      const shadows = eachFrame(styleDef.shadow, styleDef.frames)
-      const sx = (styleDef.shadowx ?? -1) * SCALE
-      const sy = (styleDef.shadowy ?? 0) * SCALE
-      ctx.fillStyle = shadows[frameIndex]
-      ctx.fillText(text, cx + sx, cy + sy)
-    }
-
-    // Main text
-    ctx.fillStyle = colours[frameIndex]
-    ctx.fillText(text, cx, cy)
-  }, [text, styleDef])
-
-  // Load background frame images and start animation
+  // The only value that should restart the animation is the style ID itself
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -260,49 +225,115 @@ export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Reset state
-    loadedRef.current = false
-    frameRef.current = 0
-    if (timerRef.current) clearInterval(timerRef.current)
-    imagesRef.current = []
+    let cancelled = false
+    let intervalId: ReturnType<typeof setInterval> | null = null
 
-    const bgID = styleDef.bgID
-    const frameCount = styleDef.frames
-    let loadedCount = 0
+    // Draw a single frame
+    function drawFrame(
+      images: HTMLImageElement[],
+      frameIndex: number,
+      style: BlinkieStyleDef,
+      text: string,
+    ) {
+      const img = images[frameIndex]
+      if (!img || !ctx) return
 
-    // Pre-load all frame images
-    const images: HTMLImageElement[] = Array(frameCount)
-    for (let i = 0; i < frameCount; i++) {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => {
-        loadedCount++
-        if (loadedCount === frameCount) {
-          imagesRef.current = images
-          loadedRef.current = true
-          // Draw first frame immediately
-          drawFrame(ctx, 0)
-          // Start animation loop
-          if (frameCount > 1) {
-            timerRef.current = setInterval(() => {
-              frameRef.current = (frameRef.current + 1) % frameCount
-              drawFrame(ctx, frameRef.current)
-            }, styleDef.delay * 10) // delay is in centiseconds → ms
-          }
-        }
+      const w = BLINKIE_W * SCALE
+      const h = BLINKIE_H * SCALE
+
+      ctx.clearRect(0, 0, w, h)
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(img, 0, 0, w, h)
+
+      // Font — only use the blinkie's own font, no project font fallbacks
+      const fontSize = style.fontsize * SCALE
+      const fontWeight = style.fontweight || 'normal'
+      ctx.font = `${fontWeight} ${fontSize}px "${style.font}"`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      const cx = (w / 2) + (style.x * SCALE)
+      const cy = (h / 2) + (style.y * SCALE)
+
+      // Outline (4 offset copies in cardinal directions)
+      if (style.outline) {
+        const outlines = eachFrame(style.outline, style.frames)
+        ctx.fillStyle = outlines[frameIndex]
+        const off = SCALE
+        ctx.fillText(text, cx + off, cy)
+        ctx.fillText(text, cx - off, cy)
+        ctx.fillText(text, cx, cy + off)
+        ctx.fillText(text, cx, cy - off)
       }
-      img.onerror = () => {
-        // If image fails, still count it as loaded to not block others
-        loadedCount++
+
+      // Shadow
+      if (style.shadow) {
+        const shadows = eachFrame(style.shadow, style.frames)
+        const sx = (style.shadowx ?? -1) * SCALE
+        const sy = (style.shadowy ?? 0) * SCALE
+        ctx.fillStyle = shadows[frameIndex]
+        ctx.fillText(text, cx + sx, cy + sy)
       }
-      img.src = `/blinkies/${bgID}-${i}.png`
-      images[i] = img
+
+      // Main text
+      const colours = eachFrame(style.colour, style.frames)
+      ctx.fillStyle = colours[frameIndex]
+      ctx.fillText(text, cx, cy)
     }
+
+    async function init() {
+      // Wait for blinkie fonts to load before any drawing
+      await waitForFonts()
+      if (cancelled) return
+
+      const style = styleRef.current
+      const bgID = style.bgID
+      const frameCount = style.frames
+
+      // Load all background frame images
+      const images = await new Promise<HTMLImageElement[]>((resolve) => {
+        const imgs: HTMLImageElement[] = Array(frameCount)
+        let loaded = 0
+        for (let i = 0; i < frameCount; i++) {
+          const img = new Image()
+          img.onload = img.onerror = () => {
+            loaded++
+            if (loaded === frameCount) resolve(imgs)
+          }
+          img.src = `/blinkies/${bgID}-${i}.png`
+          imgs[i] = img
+        }
+      })
+
+      if (cancelled) return
+
+      let frameIndex = 0
+
+      // Draw first frame
+      drawFrame(images, 0, styleRef.current, textRef.current)
+
+      // Animate: cycle frames at the style's delay rate
+      if (frameCount > 1) {
+        intervalId = setInterval(() => {
+          frameIndex = (frameIndex + 1) % frameCount
+          // Always read current refs for fresh text/style
+          drawFrame(images, frameIndex, styleRef.current, textRef.current)
+        }, style.delay * 10) // centiseconds → ms
+        timerRef.current = intervalId
+      }
+    }
+
+    init()
 
     return () => {
+      cancelled = true
+      if (intervalId) clearInterval(intervalId)
       if (timerRef.current) clearInterval(timerRef.current)
+      timerRef.current = null
     }
-  }, [styleDef, drawFrame])
+  // Only restart animation when the actual style ID changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blinkieStyle])
 
   const Wrapper = card.url && !isPreview ? 'a' : 'div'
   const wrapperProps = card.url && !isPreview
