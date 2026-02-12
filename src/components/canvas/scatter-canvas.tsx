@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Move, MousePointer } from 'lucide-react'
 import type { Card } from '@/types/card'
-import type { ScatterPosition } from '@/types/scatter'
+import type { ScatterPosition, ScatterLayouts } from '@/types/scatter'
+import type { ThemeId } from '@/types/theme'
 import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
 import { ScatterCard } from './scatter-card'
@@ -12,12 +13,22 @@ interface ScatterCanvasProps {
   cards: Card[]
 }
 
-export function ScatterCanvas({ cards }: ScatterCanvasProps) {
+export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [canvasWidth, setCanvasWidth] = useState(0)
   const [canvasHeight, setCanvasHeight] = useState(0)
   const [maxZIndex, setMaxZIndex] = useState(0)
   const [arrangeMode, setArrangeMode] = useState(true)
+
+  // Local cards state — merges prop updates with scatter position changes.
+  // This ensures React rendering matches Moveable's DOM state immediately,
+  // without waiting for the async STATE_UPDATE echo from the editor.
+  const [localCards, setLocalCards] = useState(propCards)
+
+  // Sync from props when they change (e.g. card added/removed, editor property changes)
+  useEffect(() => {
+    setLocalCards(propCards)
+  }, [propCards])
 
   // Read from stores
   const themeId = useThemeStore((state) => state.themeId)
@@ -53,7 +64,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   // Calculate max z-index from all cards for current theme
   useEffect(() => {
     let max = 0
-    cards.forEach((card) => {
+    localCards.forEach((card) => {
       const scatterLayouts = (card.content.scatterLayouts as Record<string, { zIndex: number }>) || {}
       const pos = scatterLayouts[themeId]
       if (pos && pos.zIndex > max) {
@@ -61,11 +72,36 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
       }
     })
     setMaxZIndex(max)
-  }, [cards, themeId])
+  }, [localCards, themeId])
 
-  // Send scatter position update to local store + parent editor via postMessage
+  // Send scatter position update to local state + store + parent editor
   const sendScatterUpdate = useCallback((cardId: string, position: Partial<ScatterPosition>) => {
+    // Update local cards immediately so React state matches Moveable's DOM.
+    // This is critical for mode switching — when Moveable unmounts (Edit mode),
+    // React re-renders from localCards, which must have the latest positions.
+    setLocalCards(prev => prev.map(card => {
+      if (card.id !== cardId) return card
+      const currentLayouts = (card.content.scatterLayouts as ScatterLayouts) || {}
+      const currentPosition = currentLayouts[themeId as ThemeId]
+      return {
+        ...card,
+        content: {
+          ...card.content,
+          scatterLayouts: {
+            ...currentLayouts,
+            [themeId]: {
+              ...currentPosition,
+              ...position,
+            }
+          }
+        }
+      }
+    }))
+
+    // Update page store (for auto-save)
     updateCardScatterPosition(cardId, themeId, position)
+
+    // Notify parent editor
     if (window.parent !== window) {
       window.parent.postMessage(
         { type: 'SCATTER_POSITION_UPDATE', payload: { cardId, themeId, position } },
@@ -105,7 +141,7 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
   }, [selectCard, arrangeMode])
 
   // Filter visible cards only
-  const visibleCards = cards.filter((card) => card.is_visible)
+  const visibleCards = localCards.filter((card) => card.is_visible)
 
   return (
     <div

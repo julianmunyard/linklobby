@@ -26,7 +26,6 @@ export function PreviewPanel() {
   const iframePinchingRef = useRef(false) // true when iframe is handling a pinch
   const pinchStartScaleRef = useRef(1)
   const isMobileLayout = useIsMobileLayout()
-  const suppressSendRef = useRef(false) // Suppress sendToPreview when scatter update came FROM preview
   const getSnapshot = usePageStore((state) => state.getSnapshot)
   const reorderCards = usePageStore((state) => state.reorderCards)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
@@ -173,9 +172,6 @@ export function PreviewPanel() {
           break
         case "SCATTER_POSITION_UPDATE": {
           const { cardId, themeId: scatterThemeId, position } = event.data.payload
-          // Suppress the next sendToPreview — this update came FROM the preview,
-          // echoing it back causes unnecessary re-renders that reset Moveable transforms
-          suppressSendRef.current = true
           usePageStore.getState().updateCardScatterPosition(cardId, scatterThemeId, position)
           break
         }
@@ -233,11 +229,6 @@ export function PreviewPanel() {
   // Subscribe to store changes and send updates to preview
   useEffect(() => {
     const unsubscribePage = usePageStore.subscribe(() => {
-      // Skip echo when change was caused by SCATTER_POSITION_UPDATE from the preview
-      if (suppressSendRef.current) {
-        suppressSendRef.current = false
-        return
-      }
       sendToPreview()
     })
     const unsubscribeProfile = useProfileStore.subscribe(() => {
