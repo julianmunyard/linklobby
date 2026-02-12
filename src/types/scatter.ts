@@ -39,7 +39,7 @@ export const DEFAULT_SCATTER_SIZES: Record<string, { width: number; height: numb
   square: { width: 45, height: 45 },
   horizontal: { width: 65, height: 12 },
   link: { width: 60, height: 10 },
-  text: { width: 55, height: 10 },
+  text: { width: 100, height: 10 },  // fit-content: 100 = 1x natural size
   video: { width: 60, height: 40 },
   gallery: { width: 60, height: 40 },
   game: { width: 50, height: 40 },
@@ -47,7 +47,7 @@ export const DEFAULT_SCATTER_SIZES: Record<string, { width: number; height: numb
   audio: { width: 65, height: 25 },
   release: { width: 50, height: 50 },
   'email-collection': { width: 60, height: 25 },
-  'social-icons': { width: 50, height: 10 },
+  'social-icons': { width: 100, height: 10 },  // fit-content: 100 = 1x natural size
   mini: { width: 30, height: 8 },
 }
 

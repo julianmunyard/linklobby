@@ -54,6 +54,12 @@ export function ScatterCard({
 }: ScatterCardProps) {
   const targetRef = useRef<HTMLDivElement>(null)
 
+  // Content-only cards (text, social-icons) use fit-content so the Moveable
+  // bounding box wraps the actual visible content, not a full-width container.
+  // For these, width in ScatterPosition is a scale multiplier (100 = 1x natural size).
+  // For regular cards, width is a % of canvas and the card renders at canvasWidth.
+  const isFitContent = card.card_type === 'text' || card.card_type === 'social-icons'
+
   // Get scatter position for this theme, or compute a default grid position
   const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
   const scatterPos = scatterLayouts[themeId] || getDefaultPosition(cardIndex, totalCards, card.card_type)
@@ -61,14 +67,14 @@ export function ScatterCard({
   // Convert percentage positions to pixels
   const pixelX = (scatterPos.x / 100) * canvasWidth
   const pixelY = (scatterPos.y / 100) * canvasHeight
-  // Scale: width as fraction of canvas (1.0 = full canvas width)
+  // Scale: width as fraction (1.0 = full canvas for regular, 1.0 = natural size for fit-content)
   const scale = scatterPos.width / 100
 
   return (
     <>
-      {/* Card target — renders content at full canvasWidth, CSS-scaled to target size.
-          CSS transform handles both position (translate) and size (scale).
-          Pointer events respect the visual (scaled) bounds. */}
+      {/* Card target — CSS transform handles position (translate) and size (scale).
+          Regular cards render at canvasWidth and scale down.
+          Fit-content cards render at natural width so the box matches visible content. */}
       <div
         ref={targetRef}
         className={cn(
@@ -76,7 +82,8 @@ export function ScatterCard({
           isSelected && arrangeMode && 'ring-3 ring-blue-500',
         )}
         style={{
-          width: canvasWidth,
+          width: isFitContent ? 'fit-content' : canvasWidth,
+          maxWidth: isFitContent ? canvasWidth : undefined,
           transform: `translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
           transformOrigin: 'top left',
           zIndex: scatterPos.zIndex,
