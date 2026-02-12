@@ -255,8 +255,11 @@ export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
       // than the em-box middle (pixel fonts have unusual metrics)
       ctx.textBaseline = 'alphabetic'
 
-      const cx = (w / 2) + (style.x * SCALE)
-      const targetCy = (h / 2) + (style.y * SCALE)
+      // ImageMagick's -page +X+Y offsets the IMAGE on the canvas, so
+      // text at canvas-center appears at (center - offset) in image coords.
+      // We must NEGATE the x/y to match.
+      const cx = (w / 2) - (style.x * SCALE)
+      const targetCy = (h / 2) - (style.y * SCALE)
 
       // Compute true visual center Y from actual glyph bounding box
       const metrics = ctx.measureText(text)
@@ -276,8 +279,8 @@ export function BlinkieLink({ card, isPreview = false }: BlinkieLinkProps) {
       // Shadow
       if (style.shadow) {
         const shadows = eachFrame(style.shadow, style.frames)
-        const sx = (style.shadowx ?? -1) * SCALE
-        const sy = (style.shadowy ?? 0) * SCALE
+        const sx = -((style.shadowx ?? -1) * SCALE)
+        const sy = -((style.shadowy ?? 0) * SCALE)
         ctx.fillStyle = shadows[frameIndex]
         ctx.fillText(text, cx + sx, cy + sy)
       }
