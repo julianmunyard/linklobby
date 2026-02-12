@@ -139,7 +139,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
       onPointerUp={handleDragEnd}
       onPointerLeave={handleDragEnd}
     >
-      {visibleCards.map((card) => {
+      {containerWidth > 0 && containerHeight > 0 && visibleCards.map((card) => {
         // Get scatter position for this theme
         const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
         const scatterPos = scatterLayouts[themeId]
