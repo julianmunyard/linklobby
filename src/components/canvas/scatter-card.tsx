@@ -15,10 +15,10 @@ interface ScatterCardProps {
   themeId: string
   canvasWidth: number
   canvasHeight: number
+  maxZIndex: number
   isSelected: boolean
   arrangeMode: boolean
   onUpdate: (cardId: string, position: Partial<ScatterPosition>) => void
-  onBringToFront: (cardId: string) => void
   onSelect: (cardId: string) => void
 }
 
@@ -46,10 +46,10 @@ export function ScatterCard({
   themeId,
   canvasWidth,
   canvasHeight,
+  maxZIndex,
   isSelected,
   arrangeMode,
   onUpdate,
-  onBringToFront,
   onSelect,
 }: ScatterCardProps) {
   const targetRef = useRef<HTMLDivElement>(null)
@@ -72,9 +72,6 @@ export function ScatterCard({
 
   return (
     <>
-      {/* Card target — CSS transform handles position (translate) and size (scale).
-          Regular cards render at canvasWidth and scale down.
-          Fit-content cards render at natural width so the box matches visible content. */}
       <div
         ref={targetRef}
         className={cn(
@@ -99,8 +96,6 @@ export function ScatterCard({
         </div>
       </div>
 
-      {/* Moveable handles drag + scale in arrange mode.
-          DOM manipulation during interaction for performance, store update on release. */}
       {arrangeMode && (
         <Moveable
           target={targetRef}
@@ -110,23 +105,30 @@ export function ScatterCard({
           renderDirections={['nw', 'ne', 'sw', 'se']}
           throttleDrag={0}
           throttleScale={0}
-          onDragStart={() => {
-            onBringToFront(card.id)
+          onDragStart={e => {
+            // Set z-index via DOM only — NO store update during interaction.
+            // Store updates trigger React re-renders which reset the transform
+            // mid-drag and cause Moveable to lose track of the current position.
+            (e.target as HTMLElement).style.zIndex = '9999'
           }}
           onDrag={e => {
             e.target.style.transform = e.transform
           }}
           onDragEnd={e => {
-            if (!e.lastEvent) return
+            if (!e.lastEvent) {
+              // No movement (just a click) — restore z-index
+              (e.target as HTMLElement).style.zIndex = String(scatterPos.zIndex)
+              return
+            }
             const [tx, ty] = e.lastEvent.translate
             onUpdate(card.id, {
               x: Math.max(0, (tx / canvasWidth) * 100),
               y: Math.max(0, (ty / canvasHeight) * 100),
+              zIndex: maxZIndex + 1,
             })
           }}
           onScaleStart={e => {
-            onBringToFront(card.id)
-            // Min 80px visual width, max canvas width
+            (e.target as HTMLElement).style.zIndex = '9999'
             e.setMinScaleSize([80, 0])
             e.setMaxScaleSize([canvasWidth, Infinity])
           }}
@@ -134,13 +136,17 @@ export function ScatterCard({
             e.target.style.transform = e.drag.transform
           }}
           onScaleEnd={e => {
-            if (!e.lastEvent) return
+            if (!e.lastEvent) {
+              (e.target as HTMLElement).style.zIndex = String(scatterPos.zIndex)
+              return
+            }
             const [sx] = e.lastEvent.scale
             const [tx, ty] = e.lastEvent.drag.translate
             onUpdate(card.id, {
               width: Math.max(15, Math.min(100, sx * 100)),
               x: Math.max(0, (tx / canvasWidth) * 100),
               y: Math.max(0, (ty / canvasHeight) * 100),
+              zIndex: maxZIndex + 1,
             })
           }}
         />

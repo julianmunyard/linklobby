@@ -74,17 +74,10 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
     }
   }, [themeId, updateCardScatterPosition])
 
-  // Unified update callback for ScatterCard
+  // Unified update callback — ScatterCard calls this on drag/scale end
   const handleUpdate = useCallback((cardId: string, position: Partial<ScatterPosition>) => {
     sendScatterUpdate(cardId, position)
   }, [sendScatterUpdate])
-
-  // Bring card to front by incrementing z-index
-  const handleBringToFront = useCallback((cardId: string) => {
-    const newZ = maxZIndex + 1
-    sendScatterUpdate(cardId, { zIndex: newZ })
-    setMaxZIndex(newZ)
-  }, [maxZIndex, sendScatterUpdate])
 
   // Handle card selection — notify parent for property editing
   const handleSelect = useCallback((cardId: string) => {
@@ -176,10 +169,10 @@ export function ScatterCanvas({ cards }: ScatterCanvasProps) {
           themeId={themeId}
           canvasWidth={canvasWidth}
           canvasHeight={canvasHeight}
+          maxZIndex={maxZIndex}
           isSelected={selectedCardId === card.id}
           arrangeMode={arrangeMode}
           onUpdate={handleUpdate}
-          onBringToFront={handleBringToFront}
           onSelect={handleSelect}
         />
       ))}

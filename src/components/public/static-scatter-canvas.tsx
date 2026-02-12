@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CardRenderer } from '@/components/cards/card-renderer'
 import { AudioPlayer } from '@/components/audio/audio-player'
 import { SystemSettingsCard } from '@/components/cards/system-settings-card'
@@ -21,43 +21,63 @@ interface DragOffset {
   y: number
 }
 
+const FIT_CONTENT_TYPES = new Set(['text', 'social-icons'])
+
 /**
- * StaticScatterCanvas - Renders cards in scatter (freeform) layout on public pages
+ * StaticScatterCanvas - Renders cards in scatter layout on public pages.
  *
- * Two modes:
- * 1. Static mode (visitorDrag=false): Pure CSS absolute positioning - server-renderable
- * 2. Interactive mode (visitorDrag=true): Client-side drag with ephemeral positioning
+ * Uses the same rendering approach as the editor (transform: translate + scale)
+ * so positions match exactly between editor preview and public page.
  *
- * Features:
- * - Reads scatter positions from card.content.scatterLayouts[themeId]
- * - Percentage-based positioning (0-100% of canvas dimensions)
- * - Visitor drag is ephemeral (resets on refresh)
- * - Click vs drag distinction: < 8px = click (follows link), >= 8px = drag
- * - Cards stay within container bounds during drag
+ * Regular cards render at container width, CSS-scaled to their stored width %.
+ * Fit-content cards (text, social-icons) render at natural width with scale multiplier.
  */
 export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: StaticScatterCanvasProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(0)
+  const [containerHeight, setContainerHeight] = useState(0)
+
   // Ephemeral drag offsets (reset on refresh)
   const [dragOffsets, setDragOffsets] = useState<Record<string, DragOffset>>({})
   const [isDragging, setIsDragging] = useState<string | null>(null)
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
   const [dragDistance, setDragDistance] = useState(0)
 
+  // Measure container dimensions
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setContainerWidth(rect.width)
+        setContainerHeight(rect.height)
+      }
+    }
+
+    updateDimensions()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions()
+    })
+
+    resizeObserver.observe(containerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
+
   // Filter visible cards
   const visibleCards = cards.filter(c => c.is_visible)
-
 
   // Handle pointer/touch drag start
   const handleDragStart = (e: React.PointerEvent, cardId: string) => {
     if (!visitorDrag) return
 
-    const clientX = e.clientX
-    const clientY = e.clientY
-
     setIsDragging(cardId)
-    setDragStart({ x: clientX, y: clientY })
+    setDragStart({ x: e.clientX, y: e.clientY })
     setDragDistance(0)
-
-    // Prevent default to avoid text selection
     e.preventDefault()
   }
 
@@ -65,16 +85,12 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
   const handleDragMove = (e: React.PointerEvent) => {
     if (!visitorDrag || !isDragging || !dragStart) return
 
-    const clientX = e.clientX
-    const clientY = e.clientY
-
-    const deltaX = clientX - dragStart.x
-    const deltaY = clientY - dragStart.y
+    const deltaX = e.clientX - dragStart.x
+    const deltaY = e.clientY - dragStart.y
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 
     setDragDistance(distance)
 
-    // Only update position if we've moved >= 8px (drag threshold)
     if (distance >= 8) {
       const currentOffset = dragOffsets[isDragging] || { x: 0, y: 0 }
       setDragOffsets({
@@ -84,7 +100,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           y: currentOffset.y + deltaY,
         },
       })
-      setDragStart({ x: clientX, y: clientY })
+      setDragStart({ x: e.clientX, y: e.clientY })
     }
   }
 
@@ -92,19 +108,15 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
   const handleDragEnd = (e: React.PointerEvent) => {
     if (!visitorDrag || !isDragging) return
 
-    // If drag distance < 8px, treat as click (don't prevent link navigation)
     if (dragDistance < 8) {
-      // Let the click event propagate normally
       setIsDragging(null)
       setDragStart(null)
       setDragDistance(0)
       return
     }
 
-    // Prevent click event after drag
     e.preventDefault()
     e.stopPropagation()
-
     setIsDragging(null)
     setDragStart(null)
     setDragDistance(0)
@@ -121,6 +133,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
 
   return (
     <div
+      ref={containerRef}
       className="relative w-full h-full overflow-hidden"
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
@@ -144,12 +157,15 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           )
         }
 
-        // Clamp positions so cards stay within canvas bounds
-        const clampedX = Math.max(0, Math.min(scatterPos.x, 100 - scatterPos.width))
-        const clampedY = Math.max(0, Math.min(scatterPos.y, 100 - (scatterPos.height || 0)))
+        // Use same rendering as editor: transform translate + scale
+        const isFitContent = FIT_CONTENT_TYPES.has(card.card_type)
+        const pixelX = containerWidth > 0 ? (scatterPos.x / 100) * containerWidth : 0
+        const pixelY = containerHeight > 0 ? (scatterPos.y / 100) * containerHeight : 0
+        const scale = scatterPos.width / 100
 
         // Apply ephemeral drag offset if visitor drag is enabled
         const offset = dragOffsets[card.id] || { x: 0, y: 0 }
+        const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
 
         // Audio cards: render AudioPlayer directly with correct themeVariant
         if (card.card_type === 'audio' && isAudioContent(card.content)) {
@@ -187,12 +203,10 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
                   visitorDrag && 'cursor-move'
                 )}
                 style={{
-                  left: `${clampedX}%`,
-                  top: `${clampedY}%`,
-                  width: `${scatterPos.width}%`,
-                  height: `${scatterPos.height}%`,
+                  width: containerWidth || '100%',
+                  transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
+                  transformOrigin: 'top left',
                   zIndex: scatterPos.zIndex,
-                  transform: visitorDrag ? `translate(${offset.x}px, ${offset.y}px)` : undefined,
                   touchAction: visitorDrag ? 'none' : undefined,
                 }}
                 onPointerDown={(e) => handleDragStart(e, card.id)}
@@ -214,18 +228,16 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
                 visitorDrag && 'cursor-move'
               )}
               style={{
-                left: `${clampedX}%`,
-                top: `${clampedY}%`,
-                width: `${scatterPos.width}%`,
-                height: `${scatterPos.height}%`,
+                width: containerWidth || '100%',
+                transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
+                transformOrigin: 'top left',
                 zIndex: scatterPos.zIndex,
-                transform: visitorDrag ? `translate(${offset.x}px, ${offset.y}px)` : undefined,
                 touchAction: visitorDrag ? 'none' : undefined,
               }}
               onPointerDown={(e) => handleDragStart(e, card.id)}
             >
               <div
-                className="w-full h-full overflow-hidden bg-theme-card-bg border border-theme-border"
+                className="w-full overflow-hidden bg-theme-card-bg border border-theme-border"
                 style={{ borderRadius: 'var(--theme-border-radius)' }}
               >
                 {audioPlayer}
@@ -234,22 +246,21 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           )
         }
 
-        // All other card types: use CardRenderer
+        // All other card types: use CardRenderer with matching transform approach
         return (
           <div
             key={card.id}
             data-card-id={card.id}
             className={cn(
-              'absolute overflow-hidden',
+              'absolute',
               visitorDrag && 'cursor-move'
             )}
             style={{
-              left: `${clampedX}%`,
-              top: `${clampedY}%`,
-              width: `${scatterPos.width}%`,
-              height: `${scatterPos.height}%`,
+              width: isFitContent ? 'fit-content' : (containerWidth || '100%'),
+              maxWidth: isFitContent ? (containerWidth || '100%') : undefined,
+              transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
+              transformOrigin: 'top left',
               zIndex: scatterPos.zIndex,
-              transform: visitorDrag ? `translate(${offset.x}px, ${offset.y}px)` : undefined,
               touchAction: visitorDrag ? 'none' : undefined,
             }}
             onPointerDown={(e) => handleDragStart(e, card.id)}
