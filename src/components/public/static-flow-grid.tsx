@@ -92,6 +92,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
           const audioContent = card.content as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
+            'blinkies': 'system-settings',  // Blinkies uses system-settings audio variant
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
             'classified': 'classified',
@@ -104,6 +105,8 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
           }
           const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
+          const isTransparent = audioContent.transparentBackground === true
+
           const audioPlayer = (
             <AudioPlayer
               tracks={audioContent.tracks || []}
@@ -111,6 +114,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
               showWaveform={audioContent.showWaveform ?? true}
               looping={audioContent.looping ?? false}
               autoplay={audioContent.autoplay ?? false}
+              transparentBackground={isTransparent}
               reverbConfig={audioContent.reverbConfig}
               playerColors={audioContent.playerColors}
               cardId={card.id}
@@ -119,15 +123,15 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             />
           )
 
-          // System Settings: wrap in SystemSettingsCard for System 7 window chrome
-          if (themeId === 'system-settings') {
+          // System Settings and Blinkies: wrap in SystemSettingsCard for System 7 window chrome
+          if (themeId === 'system-settings' || themeId === 'blinkies') {
             return (
               <div
                 key={card.id}
                 data-card-id={card.id}
                 className={cn("transition-all", widthClass, positionClass)}
               >
-                <SystemSettingsCard cardType="audio">
+                <SystemSettingsCard cardType="audio" transparentBackground={isTransparent}>
                   {audioPlayer}
                 </SystemSettingsCard>
               </div>
@@ -142,7 +146,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
               className={cn("transition-all", widthClass, positionClass)}
             >
               <div
-                className="overflow-hidden bg-theme-card-bg border border-theme-border"
+                className={cn("overflow-hidden border border-theme-border", !isTransparent && "bg-theme-card-bg")}
                 style={{ borderRadius: 'var(--theme-border-radius)' }}
               >
                 {audioPlayer}

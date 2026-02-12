@@ -23,33 +23,28 @@ interface DragOffset {
 
 const FIT_CONTENT_TYPES = new Set(['text', 'social-icons'])
 
+// Max width for position mapping. On screens wider than this, the layout
+// stays phone-sized and centers — matching the editor mobile preview exactly.
+// Visitor drag can still push cards beyond this into the full viewport.
+const MOBILE_MAX_WIDTH = 500
+
 /**
  * StaticScatterCanvas - Renders cards in scatter layout on public pages.
  *
- * Uses the same rendering approach as the editor (transform: translate + scale)
- * so positions match exactly between editor preview and public page.
- *
- * Regular cards render at container width, CSS-scaled to their stored width %.
- * Fit-content cards (text, social-icons) render at natural width with scale multiplier.
+ * On mobile: positions map to the full container width (phone-accurate).
+ * On desktop: positions map to a phone-width reference centered on screen,
+ * so the layout looks identical to the phone. The full viewport is still
+ * accessible when visitor drag is enabled.
  */
 export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: StaticScatterCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
-  const [referenceHeight, setReferenceHeight] = useState(0)  // Width-based reference for y-coordinate mapping (matches editor preview)
 
   // Ephemeral drag offsets (reset on refresh)
   const [dragOffsets, setDragOffsets] = useState<Record<string, DragOffset>>({})
   const [isDragging, setIsDragging] = useState<string | null>(null)
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
   const [dragDistance, setDragDistance] = useState(0)
-
-  // referenceHeight is derived from containerWidth so the coordinate system
-  // is purely width-relative — identical to the editor preview.
-  useEffect(() => {
-    if (containerWidth > 0) {
-      setReferenceHeight(containerWidth)
-    }
-  }, [containerWidth])
 
   // Measure container width
   useEffect(() => {
@@ -71,12 +66,24 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
     }
   }, [])
 
+  // Positioning reference: capped at phone width on desktop.
+  // On phones this equals containerWidth (no change). On desktop it's MOBILE_MAX_WIDTH.
+  const positioningWidth = Math.min(containerWidth, MOBILE_MAX_WIDTH)
+  // Center offset: pushes the phone-width layout to the center on desktop
+  const centerOffset = (containerWidth - positioningWidth) / 2
+  // Y reference equals positioning width (width-based, matches editor preview)
+  const referenceHeight = positioningWidth
+
   // Filter visible cards
   const visibleCards = cards.filter(c => c.is_visible)
 
   // Handle pointer/touch drag start
   const handleDragStart = (e: React.PointerEvent, cardId: string) => {
     if (!visitorDrag) return
+
+    // Don't start drag on interactive controls (sliders, knobs, waveform seek)
+    const target = e.target as HTMLElement
+    if (target.closest('[data-no-drag]')) return
 
     setIsDragging(cardId)
     setDragStart({ x: e.clientX, y: e.clientY })
@@ -99,23 +106,23 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
       let newX = currentOffset.x + deltaX
       let newY = currentOffset.y + deltaY
 
-      // Clamp so card stays within container boundaries
+      // Clamp to full container boundaries (not just the phone-width area)
       const card = visibleCards.find(c => c.id === isDragging)
       if (card) {
         const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
         const scatterPos = scatterLayouts[themeId]
         if (scatterPos && containerWidth > 0 && referenceHeight > 0) {
-          const cardRenderW = containerWidth
           const scale = scatterPos.width / 100
-          const storedPxX = (scatterPos.x / 100) * containerWidth
+          const storedPxX = centerOffset + (scatterPos.x / 100) * positioningWidth
           const storedPxY = (scatterPos.y / 100) * referenceHeight
           const isFit = FIT_CONTENT_TYPES.has(card.card_type)
           const cardEl = containerRef.current.querySelector(`[data-card-id="${isDragging}"]`) as HTMLElement | null
-          const elW = cardEl ? cardEl.offsetWidth : (isFit ? 0 : cardRenderW)
+          const elW = cardEl ? cardEl.offsetWidth : (isFit ? 0 : positioningWidth)
           const visualW = elW * scale
           const visualH = cardEl ? cardEl.offsetHeight * scale : 0
+          // Drag clamp uses full containerWidth so cards can reach the edges
           const maxPxX = Math.max(0, containerWidth - visualW)
-          const maxPxY = visualH > 0 ? Math.max(0, referenceHeight - visualH) : referenceHeight
+          const maxPxY = visualH > 0 ? Math.max(0, referenceHeight * 3 - visualH) : referenceHeight * 3
           const totalX = storedPxX + newX
           const totalY = storedPxY + newY
           newX = Math.max(0, Math.min(maxPxX, totalX)) - storedPxX
@@ -184,9 +191,9 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
       onPointerLeave={handleDragEnd}
     >
       {containerWidth > 0 && referenceHeight > 0 && (() => {
-        // Card content renders at full container width (same as editor preview).
-        // Scale is then applied via CSS transform to match the stored width %.
-        const CARD_RENDER_WIDTH = containerWidth
+        // Cards render at the phone-width reference, then CSS-scaled.
+        // On mobile this equals containerWidth; on desktop it's capped + centered.
+        const CARD_RENDER_WIDTH = positioningWidth
 
         return visibleCards.map((card) => {
         // Get scatter position for this theme
@@ -202,6 +209,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           const audioContent = card.content as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
+            'blinkies': 'system-settings',  // Blinkies uses system-settings audio variant
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
             'classified': 'classified',
@@ -214,6 +222,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           }
           const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
+          const isTransparent = audioContent.transparentBackground === true
+
           const audioPlayer = (
             <AudioPlayer
               tracks={audioContent.tracks || []}
@@ -221,6 +231,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               showWaveform={audioContent.showWaveform ?? true}
               looping={audioContent.looping ?? false}
               autoplay={audioContent.autoplay ?? false}
+              transparentBackground={isTransparent}
               reverbConfig={audioContent.reverbConfig}
               playerColors={audioContent.playerColors}
               cardId={card.id}
@@ -229,11 +240,11 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             />
           )
 
-          const audioInner = themeId === 'system-settings'
-            ? <SystemSettingsCard cardType="audio">{audioPlayer}</SystemSettingsCard>
+          const audioInner = (themeId === 'system-settings' || themeId === 'blinkies')
+            ? <SystemSettingsCard cardType="audio" transparentBackground={isTransparent}>{audioPlayer}</SystemSettingsCard>
             : (
               <div
-                className="overflow-hidden bg-theme-card-bg border border-theme-border"
+                className={cn("overflow-hidden border border-theme-border", !isTransparent && "bg-theme-card-bg")}
                 style={{ borderRadius: 'var(--theme-border-radius)' }}
               >
                 {audioPlayer}
@@ -243,7 +254,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           // If card has a scatter position, render absolutely positioned
           if (scatterPos) {
             const scale = scatterPos.width / 100
-            const pixelX = (scatterPos.x / 100) * containerWidth
+            const pixelX = centerOffset + (scatterPos.x / 100) * positioningWidth
             const pixelY = (scatterPos.y / 100) * referenceHeight
             const offset = dragOffsets[card.id] || { x: 0, y: 0 }
             const dragTranslate = visitorDrag ? `translate(${offset.x}px, ${offset.y}px) ` : ''
@@ -252,13 +263,15 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               <div
                 key={card.id}
                 data-card-id={card.id}
-                className="absolute"
+                className={cn('absolute', visitorDrag && 'cursor-move')}
                 style={{
                   width: CARD_RENDER_WIDTH,
                   transform: `${dragTranslate}translate(${pixelX}px, ${pixelY}px) scale(${scale})`,
                   transformOrigin: 'top left',
                   zIndex: scatterPos.zIndex,
+                  touchAction: visitorDrag ? 'none' : undefined,
                 }}
+                onPointerDown={(e) => handleDragStart(e, card.id)}
               >
                 {audioInner}
               </div>
@@ -267,7 +280,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
 
           // No scatter position — stacked fallback (still bypass CardRenderer)
           return (
-            <div key={card.id} data-card-id={card.id} className="w-full mb-4" style={{ maxWidth: CARD_RENDER_WIDTH }}>
+            <div key={card.id} data-card-id={card.id} className="w-full mb-4" style={{ maxWidth: CARD_RENDER_WIDTH, marginLeft: 'auto', marginRight: 'auto' }}>
               {audioInner}
             </div>
           )
@@ -280,17 +293,18 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               key={card.id}
               data-card-id={card.id}
               className="w-full mb-4"
+              style={{ maxWidth: CARD_RENDER_WIDTH, marginLeft: 'auto', marginRight: 'auto' }}
             >
               <CardRenderer card={card} themeId={themeId} />
             </div>
           )
         }
 
-        // Card content renders at CARD_RENDER_WIDTH (phone-like), then scale
-        // is applied on top. Positions use the full viewport.
+        // Card content renders at CARD_RENDER_WIDTH (phone-sized), then scale
+        // is applied on top. Positions use the centered phone-width reference.
         const isFitContent = FIT_CONTENT_TYPES.has(card.card_type)
         const scale = scatterPos.width / 100
-        const pixelX = (scatterPos.x / 100) * containerWidth
+        const pixelX = centerOffset + (scatterPos.x / 100) * positioningWidth
         const pixelY = (scatterPos.y / 100) * referenceHeight
 
         // Apply ephemeral drag offset if visitor drag is enabled
