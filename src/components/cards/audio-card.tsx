@@ -17,7 +17,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
   const themeId = themeIdOverride || storeThemeId
 
   // Map ThemeId to ThemeVariant
-  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
+  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
     'instagram-reels': 'instagram-reels',
     'mac-os': 'mac-os',
     'macintosh': 'mac-os', // Legacy name
@@ -26,7 +26,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'ipod-classic': 'ipod-classic',
     'vcr-menu': 'vcr-menu',
     'classified': 'classified',
-    'blinkies': 'system-settings',
+    'blinkies': 'blinkies',
     'departures-board': 'classified',  // Dark theme - use classified variant
     'departures-board-led': 'classified',
   }
@@ -66,6 +66,8 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
       transparentBackground={content.transparentBackground ?? false}
       reverbConfig={content.reverbConfig}
       playerColors={content.playerColors}
+      blinkieColors={content.blinkieColors}
+      blinkieCardHasBgImage={!!(content.blinkieBoxBackgrounds?.cardBgUrl) && !(content.transparentBackground)}
       cardId={card.id}
       isEditing={isPreview}
       themeVariant={themeVariant}

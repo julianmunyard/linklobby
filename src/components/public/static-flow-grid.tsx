@@ -92,7 +92,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
           const audioContent = card.content as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
-            'blinkies': 'system-settings',  // Blinkies uses system-settings audio variant
+            'blinkies': 'blinkies',
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
             'classified': 'classified',
@@ -103,7 +103,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             'ipod-classic': 'ipod-classic',
             'instagram-reels': 'instagram-reels',
           }
-          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
           const isTransparent = audioContent.transparentBackground === true
 
@@ -117,6 +117,8 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
               transparentBackground={isTransparent}
               reverbConfig={audioContent.reverbConfig}
               playerColors={audioContent.playerColors}
+              blinkieColors={audioContent.blinkieColors}
+              blinkieCardHasBgImage={!!(audioContent.blinkieBoxBackgrounds?.cardBgUrl) && !isTransparent}
               cardId={card.id}
               pageId={card.page_id}
               themeVariant={themeVariant}
@@ -131,7 +133,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
                 data-card-id={card.id}
                 className={cn("transition-all", widthClass, positionClass)}
               >
-                <SystemSettingsCard cardType="audio" transparentBackground={isTransparent}>
+                <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}>
                   {audioPlayer}
                 </SystemSettingsCard>
               </div>

@@ -1,6 +1,8 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { BlinkieTileBackground } from '@/components/audio/blinkie-tile-background'
+import { BLINKIE_STYLES } from '@/data/blinkie-styles'
 import type { CardType } from '@/types/card'
 
 interface SystemSettingsCardProps {
@@ -9,12 +11,21 @@ interface SystemSettingsCardProps {
   title?: string
   cardType?: CardType
   transparentBackground?: boolean
+  blinkieBg?: boolean
+  blinkieCardOuter?: string
+  blinkieCardOuterDim?: number
+  blinkieOuterBoxColor?: string
+  blinkieInnerBoxColor?: string
+  blinkieCardBgUrl?: string
+  blinkieCardBgScale?: number
+  blinkieCardBgPosX?: number
+  blinkieCardBgPosY?: number
 }
 
 // Card types that get the thin/simple treatment
 const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal', 'mini']
 
-export function SystemSettingsCard({ children, className, title, cardType, transparentBackground = false }: SystemSettingsCardProps) {
+export function SystemSettingsCard({ children, className, title, cardType, transparentBackground = false, blinkieBg = false, blinkieCardOuter, blinkieCardOuterDim, blinkieOuterBoxColor, blinkieInnerBoxColor, blinkieCardBgUrl, blinkieCardBgScale, blinkieCardBgPosX, blinkieCardBgPosY }: SystemSettingsCardProps) {
   // Link and horizontal cards get slim outer frame
   if (cardType && THIN_CARD_TYPES.includes(cardType)) {
     return (
@@ -41,17 +52,58 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
     )
   }
 
+  // Default to CD holographic gif for blinkies theme when no bg image is explicitly set
+  const DEFAULT_BLINKIES_BG = '/card-backgrounds/cd-holographic.gif'
+  const effectiveBgUrl = blinkieCardBgUrl || (blinkieBg ? DEFAULT_BLINKIES_BG : undefined)
+
+  // When a bg image is set (and not transparent mode), all boxes go transparent so image shows through
+  const hasBgImage = !!effectiveBgUrl && !transparentBackground
+
   // Hero, square, video cards get the full window chrome
   return (
     <div
       className={cn(
         "overflow-hidden",
-        !transparentBackground && "bg-theme-card-bg",
+        !transparentBackground && !hasBgImage && "bg-theme-card-bg",
         "border border-theme-text",
         className
       )}
-      style={{ borderRadius: '6px' }}
+      style={{
+        borderRadius: '6px',
+        position: 'relative',
+        isolation: 'isolate',
+        ...(!hasBgImage && blinkieOuterBoxColor ? { backgroundColor: blinkieOuterBoxColor } : {}),
+      } as React.CSSProperties}
     >
+      {hasBgImage && (() => {
+        const scale = blinkieCardBgScale ?? 1
+        const posX = blinkieCardBgPosX ?? 0
+        const posY = blinkieCardBgPosY ?? 0
+        return (
+          <div
+            className="absolute inset-0 -z-[1] pointer-events-none overflow-hidden"
+          >
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url('${effectiveBgUrl}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transform: `scale(${scale}) translate(${posX}%, ${posY}%)`,
+                transformOrigin: 'center',
+              }}
+            />
+          </div>
+        )
+      })()}
+      {blinkieCardOuter && !transparentBackground && (() => {
+        const s = BLINKIE_STYLES[blinkieCardOuter]
+        if (!s) return null
+        return <BlinkieTileBackground bgID={s.bgID} frames={s.frames} delay={s.delay} tile={false} />
+      })()}
+      {!transparentBackground && (blinkieCardOuterDim != null && blinkieCardOuterDim > 0) && (
+        <div className="absolute inset-0 -z-[1] pointer-events-none" style={{ background: 'black', opacity: blinkieCardOuterDim / 100 }} />
+      )}
       {/* System 7 Title Bar */}
       <div className="flex items-center justify-between px-1.5 py-1">
         {/* Close button - left side (no border) */}
@@ -77,9 +129,13 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
         <div
           className={cn(
             "border border-theme-text",
-            !transparentBackground && "bg-theme-accent"
+            !transparentBackground && !hasBgImage && !blinkieInnerBoxColor && "bg-theme-accent"
           )}
-          style={{ borderRadius: '4px', overflow: 'hidden' }}
+          style={{
+            borderRadius: '4px',
+            overflow: 'hidden',
+            ...(!hasBgImage && blinkieInnerBoxColor ? { backgroundColor: blinkieInnerBoxColor } : {}),
+          }}
         >
           {children}
         </div>

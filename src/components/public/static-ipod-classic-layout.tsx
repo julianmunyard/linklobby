@@ -9,7 +9,8 @@ import type { SocialIcon } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import { StaticBackground, StaticNoiseOverlay } from './static-overlays'
-import { AudioCard } from '@/components/cards/audio-card'
+import { AudioPlayer } from '@/components/audio/audio-player'
+import { isAudioContent } from '@/types/card'
 import { getAudioEngine } from '@/audio/engine/audioEngine'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
@@ -751,12 +752,21 @@ export function StaticIpodClassicLayout({
                     )
                   })()
                 ) : currentScreen === 'nowplaying' ? (
-                  activeAudioCard ? (
+                  activeAudioCard && isAudioContent(activeAudioCard.content) ? (
                     <div className="flex flex-col">
-                      <AudioCard
-                        card={activeAudioCard}
-                        isPreview={false}
-                        themeIdOverride="ipod-classic"
+                      <AudioPlayer
+                        tracks={activeAudioCard.content.tracks}
+                        albumArtUrl={activeAudioCard.content.albumArtUrl}
+                        showWaveform={activeAudioCard.content.showWaveform ?? true}
+                        looping={activeAudioCard.content.looping ?? false}
+                        autoplay={activeAudioCard.content.autoplay ?? false}
+                        transparentBackground={activeAudioCard.content.transparentBackground ?? false}
+                        reverbConfig={activeAudioCard.content.reverbConfig}
+                        playerColors={activeAudioCard.content.playerColors}
+                        cardId={activeAudioCard.id}
+                        pageId={activeAudioCard.page_id}
+                        isEditing={false}
+                        themeVariant="ipod-classic"
                       />
                     </div>
                   ) : (

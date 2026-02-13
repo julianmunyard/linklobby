@@ -9,11 +9,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { ColorPicker } from '@/components/ui/color-picker'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ReverbConfigModal } from '@/components/audio/reverb-config-modal'
+import { BlinkieStylePicker } from '@/components/editor/blinkie-style-picker'
+import { BLINKIE_STYLES } from '@/data/blinkie-styles'
 import { cn, generateId } from '@/lib/utils'
 import { uploadCardImageBlob } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
+import { CardBgPositionDialog } from '@/components/editor/card-bg-position-dialog'
+import { CARD_BG_PRESETS } from '@/data/card-bg-presets'
 import type { AudioCardContent, AudioTrack, ReverbConfig } from '@/types/audio'
 import { DEFAULT_REVERB_CONFIG } from '@/types/audio'
 
@@ -30,8 +35,12 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
   const [uploadProgress, setUploadProgress] = useState(0)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
+  const [boxBgPickerOpen, setBoxBgPickerOpen] = useState(false)
+  const [isUploadingCardBg, setIsUploadingCardBg] = useState(false)
+  const [cardBgPositionOpen, setCardBgPositionOpen] = useState(false)
   const trackInputRef = useRef<HTMLInputElement>(null)
   const artInputRef = useRef<HTMLInputElement>(null)
+  const cardBgInputRef = useRef<HTMLInputElement>(null)
 
   const tracks = content.tracks || []
   const reverbConfig = content.reverbConfig || DEFAULT_REVERB_CONFIG
@@ -487,6 +496,346 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
           Reset to Theme Defaults
         </Button>
       </div>
+
+      {/* Card Background (blinkies theme only) */}
+      {themeId === 'blinkies' && (() => {
+        const styleId = content.blinkieBoxBackgrounds?.cardOuter
+        const styleDef = styleId ? BLINKIE_STYLES[styleId] : null
+        return (
+          <div className="space-y-2">
+            <Label>Card Background</Label>
+            <div className="flex items-center gap-2 h-8">
+              <button
+                type="button"
+                className="flex-1 h-full overflow-hidden border rounded cursor-pointer hover:ring-1 hover:ring-muted-foreground/30"
+                style={{ imageRendering: 'pixelated' as const }}
+                onClick={() => setBoxBgPickerOpen(true)}
+              >
+                {styleDef ? (
+                  <img
+                    src={`/blinkies/${styleDef.bgID}-0.png`}
+                    alt={styleDef.name}
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: 'pixelated' }}
+                  />
+                ) : (
+                  <span className="text-[10px] text-muted-foreground flex items-center justify-center h-full">
+                    None
+                  </span>
+                )}
+              </button>
+              {styleId && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 flex-shrink-0"
+                  onClick={() => onChange({ blinkieBoxBackgrounds: undefined })}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+
+            {/* Background Image Upload */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Background Image</Label>
+              {content.blinkieBoxBackgrounds?.cardBgUrl ? (
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex-1 h-12 rounded border overflow-hidden cursor-pointer hover:ring-1 hover:ring-muted-foreground/30 transition-all"
+                    onClick={() => setCardBgPositionOpen(true)}
+                    title="Click to adjust position"
+                  >
+                    <div
+                      className="w-full h-full"
+                      style={{
+                        backgroundImage: `url('${content.blinkieBoxBackgrounds.cardBgUrl}')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        transform: `scale(${content.blinkieBoxBackgrounds?.cardBgScale ?? 1}) translate(${content.blinkieBoxBackgrounds?.cardBgPosX ?? 0}%, ${content.blinkieBoxBackgrounds?.cardBgPosY ?? 0}%)`,
+                        transformOrigin: 'center',
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 flex-shrink-0"
+                    onClick={() =>
+                      onChange({
+                        blinkieBoxBackgrounds: {
+                          ...content.blinkieBoxBackgrounds,
+                          cardBgUrl: undefined,
+                          cardBgStoragePath: undefined,
+                          cardBgScale: undefined,
+                          cardBgPosX: undefined,
+                          cardBgPosY: undefined,
+                        },
+                      })
+                    }
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <input
+                    ref={cardBgInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={isUploadingCardBg}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      if (!file.type.startsWith('image/')) { toast.error('File must be an image'); return }
+                      if (file.size > 20 * 1024 * 1024) { toast.error('Image must be less than 20MB'); return }
+                      try {
+                        setIsUploadingCardBg(true)
+                        const compressed = await compressImageForUpload(file)
+                        const result = await uploadCardImageBlob(compressed, cardId)
+                        onChange({
+                          blinkieBoxBackgrounds: {
+                            ...content.blinkieBoxBackgrounds,
+                            cardBgUrl: result.url,
+                            cardBgStoragePath: result.path,
+                          },
+                        })
+                        toast.success('Background uploaded')
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : 'Upload failed')
+                      } finally {
+                        setIsUploadingCardBg(false)
+                        if (cardBgInputRef.current) cardBgInputRef.current.value = ''
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    disabled={isUploadingCardBg}
+                    onClick={() => cardBgInputRef.current?.click()}
+                  >
+                    {isUploadingCardBg ? (
+                      <><Upload className="h-3 w-3 mr-1.5 animate-pulse" />Uploading...</>
+                    ) : (
+                      <><Upload className="h-3 w-3 mr-1.5" />Upload Image</>
+                    )}
+                  </Button>
+                </>
+              )}
+
+              {/* Preset library grid */}
+              <div className="grid grid-cols-3 gap-1.5 pt-1">
+                {CARD_BG_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    title={preset.name}
+                    className={cn(
+                      "relative h-14 rounded overflow-hidden border transition-all",
+                      content.blinkieBoxBackgrounds?.cardBgUrl === preset.url
+                        ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                        : "hover:ring-1 hover:ring-muted-foreground/30"
+                    )}
+                    onClick={() =>
+                      onChange({
+                        blinkieBoxBackgrounds: {
+                          ...content.blinkieBoxBackgrounds,
+                          cardBgUrl: preset.url,
+                          cardBgStoragePath: undefined,
+                          cardBgScale: undefined,
+                          cardBgPosX: undefined,
+                          cardBgPosY: undefined,
+                        },
+                      })
+                    }
+                  >
+                    <img
+                      src={preset.thumbnail || preset.url}
+                      alt={preset.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {(styleId || content.blinkieBoxBackgrounds?.cardBgUrl) && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground flex-shrink-0">Dim</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={content.blinkieBoxBackgrounds?.cardOuterDim ?? 100}
+                  onChange={(e) =>
+                    onChange({
+                      blinkieBoxBackgrounds: {
+                        ...content.blinkieBoxBackgrounds,
+                        cardOuterDim: parseInt(e.target.value),
+                      },
+                    })
+                  }
+                  className="flex-1 h-1.5 accent-primary"
+                />
+                <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">
+                  {content.blinkieBoxBackgrounds?.cardOuterDim ?? 100}%
+                </span>
+              </div>
+            )}
+
+            <Dialog open={boxBgPickerOpen} onOpenChange={setBoxBgPickerOpen}>
+              <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Choose Card Background</DialogTitle>
+                </DialogHeader>
+                <BlinkieStylePicker
+                  currentStyle={styleId || ''}
+                  onStyleChange={(newStyleId) => {
+                    onChange({
+                      blinkieBoxBackgrounds: { cardOuter: newStyleId, cardOuterDim: content.blinkieBoxBackgrounds?.cardOuterDim ?? 30 },
+                    })
+                    setBoxBgPickerOpen(false)
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+
+            {content.blinkieBoxBackgrounds?.cardBgUrl && (
+              <CardBgPositionDialog
+                open={cardBgPositionOpen}
+                onOpenChange={setCardBgPositionOpen}
+                imageUrl={content.blinkieBoxBackgrounds.cardBgUrl}
+                scale={content.blinkieBoxBackgrounds?.cardBgScale ?? 1}
+                posX={content.blinkieBoxBackgrounds?.cardBgPosX ?? 0}
+                posY={content.blinkieBoxBackgrounds?.cardBgPosY ?? 0}
+                onSave={(scale, posX, posY) =>
+                  onChange({
+                    blinkieBoxBackgrounds: {
+                      ...content.blinkieBoxBackgrounds,
+                      cardBgScale: scale,
+                      cardBgPosX: posX,
+                      cardBgPosY: posY,
+                    },
+                  })
+                }
+              />
+            )}
+          </div>
+        )
+      })()}
+
+      {/* Blinkie Colors (blinkies theme only) */}
+      {themeId === 'blinkies' && (() => {
+        const palettes: { name: string; outerBox: string; innerBox: string; text: string; playerBox: string; buttons: string }[] = [
+          { name: 'Default',        outerBox: '#3d2020', innerBox: '#c9a832', text: '#9898a8', playerBox: '#8b7db8', buttons: '#b83232' },
+          { name: 'Classic',        outerBox: '#F9F0E9', innerBox: '#EDE4DA', text: '#000000', playerBox: '#F9F0E9', buttons: '#F9F0E9' },
+          { name: 'Ocean Abyss',    outerBox: '#152535', innerBox: '#3d7a8e', text: '#b8d4de', playerBox: '#4a6878', buttons: '#d46b5a' },
+          { name: 'Lavender Haze',  outerBox: '#251835', innerBox: '#8b6aad', text: '#d8cce8', playerBox: '#6b5088', buttons: '#c85a8b' },
+          { name: 'Emerald Dusk',   outerBox: '#182518', innerBox: '#5a8a5a', text: '#c8d8c4', playerBox: '#3d6840', buttons: '#c8824a' },
+          { name: 'Rose Garden',    outerBox: '#351825', innerBox: '#b86a82', text: '#e8ccd8', playerBox: '#8a4a65', buttons: '#d84a68' },
+          { name: 'Steel Dawn',     outerBox: '#1e2830', innerBox: '#5878a0', text: '#c8d8e8', playerBox: '#3d5878', buttons: '#4a98b8' },
+          { name: 'Amber Glow',     outerBox: '#352518', innerBox: '#c89848', text: '#e8dcc8', playerBox: '#987040', buttons: '#d85828' },
+          { name: 'Midnight Iris',  outerBox: '#1a1530', innerBox: '#6a4898', text: '#ccc0e0', playerBox: '#483570', buttons: '#a84888' },
+          { name: 'Sage & Clay',    outerBox: '#252818', innerBox: '#8a9868', text: '#d8dec8', playerBox: '#607040', buttons: '#b89048' },
+          { name: 'Coral Cove',     outerBox: '#301818', innerBox: '#c87868', text: '#e8d0cc', playerBox: '#904838', buttons: '#4888a0' },
+          { name: 'Frost Violet',   outerBox: '#181830', innerBox: '#6868b0', text: '#ccccec', playerBox: '#383870', buttons: '#8848b0' },
+          { name: 'Patina',         outerBox: '#182828', innerBox: '#488880', text: '#c8dcd8', playerBox: '#306058', buttons: '#b0884a' },
+          { name: 'Dusk Cherry',    outerBox: '#2d1520', innerBox: '#a04058', text: '#e8c8d0', playerBox: '#703048', buttons: '#d0a040' },
+          { name: 'Slate & Rust',   outerBox: '#282830', innerBox: '#707088', text: '#d8d8e0', playerBox: '#484860', buttons: '#c06838' },
+          { name: 'Deep Lagoon',    outerBox: '#102028', innerBox: '#286878', text: '#b0d0d8', playerBox: '#1a4858', buttons: '#c86080' },
+        ]
+        return (
+        <div className="space-y-3">
+          <Label>Card Colors</Label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {palettes.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                title={p.name}
+                className={cn(
+                  "flex flex-col rounded overflow-hidden h-7 transition-all",
+                  content.blinkieColors?.outerBox === p.outerBox && content.blinkieColors?.innerBox === p.innerBox
+                    ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                    : "hover:ring-1 hover:ring-muted-foreground/30"
+                )}
+                onClick={() =>
+                  onChange({
+                    blinkieColors: {
+                      outerBox: p.outerBox,
+                      innerBox: p.innerBox,
+                      text: p.text,
+                      playerBox: p.playerBox,
+                      buttons: p.buttons,
+                    },
+                  })
+                }
+              >
+                <div className="flex-1 flex">
+                  <div className="flex-1" style={{ backgroundColor: p.outerBox }} />
+                  <div className="flex-1" style={{ backgroundColor: p.innerBox }} />
+                  <div className="flex-1" style={{ backgroundColor: p.playerBox }} />
+                  <div className="flex-1" style={{ backgroundColor: p.buttons }} />
+                  <div className="flex-1" style={{ backgroundColor: p.text }} />
+                </div>
+              </button>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <ColorPicker
+              label="Outer Box"
+              color={content.blinkieColors?.outerBox || '#3d2020'}
+              onChange={(color) =>
+                onChange({ blinkieColors: { ...content.blinkieColors, outerBox: color } })
+              }
+            />
+            <ColorPicker
+              label="Inner Box"
+              color={content.blinkieColors?.innerBox || '#c9a832'}
+              onChange={(color) =>
+                onChange({ blinkieColors: { ...content.blinkieColors, innerBox: color } })
+              }
+            />
+            <ColorPicker
+              label="Text"
+              color={content.blinkieColors?.text || '#9898a8'}
+              onChange={(color) =>
+                onChange({ blinkieColors: { ...content.blinkieColors, text: color } })
+              }
+            />
+            <ColorPicker
+              label="Player Boxes"
+              color={content.blinkieColors?.playerBox || '#8b7db8'}
+              onChange={(color) =>
+                onChange({ blinkieColors: { ...content.blinkieColors, playerBox: color } })
+              }
+            />
+            <ColorPicker
+              label="Buttons"
+              color={content.blinkieColors?.buttons || '#b83232'}
+              onChange={(color) =>
+                onChange({ blinkieColors: { ...content.blinkieColors, buttons: color } })
+              }
+            />
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onChange({ blinkieColors: undefined })}
+            className="w-full"
+          >
+            Reset to Theme Defaults
+          </Button>
+        </div>
+        )
+      })()}
 
       {/* Image Crop Dialog */}
       {imageToCrop && (

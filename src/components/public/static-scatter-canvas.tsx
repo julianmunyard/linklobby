@@ -209,7 +209,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           const audioContent = card.content as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
-            'blinkies': 'system-settings',  // Blinkies uses system-settings audio variant
+            'blinkies': 'blinkies',
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
             'classified': 'classified',
@@ -220,7 +220,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             'ipod-classic': 'ipod-classic',
             'instagram-reels': 'instagram-reels',
           }
-          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
           const isTransparent = audioContent.transparentBackground === true
 
@@ -234,6 +234,8 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
               transparentBackground={isTransparent}
               reverbConfig={audioContent.reverbConfig}
               playerColors={audioContent.playerColors}
+              blinkieColors={audioContent.blinkieColors}
+              blinkieCardHasBgImage={!!(audioContent.blinkieBoxBackgrounds?.cardBgUrl) && !isTransparent}
               cardId={card.id}
               pageId={card.page_id}
               themeVariant={themeVariant}
@@ -241,7 +243,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
           )
 
           const audioInner = (themeId === 'system-settings' || themeId === 'blinkies')
-            ? <SystemSettingsCard cardType="audio" transparentBackground={isTransparent}>{audioPlayer}</SystemSettingsCard>
+            ? <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}>{audioPlayer}</SystemSettingsCard>
             : (
               <div
                 className={cn("overflow-hidden border border-theme-border", !isTransparent && "bg-theme-card-bg")}

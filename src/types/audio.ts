@@ -36,6 +36,22 @@ export interface AudioCardContent {
   playerColors?: PlayerColors    // 3 color customization fields
   transparentBackground?: boolean
   textColor?: string
+  blinkieColors?: {
+    outerBox?: string    // SystemSettingsCard outer frame background
+    innerBox?: string    // SystemSettingsCard inner content area background
+    text?: string        // Text and border color throughout
+    playerBox?: string   // Player container + inner boxes (progress, varispeed, reverb) background
+    buttons?: string     // Transport buttons and varispeed bar fill
+  }
+  blinkieBoxBackgrounds?: {
+    cardOuter?: string  // System 7 window chrome (outermost frame)
+    cardOuterDim?: number // 0–100 intensity (100 = full, 0 = hidden)
+    cardBgUrl?: string         // Uploaded background image URL
+    cardBgStoragePath?: string // For deletion
+    cardBgScale?: number       // Zoom level (1 = cover, >1 = zoomed in)
+    cardBgPosX?: number        // Translate X % (0 = centered)
+    cardBgPosY?: number        // Translate Y % (0 = centered)
+  }
 }
 
 export const DEFAULT_REVERB_CONFIG: ReverbConfig = {

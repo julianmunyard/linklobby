@@ -71,12 +71,15 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
       )
 
     case 'system-settings':
-    case 'blinkies':
+    case 'blinkies': {
+      const boxBgs = (content?.blinkieBoxBackgrounds as Record<string, string | number> | undefined)
+      const blinkieColors = (content?.blinkieColors as Record<string, string> | undefined)
       return (
-        <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent}>
+        <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined}>
           {children}
         </SystemSettingsCard>
       )
+    }
 
     case 'instagram-reels':
     default:

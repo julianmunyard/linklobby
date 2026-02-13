@@ -14,7 +14,7 @@ import { TrackList } from './track-list'
 import { cn } from '@/lib/utils'
 import { trackAudioPlay } from '@/lib/analytics/track-event'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 // Halftone dot pattern — staggered grid matching the Macintosh calculator style
 // Two offset radial-gradient layers create a hex-like dot arrangement
@@ -43,6 +43,8 @@ interface AudioPlayerProps {
   transparentBackground?: boolean
   reverbConfig?: ReverbConfig
   playerColors?: AudioCardContent['playerColors']
+  blinkieColors?: AudioCardContent['blinkieColors']
+  blinkieCardHasBgImage?: boolean
   cardId: string
   pageId: string
   isEditing?: boolean         // In editor = show reverb config button
@@ -60,6 +62,8 @@ export function AudioPlayer({
   transparentBackground = false,
   reverbConfig,
   playerColors,
+  blinkieColors,
+  blinkieCardHasBgImage = false,
   cardId,
   pageId,
   isEditing = false,
@@ -143,7 +147,8 @@ export function AudioPlayer({
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
   const isClassified = themeVariant === 'classified'
-  const isSystemSettings = themeVariant === 'system-settings'
+  const isBlinkies = themeVariant === 'blinkies'
+  const isSystemSettings = themeVariant === 'system-settings' || isBlinkies
   const isMacOs = themeVariant === 'mac-os'
   const isIpodClassic = themeVariant === 'ipod-classic'
   const isCompact = isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic
@@ -666,20 +671,23 @@ export function AudioPlayer({
 
   // ─── SYSTEM SETTINGS / POOLSUITE FM THEME ───
   if (isSystemSettings) {
-    const psColor = 'var(--theme-text, #000000)'
+    const psColor = (isBlinkies && (blinkieColors?.text || '#9898a8')) || 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
       fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
     }
     // All borders are black, thin, rounded — the Poolsuite way
-    const psBorder = '1px solid var(--theme-text, #000000)'
+    const psBorder = `1px solid ${psColor}`
     const psRadius = '4px'
     // Button bg — all buttons use card bg, active state is inset shadow only
-    const btnBg = transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)'
+    const btnBg = blinkieCardHasBgImage ? 'transparent' : (isBlinkies && (blinkieColors?.buttons || '#b83232')) || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
+    // Player box bg override (affects inner boxes)
+    const playerBoxBg = blinkieCardHasBgImage ? undefined : (isBlinkies && (blinkieColors?.playerBox || '#8b7db8')) || undefined
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
       borderRadius: psRadius,
+      ...(playerBoxBg ? { backgroundColor: playerBoxBg } : {}),
     }
 
     // Progress bar position
@@ -710,6 +718,7 @@ export function AudioPlayer({
           </div>
 
           {/* Transport buttons row */}
+          <div className="flex items-center gap-2">
           <div
             className="flex items-stretch flex-shrink-0 w-fit"
             style={{ border: psBorder, borderRadius: psRadius, overflow: 'hidden' }}
@@ -805,6 +814,8 @@ export function AudioPlayer({
               <span className="text-xs leading-none" style={{ color: psColor }}>♪</span>
             </button>
           </div>
+
+          </div>
         </div>
 
         {/* ── Box 3: Progress + Varispeed + Reverb (combined) ── */}
@@ -891,7 +902,7 @@ export function AudioPlayer({
               onMixChange={player.setReverbMix}
               foregroundColor={psColor}
               elementBgColor="transparent"
-              themeVariant={themeVariant}
+              themeVariant={isBlinkies ? 'system-settings' : themeVariant}
             />
             {isEditing && reverbConfig && (
               <ReverbConfigModal
@@ -920,7 +931,7 @@ export function AudioPlayer({
               onTrackSelect={handleTrackSelect}
               foregroundColor={psColor}
               elementBgColor="transparent"
-              themeVariant={themeVariant}
+              themeVariant={isBlinkies ? 'system-settings' : themeVariant}
             />
           </div>
         )}
