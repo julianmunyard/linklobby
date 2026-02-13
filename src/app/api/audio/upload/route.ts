@@ -1,6 +1,7 @@
 // src/app/api/audio/upload/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { convertToMp3 } from '@/lib/audio/convert-to-mp3'
 
 export const runtime = 'nodejs'
 
@@ -38,20 +39,37 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get file extension from original filename, default to original extension
+    // Get file extension from original filename
     const originalName = file.name || 'audio.mp3'
     const ext = originalName.split('.').pop()?.toLowerCase() || 'mp3'
-    const fileName = `${cardId}/${trackId}.${ext}`
 
-    // Convert File to ArrayBuffer for upload
+    // Convert File to ArrayBuffer for processing
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+
+    // Convert non-MP3 audio to MP3 (MP3 files pass through without re-encoding)
+    let finalBuffer: Buffer
+    let duration: number
+    try {
+      const result = await convertToMp3(buffer, ext)
+      finalBuffer = result.buffer
+      duration = result.duration
+    } catch (conversionError) {
+      console.error('Audio conversion error:', conversionError)
+      return NextResponse.json(
+        { error: 'Failed to process audio file. Please try uploading an MP3.' },
+        { status: 422 }
+      )
+    }
+
+    // Always store as MP3 (conversion ensures this)
+    const fileName = `${cardId}/${trackId}.mp3`
 
     // Upload directly with server supabase client
     const { data, error: uploadError } = await supabase.storage
       .from(AUDIO_BUCKET)
-      .upload(fileName, buffer, {
-        contentType: file.type || 'audio/mpeg',
+      .upload(fileName, finalBuffer, {
+        contentType: 'audio/mpeg',
         upsert: false,
       })
 
@@ -71,7 +89,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: urlData.publicUrl,
       storagePath: data.path,
-      duration: null,
+      duration: duration || null,
     })
 
   } catch (error) {
