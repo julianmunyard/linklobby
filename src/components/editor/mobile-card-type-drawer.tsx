@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState, useCallback, useEffect } from "react"
-import { Pencil, Eye, EyeOff, AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
+import { Pencil, Eye, EyeOff, AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, X } from "lucide-react"
 import { Drawer as DrawerPrimitive } from "vaul"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,12 +15,37 @@ import { ImageUpload } from "@/components/cards/image-upload"
 import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { CONVERTIBLE_CARD_TYPES, isConvertibleType } from "./card-type-picker"
+import { BlinkieStylePicker } from "./blinkie-style-picker"
 import { cn } from "@/lib/utils"
 import { validateAndFixUrl } from "@/lib/url-validation"
 import { toast } from "sonner"
 import { CARD_TYPES_NO_IMAGE, CARD_TYPE_SIZING } from "@/types/card"
+import { CARD_BG_PRESETS } from "@/data/card-bg-presets"
+import { BLINKIE_STYLES } from "@/data/blinkie-styles"
+import { generateId } from "@/lib/utils"
+import type { AudioTrack } from "@/types/audio"
 import type { Card, CardType, CardSize, TextAlign, VerticalAlign } from "@/types/card"
 import type { CardTypeFontSizes } from "@/types/theme"
+
+// Blinkie card color palettes for audio cards
+const BLINKIE_PALETTES = [
+  { name: 'Default',        outerBox: '#3d2020', innerBox: '#c9a832', text: '#9898a8', playerBox: '#8b7db8', buttons: '#b83232' },
+  { name: 'Classic',        outerBox: '#F9F0E9', innerBox: '#EDE4DA', text: '#000000', playerBox: '#F9F0E9', buttons: '#F9F0E9' },
+  { name: 'Ocean Abyss',    outerBox: '#152535', innerBox: '#3d7a8e', text: '#b8d4de', playerBox: '#4a6878', buttons: '#d46b5a' },
+  { name: 'Lavender Haze',  outerBox: '#251835', innerBox: '#8b6aad', text: '#d8cce8', playerBox: '#6b5088', buttons: '#c85a8b' },
+  { name: 'Emerald Dusk',   outerBox: '#182518', innerBox: '#5a8a5a', text: '#c8d8c4', playerBox: '#3d6840', buttons: '#c8824a' },
+  { name: 'Rose Garden',    outerBox: '#351825', innerBox: '#b86a82', text: '#e8ccd8', playerBox: '#8a4a65', buttons: '#d84a68' },
+  { name: 'Steel Dawn',     outerBox: '#1e2830', innerBox: '#5878a0', text: '#c8d8e8', playerBox: '#3d5878', buttons: '#4a98b8' },
+  { name: 'Amber Glow',     outerBox: '#352518', innerBox: '#c89848', text: '#e8dcc8', playerBox: '#987040', buttons: '#d85828' },
+  { name: 'Midnight Iris',  outerBox: '#1a1530', innerBox: '#6a4898', text: '#ccc0e0', playerBox: '#483570', buttons: '#a84888' },
+  { name: 'Sage & Clay',    outerBox: '#252818', innerBox: '#8a9868', text: '#d8dec8', playerBox: '#607040', buttons: '#b89048' },
+  { name: 'Coral Cove',     outerBox: '#301818', innerBox: '#c87868', text: '#e8d0cc', playerBox: '#904838', buttons: '#4888a0' },
+  { name: 'Frost Violet',   outerBox: '#181830', innerBox: '#6868b0', text: '#ccccec', playerBox: '#383870', buttons: '#8848b0' },
+  { name: 'Patina',         outerBox: '#182828', innerBox: '#488880', text: '#c8dcd8', playerBox: '#306058', buttons: '#b0884a' },
+  { name: 'Dusk Cherry',    outerBox: '#2d1520', innerBox: '#a04058', text: '#e8c8d0', playerBox: '#703048', buttons: '#d0a040' },
+  { name: 'Slate & Rust',   outerBox: '#282830', innerBox: '#707088', text: '#d8d8e0', playerBox: '#484860', buttons: '#c06838' },
+  { name: 'Deep Lagoon',    outerBox: '#102028', innerBox: '#286878', text: '#b0d0d8', playerBox: '#1a4858', buttons: '#c86080' },
+]
 
 // Human-readable labels for card types
 const CARD_TYPE_LABELS: Record<string, string> = {
@@ -60,6 +85,7 @@ export function MobileCardTypeDrawer({
 }: MobileCardTypeDrawerProps) {
   const updateCard = usePageStore((state) => state.updateCard)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
+  const themeId = useThemeStore((state) => state.themeId)
   const cardTypeFontSizes = useThemeStore((state) => state.cardTypeFontSizes)
   const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
   const [activeTab, setActiveTab] = useState(0)
@@ -70,9 +96,21 @@ export function MobileCardTypeDrawer({
   const isConvertible = card ? (!isMacCard && isConvertibleType(card.card_type)) : false
 
   const hasImage = card ? !CARD_TYPES_NO_IMAGE.includes(card.card_type) && !isMacCard : false
+  const isBlinkieCard = themeId === 'blinkies' && card != null && (card.card_type === 'link' || card.card_type === 'mini')
+  const isBlinkieAudioCard = themeId === 'blinkies' && card != null && card.card_type === 'audio'
+
+  // State for blinkie style picker dialog in audio background tab
+  const [audioBoxBgPickerOpen, setAudioBoxBgPickerOpen] = useState(false)
 
   const tabs: TabDef[] = (() => {
-    const t: TabDef[] = [{ key: 'type', label: 'Type' }]
+    if (isBlinkieAudioCard) {
+      return [
+        { key: 'background', label: 'Background' },
+        { key: 'colors', label: 'Colors' },
+        { key: 'player', label: 'Player' },
+      ]
+    }
+    const t: TabDef[] = [{ key: 'type', label: isBlinkieCard ? 'Style' : 'Type' }]
     if (!isMacCard) t.push({ key: 'content', label: 'Content' })
     if (hasImage) t.push({ key: 'photo', label: 'Photo' })
     if (!isMacCard) t.push({ key: 'text', label: 'Text' })
@@ -128,11 +166,13 @@ export function MobileCardTypeDrawer({
   const isDragging = useRef(false)
   const swipeBlocked = useRef(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  // Check if touch started on a slider (only sliders need swipe blocking — they use horizontal drag)
+  // Check if touch started on a slider or vertically-scrollable area (these need swipe blocking)
   const isSliderTarget = useCallback((target: EventTarget | null) => {
     let el = target as HTMLElement | null
     while (el) {
       if (el.getAttribute('role') === 'slider' || el.dataset.radixSlider !== undefined) return true
+      // Block horizontal swipe when inside a vertically-scrollable container
+      if (el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto') return true
       if (el === trackRef.current) break
       el = el.parentElement
     }
@@ -302,65 +342,103 @@ export function MobileCardTypeDrawer({
                       key={tab.key}
                       className="min-w-full flex-shrink-0 px-0.5"
                     >
-                      {/* ---- Type ---- */}
+                      {/* ---- Type / Blinkie Style ---- */}
                       {tab.key === 'type' && (
                         <div className="space-y-1.5">
-                          {isConvertible && (
-                            <div className="grid grid-cols-3 gap-1">
-                              {CONVERTIBLE_CARD_TYPES.map(({ type, icon: Icon, label }) => {
-                                const isSelected = card.card_type === type
-                                return (
+                          {isBlinkieCard ? (
+                            <div className="max-h-[40vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
+                              <BlinkieStylePicker
+                                currentStyle={(currentContent.blinkieStyle as string) || '0008-pink'}
+                                onStyleChange={(style) => handleContentChange({ blinkieStyle: style })}
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              {isConvertible && (
+                                <div className="grid grid-cols-3 gap-1">
+                                  {CONVERTIBLE_CARD_TYPES.map(({ type, icon: Icon, label }) => {
+                                    const isSelected = card.card_type === type
+                                    return (
+                                      <button
+                                        key={type}
+                                        onClick={() => handleTypeChange(type)}
+                                        className={cn(
+                                          "flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg border transition-all",
+                                          isSelected
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-transparent bg-muted/50 text-muted-foreground"
+                                        )}
+                                      >
+                                        <Icon className="h-4 w-4" />
+                                        <span className="text-[10px] font-medium">{label}</span>
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                              {!isConvertible && (
+                                <div className="rounded-lg bg-muted/50 px-3 py-1.5">
+                                  <p className="text-xs text-muted-foreground">
+                                    This card type cannot be converted.
+                                  </p>
+                                </div>
+                              )}
+                              {supportsSizing && (
+                                <div className="flex gap-1">
                                   <button
-                                    key={type}
-                                    onClick={() => handleTypeChange(type)}
+                                    onClick={() => handleSizeChange('big')}
                                     className={cn(
-                                      "flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-lg border transition-all",
-                                      isSelected
+                                      "flex-1 py-1 rounded-md border text-xs font-medium transition-all",
+                                      card.size === 'big'
                                         ? "border-primary bg-primary/10 text-primary"
                                         : "border-transparent bg-muted/50 text-muted-foreground"
                                     )}
                                   >
-                                    <Icon className="h-4 w-4" />
-                                    <span className="text-[10px] font-medium">{label}</span>
+                                    Big
                                   </button>
-                                )
-                              })}
-                            </div>
-                          )}
-                          {!isConvertible && (
-                            <div className="rounded-lg bg-muted/50 px-3 py-1.5">
-                              <p className="text-xs text-muted-foreground">
-                                This card type cannot be converted.
-                              </p>
-                            </div>
-                          )}
-                          {supportsSizing && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => handleSizeChange('big')}
-                                className={cn(
-                                  "flex-1 py-1 rounded-md border text-xs font-medium transition-all",
-                                  card.size === 'big'
-                                    ? "border-primary bg-primary/10 text-primary"
-                                    : "border-transparent bg-muted/50 text-muted-foreground"
-                                )}
-                              >
-                                Big
-                              </button>
-                              <button
-                                onClick={() => handleSizeChange('small')}
-                                className={cn(
-                                  "flex-1 py-1 rounded-md border text-xs font-medium transition-all",
-                                  card.size === 'small'
-                                    ? "border-primary bg-primary/10 text-primary"
-                                    : "border-transparent bg-muted/50 text-muted-foreground"
-                                )}
-                              >
-                                Small
-                              </button>
-                            </div>
+                                  <button
+                                    onClick={() => handleSizeChange('small')}
+                                    className={cn(
+                                      "flex-1 py-1 rounded-md border text-xs font-medium transition-all",
+                                      card.size === 'small'
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-transparent bg-muted/50 text-muted-foreground"
+                                    )}
+                                  >
+                                    Small
+                                  </button>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
+                      )}
+
+                      {/* ---- Background (blinkies audio) ---- */}
+                      {tab.key === 'background' && isBlinkieAudioCard && (
+                        <BlinkieAudioBackgroundPane
+                          currentContent={currentContent}
+                          onContentChange={handleContentChange}
+                          pickerOpen={audioBoxBgPickerOpen}
+                          onPickerOpenChange={setAudioBoxBgPickerOpen}
+                        />
+                      )}
+
+                      {/* ---- Colors (blinkies audio) ---- */}
+                      {tab.key === 'colors' && isBlinkieAudioCard && (
+                        <BlinkieAudioColorsPane
+                          currentContent={currentContent}
+                          onContentChange={handleContentChange}
+                        />
+                      )}
+
+                      {/* ---- Player (blinkies audio) ---- */}
+                      {tab.key === 'player' && isBlinkieAudioCard && card && (
+                        <BlinkieAudioPlayerPane
+                          currentContent={currentContent}
+                          onContentChange={handleContentChange}
+                          cardId={card.id}
+                        />
                       )}
 
                       {/* ---- Content ---- */}
@@ -535,5 +613,353 @@ export function MobileCardTypeDrawer({
         </DrawerPrimitive.Content>
       </DrawerPrimitive.Portal>
     </DrawerPrimitive.Root>
+  )
+}
+
+/* ── Blinkies Audio sub-panes (extracted to avoid IIFE type issues) ── */
+
+interface BlinkieAudioPaneProps {
+  currentContent: Record<string, unknown>
+  onContentChange: (updates: Record<string, unknown>) => void
+}
+
+function BlinkieAudioBackgroundPane({
+  currentContent,
+  onContentChange,
+  pickerOpen,
+  onPickerOpenChange,
+}: BlinkieAudioPaneProps & { pickerOpen: boolean; onPickerOpenChange: (v: boolean) => void }) {
+  const boxBgs = currentContent.blinkieBoxBackgrounds as Record<string, unknown> | undefined
+  const styleId = boxBgs?.cardOuter as string | undefined
+  const styleDef = styleId ? BLINKIE_STYLES[styleId] : null
+  const cardBgUrl = (boxBgs?.cardBgUrl as string) || ''
+  const cardOuterDim = (boxBgs?.cardOuterDim as number | undefined) ?? 0
+
+  return (
+    <div className="space-y-1.5">
+      {/* GIF preset grid — tiny 5-col aspect-square tiles */}
+      <div className="grid grid-cols-5 gap-0.5">
+        {CARD_BG_PRESETS.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            title={preset.name}
+            className={cn(
+              "aspect-square rounded-sm overflow-hidden border transition-all",
+              cardBgUrl === preset.url
+                ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                : "hover:ring-1 hover:ring-muted-foreground/30"
+            )}
+            onClick={() =>
+              onContentChange({
+                blinkieBoxBackgrounds: {
+                  ...boxBgs,
+                  cardBgUrl: preset.url,
+                  cardBgStoragePath: undefined,
+                  cardBgScale: undefined,
+                  cardBgPosX: undefined,
+                  cardBgPosY: undefined,
+                  cardBgNone: undefined,
+                  cardOuter: undefined,
+                },
+              })
+            }
+          >
+            <img
+              src={preset.thumbnail || preset.url}
+              alt={preset.name}
+              className="w-full h-full object-cover"
+            />
+          </button>
+        ))}
+      </div>
+
+      {/* Tile pattern + clear row */}
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          className="flex-1 h-6 overflow-hidden border rounded text-[10px] text-muted-foreground hover:ring-1 hover:ring-muted-foreground/30"
+          style={{ imageRendering: 'pixelated' as const }}
+          onClick={() => onPickerOpenChange(true)}
+        >
+          {styleDef ? (
+            <img
+              src={`/blinkies/${styleDef.bgID}-0.png`}
+              alt={styleDef.name}
+              className="w-full h-full object-cover"
+              style={{ imageRendering: 'pixelated' }}
+            />
+          ) : (
+            <span className="flex items-center justify-center h-full">Tile Pattern...</span>
+          )}
+        </button>
+        {(styleId || cardBgUrl) && (
+          <button
+            type="button"
+            className="h-6 px-1.5 rounded border text-[10px] text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+            onClick={() =>
+              onContentChange({
+                blinkieBoxBackgrounds: {
+                  ...boxBgs,
+                  cardBgUrl: undefined,
+                  cardBgStoragePath: undefined,
+                  cardBgScale: undefined,
+                  cardBgPosX: undefined,
+                  cardBgPosY: undefined,
+                  cardBgNone: true,
+                  cardOuter: undefined,
+                  cardOuterDim: undefined,
+                },
+              })
+            }
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* Dim slider */}
+      {(styleId || cardBgUrl) && (
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-muted-foreground">Dim</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={cardOuterDim}
+            onChange={(e) =>
+              onContentChange({
+                blinkieBoxBackgrounds: {
+                  ...boxBgs,
+                  cardOuterDim: parseInt(e.target.value),
+                },
+              })
+            }
+            className="flex-1 h-1.5 accent-primary"
+          />
+          <span className="text-[10px] text-muted-foreground tabular-nums w-5 text-right">
+            {cardOuterDim}
+          </span>
+        </div>
+      )}
+
+      {/* Blinkie Style Picker bottom sheet */}
+      {pickerOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40" onClick={() => onPickerOpenChange(false)}>
+          <div className="bg-background rounded-t-xl border-t w-full max-h-[60vh] overflow-y-auto p-3 pb-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium">Tile Pattern</span>
+              <button onClick={() => onPickerOpenChange(false)} className="p-1"><X className="h-4 w-4" /></button>
+            </div>
+            <BlinkieStylePicker
+              currentStyle={styleId || ''}
+              onStyleChange={(newStyleId) => {
+                onContentChange({
+                  blinkieBoxBackgrounds: {
+                    cardOuter: newStyleId,
+                    cardOuterDim: cardOuterDim || 30,
+                    cardBgUrl: undefined,
+                    cardBgStoragePath: undefined,
+                    cardBgScale: undefined,
+                    cardBgPosX: undefined,
+                    cardBgPosY: undefined,
+                    cardBgNone: true,
+                  },
+                })
+                onPickerOpenChange(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function BlinkieAudioColorsPane({ currentContent, onContentChange }: BlinkieAudioPaneProps) {
+  const blinkieColors = currentContent.blinkieColors as Record<string, string> | undefined
+  const playerColors = currentContent.playerColors as Record<string, string> | undefined
+  return (
+    <div className="space-y-2 max-h-[40vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
+      {/* Card color palette grid */}
+      <div className="grid grid-cols-4 gap-1">
+        {BLINKIE_PALETTES.map((p) => (
+          <button
+            key={p.name}
+            type="button"
+            title={p.name}
+            className={cn(
+              "flex rounded overflow-hidden h-5 transition-all",
+              blinkieColors?.outerBox === p.outerBox && blinkieColors?.innerBox === p.innerBox
+                ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                : "hover:ring-1 hover:ring-muted-foreground/30"
+            )}
+            onClick={() =>
+              onContentChange({
+                blinkieColors: {
+                  outerBox: p.outerBox,
+                  innerBox: p.innerBox,
+                  text: p.text,
+                  playerBox: p.playerBox,
+                  buttons: p.buttons,
+                },
+              })
+            }
+          >
+            <div className="flex-1" style={{ backgroundColor: p.outerBox }} />
+            <div className="flex-1" style={{ backgroundColor: p.innerBox }} />
+            <div className="flex-1" style={{ backgroundColor: p.playerBox }} />
+            <div className="flex-1" style={{ backgroundColor: p.buttons }} />
+            <div className="flex-1" style={{ backgroundColor: p.text }} />
+          </button>
+        ))}
+      </div>
+
+      {/* Individual card color pickers */}
+      <div className="space-y-1">
+        <span className="text-[10px] text-muted-foreground">Card</span>
+        <ColorPicker label="Outer" color={blinkieColors?.outerBox || '#3d2020'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, outerBox: c } })} className="text-xs" />
+        <ColorPicker label="Inner" color={blinkieColors?.innerBox || '#c9a832'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, innerBox: c } })} className="text-xs" />
+        <ColorPicker label="Text" color={blinkieColors?.text || '#9898a8'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, text: c } })} className="text-xs" />
+        <ColorPicker label="Player BG" color={blinkieColors?.playerBox || '#8b7db8'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, playerBox: c } })} className="text-xs" />
+        <ColorPicker label="Buttons" color={blinkieColors?.buttons || '#b83232'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, buttons: c } })} className="text-xs" />
+      </div>
+
+      {/* Player color pickers */}
+      <div className="space-y-1">
+        <span className="text-[10px] text-muted-foreground">Player</span>
+        <ColorPicker label="Border" color={playerColors?.borderColor || '#3b82f6'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, borderColor: c } })} className="text-xs" />
+        <ColorPicker label="Elements" color={playerColors?.elementBgColor || '#e5e7eb'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, elementBgColor: c } })} className="text-xs" />
+        <ColorPicker label="Accent" color={playerColors?.foregroundColor || '#3b82f6'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, foregroundColor: c } })} className="text-xs" />
+      </div>
+
+      <button
+        type="button"
+        className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+        onClick={() => { onContentChange({ blinkieColors: undefined }); onContentChange({ playerColors: undefined }) }}
+      >
+        Reset All Colors
+      </button>
+    </div>
+  )
+}
+
+function BlinkieAudioPlayerPane({ currentContent, onContentChange, cardId }: BlinkieAudioPaneProps & { cardId: string }) {
+  const [isUploading, setIsUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const tracks = (currentContent.tracks as AudioTrack[]) || []
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.aiff', '.wma']
+    const hasAudioMime = file.type.startsWith('audio/')
+    const hasAudioExt = audioExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+    if (!hasAudioMime && !hasAudioExt) { toast.error('Must be an audio file'); return }
+    if (file.size > 100 * 1024 * 1024) { toast.error('Max 100MB'); return }
+    try {
+      setIsUploading(true)
+      const trackId = generateId()
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('cardId', cardId)
+      formData.append('trackId', trackId)
+      const response = await fetch('/api/audio/upload', { method: 'POST', body: formData })
+      if (!response.ok) {
+        const txt = await response.text()
+        let msg = 'Upload failed'
+        try { msg = JSON.parse(txt).error || msg } catch { msg = txt || msg }
+        throw new Error(msg)
+      }
+      const result = await response.json()
+      const newTrack: AudioTrack = {
+        id: trackId,
+        title: file.name.replace(/\.[^/.]+$/, ''),
+        artist: '',
+        duration: result.duration || 0,
+        audioUrl: result.url,
+        storagePath: result.path,
+        waveformData: result.waveformData,
+      }
+      onContentChange({ tracks: [...tracks, newTrack] })
+      toast.success('Track uploaded')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setIsUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  async function handleDelete(trackId: string) {
+    const track = tracks.find(t => t.id === trackId)
+    if (!track) return
+    onContentChange({ tracks: tracks.filter(t => t.id !== trackId) })
+    try {
+      await fetch('/api/audio/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storagePath: track.storagePath }),
+      })
+    } catch { /* storage cleanup is best-effort */ }
+    toast.success('Track removed')
+  }
+
+  return (
+    <div className="space-y-1.5">
+      {/* Track list */}
+      {tracks.length > 0 && (
+        <div className="space-y-1">
+          {tracks.map((track, i) => (
+            <div key={track.id} className="flex items-center gap-1.5 px-1.5 py-1 rounded border bg-muted/50 text-xs">
+              <span className="text-muted-foreground text-[10px]">{i + 1}</span>
+              <span className="flex-1 truncate">{track.title || 'Untitled'}</span>
+              <button
+                type="button"
+                className="h-4 w-4 flex items-center justify-center text-muted-foreground hover:text-destructive"
+                onClick={() => handleDelete(track.id)}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload */}
+      <div>
+        <input ref={fileRef} type="file" accept="*/*" className="hidden" disabled={isUploading} onChange={handleUpload} />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full h-7 text-xs"
+          disabled={isUploading}
+          onClick={() => fileRef.current?.click()}
+        >
+          {isUploading ? 'Uploading...' : 'Upload Track'}
+        </Button>
+      </div>
+
+      {/* Quick toggles */}
+      <div className="flex items-center gap-3">
+        <label className="flex items-center gap-1 flex-1">
+          <Switch
+            checked={(currentContent.looping as boolean) ?? false}
+            onCheckedChange={(v) => onContentChange({ looping: v })}
+            className="scale-75 origin-left"
+          />
+          <span className="text-[10px] text-muted-foreground">Loop</span>
+        </label>
+        <label className="flex items-center gap-1 flex-1">
+          <Switch
+            checked={(currentContent.autoplay as boolean) ?? false}
+            onCheckedChange={(v) => onContentChange({ autoplay: v })}
+            className="scale-75 origin-left"
+          />
+          <span className="text-[10px] text-muted-foreground">Autoplay</span>
+        </label>
+      </div>
+    </div>
   )
 }
