@@ -679,6 +679,10 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                           cardBgNone: undefined,
                           cardOuter: undefined,
                         },
+                        // Clear palette outer/inner so GIF shows through
+                        blinkieColors: content.blinkieColors
+                          ? { ...content.blinkieColors, outerBox: undefined, innerBox: undefined }
+                          : undefined,
                       })
                     }
                   >
@@ -735,6 +739,10 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                         cardBgPosY: undefined,
                         cardBgNone: true,
                       },
+                      // Clear palette outer/inner so tile pattern shows through
+                      blinkieColors: content.blinkieColors
+                        ? { ...content.blinkieColors, outerBox: undefined, innerBox: undefined }
+                        : undefined,
                     })
                     setBoxBgPickerOpen(false)
                   }}
@@ -810,6 +818,10 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                       playerBox: p.playerBox,
                       buttons: p.buttons,
                     },
+                    // Clear GIF so palette colors show
+                    blinkieBoxBackgrounds: content.blinkieBoxBackgrounds
+                      ? { ...content.blinkieBoxBackgrounds, cardBgUrl: undefined, cardBgStoragePath: undefined, cardOuter: undefined, cardBgNone: true }
+                      : undefined,
                   })
                 }
               >
@@ -864,7 +876,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => onChange({ blinkieColors: undefined })}
+            onClick={() => onChange({ blinkieColors: undefined, blinkieBoxBackgrounds: undefined })}
             className="w-full"
           >
             Reset to Theme Defaults
