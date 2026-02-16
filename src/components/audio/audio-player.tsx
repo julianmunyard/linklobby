@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Settings } from 'lucide-react'
 import type { AudioTrack, AudioCardContent, ReverbConfig } from '@/types/audio'
@@ -26,6 +26,40 @@ function poolsuiteHalftone(color: string) {
       `${dot} 2px 2.75px / 4px 5.5px`,
     ].join(', '),
   }
+}
+
+// Touch-friendly speed slider — converts touch X position to 0.5-1.5 range
+function useSpeedSliderTouch(
+  trackRef: React.RefObject<HTMLDivElement | null>,
+  onSpeedChange: (speed: number) => void
+) {
+  const dragging = useRef(false)
+
+  const calcSpeed = useCallback((clientX: number) => {
+    const el = trackRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    const speed = Math.round((0.5 + ratio * 1.0) * 100) / 100
+    onSpeedChange(speed)
+  }, [trackRef, onSpeedChange])
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    dragging.current = true
+    calcSpeed(e.touches[0].clientX)
+  }, [calcSpeed])
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!dragging.current) return
+    e.preventDefault()
+    calcSpeed(e.touches[0].clientX)
+  }, [calcSpeed])
+
+  const onTouchEnd = useCallback(() => {
+    dragging.current = false
+  }, [])
+
+  return { onTouchStart, onTouchMove, onTouchEnd }
 }
 
 function formatPoolsuiteTime(seconds: number): string {
@@ -97,6 +131,10 @@ export function AudioPlayer({
   const marqueeTextRef = useRef<HTMLSpanElement>(null)
   const [isMarqueeNeeded, setIsMarqueeNeeded] = useState(false)
 
+  // Touch-friendly varispeed slider refs
+  const varispeedTrackRef = useRef<HTMLDivElement>(null)
+  const speedTouch = useSpeedSliderTouch(varispeedTrackRef, player.setSpeed)
+
   useEffect(() => {
     if (!marqueeContainerRef.current || !marqueeTextRef.current) return
     const container = marqueeContainerRef.current
@@ -148,15 +186,15 @@ export function AudioPlayer({
   const isVcr = themeVariant === 'vcr-menu'
   const isClassified = themeVariant === 'classified'
   const isBlinkies = themeVariant === 'blinkies'
-  const isSystemSettings = themeVariant === 'system-settings' || isBlinkies
   const isMacOs = themeVariant === 'mac-os'
   const isIpodClassic = themeVariant === 'ipod-classic'
-  const isCompact = isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic
+  const isPoolsuite = themeVariant === 'system-settings' || isBlinkies || isMacOs || themeVariant === 'instagram-reels'
+  const isCompact = isReceipt || isVcr || isClassified || isPoolsuite || isIpodClassic
 
   // Color overrides per theme
   // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacOs ? '#000' : isIpodClassic ? 'var(--theme-text, #3d3c39)' : (isVcr || isClassified || isSystemSettings) ? 'var(--theme-text)' : playerColors?.foregroundColor
-  const effectiveElementBgColor = transparentBackground ? 'transparent' : (isReceipt || isVcr || isClassified || isSystemSettings || isMacOs || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isIpodClassic ? 'var(--theme-text, #3d3c39)' : (isVcr || isClassified) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  const effectiveElementBgColor = transparentBackground ? 'transparent' : (isReceipt || isVcr || isClassified || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
   if (isVcr) {
@@ -280,256 +318,6 @@ export function AudioPlayer({
             />
           </div>
         )}
-      </div>
-    )
-  }
-
-  // ─── MACINTOSH THEME: VCR-style bordered layout with 8-bit pixel aesthetic ───
-  if (isMacOs) {
-    const macBg = playerColors?.elementBgColor || '#fff'
-    const macBorder = playerColors?.borderColor || '#000'
-    const macChecker = playerColors?.foregroundColor || '#000'
-    const macFont: React.CSSProperties = {
-      fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
-      color: macBorder
-    }
-    // 8-bit pixel border clip-path for boxes
-    const macPixelClip = `polygon(
-      6px 0%, calc(100% - 6px) 0%,
-      calc(100% - 6px) 3px, calc(100% - 3px) 3px,
-      calc(100% - 3px) 6px, 100% 6px,
-      100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px),
-      calc(100% - 3px) calc(100% - 3px), calc(100% - 6px) calc(100% - 3px),
-      calc(100% - 6px) 100%, 6px 100%,
-      6px calc(100% - 3px), 3px calc(100% - 3px),
-      3px calc(100% - 6px), 0% calc(100% - 6px),
-      0% 6px, 3px 6px,
-      3px 3px, 6px 3px
-    )`
-    // Helper: bordered shell with interior for 8-bit bordered boxes
-    const MacBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
-      <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px' }}>
-        <div className={cls} style={{ background: macBg, clipPath: macPixelClip, ...s }}>
-          {children}
-        </div>
-      </div>
-    )
-
-    // Build marquee text for track title
-    const trackTitle = currentTrack
-      ? `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
-      : ''
-
-    return (
-      <div
-        className={cn('flex flex-col gap-1.5 p-2', className)}
-        style={{ ...macFont, background: transparentBackground ? 'transparent' : macBg }}
-      >
-        {/* ── Row 1: PLAY button (left) + Track info (right, ~3/4 width) ── */}
-        <div className="flex items-stretch gap-1.5">
-          <button
-            onClick={handlePlay}
-            disabled={!player.isLoaded && !player.isLoading}
-            className="uppercase tracking-wider cursor-pointer hover:opacity-80 flex-shrink-0"
-            style={{
-              opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
-            }}
-          >
-            <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
-              <div className="flex items-center h-full" style={{ background: macBg, clipPath: macPixelClip, padding: '0 12px' }}>
-                <span className="text-[11px] font-bold whitespace-nowrap">
-                  {player.isPlaying ? 'PAUSE' : 'PLAY'}
-                </span>
-              </div>
-            </div>
-          </button>
-          {currentTrack ? (
-            <div className="flex-1 min-w-0">
-              <MacBox className="px-2 py-0.5 uppercase tracking-wider overflow-hidden flex items-center" style={{ height: '24px' }}>
-                <div ref={marqueeContainerRef} className="whitespace-nowrap text-[10px] font-bold overflow-hidden">
-                  <span ref={marqueeTextRef} className={isMarqueeNeeded ? 'mac-audio-marquee inline-block' : 'inline-block'}>{trackTitle}</span>
-                </div>
-              </MacBox>
-            </div>
-          ) : (
-            <div className="flex-1" />
-          )}
-        </div>
-
-        {/* ── Progress bar — full width, checkers fill ── */}
-        <div className="px-1">
-          <WaveformDisplay
-            showWaveform={showWaveform}
-            waveformData={waveformData}
-            progress={player.progress}
-            currentTime={player.currentTime}
-            duration={player.duration}
-            onSeek={player.seek}
-            foregroundColor={macBorder}
-            elementBgColor="transparent"
-            themeVariant="mac-os"
-            isPlaying={player.isPlaying}
-            macCheckerColor={macChecker}
-            macBgColor={macBg}
-          />
-        </div>
-
-        {/* ── Varispeed slider ── */}
-        <div data-no-drag className="flex items-start gap-1.5">
-          <div className="flex-1 min-w-0 px-1">
-            {/* Checkerboard slider with 8-bit rectangle knob */}
-            <div className="relative" style={{ height: '28px' }}>
-              {/* Checkerboard bar — centered vertically, subtle 8-bit corners */}
-              {(() => {
-                const barClip = `polygon(
-                  2px 0, calc(100% - 2px) 0,
-                  calc(100% - 2px) 1px, calc(100% - 1px) 1px,
-                  calc(100% - 1px) 2px, 100% 2px,
-                  100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px),
-                  calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px),
-                  calc(100% - 2px) 100%, 2px 100%,
-                  2px calc(100% - 1px), 1px calc(100% - 1px),
-                  1px calc(100% - 2px), 0 calc(100% - 2px),
-                  0 2px, 1px 2px,
-                  1px 1px, 2px 1px
-                )`
-                return (
-                  <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
-                    <div className="w-full h-full" style={{ background: macBorder, clipPath: barClip, padding: '2px' }}>
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          clipPath: barClip,
-                          background: `repeating-conic-gradient(${macChecker} 0% 25%, ${macBg} 0% 50%) 0 0 / 4px 4px`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )
-              })()}
-              {/* Rectangle knob */}
-              {(() => {
-                const knobClip = `polygon(
-                  3px 0, calc(100% - 3px) 0,
-                  calc(100% - 3px) 1px, calc(100% - 2px) 1px,
-                  calc(100% - 2px) 2px, calc(100% - 1px) 2px,
-                  calc(100% - 1px) 3px, 100% 3px,
-                  100% calc(100% - 3px), calc(100% - 1px) calc(100% - 3px),
-                  calc(100% - 1px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px),
-                  calc(100% - 2px) calc(100% - 1px), calc(100% - 3px) calc(100% - 1px),
-                  calc(100% - 3px) 100%, 3px 100%,
-                  3px calc(100% - 1px), 2px calc(100% - 1px),
-                  2px calc(100% - 2px), 1px calc(100% - 2px),
-                  1px calc(100% - 3px), 0 calc(100% - 3px),
-                  0 3px, 1px 3px,
-                  1px 2px, 2px 2px,
-                  2px 1px, 3px 1px
-                )`
-                return (
-                  <div
-                    className="absolute pointer-events-none"
-                    style={{
-                      left: `${((player.speed - 0.5) / 1.0) * 100}%`,
-                      top: 0,
-                      bottom: 0,
-                      width: '16px',
-                      marginLeft: '-8px',
-                    }}
-                  >
-                    <div className="w-full h-full" style={{ background: macBorder, clipPath: knobClip, padding: '2px' }}>
-                      <div
-                        className="w-full h-full flex items-center justify-center gap-[4px]"
-                        style={{ background: macBg, clipPath: knobClip }}
-                      >
-                        <div style={{ width: '1px', height: '100%', background: macBorder }} />
-                        <div style={{ width: '1px', height: '100%', background: macBorder }} />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })()}
-              {/* Hidden range input */}
-              <input
-                type="range"
-                min="0.5"
-                max="1.5"
-                step="0.01"
-                value={player.speed}
-                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
-                className="absolute inset-0 w-full h-full cursor-pointer z-20"
-                style={{ opacity: 0 }}
-                aria-label="Varispeed"
-              />
-            </div>
-            {/* Speed + mode below slider */}
-            <div className="flex items-center gap-1.5 mt-1">
-              <MacBox className="py-0.5 flex items-center justify-center" style={{ width: '52px' }}>
-                <span className="text-[10px] font-bold font-mono">{player.speed.toFixed(2)}x</span>
-              </MacBox>
-              <MacBox className="px-2 py-0.5 flex items-center">
-                <button
-                  onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
-                  className="text-[10px] uppercase tracking-wider font-bold"
-                  style={{ color: 'inherit' }}
-                >
-                  {player.varispeedMode === 'timestretch' ? 'STRETCH' : 'NATURAL'}
-                </button>
-              </MacBox>
-            </div>
-          </div>
-
-          {/* Reverb — compact, tucked right */}
-          <div className="flex flex-col items-center flex-shrink-0" style={{ transform: 'scale(0.7)', transformOrigin: 'top right', marginBottom: '-8px' }}>
-            <ReverbKnob
-              mix={player.reverbMix}
-              onMixChange={player.setReverbMix}
-              foregroundColor={macBorder}
-              elementBgColor="transparent"
-              themeVariant={themeVariant}
-            />
-            {isEditing && reverbConfig && (
-              <ReverbConfigModal
-                config={reverbConfig}
-                onSave={handleReverbConfigChange}
-                trigger={
-                  <button
-                    className="p-1 rounded-none transition-colors"
-                    style={{ color: 'inherit' }}
-                    aria-label="Configure reverb"
-                  >
-                    <Settings className="w-3 h-3" />
-                  </button>
-                }
-              />
-            )}
-          </div>
-        </div>
-
-        {/* ── Box 6: Track List (multi-track only) ── */}
-        {tracks.length > 1 && (
-          <MacBox>
-            <TrackList
-              tracks={tracks}
-              currentTrackIndex={currentTrackIndex}
-              onTrackSelect={handleTrackSelect}
-              foregroundColor={macBorder}
-              elementBgColor="transparent"
-              themeVariant={themeVariant}
-            />
-          </MacBox>
-        )}
-
-        {/* Marquee CSS animation — only applied when text overflows */}
-        <style>{`
-          .mac-audio-marquee {
-            animation: macMarquee 18s linear infinite;
-          }
-          @keyframes macMarquee {
-            0%, 10% { transform: translateX(0); }
-            45%, 55% { transform: translateX(calc(-100% + ${marqueeContainerRef.current?.clientWidth ?? 200}px)); }
-            90%, 100% { transform: translateX(0); }
-          }
-        `}</style>
       </div>
     )
   }
@@ -669,8 +457,8 @@ export function AudioPlayer({
     )
   }
 
-  // ─── SYSTEM SETTINGS / POOLSUITE FM THEME ───
-  if (isSystemSettings) {
+  // ─── POOLSUITE FM THEME (System Settings, Blinkies, Mac OS, Instagram Reels) ───
+  if (isPoolsuite) {
     const psColor = (isBlinkies && (blinkieColors?.text || '#9898a8')) || 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
       fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
@@ -854,36 +642,45 @@ export function AudioPlayer({
               </button>
             </div>
 
-            {/* Varispeed slider track — solid part bordered, halftone dots free */}
-            <div className="relative h-5">
-              {/* Halftone dots — full width behind fill, stagger creates natural edge */}
-              <div
-                className="absolute inset-0"
-                style={poolsuiteHalftone(psColor)}
-              />
-              {/* Filled portion with black border — covers dots from left */}
-              {varispeedPercent > 0 && (
+            {/* Varispeed slider — large touch zone wraps the visual track */}
+            <div
+              className="relative"
+              style={{ touchAction: 'none', margin: '0 0 -14px 0', padding: '0 0 14px 0' }}
+              onTouchStart={speedTouch.onTouchStart}
+              onTouchMove={speedTouch.onTouchMove}
+              onTouchEnd={speedTouch.onTouchEnd}
+            >
+              <div ref={varispeedTrackRef} className="relative h-5" style={{ zIndex: 0 }}>
+                {/* Halftone dots — full width behind fill, stagger creates natural edge */}
                 <div
-                  className="absolute top-0 left-0 h-full z-[1]"
-                  style={{
-                    width: `${varispeedPercent}%`,
-                    backgroundColor: transparentBackground ? psColor : btnBg,
-                    border: '1px solid var(--theme-text, #000000)',
-                    borderRadius: '3px',
-                  }}
+                  className="absolute inset-0"
+                  style={poolsuiteHalftone(psColor)}
                 />
-              )}
-              <input
-                type="range"
-                min="0.5"
-                max="1.5"
-                step="0.01"
-                value={player.speed}
-                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
-                className="absolute inset-0 z-10"
-                style={{ opacity: 0 }}
-                aria-label="Varispeed"
-              />
+                {/* Filled portion with border — covers dots from left */}
+                {varispeedPercent > 0 && (
+                  <div
+                    className="absolute top-0 left-0 h-full z-[1]"
+                    style={{
+                      width: `${varispeedPercent}%`,
+                      backgroundColor: (transparentBackground || blinkieCardHasBgImage) ? psColor : btnBg,
+                      border: `1px solid ${psColor}`,
+                      borderRadius: '3px',
+                    }}
+                  />
+                )}
+                {/* Hidden range for mouse/keyboard accessibility */}
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1.5"
+                  step="0.01"
+                  value={player.speed}
+                  onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                  className="absolute inset-0 z-10 cursor-pointer"
+                  style={{ opacity: 0 }}
+                  aria-label="Varispeed"
+                />
+              </div>
             </div>
             {/* Tick marks below slider */}
             <div className="flex justify-between mt-0.5 px-0.5">
@@ -1032,89 +829,97 @@ export function AudioPlayer({
         {/* ── Varispeed slider ── */}
         <div data-no-drag className="flex items-start gap-1.5">
           <div className="flex-1 min-w-0 px-1">
-            {/* Checkerboard slider with 8-bit rectangle knob */}
-            <div className="relative" style={{ height: '28px' }}>
-              {/* Checkerboard bar — centered vertically, subtle 8-bit corners */}
-              {(() => {
-                const barClip = `polygon(
-                  2px 0, calc(100% - 2px) 0,
-                  calc(100% - 2px) 1px, calc(100% - 1px) 1px,
-                  calc(100% - 1px) 2px, 100% 2px,
-                  100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px),
-                  calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px),
-                  calc(100% - 2px) 100%, 2px 100%,
-                  2px calc(100% - 1px), 1px calc(100% - 1px),
-                  1px calc(100% - 2px), 0 calc(100% - 2px),
-                  0 2px, 1px 2px,
-                  1px 1px, 2px 1px
-                )`
-                return (
-                  <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
-                    <div className="w-full h-full" style={{ background: ipodBorder, clipPath: barClip, padding: '2px' }}>
-                      <div
-                        className="w-full h-full"
-                        style={{
-                          clipPath: barClip,
-                          background: `repeating-conic-gradient(${ipodChecker} 0% 25%, ${ipodBg} 0% 50%) 0 0 / 4px 4px`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )
-              })()}
-              {/* Rectangle knob */}
-              {(() => {
-                const knobClip = `polygon(
-                  3px 0, calc(100% - 3px) 0,
-                  calc(100% - 3px) 1px, calc(100% - 2px) 1px,
-                  calc(100% - 2px) 2px, calc(100% - 1px) 2px,
-                  calc(100% - 1px) 3px, 100% 3px,
-                  100% calc(100% - 3px), calc(100% - 1px) calc(100% - 3px),
-                  calc(100% - 1px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px),
-                  calc(100% - 2px) calc(100% - 1px), calc(100% - 3px) calc(100% - 1px),
-                  calc(100% - 3px) 100%, 3px 100%,
-                  3px calc(100% - 1px), 2px calc(100% - 1px),
-                  2px calc(100% - 2px), 1px calc(100% - 2px),
-                  1px calc(100% - 3px), 0 calc(100% - 3px),
-                  0 3px, 1px 3px,
-                  1px 2px, 2px 2px,
-                  2px 1px, 3px 1px
-                )`
-                return (
-                  <div
-                    className="absolute pointer-events-none"
-                    style={{
-                      left: `${((player.speed - 0.5) / 1.0) * 100}%`,
-                      top: 0,
-                      bottom: 0,
-                      width: '16px',
-                      marginLeft: '-8px',
-                    }}
-                  >
-                    <div className="w-full h-full" style={{ background: ipodBorder, clipPath: knobClip, padding: '2px' }}>
-                      <div
-                        className="w-full h-full flex items-center justify-center gap-[4px]"
-                        style={{ background: ipodBg, clipPath: knobClip }}
-                      >
-                        <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
-                        <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
+            {/* Checkerboard slider with 8-bit rectangle knob — touch zone wraps track */}
+            <div
+              className="relative"
+              style={{ touchAction: 'none', margin: '-10px 0', padding: '10px 0' }}
+              onTouchStart={speedTouch.onTouchStart}
+              onTouchMove={speedTouch.onTouchMove}
+              onTouchEnd={speedTouch.onTouchEnd}
+            >
+              <div ref={varispeedTrackRef} className="relative" style={{ height: '28px' }}>
+                {/* Checkerboard bar — centered vertically, subtle 8-bit corners */}
+                {(() => {
+                  const barClip = `polygon(
+                    2px 0, calc(100% - 2px) 0,
+                    calc(100% - 2px) 1px, calc(100% - 1px) 1px,
+                    calc(100% - 1px) 2px, 100% 2px,
+                    100% calc(100% - 2px), calc(100% - 1px) calc(100% - 2px),
+                    calc(100% - 1px) calc(100% - 1px), calc(100% - 2px) calc(100% - 1px),
+                    calc(100% - 2px) 100%, 2px 100%,
+                    2px calc(100% - 1px), 1px calc(100% - 1px),
+                    1px calc(100% - 2px), 0 calc(100% - 2px),
+                    0 2px, 1px 2px,
+                    1px 1px, 2px 1px
+                  )`
+                  return (
+                    <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
+                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: barClip, padding: '2px' }}>
+                        <div
+                          className="w-full h-full"
+                          style={{
+                            clipPath: barClip,
+                            background: `repeating-conic-gradient(${ipodChecker} 0% 25%, ${ipodBg} 0% 50%) 0 0 / 4px 4px`,
+                          }}
+                        />
                       </div>
                     </div>
-                  </div>
-                )
-              })()}
-              {/* Hidden range input */}
-              <input
-                type="range"
-                min="0.5"
-                max="1.5"
-                step="0.01"
-                value={player.speed}
-                onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
-                className="absolute inset-0 w-full h-full cursor-pointer z-20"
-                style={{ opacity: 0 }}
-                aria-label="Varispeed"
-              />
+                  )
+                })()}
+                {/* Rectangle knob */}
+                {(() => {
+                  const knobClip = `polygon(
+                    3px 0, calc(100% - 3px) 0,
+                    calc(100% - 3px) 1px, calc(100% - 2px) 1px,
+                    calc(100% - 2px) 2px, calc(100% - 1px) 2px,
+                    calc(100% - 1px) 3px, 100% 3px,
+                    100% calc(100% - 3px), calc(100% - 1px) calc(100% - 3px),
+                    calc(100% - 1px) calc(100% - 2px), calc(100% - 2px) calc(100% - 2px),
+                    calc(100% - 2px) calc(100% - 1px), calc(100% - 3px) calc(100% - 1px),
+                    calc(100% - 3px) 100%, 3px 100%,
+                    3px calc(100% - 1px), 2px calc(100% - 1px),
+                    2px calc(100% - 2px), 1px calc(100% - 2px),
+                    1px calc(100% - 3px), 0 calc(100% - 3px),
+                    0 3px, 1px 3px,
+                    1px 2px, 2px 2px,
+                    2px 1px, 3px 1px
+                  )`
+                  return (
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        left: `${((player.speed - 0.5) / 1.0) * 100}%`,
+                        top: 0,
+                        bottom: 0,
+                        width: '16px',
+                        marginLeft: '-8px',
+                      }}
+                    >
+                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: knobClip, padding: '2px' }}>
+                        <div
+                          className="w-full h-full flex items-center justify-center gap-[4px]"
+                          style={{ background: ipodBg, clipPath: knobClip }}
+                        >
+                          <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
+                          <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+                {/* Hidden range for mouse/keyboard accessibility */}
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1.5"
+                  step="0.01"
+                  value={player.speed}
+                  onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                  className="absolute inset-0 w-full h-full cursor-pointer z-20"
+                  style={{ opacity: 0 }}
+                  aria-label="Varispeed"
+                />
+              </div>
             </div>
             {/* Speed + mode below slider */}
             <div className="flex items-center gap-1.5 mt-1">
