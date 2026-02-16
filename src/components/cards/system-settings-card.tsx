@@ -5,12 +5,15 @@ import { BlinkieTileBackground } from '@/components/audio/blinkie-tile-backgroun
 import { BLINKIE_STYLES } from '@/data/blinkie-styles'
 import type { CardType } from '@/types/card'
 
+type TitleBarStyle = 'system-settings' | 'mac-os' | 'none'
+
 interface SystemSettingsCardProps {
   children: React.ReactNode
   className?: string
   title?: string
   cardType?: CardType
   transparentBackground?: boolean
+  titleBarStyle?: TitleBarStyle
   blinkieBg?: boolean
   blinkieCardOuter?: string
   blinkieCardOuterDim?: number
@@ -20,12 +23,14 @@ interface SystemSettingsCardProps {
   blinkieCardBgScale?: number
   blinkieCardBgPosX?: number
   blinkieCardBgPosY?: number
+  blinkieCardBgNone?: boolean
+  blinkieTextColor?: string
 }
 
 // Card types that get the thin/simple treatment
 const THIN_CARD_TYPES: CardType[] = ['link', 'horizontal', 'mini']
 
-export function SystemSettingsCard({ children, className, title, cardType, transparentBackground = false, blinkieBg = false, blinkieCardOuter, blinkieCardOuterDim, blinkieOuterBoxColor, blinkieInnerBoxColor, blinkieCardBgUrl, blinkieCardBgScale, blinkieCardBgPosX, blinkieCardBgPosY }: SystemSettingsCardProps) {
+export function SystemSettingsCard({ children, className, title, cardType, transparentBackground = false, titleBarStyle = 'system-settings', blinkieBg = false, blinkieCardOuter, blinkieCardOuterDim, blinkieOuterBoxColor, blinkieInnerBoxColor, blinkieCardBgUrl, blinkieCardBgScale, blinkieCardBgPosX, blinkieCardBgPosY, blinkieCardBgNone, blinkieTextColor }: SystemSettingsCardProps) {
   // Link and horizontal cards get slim outer frame
   if (cardType && THIN_CARD_TYPES.includes(cardType)) {
     return (
@@ -54,7 +59,7 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
 
   // Default to CD holographic gif for blinkies theme when no bg image is explicitly set
   const DEFAULT_BLINKIES_BG = '/card-backgrounds/cd-holographic.gif'
-  const effectiveBgUrl = blinkieCardBgUrl || (blinkieBg ? DEFAULT_BLINKIES_BG : undefined)
+  const effectiveBgUrl = blinkieCardBgUrl || (!blinkieCardBgNone && blinkieBg ? DEFAULT_BLINKIES_BG : undefined)
 
   // When a bg image is set (and not transparent mode), all boxes go transparent so image shows through
   const hasBgImage = !!effectiveBgUrl && !transparentBackground
@@ -73,6 +78,7 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
         position: 'relative',
         isolation: 'isolate',
         ...(!hasBgImage && blinkieOuterBoxColor ? { backgroundColor: blinkieOuterBoxColor } : {}),
+        ...(blinkieTextColor ? { borderColor: blinkieTextColor } : {}),
       } as React.CSSProperties}
     >
       {hasBgImage && (() => {
@@ -104,25 +110,36 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
       {!transparentBackground && (blinkieCardOuterDim != null && blinkieCardOuterDim > 0) && (
         <div className="absolute inset-0 -z-[1] pointer-events-none" style={{ background: 'black', opacity: blinkieCardOuterDim / 100 }} />
       )}
-      {/* System 7 Title Bar */}
-      <div className="flex items-center justify-between px-1.5 py-1">
-        {/* Close button - left side (no border) */}
-        <button
-          className="w-4 h-4 flex items-center justify-center text-theme-text/60 hover:text-theme-text transition-colors"
-        >
-          <span className="text-sm leading-none">×</span>
-        </button>
-
-        {/* Title - right side */}
-        {title && (
-          <div
-            className="text-xs tracking-wider text-theme-text uppercase"
-            style={{ fontFamily: 'var(--font-ishmeria), var(--font-chikarego), monospace' }}
-          >
-            {title}
+      {/* Title Bar — varies by style */}
+      {titleBarStyle === 'mac-os' ? (
+        <div className="flex items-center gap-2 px-3 py-2" style={blinkieTextColor ? { borderBottom: `1px solid ${blinkieTextColor}` } : { borderBottom: '1px solid var(--theme-border, #000)' }}>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57] border border-[#e14942]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e] border border-[#dea123]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840] border border-[#1dad2b]" />
           </div>
-        )}
-      </div>
+        </div>
+      ) : titleBarStyle === 'none' ? null : (
+        <div className="flex items-center justify-between px-1.5 py-1">
+          {/* Close button - left side (no border) */}
+          <button
+            className="w-4 h-4 flex items-center justify-center text-theme-text/60 hover:text-theme-text transition-colors"
+            style={blinkieTextColor ? { color: blinkieTextColor } : undefined}
+          >
+            <span className="text-sm leading-none">×</span>
+          </button>
+
+          {/* Title - right side */}
+          {title && (
+            <div
+              className="text-xs tracking-wider text-theme-text uppercase"
+              style={{ fontFamily: 'var(--font-ishmeria), var(--font-chikarego), monospace', ...(blinkieTextColor ? { color: blinkieTextColor } : {}) }}
+            >
+              {title}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Content area - inner box uses accent color, same border color */}
       <div className="px-1.5 pb-1.5">
@@ -135,6 +152,7 @@ export function SystemSettingsCard({ children, className, title, cardType, trans
             borderRadius: '4px',
             overflow: 'hidden',
             ...(!hasBgImage && blinkieInnerBoxColor ? { backgroundColor: blinkieInnerBoxColor } : {}),
+            ...(blinkieTextColor ? { borderColor: blinkieTextColor } : {}),
           }}
         >
           {children}

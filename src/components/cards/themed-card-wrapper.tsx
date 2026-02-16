@@ -45,11 +45,13 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
   }
 
   // Audio cards on all poolsuite themes get SystemSettingsCard for GIF/color support
+  // Each theme keeps its own title bar style (traffic lights for mac-os, × for system-settings, none for instagram)
   if (cardType === 'audio' && (themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'system-settings' || themeId === 'blinkies')) {
     const boxBgs = (content?.blinkieBoxBackgrounds as Record<string, string | number> | undefined)
     const blinkieColors = (content?.blinkieColors as Record<string, string> | undefined)
+    const titleBarStyle = themeId === 'mac-os' ? 'mac-os' as const : themeId === 'instagram-reels' ? 'none' as const : 'system-settings' as const
     return (
-      <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined} blinkieCardBgNone={boxBgs?.cardBgNone as boolean | undefined} blinkieTextColor={blinkieColors?.text}>
+      <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} titleBarStyle={titleBarStyle} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined} blinkieCardBgNone={boxBgs?.cardBgNone as boolean | undefined} blinkieTextColor={blinkieColors?.text}>
         {children}
       </SystemSettingsCard>
     )
