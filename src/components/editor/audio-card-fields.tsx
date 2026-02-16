@@ -810,10 +810,6 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                       playerBox: p.playerBox,
                       buttons: p.buttons,
                     },
-                    // Clear GIF so palette colors show
-                    blinkieBoxBackgrounds: content.blinkieBoxBackgrounds
-                      ? { ...content.blinkieBoxBackgrounds, cardBgUrl: undefined, cardBgStoragePath: undefined, cardOuter: undefined, cardBgNone: true }
-                      : undefined,
                   })
                 }
               >

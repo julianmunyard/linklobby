@@ -833,10 +833,6 @@ function BlinkieAudioColorsPane({ currentContent, onContentChange }: BlinkieAudi
                   playerBox: p.playerBox,
                   buttons: p.buttons,
                 },
-                // Clear GIF so palette colors show
-                blinkieBoxBackgrounds: currentContent.blinkieBoxBackgrounds
-                  ? { ...currentContent.blinkieBoxBackgrounds, cardBgUrl: undefined, cardBgStoragePath: undefined, cardOuter: undefined, cardBgNone: true }
-                  : undefined,
               })
             }
           >
