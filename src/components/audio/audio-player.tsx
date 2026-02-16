@@ -459,7 +459,8 @@ export function AudioPlayer({
 
   // ─── POOLSUITE FM THEME (System Settings, Blinkies, Mac OS, Instagram Reels) ───
   if (isPoolsuite) {
-    const psColor = (isBlinkies && (blinkieColors?.text || '#9898a8')) || 'var(--theme-text, #000000)'
+    // Colors: use custom blinkieColors if set, otherwise follow theme palette
+    const psColor = blinkieColors?.text || 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
       fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
@@ -467,10 +468,10 @@ export function AudioPlayer({
     // All borders are black, thin, rounded — the Poolsuite way
     const psBorder = `1px solid ${psColor}`
     const psRadius = '4px'
-    // Button bg — all buttons use card bg, active state is inset shadow only
-    const btnBg = blinkieCardHasBgImage ? 'transparent' : (isBlinkies && (blinkieColors?.buttons || '#b83232')) || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
+    // Button bg — custom blinkieColors.buttons if set, otherwise theme card bg
+    const btnBg = blinkieCardHasBgImage ? 'transparent' : blinkieColors?.buttons || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
     // Player box bg override (affects inner boxes)
-    const playerBoxBg = blinkieCardHasBgImage ? undefined : (isBlinkies && (blinkieColors?.playerBox || '#8b7db8')) || undefined
+    const playerBoxBg = blinkieCardHasBgImage ? undefined : blinkieColors?.playerBox || undefined
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
