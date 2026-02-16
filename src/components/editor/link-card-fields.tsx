@@ -29,8 +29,8 @@ export function LinkCardFields({ content, onChange, cardType = 'link' }: LinkCar
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes[fontSizeKey])
   const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
 
-  // Show blinky style picker for link/mini cards when blinkies theme is active
-  const showBlinkiePicker = themeId === 'blinkies' && (cardType === 'link' || cardType === 'mini')
+  // Show blinky style picker for link/mini cards when poolsuite themes are active
+  const showBlinkiePicker = (themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels') && (cardType === 'link' || cardType === 'mini')
 
   return (
     <div className="space-y-4">

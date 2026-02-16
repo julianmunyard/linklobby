@@ -1,7 +1,6 @@
 'use client'
 
 import { useThemeStore } from '@/stores/theme-store'
-import { MacOSCard } from './mac-os-card'
 import { SystemSettingsCard } from './system-settings-card'
 import { cn } from '@/lib/utils'
 import type { CardType } from '@/types/card'
@@ -17,8 +16,6 @@ interface ThemedCardWrapperProps {
 // Card types fully exempt from theming (no wrapper styling)
 const EXEMPT_CARD_TYPES: CardType[] = ['game']
 
-// Card types that skip Mac OS traffic lights but still get other theme styling
-const SKIP_MACOS_CHROME: CardType[] = []
 
 export function ThemedCardWrapper({ children, cardType, className, content, themeIdOverride }: ThemedCardWrapperProps) {
   const { themeId: storeThemeId, style } = useThemeStore()
@@ -44,46 +41,25 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
     )
   }
 
+  // Extract blinkie customization props (shared by all poolsuite themes)
+  const boxBgs = (content?.blinkieBoxBackgrounds as Record<string, string | number> | undefined)
+  const blinkieColors = (content?.blinkieColors as Record<string, string> | undefined)
+
   // Theme-specific wrappers
   switch (themeId) {
     case 'mac-os':
-      // Mini cards skip Mac OS traffic lights, get simple bordered look
-      if (SKIP_MACOS_CHROME.includes(cardType)) {
-        return (
-          <div
-            className={cn(
-              "overflow-hidden",
-              !isTransparent && "bg-theme-card-bg",
-              "border border-theme-border",
-              style.shadowEnabled && "shadow-theme-card",
-              className
-            )}
-            style={{ borderRadius: 'var(--theme-border-radius)' }}
-          >
-            {children}
-          </div>
-        )
-      }
-      return (
-        <MacOSCard className={className} transparentBackground={isTransparent}>
-          {children}
-        </MacOSCard>
-      )
-
+    case 'instagram-reels':
     case 'system-settings':
     case 'blinkies': {
-      const boxBgs = (content?.blinkieBoxBackgrounds as Record<string, string | number> | undefined)
-      const blinkieColors = (content?.blinkieColors as Record<string, string> | undefined)
       return (
-        <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined}>
+        <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined} blinkieCardBgNone={boxBgs?.cardBgNone as boolean | undefined} blinkieTextColor={blinkieColors?.text}>
           {children}
         </SystemSettingsCard>
       )
     }
 
-    case 'instagram-reels':
     default:
-      // Standard themed card
+      // Standard themed card (receipt, departures-board, etc.)
       return (
         <div
           className={cn(

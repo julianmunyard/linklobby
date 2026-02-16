@@ -242,8 +242,9 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             />
           )
 
-          const audioInner = (themeId === 'system-settings' || themeId === 'blinkies')
-            ? <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}>{audioPlayer}</SystemSettingsCard>
+          const isPoolsuiteTheme = themeId === 'system-settings' || themeId === 'blinkies' || themeId === 'mac-os' || themeId === 'instagram-reels'
+          const audioInner = isPoolsuiteTheme
+            ? <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY} blinkieCardBgNone={audioContent.blinkieBoxBackgrounds?.cardBgNone} blinkieTextColor={audioContent.blinkieColors?.text}>{audioPlayer}</SystemSettingsCard>
             : (
               <div
                 className={cn("overflow-hidden border border-theme-border", !isTransparent && "bg-theme-card-bg")}

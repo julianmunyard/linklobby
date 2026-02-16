@@ -96,11 +96,27 @@ export function MobileCardTypeDrawer({
   const isConvertible = card ? (!isMacCard && isConvertibleType(card.card_type)) : false
 
   const hasImage = card ? !CARD_TYPES_NO_IMAGE.includes(card.card_type) && !isMacCard : false
-  const isBlinkieCard = themeId === 'blinkies' && card != null && (card.card_type === 'link' || card.card_type === 'mini')
-  const isBlinkieAudioCard = themeId === 'blinkies' && card != null && card.card_type === 'audio'
+  const isPoolsuiteTheme = themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels'
+  const isBlinkieCard = isPoolsuiteTheme && card != null && (card.card_type === 'link' || card.card_type === 'mini')
+  const isBlinkieAudioCard = isPoolsuiteTheme && card != null && card.card_type === 'audio'
 
   // State for blinkie style picker dialog in audio background tab
   const [audioBoxBgPickerOpen, setAudioBoxBgPickerOpen] = useState(false)
+
+  // Auto-size drawer height to active pane content
+  const activePaneRef = useRef<HTMLDivElement>(null)
+  const [paneHeight, setPaneHeight] = useState(0)
+
+  useEffect(() => {
+    const el = activePaneRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => {
+      setPaneHeight(el.scrollHeight)
+    })
+    ro.observe(el)
+    setPaneHeight(el.scrollHeight)
+    return () => ro.disconnect()
+  }, [activeTab, card?.id])
 
   const tabs: TabDef[] = (() => {
     if (isBlinkieAudioCard) {
@@ -166,11 +182,12 @@ export function MobileCardTypeDrawer({
   const isDragging = useRef(false)
   const swipeBlocked = useRef(false)
   const trackRef = useRef<HTMLDivElement>(null)
-  // Check if touch started on a slider or vertically-scrollable area (these need swipe blocking)
+  // Check if touch started on a slider or range input (these need swipe blocking)
   const isSliderTarget = useCallback((target: EventTarget | null) => {
     let el = target as HTMLElement | null
     while (el) {
       if (el.getAttribute('role') === 'slider' || el.dataset.radixSlider !== undefined) return true
+      if (el instanceof HTMLInputElement && el.type === 'range') return true
       // Block horizontal swipe when inside a vertically-scrollable container
       if (el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto') return true
       if (el === trackRef.current) break
@@ -200,7 +217,13 @@ export function MobileCardTypeDrawer({
       const track = trackRef.current
       if (track) {
         const base = -(activeTab * 100)
-        const pct = (dx / track.parentElement!.offsetWidth) * 100
+        let pct = (dx / track.parentElement!.offsetWidth) * 100
+        // Elastic resistance at edges
+        const atStart = activeTab === 0 && dx > 0
+        const atEnd = activeTab === tabs.length - 1 && dx < 0
+        if (atStart || atEnd) {
+          pct = pct * 0.25 // rubber-band: 25% of drag distance
+        }
         track.style.transition = 'none'
         track.style.transform = `translateX(${base + pct}%)`
       }
@@ -214,13 +237,20 @@ export function MobileCardTypeDrawer({
     }
     const track = trackRef.current
     if (track) {
-      track.style.transition = ''
+      track.style.transition = 'transform 0.3s ease-out'
     }
     if (isDragging.current && Math.abs(dragOffset.current) > 40) {
-      if (dragOffset.current < 0) {
-        setActiveTab((prev) => Math.min(prev + 1, tabs.length - 1))
-      } else {
-        setActiveTab((prev) => Math.max(prev - 1, 0))
+      const atStart = activeTab === 0 && dragOffset.current > 0
+      const atEnd = activeTab === tabs.length - 1 && dragOffset.current < 0
+      if (!atStart && !atEnd) {
+        if (dragOffset.current < 0) {
+          setActiveTab((prev) => Math.min(prev + 1, tabs.length - 1))
+        } else {
+          setActiveTab((prev) => Math.max(prev - 1, 0))
+        }
+      } else if (track) {
+        // Snap back with animation at edges
+        track.style.transform = `translateX(-${activeTab * 100}%)`
       }
     } else if (track) {
       track.style.transform = `translateX(-${activeTab * 100}%)`
@@ -324,10 +354,11 @@ export function MobileCardTypeDrawer({
               </div>
             )}
 
-            {/* Swipeable pane area — translateX for smooth sliding */}
+            {/* Swipeable pane area — translateX for smooth sliding, height adapts to active tab */}
             {card && (
               <div
-                className="overflow-x-clip pt-0.5"
+                className="overflow-x-clip pt-0.5 transition-[height] duration-300 ease-out"
+                style={{ height: paneHeight > 0 ? paneHeight : undefined }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -337,10 +368,11 @@ export function MobileCardTypeDrawer({
                   className="flex transition-transform duration-300 ease-out items-start"
                   style={{ transform: `translateX(-${activeTab * 100}%)` }}
                 >
-                  {tabs.map((tab) => (
+                  {tabs.map((tab, idx) => (
                     <div
                       key={tab.key}
-                      className="min-w-full flex-shrink-0 px-0.5"
+                      ref={idx === activeTab ? activePaneRef : undefined}
+                      className="w-full min-w-full max-w-full flex-shrink-0 overflow-hidden px-0.5"
                     >
                       {/* ---- Type / Blinkie Style ---- */}
                       {tab.key === 'type' && (
@@ -636,19 +668,19 @@ function BlinkieAudioBackgroundPane({
   const cardOuterDim = (boxBgs?.cardOuterDim as number | undefined) ?? 0
 
   return (
-    <div className="space-y-1.5">
-      {/* GIF preset grid — tiny 5-col aspect-square tiles */}
-      <div className="grid grid-cols-5 gap-0.5">
+    <div className="space-y-1">
+      {/* GIF preset grid — fixed 48px squares, flex-wrap */}
+      <div className="flex flex-wrap gap-[3px]">
         {CARD_BG_PRESETS.map((preset) => (
           <button
             key={preset.id}
             type="button"
             title={preset.name}
             className={cn(
-              "aspect-square rounded-sm overflow-hidden border transition-all",
+              "w-[48px] h-[48px] rounded-sm overflow-hidden border-0 flex-shrink-0",
               cardBgUrl === preset.url
                 ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                : "hover:ring-1 hover:ring-muted-foreground/30"
+                : "opacity-80"
             )}
             onClick={() =>
               onContentChange({
@@ -778,10 +810,9 @@ function BlinkieAudioBackgroundPane({
 
 function BlinkieAudioColorsPane({ currentContent, onContentChange }: BlinkieAudioPaneProps) {
   const blinkieColors = currentContent.blinkieColors as Record<string, string> | undefined
-  const playerColors = currentContent.playerColors as Record<string, string> | undefined
   return (
-    <div className="space-y-2 max-h-[40vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
-      {/* Card color palette grid */}
+    <div className="space-y-1.5">
+      {/* Palette swatches only */}
       <div className="grid grid-cols-4 gap-1">
         {BLINKIE_PALETTES.map((p) => (
           <button
@@ -789,10 +820,10 @@ function BlinkieAudioColorsPane({ currentContent, onContentChange }: BlinkieAudi
             type="button"
             title={p.name}
             className={cn(
-              "flex rounded overflow-hidden h-5 transition-all",
+              "flex rounded overflow-hidden h-6 transition-all",
               blinkieColors?.outerBox === p.outerBox && blinkieColors?.innerBox === p.innerBox
                 ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                : "hover:ring-1 hover:ring-muted-foreground/30"
+                : "opacity-80"
             )}
             onClick={() =>
               onContentChange({
@@ -814,32 +845,15 @@ function BlinkieAudioColorsPane({ currentContent, onContentChange }: BlinkieAudi
           </button>
         ))}
       </div>
-
-      {/* Individual card color pickers */}
-      <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Card</span>
-        <ColorPicker label="Outer" color={blinkieColors?.outerBox || '#3d2020'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, outerBox: c } })} className="text-xs" />
-        <ColorPicker label="Inner" color={blinkieColors?.innerBox || '#c9a832'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, innerBox: c } })} className="text-xs" />
-        <ColorPicker label="Text" color={blinkieColors?.text || '#9898a8'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, text: c } })} className="text-xs" />
-        <ColorPicker label="Player BG" color={blinkieColors?.playerBox || '#8b7db8'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, playerBox: c } })} className="text-xs" />
-        <ColorPicker label="Buttons" color={blinkieColors?.buttons || '#b83232'} onChange={(c) => onContentChange({ blinkieColors: { ...blinkieColors, buttons: c } })} className="text-xs" />
-      </div>
-
-      {/* Player color pickers */}
-      <div className="space-y-1">
-        <span className="text-[10px] text-muted-foreground">Player</span>
-        <ColorPicker label="Border" color={playerColors?.borderColor || '#3b82f6'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, borderColor: c } })} className="text-xs" />
-        <ColorPicker label="Elements" color={playerColors?.elementBgColor || '#e5e7eb'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, elementBgColor: c } })} className="text-xs" />
-        <ColorPicker label="Accent" color={playerColors?.foregroundColor || '#3b82f6'} onChange={(c) => onContentChange({ playerColors: { ...playerColors, foregroundColor: c } })} className="text-xs" />
-      </div>
-
-      <button
-        type="button"
-        className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-        onClick={() => { onContentChange({ blinkieColors: undefined }); onContentChange({ playerColors: undefined }) }}
-      >
-        Reset All Colors
-      </button>
+      {blinkieColors && (
+        <button
+          type="button"
+          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => onContentChange({ blinkieColors: undefined })}
+        >
+          Reset Colors
+        </button>
+      )}
     </div>
   )
 }
@@ -848,6 +862,11 @@ function BlinkieAudioPlayerPane({ currentContent, onContentChange, cardId }: Bli
   const [isUploading, setIsUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const tracks = (currentContent.tracks as AudioTrack[]) || []
+
+  function handleTrackUpdate(trackId: string, field: 'title' | 'artist', value: string) {
+    const updated = tracks.map((t) => t.id === trackId ? { ...t, [field]: value } : t)
+    onContentChange({ tracks: updated })
+  }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -906,40 +925,54 @@ function BlinkieAudioPlayerPane({ currentContent, onContentChange, cardId }: Bli
   }
 
   return (
-    <div className="space-y-1.5">
-      {/* Track list */}
-      {tracks.length > 0 && (
-        <div className="space-y-1">
-          {tracks.map((track, i) => (
-            <div key={track.id} className="flex items-center gap-1.5 px-1.5 py-1 rounded border bg-muted/50 text-xs">
-              <span className="text-muted-foreground text-[10px]">{i + 1}</span>
-              <span className="flex-1 truncate">{track.title || 'Untitled'}</span>
-              <button
-                type="button"
-                className="h-4 w-4 flex items-center justify-center text-muted-foreground hover:text-destructive"
-                onClick={() => handleDelete(track.id)}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Upload */}
+    <div className="space-y-2">
+      {/* Upload button */}
       <div>
         <input ref={fileRef} type="file" accept="*/*" className="hidden" disabled={isUploading} onChange={handleUpload} />
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="w-full h-7 text-xs"
+          className="w-full h-8 text-xs"
           disabled={isUploading}
           onClick={() => fileRef.current?.click()}
         >
           {isUploading ? 'Uploading...' : 'Upload Track'}
         </Button>
+        <p className="text-[10px] text-muted-foreground mt-0.5">MP3, WAV, or other audio. Max 100MB.</p>
       </div>
+
+      {/* Track list with title/artist editing */}
+      {tracks.length > 0 && (
+        <div className="space-y-1.5">
+          {tracks.map((track, i) => (
+            <div key={track.id} className="p-2 rounded border bg-muted/50 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono text-muted-foreground">Track {i + 1}</span>
+                <button
+                  type="button"
+                  className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete(track.id)}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+              <Input
+                placeholder="Track title"
+                value={track.title}
+                onChange={(e) => handleTrackUpdate(track.id, 'title', e.target.value)}
+                className="h-7 text-xs"
+              />
+              <Input
+                placeholder="Artist name"
+                value={track.artist}
+                onChange={(e) => handleTrackUpdate(track.id, 'artist', e.target.value)}
+                className="h-7 text-xs"
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Quick toggles */}
       <div className="flex items-center gap-3">

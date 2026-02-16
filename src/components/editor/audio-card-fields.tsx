@@ -50,6 +50,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
     const file = e.target.files?.[0]
     if (!file) return
 
+    console.log('[AudioUpload] File selected:', file.name, 'type:', file.type, 'size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
+
     // Check file type - allow audio/* MIME types and common audio extensions
     const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.aiff', '.wma']
     const hasAudioMime = file.type.startsWith('audio/')
@@ -75,17 +77,30 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       formData.append('cardId', cardId)
       formData.append('trackId', trackId)
 
+      console.log('[AudioUpload] Sending to /api/audio/upload...', { cardId, trackId })
+
       const response = await fetch('/api/audio/upload', {
         method: 'POST',
         body: formData,
       })
 
+      console.log('[AudioUpload] Response status:', response.status)
+
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Upload failed')
+        const errorText = await response.text()
+        console.error('[AudioUpload] Error response:', errorText)
+        let errorMessage = 'Upload failed'
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error || errorMessage
+        } catch {
+          errorMessage = errorText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
       const result = await response.json()
+      console.log('[AudioUpload] Success:', result)
 
       // Create track object
       const newTrack: AudioTrack = {
@@ -104,6 +119,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
 
       toast.success('Track uploaded')
     } catch (error) {
+      console.error('[AudioUpload] Upload failed:', error)
       const message = error instanceof Error ? error.message : 'Upload failed'
       toast.error(message)
     } finally {
@@ -497,8 +513,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
         </Button>
       </div>
 
-      {/* Card Background (blinkies theme only) */}
-      {themeId === 'blinkies' && (() => {
+      {/* Card Background (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels') && (() => {
         const styleId = content.blinkieBoxBackgrounds?.cardOuter
         const styleDef = styleId ? BLINKIE_STYLES[styleId] : null
         return (
@@ -530,7 +546,13 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                   variant="ghost"
                   size="sm"
                   className="h-6 w-6 p-0 flex-shrink-0"
-                  onClick={() => onChange({ blinkieBoxBackgrounds: undefined })}
+                  onClick={() => onChange({
+                    blinkieBoxBackgrounds: {
+                      ...content.blinkieBoxBackgrounds,
+                      cardOuter: undefined,
+                      cardOuterDim: undefined,
+                    },
+                  })}
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -572,6 +594,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                           cardBgScale: undefined,
                           cardBgPosX: undefined,
                           cardBgPosY: undefined,
+                          cardBgNone: true,
                         },
                       })
                     }
@@ -601,6 +624,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                             ...content.blinkieBoxBackgrounds,
                             cardBgUrl: result.url,
                             cardBgStoragePath: result.path,
+                            cardBgNone: undefined,
+                            cardOuter: undefined,
                           },
                         })
                         toast.success('Background uploaded')
@@ -651,6 +676,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                           cardBgScale: undefined,
                           cardBgPosX: undefined,
                           cardBgPosY: undefined,
+                          cardBgNone: undefined,
+                          cardOuter: undefined,
                         },
                       })
                     }
@@ -672,7 +699,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                   type="range"
                   min="0"
                   max="100"
-                  value={content.blinkieBoxBackgrounds?.cardOuterDim ?? 100}
+                  value={content.blinkieBoxBackgrounds?.cardOuterDim ?? 0}
                   onChange={(e) =>
                     onChange({
                       blinkieBoxBackgrounds: {
@@ -684,7 +711,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                   className="flex-1 h-1.5 accent-primary"
                 />
                 <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">
-                  {content.blinkieBoxBackgrounds?.cardOuterDim ?? 100}%
+                  {content.blinkieBoxBackgrounds?.cardOuterDim ?? 0}%
                 </span>
               </div>
             )}
@@ -698,7 +725,16 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                   currentStyle={styleId || ''}
                   onStyleChange={(newStyleId) => {
                     onChange({
-                      blinkieBoxBackgrounds: { cardOuter: newStyleId, cardOuterDim: content.blinkieBoxBackgrounds?.cardOuterDim ?? 30 },
+                      blinkieBoxBackgrounds: {
+                        cardOuter: newStyleId,
+                        cardOuterDim: content.blinkieBoxBackgrounds?.cardOuterDim ?? 30,
+                        cardBgUrl: undefined,
+                        cardBgStoragePath: undefined,
+                        cardBgScale: undefined,
+                        cardBgPosX: undefined,
+                        cardBgPosY: undefined,
+                        cardBgNone: true,
+                      },
                     })
                     setBoxBgPickerOpen(false)
                   }}
@@ -730,8 +766,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
         )
       })()}
 
-      {/* Blinkie Colors (blinkies theme only) */}
-      {themeId === 'blinkies' && (() => {
+      {/* Blinkie Colors (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels') && (() => {
         const palettes: { name: string; outerBox: string; innerBox: string; text: string; playerBox: string; buttons: string }[] = [
           { name: 'Default',        outerBox: '#3d2020', innerBox: '#c9a832', text: '#9898a8', playerBox: '#8b7db8', buttons: '#b83232' },
           { name: 'Classic',        outerBox: '#F9F0E9', innerBox: '#EDE4DA', text: '#000000', playerBox: '#F9F0E9', buttons: '#F9F0E9' },

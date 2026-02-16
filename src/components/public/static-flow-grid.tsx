@@ -125,22 +125,22 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             />
           )
 
-          // System Settings and Blinkies: wrap in SystemSettingsCard for System 7 window chrome
-          if (themeId === 'system-settings' || themeId === 'blinkies') {
+          // Poolsuite themes (system-settings, blinkies, mac-os, instagram-reels): wrap in SystemSettingsCard
+          if (themeId === 'system-settings' || themeId === 'blinkies' || themeId === 'mac-os' || themeId === 'instagram-reels') {
             return (
               <div
                 key={card.id}
                 data-card-id={card.id}
                 className={cn("transition-all", widthClass, positionClass)}
               >
-                <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}>
+                <SystemSettingsCard cardType="audio" transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter} blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim} blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox} blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox} blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl} blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale} blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX} blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY} blinkieCardBgNone={audioContent.blinkieBoxBackgrounds?.cardBgNone} blinkieTextColor={audioContent.blinkieColors?.text}>
                   {audioPlayer}
                 </SystemSettingsCard>
               </div>
             )
           }
 
-          // Default wrapper for instagram-reels, mac-os, etc.
+          // Default wrapper for other themes
           return (
             <div
               key={card.id}
