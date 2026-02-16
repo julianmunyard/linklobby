@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.1 of 18 - Scatter Mode
 Plan: 4 of 5 - Complete
 Status: **Phase 12.1 In Progress - Public scatter mode complete**
-Last activity: 2026-02-13 - Completed quick task 065: WAV to MP3 conversion on upload
+Last activity: 2026-02-16 - Completed quick task 067: Poolsuite audio player for all standard themes
 
 Progress: [████████████████████████████░░░░] ~75%
 
@@ -677,6 +677,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | Visitor drag uses pointer events | 12.1-04 | Native pointer/touch events instead of react-dnd-kit for lighter weight, server-renderable when visitorDrag=false |
 | 8px drag threshold for click vs drag | 12.1-04 | < 8px movement = click (follows link), >= 8px = drag - prevents accidental drags on taps |
 | Ephemeral drag offsets | 12.1-04 | Visitor drag positions stored in useState, reset on refresh - artist layout is source of truth |
+| isPoolsuite replaces isSystemSettings | quick-067 | Unified routing: mac-os, instagram-reels, system-settings, blinkies all use Poolsuite player layout |
 
 ## Quick Tasks
 
@@ -745,6 +746,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 064 | Blinkies theme with animated link cards | Complete | 385d23e, 941cc89, 20ba895 |
 | 065 | WAV/FLAC/AIFF to MP3 conversion on upload | Complete | ef14a41, 3056d15 |
 | 066 | Blinkies audio mobile drawer three-tab layout | Complete | 71ba66b |
+| 067 | Poolsuite audio player for all standard themes | Complete | d1ee11d |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -824,8 +826,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 ## Session Continuity
 
 Last session: 2026-02-16
-Last activity: 2026-02-16 - Completed quick task 066: Blinkies audio mobile drawer tabs
-Stopped at: Quick task 066 complete
+Last activity: 2026-02-16 - Completed quick task 067: Poolsuite audio player for all standard themes
+Stopped at: Quick task 067 complete
 Resume file: None
 
 **Phase 12.1 In Progress:** Plans 01-04 complete (scatter foundation, canvas/card components, UI controls, public scatter mode). Ready for Plan 05 (scatter persistence).
