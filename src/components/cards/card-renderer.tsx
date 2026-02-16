@@ -51,10 +51,8 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
       return <TextCard card={card} isPreview={isPreview} />
     case "link":
     case "mini": {
-      // Poolsuite themes with blinkieStyle: link/mini cards ARE the blinky badge — no ThemedCardWrapper
-      const isPoolsuiteTheme = effectiveThemeId === 'blinkies' || effectiveThemeId === 'system-settings' || effectiveThemeId === 'mac-os' || effectiveThemeId === 'instagram-reels'
-      const hasBlinkieStyle = !!(card.content as Record<string, unknown>)?.blinkieStyle
-      if (isPoolsuiteTheme && hasBlinkieStyle) {
+      // Blinkies theme: link/mini cards ARE the blinky badge — no ThemedCardWrapper
+      if (effectiveThemeId === 'blinkies') {
         return <BlinkieLink card={card} isPreview={isPreview} />
       }
       cardContent = <LinkCard card={card} isPreview={isPreview} />
