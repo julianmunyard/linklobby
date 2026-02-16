@@ -44,7 +44,18 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
     )
   }
 
-  // Theme-specific wrappers
+  // Audio cards on all poolsuite themes get SystemSettingsCard for GIF/color support
+  if (cardType === 'audio' && (themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'system-settings' || themeId === 'blinkies')) {
+    const boxBgs = (content?.blinkieBoxBackgrounds as Record<string, string | number> | undefined)
+    const blinkieColors = (content?.blinkieColors as Record<string, string> | undefined)
+    return (
+      <SystemSettingsCard className={className} cardType={cardType} transparentBackground={isTransparent} blinkieBg={themeId === 'blinkies'} blinkieCardOuter={boxBgs?.cardOuter as string | undefined} blinkieCardOuterDim={boxBgs?.cardOuterDim as number | undefined} blinkieOuterBoxColor={blinkieColors?.outerBox} blinkieInnerBoxColor={blinkieColors?.innerBox} blinkieCardBgUrl={boxBgs?.cardBgUrl as string | undefined} blinkieCardBgScale={boxBgs?.cardBgScale as number | undefined} blinkieCardBgPosX={boxBgs?.cardBgPosX as number | undefined} blinkieCardBgPosY={boxBgs?.cardBgPosY as number | undefined} blinkieCardBgNone={boxBgs?.cardBgNone as boolean | undefined} blinkieTextColor={blinkieColors?.text}>
+        {children}
+      </SystemSettingsCard>
+    )
+  }
+
+  // Theme-specific wrappers for non-audio cards
   switch (themeId) {
     case 'mac-os':
       // Mini cards skip Mac OS traffic lights, get simple bordered look
