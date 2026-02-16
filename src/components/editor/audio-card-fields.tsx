@@ -679,10 +679,6 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                           cardBgNone: undefined,
                           cardOuter: undefined,
                         },
-                        // Clear palette outer/inner so GIF shows through
-                        blinkieColors: content.blinkieColors
-                          ? { ...content.blinkieColors, outerBox: undefined, innerBox: undefined }
-                          : undefined,
                       })
                     }
                   >
@@ -739,10 +735,6 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                         cardBgPosY: undefined,
                         cardBgNone: true,
                       },
-                      // Clear palette outer/inner so tile pattern shows through
-                      blinkieColors: content.blinkieColors
-                        ? { ...content.blinkieColors, outerBox: undefined, innerBox: undefined }
-                        : undefined,
                     })
                     setBoxBgPickerOpen(false)
                   }}

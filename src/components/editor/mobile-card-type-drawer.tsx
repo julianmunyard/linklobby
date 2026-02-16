@@ -681,8 +681,7 @@ function BlinkieAudioBackgroundPane({
                 ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
                 : "opacity-80"
             )}
-            onClick={() => {
-              const currentColors = currentContent.blinkieColors as Record<string, string> | undefined
+            onClick={() =>
               onContentChange({
                 blinkieBoxBackgrounds: {
                   ...boxBgs,
@@ -694,12 +693,8 @@ function BlinkieAudioBackgroundPane({
                   cardBgNone: undefined,
                   cardOuter: undefined,
                 },
-                // Clear palette outer/inner so GIF shows through
-                blinkieColors: currentColors
-                  ? { ...currentColors, outerBox: undefined, innerBox: undefined }
-                  : undefined,
               })
-            }}
+            }
           >
             <img
               src={preset.thumbnail || preset.url}
@@ -790,7 +785,6 @@ function BlinkieAudioBackgroundPane({
             <BlinkieStylePicker
               currentStyle={styleId || ''}
               onStyleChange={(newStyleId) => {
-                const currentColors = currentContent.blinkieColors as Record<string, string> | undefined
                 onContentChange({
                   blinkieBoxBackgrounds: {
                     cardOuter: newStyleId,
@@ -802,10 +796,6 @@ function BlinkieAudioBackgroundPane({
                     cardBgPosY: undefined,
                     cardBgNone: true,
                   },
-                  // Clear palette outer/inner so tile pattern shows through
-                  blinkieColors: currentColors
-                    ? { ...currentColors, outerBox: undefined, innerBox: undefined }
-                    : undefined,
                 })
                 onPickerOpenChange(false)
               }}
