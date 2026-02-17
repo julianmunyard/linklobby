@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface WaveformDisplayProps {
   showWaveform: boolean       // true = waveform, false = progress bar

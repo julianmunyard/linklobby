@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import type { VarispeedMode } from '@/audio/engine/types'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface VarispeedSliderProps {
   speed: number                  // 0.5-1.5

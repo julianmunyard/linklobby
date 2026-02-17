@@ -2,7 +2,7 @@
 
 import { Play, Pause, Loader2 } from 'lucide-react'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
 interface PlayerControlsProps {
   isPlaying: boolean

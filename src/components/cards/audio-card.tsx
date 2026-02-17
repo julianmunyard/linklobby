@@ -17,10 +17,10 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
   const themeId = themeIdOverride || storeThemeId
 
   // Map ThemeId to ThemeVariant
-  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
+  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
     'instagram-reels': 'instagram-reels',
     'mac-os': 'mac-os',
-    'macintosh': 'mac-os', // Legacy name
+    'macintosh': 'macintosh',
     'system-settings': 'system-settings',
     'receipt': 'receipt',
     'ipod-classic': 'ipod-classic',

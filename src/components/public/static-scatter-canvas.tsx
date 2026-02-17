@@ -216,11 +216,11 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             'departures-board': 'classified',
             'departures-board-led': 'classified',
             'mac-os': 'mac-os',
-            'macintosh': 'mac-os',
+            'macintosh': 'macintosh',
             'ipod-classic': 'ipod-classic',
             'instagram-reels': 'instagram-reels',
           }
-          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
           const isTransparent = audioContent.transparentBackground === true
 
