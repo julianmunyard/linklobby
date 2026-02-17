@@ -221,15 +221,25 @@ export function CardsTab() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="touch-pan-y">
               {themeId === 'macintosh' ? (
-                MAC_CARD_TYPES.map(({ label, macWindowStyle }) => (
+                <>
+                  {MAC_CARD_TYPES.map(({ label, macWindowStyle }) => (
+                    <DropdownMenuItem
+                      key={macWindowStyle}
+                      onClick={() => handleAddCard("hero", macWindowStyle)}
+                      className="min-h-11"
+                    >
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuItem
-                    key={macWindowStyle}
-                    onClick={() => handleAddCard("hero", macWindowStyle)}
+                    key="audio"
+                    onClick={() => handleAddCard("audio")}
                     className="min-h-11"
                   >
-                    {label}
+                    <Disc className="h-4 w-4 mr-2" />
+                    Audio Player
                   </DropdownMenuItem>
-                ))
+                </>
               ) : (
                 CARD_TYPES.map(({ type, label, singleton }) => {
                   const alreadyExists = singleton && cards.some(c => c.card_type === type)
