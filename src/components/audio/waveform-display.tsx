@@ -54,7 +54,7 @@ export function WaveformDisplay({
   const isReceipt = themeVariant === 'receipt'
   const isVcr = themeVariant === 'vcr-menu'
   const isClassified = themeVariant === 'classified'
-  const isMacOs = themeVariant === 'mac-os'
+  const isMacOs = themeVariant === 'mac-os' || themeVariant === 'macintosh'
   const isCompact = isReceipt || isVcr || isClassified || isMacOs
   const activeColor = foregroundColor || 'var(--player-foreground, #3b82f6)'
   const inactiveColor = elementBgColor || 'var(--player-element-bg, #e5e7eb)'
