@@ -40,7 +40,11 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 11: Analytics & Pixels *(tracking pixels, cookie consent, legal compliance)* ✓
 - [ ] Phase 12: Audio System
 - [ ] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)*
+- [ ] Phase 12.2: Theme Templates *(pre-built starter pages per theme — cards, colors, titles, layout all ready to edit)*
 - [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
+- [ ] Phase 12.6: Security Hardening & Auth Completion *(OAuth, rate limiting, 2FA, security headers, cookie consent)*
+- [ ] Phase 12.7: Production Readiness *(Sentry, transactional emails, CI/CD, staging, logging, performance)*
+- [ ] Phase 12.8: Theme System Overhaul *(cleanup, unification, new themes, UI polish)*
 
 ### Pro Milestone (v1.2)
 - [ ] Phase 13: Tour & Events *(first-class tour dates)*
@@ -460,9 +464,53 @@ Plans:
 
 ---
 
+#### Phase 12.2: Theme Templates
+**Goal:** Ship curated, artist-inspired templates per theme — fully designed pages with real photos, background GIFs, audio, colors, and layout. Users pick a template and get a complete page ready to customize with their own content.
+**Competitive context:** ADDRESSES GAP — Linktree templates are generic. LinkLobby templates are artist-energy-driven, curated by the developer with real media and aesthetic vision (e.g. "ASAP Rocky vibes", "indie folk", "techno DJ").
+
+**Dev-Only Template Builder (not shipped to production):**
+1. **"Save as Template" dev tool** — dev-only button/route (behind env flag `NEXT_PUBLIC_DEV_TOOLS=true`) that snapshots the current page state
+2. **Full page snapshot** — captures everything: all cards (type, title, content, URLs, size, position, sort order), theme settings (palette, colors, transparency, fonts), profile config (title style, layout, social icons), and all uploaded media references
+3. **Media asset bundling** — all images, background GIFs, and audio files used in the page are copied to a template assets directory (e.g. `public/templates/{template-id}/`) so they ship with the app
+4. **Template metadata editor** — dev UI to name the template, add description, tags, and assign to a theme
+5. **Template export format** — JSON file per template containing full page state + relative paths to bundled assets
+
+**User-Facing Template Picker (production):**
+6. **Template picker UI** — after selecting a theme, show a grid/carousel of template previews with names and descriptions
+7. **Template preview** — live preview or static screenshot showing the full designed page before applying
+8. **Template application** — "Use Template" creates all cards, uploads template assets to user's storage, applies theme settings and profile defaults. Confirmation dialog if user has existing cards.
+9. **Mobile template picker** — template selection works well on mobile drawer
+
+**Per-Theme Templates (designed by developer in editor):**
+10. **Instagram Reels templates** — 3-6 curated pages with the clean modern aesthetic
+11. **System Settings templates** — 3-6 curated pages with Poolsuite retro feel
+12. **Blinkies templates** — 3-6 curated pages with animated blinkie aesthetic
+13. **Mac OS templates** — 3-6 curated pages with traffic light window chrome
+14. **Macintosh templates** — 3-6 curated pages with classic 8-bit Mac feel
+15. **Classified templates** — 3-6 curated pages with WWII document aesthetic
+16. **Departures Board templates** — 3-6 curated pages with airport display style
+17. **Receipt templates** — 3-6 curated pages with thermal receipt aesthetic
+18. **iPod Classic templates** — 3-6 curated pages with click wheel navigation
+19. **VCR Menu templates** — 3-6 curated pages with VHS aesthetic
+
+**Polish:**
+20. **Template thumbnails** — auto-generated from snapshot or manually designed preview images
+21. **Template metadata** — name, description, tags, artist-energy label for each template
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 12.2-01-PLAN.md — Template types, data infrastructure, and first template
+- [ ] 12.2-02-PLAN.md — Dev-only snapshot tool (Save as Template)
+- [ ] 12.2-03-PLAN.md — Template application API route
+- [ ] 12.2-04-PLAN.md — Template picker UI and ThemePanel integration
+
+---
+
 #### Phase 12.5: Billing & Subscriptions
 **Goal:** LinkLobby can monetize through paid tiers
 **Competitive context:** Standard SaaS model - needed for sustainability
+**Note:** Can be deferred if launching free-only first
 
 **Success Criteria:**
 1. **Stripe integration** - secure payment processing
@@ -477,6 +525,132 @@ Plans:
 10. Webhook handling for subscription events
 
 **Plans:** 3-4 plans
+
+---
+
+#### Phase 12.6: Security Hardening & Auth Completion
+**Goal:** Lock down the app for real users — complete auth system, protect all endpoints, harden security posture
+**Competitive context:** Table stakes for any production app handling user accounts and data
+
+**Authentication:**
+1. **Google OAuth** — "Continue with Google" on login/signup (Supabase provider + UI button)
+2. **Email verification** — require email confirmation on signup before publishing
+3. **Forgot password** — password reset flow via email (Supabase built-in + UI)
+4. **Change password** — in settings, requires current password confirmation
+5. **Change email** — in settings, sends verification to new email before switching
+6. **2FA / Two-step verification** — optional TOTP via authenticator app, with backup codes
+7. **Session management** — view active sessions, sign out individual sessions or all
+
+**Rate Limiting:**
+8. **Rate limit middleware** — Upstash Redis + `@upstash/ratelimit` across all API routes
+9. Login: 5 attempts/15min, Signup: 3/hour, Password reset: 3/15min per email
+10. Email collection (public): 10/min per IP, Audio upload: 5/hour per user
+11. General API: 60 req/min per user, Analytics tracking: 30 events/min per IP
+
+**Security Headers & Protection:**
+12. **CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy** in next.config.ts
+13. **Input sanitization** — DOMPurify on all user-generated text (card titles, descriptions, bio)
+14. **CSRF protection** — verify Origin header on mutation API routes
+15. **File type validation** — server-side MIME type checking on all uploads (audio + images)
+
+**Cookie Consent:**
+16. **Wire up react-cookie-consent** — already in package.json, needs implementation
+17. Theme-aware banner on public pages when pixels are enabled
+18. Pixels only fire after explicit consent
+
+**Storage & Cleanup:**
+19. **Storage quota per user** — 500MB for free tier, tracked in profiles table
+20. **Orphaned file cleanup** — delete storage files when associated card is deleted
+
+**Plans:** 5-6 plans
+
+---
+
+#### Phase 12.7: Production Readiness & Operational Foundation
+**Goal:** Everything operational that a production app needs beyond features — monitoring, email, CI/CD, performance, SEO, support
+**Competitive context:** The difference between a side project and a real product
+
+**Error Tracking & Monitoring:**
+1. **Sentry integration** — `@sentry/nextjs` for client + server error capture
+2. **Custom error pages** — `error.tsx` (global boundary), improved `not-found.tsx`, `global-error.tsx`
+3. **Performance monitoring** — Sentry traces on public page load, editor save, audio upload
+4. **Error alerts** — email notification on error spikes
+5. **Uptime monitoring** — free service (Uptime Robot) pinging homepage + a public page every 5min
+
+**Transactional Email:**
+6. **Resend integration** — transactional email provider
+7. **Supabase custom SMTP** — point auth emails through Resend for branded sender (hello@linklobby.com)
+8. Welcome email, password reset, email change confirmation, deletion notices
+9. Clean HTML email templates with LinkLobby branding
+
+**CI/CD & Environments:**
+10. **GitHub Actions** — type-check + lint + build on every PR
+11. **Branch protection** — require CI pass before merge to main
+12. **Preview deployments** — Vercel preview on every PR
+13. **Staging environment** — separate Vercel + Supabase project
+14. **`.env.example`** — document all required/optional env vars with descriptions
+
+**Structured Logging:**
+15. **Pino logger** — structured JSON logging on server API routes
+16. **Request logging** — method, path, user ID, duration, status code
+17. **No PII in logs** — never log emails, passwords, or full IPs
+
+**Performance Hardening:**
+18. **Cache-Control headers** — static assets immutable, public pages s-maxage=60, API private no-cache
+19. **Bundle analysis** — run `@next/bundle-analyzer` to identify oversized deps
+20. **Dynamic imports audit** — verify heavy components (games, audio, color picker) are lazy loaded
+21. **Image audit** — verify all user images use next/image, no raw `<img>` tags
+
+**SEO Enhancements:**
+22. **JSON-LD structured data** — Person/MusicGroup + WebPage schemas on public pages
+23. **Canonical URLs** — explicit canonical tag on each public page
+24. **Meta descriptions** — auto-generate from user bio/card titles
+
+**Database Operations:**
+25. **Backup strategy** — document/verify Supabase plan includes daily backups + PITR
+26. **Migration deployment docs** — document process for running migrations on production
+27. **Index audit** — verify indexes on user_id, page_id, username, analytics created_at
+
+**Contact & Support:**
+28. **Contact page** (`/contact`) — support email, FAQ link, bug report link
+29. **Footer links** — contact, terms, privacy on public-facing pages
+30. **In-app help icon** — "?" in editor linking to support
+
+**Resilience:**
+31. **Offline indicator** — detect lost connection in editor, show reconnection banner
+32. **Graceful degradation** — if Sentry/Resend are unreachable, app still works
+
+**Plans:** 5-6 plans
+
+---
+
+#### Phase 12.8: Theme System Overhaul
+**Goal:** Unify theme infrastructure, clean up duplicated code, polish UI across all themes, and add new themes
+**Competitive context:** Theme variety is the core visual differentiator — more polished themes = stronger brand identity for artists
+
+**Backend Unification & Code Cleanup:**
+1. **Centralise ThemeVariant type** — single source of truth instead of duplicated type definitions across 7+ audio component files
+2. **Centralise variant maps** — extract the themeId→themeVariant mapping (duplicated in audio-card.tsx, static-flow-grid.tsx, static-scatter-canvas.tsx, static-macintosh-layout.tsx) into a shared utility
+3. **Centralise poolsuite theme check** — the `isPoolsuiteTheme` boolean is duplicated across themed-card-wrapper.tsx, static-flow-grid.tsx, static-scatter-canvas.tsx; extract to shared config
+4. **Audio player prop consistency** — audit all AudioPlayer call sites to ensure every public page passes the same props as the editor (autoplay, transparentBackground, blinkieColors, etc.)
+5. **Clean up titleBarStyle routing** — the ternary chain for titleBarStyle is duplicated; extract to a `getTitleBarStyle(themeId)` helper
+6. **Remove dead code** — audit for any leftover references to removed themes or unused theme branches
+
+**UI Polish & Theme Consistency:**
+7. **Audit every theme on public pages vs editor** — systematically verify each theme renders identically in both contexts
+8. **Fix card wrapper consistency** — ensure all themes apply correct border radius, shadows, and spacing on both editor and public pages
+9. **Mobile drawer theme support** — verify mobile card type drawer works correctly for all themes (blinkie tabs, macintosh cards, etc.)
+10. **Font loading audit** — verify all theme-specific fonts (ChiKareGo, Pix Chicago, Special Elite, AuxMono, etc.) load correctly on public pages
+11. **Palette/GIF editor polish** — clean up the color palette and GIF background editor UX for audio cards across all themes
+12. **Social icons per-theme styling** — ensure social icons render consistently across all themes
+
+**New Themes:**
+13. **Research and design 4-6 new themes** — explore aesthetics that appeal to different artist genres (e.g. Y2K, vaporwave, brutalist, minimal Japanese, newspaper/editorial, neon/cyberpunk)
+14. **Implement new themes** — theme config, CSS variables, fonts, card wrappers, audio player variants where needed
+15. **New theme public page layouts** — custom public page layouts for themes that need them (like macintosh has its own layout)
+16. **Theme preview thumbnails** — generate/design preview images for the theme picker
+
+**Plans:** 4-5 plans
 
 ---
 
@@ -593,6 +767,8 @@ Plans:
 | Sustainable business | 12.5 | Stripe billing, subscription management |
 | Inclusive design | 16 | WCAG 2.1 AA, keyboard nav, screen readers |
 | Freeform canvas layout | 12.1 | Scatter mode - drag anywhere, resize freely |
+| Security & trust | 12.6 | OAuth, rate limiting, 2FA, security headers, storage quotas |
+| Production operations | 12.7 | Error tracking, transactional email, CI/CD, monitoring, structured logging |
 
 ---
 
@@ -635,7 +811,7 @@ Based on competitive analysis, suggested tier structure:
 | Milestone | Phases | Key Deliverables | Target |
 |-----------|--------|------------------|--------|
 | **v1.0 MVP** | 4.2-9.5 | Import, context menu, profile, editor polish, media cards, advanced cards, themes, public pages, integrations, onboarding | TBD |
-| **v1.1 Growth** | 10-12.5 | Fan tools, analytics+pixels+legal, audio players, scatter mode, billing | TBD |
+| **v1.1 Growth** | 10-12.7 | Fan tools, analytics+pixels+legal, audio players, scatter mode, billing, security hardening, production readiness | TBD |
 | **v1.2 Pro** | 13-16 | Tour dates, custom domains, advanced analytics, accessibility | TBD |
 
 ---
@@ -657,8 +833,11 @@ Based on competitive analysis, suggested tier structure:
 | Billing at Phase 12.5 | Needed for sustainability before Pro features |
 | Accessibility at Phase 16 | Legal compliance (ADA) and ethical responsibility |
 | Tour & Events as dedicated Phase 13 | First-class treatment vs shallow integration |
+| Security hardening at Phase 12.6 | Auth completion + rate limiting + headers must happen before real users |
+| Production readiness at Phase 12.7 | Monitoring, email, CI/CD, logging = difference between side project and real product |
+| Billing (12.5) can be deferred | Can launch free-only first, add billing before enabling paid tiers |
 
 ---
 
-*Last updated: 2026-02-11*
+*Last updated: 2026-02-18*
 *Based on: COMPETITORS.md competitive analysis*
