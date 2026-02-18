@@ -121,8 +121,11 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
     return <MusicCardPlaceholder />
   }
 
-  // Non-embeddable URL — show beautiful link fallback immediately
-  if (embeddable === false) {
+  // Platforms that refuse iframe embedding entirely
+  const NON_IFRAME_PLATFORMS: MusicPlatform[] = ['apple-music', 'generic-music']
+
+  // Non-embeddable URL or platform that doesn't support iframes — show link fallback
+  if (embeddable === false || NON_IFRAME_PLATFORMS.includes(platform)) {
     return (
       <MusicLinkFallback
         platform={platform}
@@ -138,18 +141,6 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
 
   // Use custom height from embed code if available, otherwise use default
   const embedHeight = (content.embedHeight as number) || EMBED_HEIGHTS[platform]
-
-  // Get iframe URL — only for embeddable (non-generic) platforms
-  // For generic-music with embeddable=true (existing cards), fall back to link card
-  if (platform === 'generic-music') {
-    return (
-      <MusicLinkFallback
-        platform={platform}
-        embedUrl={embedUrl}
-        title={title}
-      />
-    )
-  }
 
   const iframeUrl = embedIframeUrl || getEmbedUrl(embedUrl, platform as EmbedPlatform)
 

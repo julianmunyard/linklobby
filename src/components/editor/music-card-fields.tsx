@@ -110,6 +110,9 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           return
         }
 
+        // Platforms whose iframes are blocked (refused to connect)
+        const nonIframePlatforms: MusicPlatform[] = ['apple-music']
+
         // Strict match: fetch metadata via oEmbed (if available)
         // platform here comes from detectPlatform which returns EmbedPlatform values only
         const embedInfo = await fetchPlatformEmbed(input, platform as EmbedPlatform)
@@ -117,10 +120,10 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         onChange({
           platform,
           embedUrl: input,
-          embedIframeUrl: embedInfo.embedUrl,
+          embedIframeUrl: nonIframePlatforms.includes(platform as MusicPlatform) ? undefined : embedInfo.embedUrl,
           thumbnailUrl: embedInfo.thumbnailUrl,
           title: embedInfo.title,
-          embeddable: true,
+          embeddable: !nonIframePlatforms.includes(platform as MusicPlatform),
         })
         return
       }
