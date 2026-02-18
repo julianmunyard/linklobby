@@ -121,7 +121,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 10 | Fan Tools | Complete ✓ |
 | 11 | Analytics & Pixels & Legal | Complete ✓ |
 | 12 | Audio System | In Progress (Plan 1/5 complete) |
+| 12.2 | Theme Templates | - |
 | 12.5 | Billing & Subscriptions | - |
+| 12.6 | Security Hardening & Auth | - |
+| 12.7 | Production Readiness | - |
+| 12.8 | Theme System Overhaul | - |
 
 ### v1.2 Pro (Phases 13-16)
 | # | Phase | Status |
@@ -678,6 +682,10 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 8px drag threshold for click vs drag | 12.1-04 | < 8px movement = click (follows link), >= 8px = drag - prevents accidental drags on taps |
 | Ephemeral drag offsets | 12.1-04 | Visitor drag positions stored in useState, reset on refresh - artist layout is source of truth |
 | isPoolsuite replaces isSystemSettings | quick-067 | Unified routing: mac-os, instagram-reels, system-settings, blinkies all use Poolsuite player layout |
+| detectPlatformLoose domain fallback | quick-069 | URL.hostname includes() checks when strict regex fails — no regex needed for domain matching |
+| generic-music in MusicPlatform not EmbedPlatform | quick-069 | Fallback display type, not an embeddable platform — keeps EmbedPlatform clean |
+| embeddable flag backward compat | quick-069 | embeddable:undefined treated as true — existing iframe cards unaffected |
+| MusicLinkFallback for all non-iframe states | quick-069 | Single fallback component for embeddable:false AND iframe load errors |
 
 ## Quick Tasks
 
@@ -747,6 +755,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 065 | WAV/FLAC/AIFF to MP3 conversion on upload | Complete | ef14a41, 3056d15 |
 | 066 | Blinkies audio mobile drawer three-tab layout | Complete | 71ba66b |
 | 067 | Poolsuite audio player for all standard themes | Complete | d1ee11d |
+| 069 | Fix music card link paste — loose detection + link fallback | Complete | c58b996, 442123c, 78c1e48 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
@@ -825,9 +834,9 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-16
-Last activity: 2026-02-16 - Completed quick task 067: Poolsuite audio player for all standard themes
-Stopped at: Quick task 067 complete
+Last session: 2026-02-18
+Last activity: 2026-02-18 - Completed quick task 069: Fix music card link paste
+Stopped at: Quick task 069 complete
 Resume file: None
 
 **Phase 12.1 In Progress:** Plans 01-04 complete (scatter foundation, canvas/card components, UI controls, public scatter mode). Ready for Plan 05 (scatter persistence).
