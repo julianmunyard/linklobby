@@ -5,9 +5,10 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Loader2, AlertCircle, CheckCircle2, Music } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
-import { detectPlatform, fetchPlatformEmbed, isMusicPlatform } from '@/lib/platform-embed'
+import { detectPlatform, detectPlatformLoose, fetchPlatformEmbed, isMusicPlatform } from '@/lib/platform-embed'
+import type { EmbedPlatform } from '@/lib/platform-embed'
 import type { MusicCardContent, MusicPlatform } from '@/types/card'
 
 // Platform display info
@@ -17,6 +18,7 @@ const PLATFORM_INFO: Record<MusicPlatform, { name: string; icon: React.Component
   soundcloud: { name: 'SoundCloud', icon: SiSoundcloud },
   bandcamp: { name: 'Bandcamp', icon: SiBandcamp },
   audiomack: { name: 'Audiomack', icon: SiAudiomack },
+  'generic-music': { name: 'Music', icon: Music },
 }
 
 interface MusicCardFieldsProps {
@@ -71,6 +73,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         embedIframeUrl: undefined,
         thumbnailUrl: undefined,
         title: undefined,
+        embeddable: undefined,
       })
       setError(null)
       return
@@ -90,35 +93,55 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           embedHeight: bandcampEmbed.height,
           thumbnailUrl: undefined,
           title: undefined,
+          embeddable: true,
         })
         return
       }
 
-      // Detect platform from URL
+      // Detect platform from URL using strict regex matching
       const detected = detectPlatform(input)
 
-      if (!detected) {
-        setError('URL not recognized. Supported: Spotify, Apple Music, SoundCloud, Bandcamp, Audiomack. For Bandcamp, you can also paste the embed code.')
+      if (detected) {
+        const { platform } = detected
+
+        // Check if it's a video platform — redirect user to Video card
+        if (!isMusicPlatform(platform)) {
+          setError(`${platform} is not a music platform. Use the Video card for videos.`)
+          return
+        }
+
+        // Strict match: fetch metadata via oEmbed (if available)
+        // platform here comes from detectPlatform which returns EmbedPlatform values only
+        const embedInfo = await fetchPlatformEmbed(input, platform as EmbedPlatform)
+
+        onChange({
+          platform,
+          embedUrl: input,
+          embedIframeUrl: embedInfo.embedUrl,
+          thumbnailUrl: embedInfo.thumbnailUrl,
+          title: embedInfo.title,
+          embeddable: true,
+        })
         return
       }
 
-      const { platform } = detected
+      // Strict detection returned null — try loose domain-based fallback
+      const loosePlatform = detectPlatformLoose(input)
 
-      // Check if it's a music platform
-      if (!isMusicPlatform(platform)) {
-        setError(`${platform} is not a music platform. Use Video card for videos.`)
+      if (loosePlatform === null) {
+        // Not even a URL — show error
+        setError('Please enter a valid URL. Supported: Spotify, Apple Music, SoundCloud, Bandcamp, Audiomack, or any music link.')
         return
       }
 
-      // Fetch metadata via oEmbed (if available)
-      const embedInfo = await fetchPlatformEmbed(input, platform)
-
+      // Known or unknown music domain — save as non-embeddable link fallback
       onChange({
-        platform,
+        platform: loosePlatform,
         embedUrl: input,
-        embedIframeUrl: embedInfo.embedUrl,
-        thumbnailUrl: embedInfo.thumbnailUrl,
-        title: embedInfo.title,
+        embedIframeUrl: undefined,
+        thumbnailUrl: undefined,
+        title: undefined,
+        embeddable: false,
       })
 
     } catch (err) {
@@ -157,7 +180,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Paste a link to a track, album, or playlist. For Bandcamp, paste the embed code from &quot;Share/Embed&quot;.
+          Paste a link to a track, album, or playlist. For Bandcamp, you can also paste the embed code from &quot;Share/Embed&quot;.
         </p>
       </div>
 
@@ -166,7 +189,12 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
           {PlatformIcon && <PlatformIcon className="h-5 w-5" />}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">{currentPlatform.name}</p>
+            <p className="text-sm font-medium">
+              {currentPlatform.name}
+              {content.embeddable === false && (
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">(link card)</span>
+              )}
+            </p>
             {content.title && (
               <p className="text-xs text-muted-foreground truncate">{content.title}</p>
             )}
@@ -200,13 +228,16 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         <div className="text-xs text-muted-foreground space-y-1">
           <p>Supported platforms:</p>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(PLATFORM_INFO).map(([key, { name, icon: Icon }]) => (
-              <span key={key} className="flex items-center gap-1">
-                <Icon className="h-3 w-3" />
-                {name}
-              </span>
-            ))}
+            {Object.entries(PLATFORM_INFO)
+              .filter(([key]) => key !== 'generic-music')
+              .map(([key, { name, icon: Icon }]) => (
+                <span key={key} className="flex items-center gap-1">
+                  <Icon className="h-3 w-3" />
+                  {name}
+                </span>
+              ))}
           </div>
+          <p>Any music URL also works — shown as a link card.</p>
         </div>
       )}
     </div>
