@@ -187,8 +187,8 @@ export interface GameCardContent {
   accentColor?: string  // Default: "#ffffff" - used for border and game elements
 }
 
-// Music platform types
-export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack'
+// Music platform types (includes generic-music for loose/fallback detection)
+export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack' | 'generic-music'
 
 export interface MusicCardContent {
   platform?: MusicPlatform       // Detected platform from URL
@@ -197,6 +197,7 @@ export interface MusicCardContent {
   embedHeight?: number           // Custom height from embed code (e.g., Bandcamp slim vs large)
   thumbnailUrl?: string          // From oEmbed (if available)
   title?: string                 // From oEmbed (if available)
+  embeddable?: boolean           // false when URL was domain-matched but not regex-matched (shows link fallback)
   // Bandcamp-specific (requires page fetch to get IDs)
   bandcampAlbumId?: string
   bandcampTrackId?: string

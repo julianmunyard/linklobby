@@ -17,8 +17,8 @@ export type EmbedPlatform =
   // Social platforms
   | 'instagram'
 
-// Music-only subset
-export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack'
+// Music-only subset (includes generic-music for loose/fallback detection)
+export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack' | 'generic-music'
 
 // Video-only subset (for reference)
 export type VideoPlatform = 'youtube' | 'vimeo' | 'tiktok'
@@ -130,9 +130,43 @@ export function isVerticalPlatform(platform: EmbedPlatform): boolean {
 
 /**
  * Check if a platform is a music platform
+ * Also accepts 'generic-music' for loose/fallback detection
  */
-export function isMusicPlatform(platform: EmbedPlatform): platform is MusicPlatform {
-  return ['spotify', 'apple-music', 'soundcloud', 'bandcamp', 'audiomack'].includes(platform)
+export function isMusicPlatform(platform: EmbedPlatform | string): platform is MusicPlatform {
+  return ['spotify', 'apple-music', 'soundcloud', 'bandcamp', 'audiomack', 'generic-music'].includes(platform)
+}
+
+/**
+ * Loose domain-based platform detection — fallback when strict regex fails.
+ * Returns a MusicPlatform when a known music domain is found,
+ * 'generic-music' for any valid URL with an unknown domain,
+ * or null for non-URL strings.
+ */
+export function detectPlatformLoose(url: string): MusicPlatform | null {
+  if (!url || typeof url !== 'string') return null
+
+  const trimmed = url.trim()
+  if (!trimmed) return null
+
+  // Must look like a URL to qualify
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) return null
+
+  let hostname = ''
+  try {
+    hostname = new URL(trimmed).hostname.toLowerCase()
+  } catch {
+    return null
+  }
+
+  // Known music domains
+  if (hostname.includes('spotify.com')) return 'spotify'
+  if (hostname.includes('music.apple.com')) return 'apple-music'
+  if (hostname.includes('soundcloud.com')) return 'soundcloud'
+  if (hostname.includes('bandcamp.com')) return 'bandcamp'
+  if (hostname.includes('audiomack.com')) return 'audiomack'
+
+  // Valid URL but unknown domain — generic fallback
+  return 'generic-music'
 }
 
 /**
