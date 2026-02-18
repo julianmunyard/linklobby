@@ -1,9 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
-// Routes that need COOP/COEP for Superpowered AudioWorklet (SharedArrayBuffer)
-const audioRoutes = ['/editor', '/preview']
-
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
   const pathname = request.nextUrl.pathname
@@ -30,21 +27,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/editor', request.url))
   }
 
-  // Add COOP/COEP headers for Superpowered AudioWorklet (SharedArrayBuffer)
-  // Same pattern as Munyard Mixer's middleware.ts
-  // Applied to editor + all public slug pages (where audio cards can play)
-  const isAudioRoute = audioRoutes.some(path => pathname.startsWith(path))
-  const isPublicPage = !pathname.startsWith('/api') &&
-    !pathname.startsWith('/login') &&
-    !pathname.startsWith('/signup') &&
-    !pathname.startsWith('/settings') &&
-    !pathname.startsWith('/_next') &&
-    !pathname.startsWith('/auth')
-
-  if (isAudioRoute || isPublicPage) {
-    supabaseResponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
-    supabaseResponse.headers.set('Cross-Origin-Embedder-Policy', 'credentialless')
-  }
+  // NOTE: COOP/COEP headers removed — they blocked all cross-origin iframes
+  // (Spotify, Apple Music, SoundCloud, etc. embeds showed "refused to connect").
+  // Superpowered SDK has a fallback path without SharedArrayBuffer, so audio still works.
 
   return supabaseResponse
 }

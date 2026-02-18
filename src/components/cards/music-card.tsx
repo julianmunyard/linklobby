@@ -121,11 +121,8 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
     return <MusicCardPlaceholder />
   }
 
-  // Platforms that refuse iframe embedding entirely
-  const NON_IFRAME_PLATFORMS: MusicPlatform[] = ['apple-music', 'generic-music']
-
-  // Non-embeddable URL or platform that doesn't support iframes — show link fallback
-  if (embeddable === false || NON_IFRAME_PLATFORMS.includes(platform)) {
+  // Non-embeddable URL or generic-music — show link fallback
+  if (embeddable === false || platform === 'generic-music') {
     return (
       <MusicLinkFallback
         platform={platform}

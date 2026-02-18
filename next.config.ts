@@ -38,22 +38,8 @@ const nextConfig: NextConfig = {
           { key: "Content-Type", value: "application/wasm" },
         ],
       },
-      {
-        // Editor pages (audio card creation/editing)
-        source: "/editor/:path*",
-        headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
-        ],
-      },
-      {
-        // Preview pages
-        source: "/preview/:path*",
-        headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
-        ],
-      },
+      // NOTE: COOP/COEP headers removed — they blocked cross-origin iframe embeds
+      // (Spotify, SoundCloud, etc.). Superpowered SDK falls back without SharedArrayBuffer.
     ];
   },
   webpack: (config, { isServer }) => {
