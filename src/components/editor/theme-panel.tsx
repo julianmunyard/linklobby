@@ -6,6 +6,7 @@ import { ColorCustomizer } from './color-customizer'
 import { FontPicker } from './font-picker'
 import { StyleControls } from './style-controls'
 import { BackgroundControls } from './background-controls'
+import { TemplatePicker } from './template-picker'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronDown, Palette } from 'lucide-react'
 import { useState } from 'react'
@@ -26,11 +27,12 @@ export function ThemePanel() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <Tabs defaultValue="presets" className="mt-3">
-          <TabsList className="w-full grid grid-cols-4 h-9">
+          <TabsList className="w-full grid grid-cols-5 h-9">
             <TabsTrigger value="presets" className="text-xs">Presets</TabsTrigger>
             <TabsTrigger value="colors" className="text-xs">Colors</TabsTrigger>
             <TabsTrigger value="fonts" className="text-xs">Fonts</TabsTrigger>
             <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
+            <TabsTrigger value="templates" className="text-xs">Templates</TabsTrigger>
           </TabsList>
 
           <TabsContent value="presets" className="mt-3">
@@ -47,6 +49,10 @@ export function ThemePanel() {
 
           <TabsContent value="style" className="mt-3">
             <StyleControls />
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-3">
+            <TemplatePicker />
           </TabsContent>
         </Tabs>
 
