@@ -62,8 +62,6 @@ const ZINE_FONTS = [
   'var(--font-courier-prime)',     // mono
 ]
 
-// Card clip-path classes (cycle through 4)
-const CLIP_CLASSES = ['zine-clip-1', 'zine-clip-2', 'zine-clip-3', 'zine-clip-4']
 
 /**
  * Get character style based on nth-child cycling from the original design.
@@ -73,33 +71,35 @@ function getCharStyle(index: number): React.CSSProperties {
   const n = index + 1 // 1-based for nth-child matching
 
   // Apply in reverse priority order (later rules override)
+  // Base style for all characters
   let style: React.CSSProperties = {
-    fontFamily: 'var(--font-permanent-marker)',
-    fontSize: '3rem',
-    transform: 'rotate(-2deg) translateY(5px)',
     display: 'inline-block',
     padding: '2px 6px',
     margin: '0 2px',
     lineHeight: 1.1,
+    textTransform: 'uppercase' as const,
+    color: 'var(--theme-text)',
   }
 
-  // nth-child(2n) - even characters
+  // nth-child(2n) - even characters: dark bg, light text, fat font
   if (n % 2 === 0) {
     style = {
       ...style,
       fontFamily: 'var(--font-abril-fatface)',
+      fontSize: '2.5rem',
       background: 'var(--theme-text)',
       color: 'var(--theme-background)',
       transform: 'rotate(3deg)',
     }
   }
 
-  // nth-child(2n+1) - odd characters (already default)
+  // nth-child(2n+1) - odd characters: marker font, no bg, ink color
   if (n % 2 === 1) {
     style = {
       ...style,
       fontFamily: 'var(--font-permanent-marker)',
       fontSize: '3rem',
+      color: 'var(--theme-text)',
       transform: 'rotate(-2deg) translateY(5px)',
     }
   }
@@ -146,6 +146,35 @@ function getCharStyle(index: number): React.CSSProperties {
   }
 
   return style
+}
+
+/**
+ * Get card background clip-path and rotation matching the original design's
+ * .link-bg nth-child styles exactly.
+ */
+function getCardClipStyle(index: number): React.CSSProperties {
+  const variant = index % 4
+  switch (variant) {
+    case 0: return {
+      clipPath: 'polygon(2% 4%, 98% 0%, 100% 95%, 95% 100%, 2% 98%, 0% 10%)',
+      transform: 'rotate(-2deg)',
+    }
+    case 1: return {
+      clipPath: 'polygon(0% 0%, 96% 2%, 100% 90%, 98% 100%, 4% 96%, 0% 100%)',
+      transform: 'rotate(1.5deg)',
+    }
+    case 2: return {
+      clipPath: 'polygon(4% 0%, 100% 4%, 96% 96%, 0% 100%, 2% 50%)',
+      transform: 'rotate(-1deg)',
+    }
+    case 3: return {
+      clipPath: 'polygon(1% 1%, 99% 0%, 95% 95%, 5% 98%)',
+      transform: 'rotate(2deg)',
+      borderWidth: '4px',
+      borderStyle: 'dashed',
+    }
+    default: return {}
+  }
 }
 
 interface ChaoticZineLayoutProps {
@@ -232,7 +261,6 @@ export function ChaoticZineLayout({
     <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--theme-background)' }}>
       {/* Large faded typography decorations */}
       <div
-        className="zine-decoration"
         style={{
           fontFamily: 'var(--font-rock-salt)',
           fontSize: '4rem',
@@ -241,12 +269,14 @@ export function ChaoticZineLayout({
           right: '20px',
           opacity: 0.1,
           transform: 'rotate(-30deg)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          color: 'var(--theme-text)',
         }}
       >
         &amp;
       </div>
       <div
-        className="zine-decoration"
         style={{
           fontFamily: 'var(--font-bangers)',
           fontSize: '5rem',
@@ -255,36 +285,24 @@ export function ChaoticZineLayout({
           left: '-10px',
           opacity: 0.1,
           transform: 'rotate(10deg)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          color: 'var(--theme-text)',
         }}
       >
         ?!
       </div>
-      <div
-        className="zine-decoration"
-        style={{
-          fontFamily: 'var(--font-courier-prime)',
-          fontSize: '2rem',
-          position: 'absolute',
-          top: '50%',
-          right: '5px',
-          opacity: 0.04,
-          transform: 'rotate(90deg)',
-          letterSpacing: '0.3em',
-        }}
-      >
-        CUT HERE
-      </div>
 
-      {/* Main content */}
-      <div className="relative z-10 max-w-md mx-auto px-4 py-8">
+      {/* Main content - chaos-wrapper from original design */}
+      <div className="relative z-10 flex flex-col items-center" style={{ maxWidth: '480px', margin: '0 auto', padding: '2rem 1.5rem', minHeight: '100vh' }}>
 
         {/* Profile Section */}
-        <div className="text-center mb-8">
+        <div className="w-full text-center" style={{ marginBottom: '2rem' }}>
           {/* Ransom-note title */}
-          <div className="flex flex-wrap justify-center items-baseline gap-1 mb-6">
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px', marginBottom: '2rem', transform: 'rotate(-2deg)' }}>
             {titleText.split('').map((char, index) => {
               if (char === ' ') {
-                return <span key={index} className="w-3" />
+                return <span key={index} style={{ width: '15px' }} />
               }
               return (
                 <span
@@ -299,24 +317,31 @@ export function ChaoticZineLayout({
 
           {/* Profile photo with grayscale + tape */}
           {showAvatar && avatarUrl && (
-            <div className="relative inline-block mb-6">
+            <div className="relative" style={{ width: '140px', height: '140px', margin: '0 auto 1.5rem' }}>
+              {/* Tape overlay */}
+              <div
+                className="zine-tape"
+                style={{
+                  position: 'absolute',
+                  top: '-10px',
+                  left: '50%',
+                  transform: 'translateX(-50%) rotate(-2deg)',
+                  width: '60px',
+                  height: '25px',
+                  zIndex: 10,
+                }}
+              />
               <img
                 src={avatarUrl}
                 alt={titleText}
-                className="w-[120px] h-[120px] object-cover"
                 style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
                   clipPath: 'polygon(5% 5%, 95% 0%, 100% 90%, 85% 100%, 5% 95%, 0% 50%)',
                   filter: 'grayscale(100%) contrast(120%)',
-                }}
-              />
-              {/* Tape overlay */}
-              <div
-                className="zine-tape absolute"
-                style={{
-                  top: '-8px',
-                  left: '10%',
-                  right: '10%',
-                  height: '24px',
+                  border: '2px solid var(--theme-text)',
+                  background: 'var(--theme-text)',
                 }}
               />
             </div>
@@ -324,27 +349,42 @@ export function ChaoticZineLayout({
 
           {/* Bio text */}
           {bio && (
-            <div className="zine-bio inline-block px-4 py-2 mx-auto max-w-sm" style={{ fontFamily: 'var(--font-special-elite)', fontSize: `${bodySize || 1}rem` }}>
+            <div
+              className="zine-bio"
+              style={{
+                fontFamily: 'var(--font-special-elite)',
+                fontSize: `${bodySize || 1}rem`,
+                textAlign: 'center',
+                marginTop: '1rem',
+                maxWidth: '300px',
+                lineHeight: 1.4,
+                padding: '0.5rem',
+                display: 'inline-block',
+              }}
+            >
               {bio}
             </div>
           )}
         </div>
 
-        {/* SVG Scribble decorations */}
-        <div className="relative">
-          <svg className="zine-scribble absolute -top-4 -left-8 w-16 h-16" viewBox="0 0 100 100">
-            <path d="M10,10 Q50,50 90,90 M90,90 L70,50 M90,90 L50,80" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--theme-text)' }} />
-          </svg>
-          <svg className="zine-scribble absolute -top-2 -right-6 w-12 h-12" viewBox="0 0 100 100">
-            <path d="M10,50 Q30,10 50,50 T90,50" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--theme-text)' }} />
-            <path d="M15,60 Q35,20 55,60 T95,60" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--theme-text)' }} />
-          </svg>
-        </div>
+        {/* SVG Scribble decorations - positioned relative to content */}
+        <svg
+          style={{ position: 'absolute', top: '180px', right: '10px', width: '60px', transform: 'rotate(20deg)', pointerEvents: 'none', zIndex: 0 }}
+          viewBox="0 0 100 100"
+        >
+          <path d="M10,10 Q50,50 90,90 M90,90 L70,50 M90,90 L50,80" fill="none" stroke="var(--theme-text)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+        </svg>
+        <svg
+          style={{ position: 'absolute', bottom: '50px', left: '-20px', width: '100px', opacity: 0.25, transform: 'rotate(-10deg)', pointerEvents: 'none', zIndex: 0 }}
+          viewBox="0 0 100 100"
+        >
+          <path d="M10,50 Q30,10 50,50 T90,50" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
+          <path d="M15,60 Q35,20 55,60 T95,60" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
+        </svg>
 
-        {/* Cards Section */}
-        <div className="space-y-4 relative">
+        {/* Cards Section - link-stack from original */}
+        <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {visibleCards.map((card, index) => {
-            const clipClass = CLIP_CLASSES[index % 4]
             const isDark = index % 2 === 0
             const isSelected = selectedCardId === card.id
             const displayText = card.title || card.card_type
@@ -354,20 +394,23 @@ export function ChaoticZineLayout({
               return (
                 <div
                   key={card.id}
-                  className={cn(
-                    'text-center py-3 px-4 cursor-pointer',
-                    clipClass,
-                    isDark ? 'zine-card-dark' : 'zine-card-light',
-                    isSelected && 'outline outline-2 outline-offset-2'
-                  )}
+                  className={cn('relative cursor-pointer', isSelected && 'outline outline-2 outline-offset-2')}
                   style={{
                     fontFamily: 'var(--font-special-elite)',
                     fontSize: `${bodySize || 1}rem`,
+                    padding: '1rem 2rem',
+                    textAlign: 'center',
                     outlineColor: 'var(--theme-accent)',
                   }}
                   onClick={() => onCardClick?.(card.id)}
                 >
-                  {displayText}
+                  <div
+                    className={cn(isDark ? 'zine-card-dark' : 'zine-card-light')}
+                    style={{ position: 'absolute', inset: 0, zIndex: -1, ...getCardClipStyle(index) }}
+                  />
+                  <span style={{ position: 'relative', zIndex: 1, color: isDark ? 'var(--theme-background)' : 'var(--theme-text)' }}>
+                    {displayText}
+                  </span>
                 </div>
               )
             }
@@ -378,9 +421,14 @@ export function ChaoticZineLayout({
               return (
                 <div
                   key={card.id}
-                  className={cn(clipClass, isDark ? 'zine-card-dark' : 'zine-card-light', 'p-3')}
+                  className="relative"
+                  style={{ padding: '0.75rem' }}
                   onClick={() => onCardClick?.(card.id)}
                 >
+                  <div
+                    className={cn(isDark ? 'zine-card-dark' : 'zine-card-light')}
+                    style={{ position: 'absolute', inset: 0, zIndex: -1, ...getCardClipStyle(index) }}
+                  />
                   <AudioPlayer
                     tracks={audioContent.tracks || []}
                     albumArtUrl={audioContent.albumArtUrl}
@@ -401,27 +449,41 @@ export function ChaoticZineLayout({
               <div
                 key={card.id}
                 className={cn(
-                  'relative p-4 cursor-pointer transition-all',
-                  clipClass,
-                  isDark ? 'zine-card-dark' : 'zine-card-light',
+                  'relative cursor-pointer transition-all',
                   isSelected && 'outline outline-2 outline-offset-2'
                 )}
                 style={{
                   fontFamily: 'var(--font-permanent-marker)',
-                  fontSize: `${(bodySize || 1) * 1.1}rem`,
+                  fontSize: '1.5rem',
+                  padding: '1rem 2rem',
+                  textAlign: 'center',
                   outlineColor: 'var(--theme-accent)',
                 }}
                 onClick={() => handleCardClick(card)}
               >
+                {/* Background shape layer - matches original .link-bg pattern */}
+                <div
+                  className={cn(isDark ? 'zine-card-dark' : 'zine-card-light')}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: -1,
+                    ...getCardClipStyle(index),
+                  }}
+                />
+                {/* Text color must match the background */}
+                <span style={{ position: 'relative', zIndex: 1, color: isDark ? 'var(--theme-background)' : 'var(--theme-text)' }}>
+                  {displayText}
+                </span>
                 {/* NEW! badge on first card */}
                 {index === 0 && (
                   <span
-                    className="zine-badge absolute -top-2 -right-2 px-2 py-1 text-xs z-10"
+                    className="zine-badge"
+                    style={{ position: 'absolute', top: '-10px', right: '-10px', padding: '0.2rem 0.5rem', fontSize: '1rem', zIndex: 10 }}
                   >
                     NEW!
                   </span>
                 )}
-                <span>{displayText}</span>
               </div>
             )
           })}
@@ -497,9 +559,9 @@ export function ChaoticZineLayout({
           )
         })}
 
-        {/* Social Icons */}
+        {/* Social Icons - matches original .socials footer */}
         {showSocialIcons && socialIcons.length > 0 && (
-          <div className="flex justify-center flex-wrap gap-3 mt-8 mb-4">
+          <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem', zIndex: 2 }}>
             {socialIcons.map((icon) => {
               const IconComponent = PLATFORM_ICONS[icon.platform]
               if (!IconComponent) return null
@@ -509,10 +571,19 @@ export function ChaoticZineLayout({
                   href={icon.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="zine-social-icon inline-flex items-center justify-center w-10 h-10"
+                  className="zine-social-icon"
                   style={{
+                    width: '50px',
+                    height: '50px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     border: '3px solid var(--theme-text)',
-                    background: 'var(--theme-background)',
+                    background: '#fff',
+                    color: 'var(--theme-text)',
+                    textDecoration: 'none',
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -522,14 +593,6 @@ export function ChaoticZineLayout({
             })}
           </div>
         )}
-
-        {/* Bottom scribble decoration */}
-        <div className="flex justify-center mt-8 opacity-20">
-          <svg className="w-24 h-8" viewBox="0 0 200 40">
-            <path d="M5,20 Q50,5 100,20 T195,20" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--theme-text)' }} />
-            <path d="M5,25 Q50,10 100,25 T195,25" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--theme-text)' }} />
-          </svg>
-        </div>
       </div>
     </div>
   )
