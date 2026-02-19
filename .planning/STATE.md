@@ -9,21 +9,31 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 12.1 of 18 - Scatter Mode
-Plan: 4 of 5 - Complete
-Status: **Phase 12.1 In Progress - Public scatter mode complete**
-Last activity: 2026-02-18 - Completed quick task 069: Fix music card link paste with loose detection + link fallback
+Phase: 12.2 of 18 - Theme Templates
+Plan: 1 of 4 - Complete
+Status: **Phase 12.2 In Progress - Template type system and registry established**
+Last activity: 2026-02-19 - Completed 12.2-01: Template type definitions, registry, first instagram-reels template
 
-Progress: [████████████████████████████░░░░] ~75%
+Progress: [████████████████████████████░░░░] ~76%
 
-### IN PROGRESS: Phase 12.1 - Scatter Mode
+### IN PROGRESS: Phase 12.2 - Theme Templates
+
+Building a template library that lets artists apply pre-built page layouts:
+- ✓ Plan 01: Template type system, registry, and first instagram-reels placeholder template
+- Plan 02: Template picker UI in the editor
+- Plan 03: Template apply API route (replaces cards, theme, profile)
+- Plan 04: Additional templates for other themes
+
+**Current status:** Template type system fully established. TemplateDefinition, TemplateCard, TemplateTheme, TemplateProfile types defined. Registry with getTemplatesByTheme/getTemplate helpers. One instagram-reels dark-minimal template with 5 realistic cards and valid JPEG assets.
+
+### IN PROGRESS (PAUSED): Phase 12.1 - Scatter Mode
 
 Building freeform card positioning for 5 themes:
 - ✓ Plan 01: Scatter Mode Foundation (types, store toggles, scatter actions)
 - ✓ Plan 02: Scatter Grid Component (drag, resize, z-index)
 - ✓ Plan 03: Scatter Mode UI Controls (toggle, visitor drag, preview panel wiring)
 - ✓ Plan 04: Public Scatter Mode (StaticScatterCanvas, visitor drag, public page routing)
-- Plan 05: Scatter Persistence (database sync)
+- Plan 05: Scatter Persistence (database sync) — paused, continuing after 12.2
 
 **Current status:** Public pages render scatter layouts with optional visitor drag. Artist arrangements display correctly on public pages. Ready for database persistence layer.
 
@@ -121,7 +131,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 10 | Fan Tools | Complete ✓ |
 | 11 | Analytics & Pixels & Legal | Complete ✓ |
 | 12 | Audio System | In Progress (Plan 1/5 complete) |
-| 12.2 | Theme Templates | - |
+| 12.2 | Theme Templates | In Progress (Plan 1/4 complete) |
 | 12.5 | Billing & Subscriptions | - |
 | 12.6 | Security Hardening & Auth | - |
 | 12.7 | Production Readiness | - |
@@ -134,6 +144,28 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 12.2 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Template Type System & Registry | Complete ✓ |
+| 02 | Template Picker UI | - |
+| 03 | Template Apply API Route | - |
+| 04 | Additional Templates | - |
+
+**Summaries:**
+- Plan 01: .planning/phases/12.2-theme-templates/12.2-01-SUMMARY.md
+
+**Plan 01 commits (2026-02-19):**
+- `f6a6d62` - feat(12.2-01): create template type definitions and seed asset files
+- `0bfcac9` - feat(12.2-01): create template registry and first instagram-reels template
+
+**Key deliverables:**
+- TemplateDefinition, TemplateCard, TemplateTheme, TemplateProfile types in src/lib/templates/types.ts
+- Template registry (getAllTemplates, getTemplatesByTheme, getTemplate) in src/lib/templates/index.ts
+- instagramReelsDarkMinimal template with 5 cards: hero, 2x horizontal links, Spotify embed, social-icons
+- Placeholder JPEG assets: public/templates/instagram-reels-dark-minimal/{thumbnail,hero}.jpg
 
 ## Phase 12 Progress (IN PROGRESS)
 
@@ -686,6 +718,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | generic-music in MusicPlatform not EmbedPlatform | quick-069 | Fallback display type, not an embeddable platform — keeps EmbedPlatform clean |
 | embeddable flag backward compat | quick-069 | embeddable:undefined treated as true — existing iframe cards unaffected |
 | MusicLinkFallback for all non-iframe states | quick-069 | Single fallback component for embeddable:false AND iframe load errors |
+| TemplateTheme omits pixels | 12.2-01 | Tracking pixel config (Facebook, GA4) is user-specific — never cloned from templates into another user's page |
+| TemplateProfile omits avatarUrl/logoUrl | 12.2-01 | Profile photos always user-supplied — templates only suggest display toggles and colors |
+| themeId string not ThemeId union | 12.2-01 | Forward-compatible — new themes don't require updating all template type references |
+| mediaAssets relative filenames | 12.2-01 | Apply route prefixes with template.id — keeps template definitions path-agnostic |
+| Template data at src/lib/templates/data/{theme-id}/ | 12.2-01 | One file per template, named export pattern — easy to add templates per theme |
 
 ## Quick Tasks
 
