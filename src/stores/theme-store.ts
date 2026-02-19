@@ -45,6 +45,9 @@ interface ThemeStore extends ThemeState {
   classifiedDeptText: string        // Classified theme: department line
   classifiedCenterText: string      // Classified theme: center line
   classifiedMessageText: string     // Classified theme: message line
+  phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 3)
+  phoneHomeShowDock: boolean // Phone Home theme: show dock bar
+  phoneHomeVariant: 'default' | '8-bit' // Phone Home theme: visual variant
   scatterMode: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag: boolean       // Whether visitors can drag cards on public page
   hasChanges: boolean     // Track if theme has unsaved changes
@@ -79,6 +82,10 @@ interface ThemeStore extends ThemeState {
   setClassifiedDeptText: (text: string) => void
   setClassifiedCenterText: (text: string) => void
   setClassifiedMessageText: (text: string) => void
+  addToDock: (cardId: string) => void
+  removeFromDock: (cardId: string) => void
+  setPhoneHomeShowDock: (show: boolean) => void
+  setPhoneHomeVariant: (variant: 'default' | '8-bit') => void
   setScatterMode: (enabled: boolean) => void
   setVisitorDrag: (enabled: boolean) => void
   resetToThemeDefaults: () => void
@@ -155,6 +162,9 @@ export const useThemeStore = create<ThemeStore>()(
       classifiedDeptText: 'War Department',
       classifiedCenterText: 'Classified Message Center',
       classifiedMessageText: 'Incoming Message',
+      phoneHomeDock: [],
+      phoneHomeShowDock: true,
+      phoneHomeVariant: 'default',
       scatterMode: false,
       visitorDrag: false,
       hasChanges: false,
@@ -395,6 +405,28 @@ export const useThemeStore = create<ThemeStore>()(
         set({ classifiedMessageText: text, hasChanges: true })
       },
 
+      addToDock: (cardId: string) => {
+        set((state) => {
+          if (state.phoneHomeDock.includes(cardId) || state.phoneHomeDock.length >= 3) return state
+          return { phoneHomeDock: [...state.phoneHomeDock, cardId], hasChanges: true }
+        })
+      },
+
+      removeFromDock: (cardId: string) => {
+        set((state) => ({
+          phoneHomeDock: state.phoneHomeDock.filter((id) => id !== cardId),
+          hasChanges: true,
+        }))
+      },
+
+      setPhoneHomeShowDock: (show: boolean) => {
+        set({ phoneHomeShowDock: show, hasChanges: true })
+      },
+
+      setPhoneHomeVariant: (variant: 'default' | '8-bit') => {
+        set({ phoneHomeVariant: variant, hasChanges: true })
+      },
+
       setScatterMode: (enabled: boolean) => {
         set((state) => ({
           scatterMode: enabled,
@@ -463,6 +495,9 @@ export const useThemeStore = create<ThemeStore>()(
           classifiedDeptText: theme.classifiedDeptText ?? 'War Department',
           classifiedCenterText: theme.classifiedCenterText ?? 'Classified Message Center',
           classifiedMessageText: theme.classifiedMessageText ?? 'Incoming Message',
+          phoneHomeDock: theme.phoneHomeDock ?? [],
+          phoneHomeShowDock: theme.phoneHomeShowDock ?? true,
+          phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
           scatterMode: theme.scatterMode ?? false,
           visitorDrag: theme.visitorDrag ?? false,
           hasChanges: false,
@@ -496,6 +531,9 @@ export const useThemeStore = create<ThemeStore>()(
           classifiedDeptText: state.classifiedDeptText,
           classifiedCenterText: state.classifiedCenterText,
           classifiedMessageText: state.classifiedMessageText,
+          phoneHomeDock: state.phoneHomeDock,
+          phoneHomeShowDock: state.phoneHomeShowDock,
+          phoneHomeVariant: state.phoneHomeVariant,
           scatterMode: state.scatterMode,
           visitorDrag: state.visitorDrag,
         }

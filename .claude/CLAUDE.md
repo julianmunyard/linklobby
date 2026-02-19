@@ -1,5 +1,11 @@
 # LinkLobby - Claude Code Notes
 
+## Session Notes (2026-02-19)
+
+- **Add transparent mode on audio player for Instagram theme** — the player needs a transparent/glass variant that works with the Instagram theme's aesthetic
+- **Audio card must render on public page even with no track uploaded** — currently it's hidden/missing when the user hasn't uploaded a track yet
+- **Implement phase 12.2 (Theme Templates)** — plans are in `.planning/phases/12.2-theme-templates/` (4 plan files: 12.2-01 through 12.2-04)
+
 ## Audio Engine Architecture
 
 The audio system uses Superpowered Web Audio SDK with an AudioWorklet processor pattern.

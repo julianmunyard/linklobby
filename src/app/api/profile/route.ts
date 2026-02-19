@@ -42,7 +42,7 @@ export async function GET() {
     showSocialIcons: profile.show_social_icons,
     socialIcons: profile.social_icons || [],
     headerTextColor: profile.header_text_color,
-    socialIconColor: null,
+    socialIconColor: profile.social_icon_color ?? null,
   })
 }
 
@@ -57,26 +57,39 @@ export async function POST(request: Request) {
   const body = await request.json()
 
   // Map frontend types to database columns
-  const { error } = await supabase
+  const updateData: Record<string, unknown> = {
+    display_name: body.displayName,
+    bio: body.bio,
+    avatar_url: body.avatarUrl,
+    avatar_feather: body.avatarFeather,
+    show_avatar: body.showAvatar,
+    show_title: body.showTitle,
+    title_size: body.titleSize,
+    show_logo: body.showLogo,
+    logo_url: body.logoUrl,
+    logo_scale: body.logoScale,
+    profile_layout: body.profileLayout,
+    show_social_icons: body.showSocialIcons,
+    social_icons: body.socialIcons,
+    header_text_color: body.headerTextColor,
+    social_icon_color: body.socialIconColor,
+    updated_at: new Date().toISOString(),
+  }
+
+  let { error } = await supabase
     .from('profiles')
-    .update({
-      display_name: body.displayName,
-      bio: body.bio,
-      avatar_url: body.avatarUrl,
-      avatar_feather: body.avatarFeather,
-      show_avatar: body.showAvatar,
-      show_title: body.showTitle,
-      title_size: body.titleSize,
-      show_logo: body.showLogo,
-      logo_url: body.logoUrl,
-      logo_scale: body.logoScale,
-      profile_layout: body.profileLayout,
-      show_social_icons: body.showSocialIcons,
-      social_icons: body.socialIcons,
-      header_text_color: body.headerTextColor,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('id', user.id)
+
+  // If social_icon_color column doesn't exist yet, retry without it
+  if (error?.message?.includes('social_icon_color')) {
+    delete updateData.social_icon_color
+    const retry = await supabase
+      .from('profiles')
+      .update(updateData)
+      .eq('id', user.id)
+    error = retry.error
+  }
 
   if (error) {
     console.error('Profile update error:', error)

@@ -56,11 +56,11 @@ export function SocialIconsCardFields() {
   )
 
   function handleAddIcon() {
-    if (!newPlatform || !newUrl.trim()) return
+    if (!newPlatform) return
 
-    // Normalize URL
+    // Normalize URL (skip if empty)
     let url = newUrl.trim()
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
       url = `https://${url}`
     }
 
@@ -260,7 +260,7 @@ export function SocialIconsCardFields() {
               disabled={!newPlatform}
               className="flex-1 h-9"
               onKeyDown={(e) => {
-                if (e.key === "Enter" && newPlatform && newUrl.trim()) {
+                if (e.key === "Enter" && newPlatform) {
                   e.preventDefault()
                   handleAddIcon()
                 }
@@ -273,7 +273,7 @@ export function SocialIconsCardFields() {
               variant="secondary"
               size="icon"
               onClick={handleAddIcon}
-              disabled={!newPlatform || !newUrl.trim()}
+              disabled={!newPlatform}
               className="h-9 w-9"
             >
               <Plus className="h-4 w-4" />

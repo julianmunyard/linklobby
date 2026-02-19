@@ -15,6 +15,7 @@ import { WordArtLayout } from "@/components/cards/word-art-layout"
 import { LanyardBadgeLayout } from "@/components/cards/lanyard-badge-layout"
 import { ClassifiedLayout } from "@/components/cards/classified-layout"
 import { DeparturesBoardLayout } from "@/components/cards/departures-board-layout"
+import { PhoneHomeLayout } from "@/components/cards/phone-home-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { isScatterTheme } from "@/types/scatter"
@@ -78,6 +79,16 @@ function PreviewContent() {
     if (window.parent !== window) {
       window.parent.postMessage(
         { type: "SELECT_CARD", payload: { cardId } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  // Send batch card updates to parent editor (for DnD layout reflow)
+  const handleMoveCards = useCallback((moves: Array<{ cardId: string; content: Record<string, unknown> }>) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: "MOVE_CARDS", payload: { moves } },
         window.location.origin
       )
     }
@@ -155,6 +166,9 @@ function PreviewContent() {
             classifiedDeptText: ts.classifiedDeptText ?? 'War Department',
             classifiedCenterText: ts.classifiedCenterText ?? 'Classified Message Center',
             classifiedMessageText: ts.classifiedMessageText ?? 'Incoming Message',
+            phoneHomeDock: ts.phoneHomeDock ?? [],
+            phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
+            phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
             scatterMode: ts.scatterMode ?? false,
             visitorDrag: ts.visitorDrag ?? false,
           })
@@ -440,6 +454,25 @@ function PreviewContent() {
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
           wordArtTitleStyle={wordArtTitleStyle}
+        />
+        <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Phone Home theme uses iOS home screen layout
+  if (themeId === 'phone-home') {
+    return (
+      <>
+        <PageBackground />
+        <DimOverlay />
+        <PhoneHomeLayout
+          title={displayName || 'Home'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          onMoveCards={handleMoveCards}
+          selectedCardId={state.selectedCardId}
         />
         <NoiseOverlay />
       </>

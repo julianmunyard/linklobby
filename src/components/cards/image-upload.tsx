@@ -43,6 +43,7 @@ export function ImageUpload({
   const [isUploading, setIsUploading] = useState(false)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
+  const [sourceImageType, setSourceImageType] = useState<string>('image/jpeg')
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [pendingBlob, setPendingBlob] = useState<Blob | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -64,6 +65,16 @@ export function ImageUpload({
     // Validate file size (20MB limit)
     if (file.size > 20 * 1024 * 1024) {
       toast.error("Image must be less than 20MB")
+      return
+    }
+
+    // Track source image type for transparent format support
+    setSourceImageType(file.type)
+
+    // GIF files: skip cropping to preserve animation, upload directly
+    if (file.type === 'image/gif') {
+      if (inputRef.current) inputRef.current.value = ""
+      handleCropComplete(file, 'image/gif')
       return
     }
 
@@ -90,19 +101,26 @@ export function ImageUpload({
   }
 
   // Handle crop complete - compress then upload
-  async function handleCropComplete(croppedBlob: Blob) {
+  async function handleCropComplete(croppedBlob: Blob, overrideContentType?: string) {
     try {
       setIsUploading(true)
       setUploadError(null)
 
-      // Compress the cropped image before upload
-      const fileToCompress = new File([croppedBlob], 'image.jpg', { type: croppedBlob.type })
+      // Determine upload content type: override (for GIF skip-crop) or from source image
+      // PNG and WebP both support transparency — output as PNG to preserve alpha
+      const hasAlpha = sourceImageType === 'image/png' || sourceImageType === 'image/webp'
+      const uploadContentType = overrideContentType || (hasAlpha ? 'image/png' : 'image/jpeg')
+
+      // Use correct filename extension so compression library preserves format
+      const extMap: Record<string, string> = { 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' }
+      const ext = extMap[uploadContentType] || 'jpg'
+      const fileToCompress = new File([croppedBlob], `image.${ext}`, { type: uploadContentType })
       const compressedBlob = await compressImageForUpload(fileToCompress)
 
       // Store for potential retry
       setPendingBlob(compressedBlob)
 
-      const result = await uploadCardImageBlob(compressedBlob, cardId)
+      const result = await uploadCardImageBlob(compressedBlob, cardId, uploadContentType)
       onChange(result.url)
       setPendingBlob(null) // Clear pending blob on success
       toast.success("Image uploaded")
@@ -239,6 +257,7 @@ export function ImageUpload({
           imageSrc={imageToCrop}
           onCropComplete={handleCropComplete}
           initialAspect={getAspectForCardType(cardType)}
+          outputFormat={sourceImageType === 'image/png' || sourceImageType === 'image/webp' ? 'image/png' : 'image/jpeg'}
         />
       )}
     </>

@@ -30,6 +30,7 @@ export function PreviewPanel() {
   const reorderCards = usePageStore((state) => state.reorderCards)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const updateCard = usePageStore((state) => state.updateCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
   const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
   const updateIpodSticker = useThemeStore((state) => state.updateIpodSticker)
@@ -141,8 +142,8 @@ export function PreviewPanel() {
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, scatterMode, visitorDrag } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, scatterMode, visitorDrag }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, scatterMode, visitorDrag } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, scatterMode, visitorDrag }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
@@ -175,6 +176,13 @@ export function PreviewPanel() {
           usePageStore.getState().updateCardScatterPosition(cardId, scatterThemeId, position)
           break
         }
+        case "MOVE_CARDS": {
+          const { moves } = event.data.payload as { moves: Array<{ cardId: string; content: Record<string, unknown> }> }
+          for (const { cardId, content } of moves) {
+            updateCard(cardId, { content })
+          }
+          break
+        }
         case "UPDATE_STICKER":
           updateReceiptSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break
@@ -203,7 +211,7 @@ export function PreviewPanel() {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateReceiptSticker, updateIpodSticker])
+  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateCard, updateReceiptSticker, updateIpodSticker])
 
   // Prevent native zoom on the parent page (Safari gesture events)
   useEffect(() => {

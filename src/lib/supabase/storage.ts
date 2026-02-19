@@ -60,7 +60,8 @@ export async function uploadCardImage(
 
 export async function uploadCardImageBlob(
   blob: Blob,
-  cardId: string
+  cardId: string,
+  contentType: string = 'image/jpeg'
 ): Promise<UploadResult> {
   // Validate blob size
   if (blob.size > MAX_FILE_SIZE) {
@@ -69,14 +70,15 @@ export async function uploadCardImageBlob(
 
   const supabase = createClient()
 
-  // Generate unique filename: cardId/uuid.jpg
-  // Always .jpg since getCroppedImg outputs JPEG
-  const fileName = `${cardId}/${generateId()}.jpg`
+  // Derive extension from content type
+  const extMap: Record<string, string> = { 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' }
+  const ext = extMap[contentType] || 'jpg'
+  const fileName = `${cardId}/${generateId()}.${ext}`
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
     .upload(fileName, blob, {
-      contentType: "image/jpeg",
+      contentType,
       upsert: false,
     })
 

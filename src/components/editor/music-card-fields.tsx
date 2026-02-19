@@ -50,11 +50,15 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
 
     // Check for direct EmbeddedPlayer URL
     if (input.includes('bandcamp.com/EmbeddedPlayer/')) {
-      // Detect size from URL: size=small (~120px) vs size=large (~470px)
+      // Detect size from URL params
       const isSmall = input.includes('/size=small')
+      const isMinimal = input.includes('/minimal=true')
+      let height = 470 // default: large with tracklist
+      if (isSmall) height = 42
+      else if (isMinimal) height = 350
       return {
         embedUrl: input,
-        height: isSmall ? 120 : 470,
+        height,
       }
     }
 

@@ -268,10 +268,26 @@ export async function POST(request: Request) {
       }))
       .sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0))
 
-    // --- Step 9: Return response ---
+    // --- Step 9: Remap phoneHomeDock sortKey refs → new card IDs ---
+    // Templates store dock entries as sortKey references (not card IDs)
+    // because card IDs change on every apply. Map them back to real IDs.
+    const themeResponse = { ...template.theme }
+    if (Array.isArray(themeResponse.phoneHomeDock) && themeResponse.phoneHomeDock.length > 0) {
+      // Build map: template sortKey → new card ID
+      const sortKeyToNewId = new Map<string, string>()
+      template.cards.forEach((tc, i) => {
+        sortKeyToNewId.set(tc.sortKey, cardRecords[i].id)
+      })
+
+      themeResponse.phoneHomeDock = themeResponse.phoneHomeDock
+        .map((sk: string) => sortKeyToNewId.get(sk))
+        .filter((id: string | undefined): id is string => !!id)
+    }
+
+    // --- Step 10: Return response ---
     return NextResponse.json({
       cards: createdCards,
-      theme: template.theme,
+      theme: themeResponse,
       profile: template.profile,
       templateName: template.name,
     })

@@ -13,7 +13,7 @@ import type { ThemeId } from '@/types/theme'
 import { isScatterTheme } from '@/types/scatter'
 
 // Themes with list-based layouts where card style controls (border radius, shadows) don't apply
-const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
+const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
 
 // Available stickers for receipt theme
 const RECEIPT_STICKERS = [
@@ -37,7 +37,8 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
+  const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
 
   // Hide card style controls for list-layout themes
@@ -446,6 +447,71 @@ export function StyleControls() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Phone Home Theme: Variant + Dock Controls */}
+      {themeId === 'phone-home' && (
+        <div className="space-y-3">
+          {/* Style variant toggle */}
+          <div className="space-y-2">
+            <Label className="text-sm">Style</Label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPhoneHomeVariant('default')}
+                className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  phoneHomeVariant === 'default'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                }`}
+              >
+                Modern
+              </button>
+              <button
+                onClick={() => setPhoneHomeVariant('8-bit')}
+                className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  phoneHomeVariant === '8-bit'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                }`}
+              >
+                8-Bit
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-sm">Show Dock</Label>
+              <p className="text-xs text-muted-foreground">Bottom dock bar for pinned apps</p>
+            </div>
+            <Switch
+              checked={phoneHomeShowDock}
+              onCheckedChange={setPhoneHomeShowDock}
+            />
+          </div>
+
+          {phoneHomeDock.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Dock Items ({phoneHomeDock.length}/3)</Label>
+              {phoneHomeDock.map((cardId) => {
+                const card = cards.find((c) => c.id === cardId)
+                return (
+                  <div key={cardId} className="flex items-center justify-between p-2 rounded bg-muted/50">
+                    <span className="text-xs truncate flex-1">{card?.title || card?.card_type || 'Unknown'}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => removeFromDock(cardId)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

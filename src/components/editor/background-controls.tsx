@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useThemeStore } from '@/stores/theme-store'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone } from 'lucide-react'
+import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone, Pipette } from 'lucide-react'
 import type { BackgroundConfig } from '@/types/theme'
 
 // Available frame overlays
@@ -147,6 +147,30 @@ export function BackgroundControls() {
     setBackground({ ...background, dimIntensity: value[0] })
   }
 
+  // Eyedropper tool for picking status bar color from screen
+  const handleEyedropper = useCallback(async () => {
+    // Native EyeDropper API (Chrome/Edge)
+    if ('EyeDropper' in window) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dropper = new (window as any).EyeDropper()
+        const result = await dropper.open()
+        setBackground({ ...background, topBarColor: result.sRGBHex })
+      } catch {
+        // User cancelled
+      }
+      return
+    }
+    // Fallback: use hidden color input for browsers without EyeDropper
+    const input = document.createElement('input')
+    input.type = 'color'
+    input.value = background.topBarColor || '#000000'
+    input.addEventListener('input', (e) => {
+      setBackground({ ...background, topBarColor: (e.target as HTMLInputElement).value })
+    })
+    input.click()
+  }, [background, setBackground])
+
   // Status bar color picker (shared by all themes)
   const statusBarSection = (
     <div className="space-y-4">
@@ -155,11 +179,23 @@ export function BackgroundControls() {
         <Label className="text-xs font-medium text-muted-foreground">Status Bar Color</Label>
       </div>
       <p className="text-xs text-muted-foreground -mt-2">Controls the color around the camera and safe areas on mobile</p>
-      <ColorPicker
-        label="Color"
-        color={background.topBarColor || '#000000'}
-        onChange={(color) => setBackground({ ...background, topBarColor: color })}
-      />
+      <div className="flex items-center gap-2">
+        <ColorPicker
+          label="Color"
+          color={background.topBarColor || '#000000'}
+          onChange={(color) => setBackground({ ...background, topBarColor: color })}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 px-2"
+          onClick={handleEyedropper}
+          title="Pick color from screen"
+        >
+          <Pipette className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 

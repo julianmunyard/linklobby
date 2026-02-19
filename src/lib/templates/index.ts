@@ -5,8 +5,11 @@ import type { TemplateDefinition } from './types'
 import type { ThemeId } from '@/types/theme'
 import { instagramReelsDarkMinimal } from './data/instagram-reels/dark-minimal'
 
+import { phoneHomeMclovinsIphone } from './data/phone-home/mclovins-iphone'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
   instagramReelsDarkMinimal,
+  phoneHomeMclovinsIphone,
 ]
 
 /**

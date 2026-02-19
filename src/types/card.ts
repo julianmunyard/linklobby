@@ -35,6 +35,15 @@ export interface Card {
   updated_at: string
 }
 
+// Phone Home theme layout — stored in card content.phoneHomeLayout
+export interface PhoneHomeLayout {
+  page: number    // Which home screen page (0-based)
+  row: number     // Row in the grid (0-based)
+  col: number     // Column in the grid (0-based, max 3)
+  width: 1 | 2 | 4   // Grid columns spanned
+  height: 1 | 2 | 3  // Grid rows spanned
+}
+
 import type { AudioCardContent } from './audio'
 import { DEFAULT_AUDIO_CONTENT } from './audio'
 

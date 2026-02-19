@@ -42,10 +42,12 @@ import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { WordArtStylePicker } from "./word-art-style-picker"
 import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
+import { useProfileStore } from "@/stores/profile-store"
+import { SOCIAL_PLATFORMS } from "@/types/profile"
 import { useHistory } from "@/hooks/use-history"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { AlignLeft, AlignCenter, AlignRight, AlignVerticalJustifyStart, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd } from "lucide-react"
-import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, AudioCardContent, MusicCardContent, LinkCardContent, EmailCollectionCardContent, ReleaseCardContent, TextAlign, VerticalAlign } from "@/types/card"
+import type { Card, CardType, CardSize, HorizontalPosition, HeroCardContent, HorizontalLinkContent, SquareCardContent, VideoCardContent, GalleryCardContent, GameCardContent, AudioCardContent, MusicCardContent, LinkCardContent, EmailCollectionCardContent, ReleaseCardContent, TextAlign, VerticalAlign, PhoneHomeLayout } from "@/types/card"
 import { CARD_TYPE_SIZING, CARD_TYPES_NO_IMAGE } from "@/types/card"
 
 // Card types that support horizontal positioning (w-fit cards)
@@ -60,6 +62,417 @@ const cardFormSchema = z.object({
 
 type CardFormValues = z.infer<typeof cardFormSchema>
 
+// Phone Home preset icon sections
+const PHONE_HOME_ICON_SECTIONS = [
+  {
+    label: 'Windows 98',
+    icons: [
+      { src: '/icons/8bit/my-computer.png', label: 'My Computer' },
+      { src: '/icons/8bit/recycle-bin.png', label: 'Recycle Bin' },
+      { src: '/icons/8bit/internet-explorer.png', label: 'Internet' },
+      { src: '/icons/8bit/my-documents.png', label: 'My Documents' },
+      { src: '/icons/8bit/folder.png', label: 'Folder' },
+      { src: '/icons/8bit/notepad.png', label: 'Notepad' },
+      { src: '/icons/8bit/paint.png', label: 'Paint' },
+      { src: '/icons/8bit/calculator.png', label: 'Calculator' },
+      { src: '/icons/8bit/media-player.png', label: 'Media Player' },
+      { src: '/icons/8bit/winamp.png', label: 'Winamp' },
+      { src: '/icons/8bit/sound.png', label: 'Sound' },
+      { src: '/icons/8bit/mail.png', label: 'Mail' },
+      { src: '/icons/8bit/outlook.png', label: 'Outlook' },
+      { src: '/icons/8bit/minesweeper.png', label: 'Minesweeper' },
+      { src: '/icons/8bit/solitaire.png', label: 'Solitaire' },
+      { src: '/icons/8bit/pinball.png', label: 'Pinball' },
+      { src: '/icons/8bit/settings.png', label: 'Settings' },
+      { src: '/icons/8bit/help.png', label: 'Help' },
+      { src: '/icons/8bit/find-file.png', label: 'Find File' },
+      { src: '/icons/8bit/run.png', label: 'Run' },
+      { src: '/icons/8bit/shutdown.png', label: 'Shut Down' },
+      { src: '/icons/8bit/network.png', label: 'Network' },
+      { src: '/icons/8bit/hard-drive.png', label: 'Hard Drive' },
+      { src: '/icons/8bit/printer.png', label: 'Printer' },
+      { src: '/icons/8bit/msdos.png', label: 'MS-DOS' },
+    ],
+  },
+  {
+    label: 'Classic Mac',
+    icons: [
+      { src: '/icons/mac/happy-mac.png', label: 'Happy Mac' },
+      { src: '/icons/mac/sad-mac.png', label: 'Sad Mac' },
+      { src: '/icons/mac/classic-mac.png', label: 'Classic Mac' },
+      { src: '/icons/mac/about-mac.png', label: 'About Mac' },
+      { src: '/icons/mac/trash.png', label: 'Trash' },
+      { src: '/icons/mac/trash-full.png', label: 'Trash Full' },
+      { src: '/icons/mac/trash-fire.png', label: 'Trash Fire' },
+      { src: '/icons/mac/floppy.png', label: 'Floppy' },
+      { src: '/icons/mac/bomb.png', label: 'Bomb' },
+      { src: '/icons/mac/alert.png', label: 'Alert' },
+      { src: '/icons/mac/warning.png', label: 'Warning' },
+      { src: '/icons/mac/stop.png', label: 'Stop' },
+      { src: '/icons/mac/info.png', label: 'Info' },
+      { src: '/icons/mac/watch.png', label: 'Watch' },
+      { src: '/icons/mac/command.png', label: 'Command' },
+      { src: '/icons/mac/macpaint.png', label: 'MacPaint' },
+      { src: '/icons/mac/macdraw.png', label: 'MacDraw' },
+      { src: '/icons/mac/simpletext.png', label: 'SimpleText' },
+      { src: '/icons/mac/sound.png', label: 'Sound' },
+      { src: '/icons/mac/dogcow.png', label: 'Dogcow' },
+      { src: '/icons/mac/resedit.png', label: 'ResEdit' },
+      { src: '/icons/mac/finger.png', label: 'Finger' },
+      { src: '/icons/mac/hand.png', label: 'Hand' },
+      { src: '/icons/mac/pencil.png', label: 'Pencil' },
+      { src: '/icons/mac/paint-bucket.png', label: 'Paint Bucket' },
+      { src: '/icons/mac/lasso.png', label: 'Lasso' },
+      { src: '/icons/mac/spray-can.png', label: 'Spray Can' },
+      { src: '/icons/mac/lemmings.png', label: 'Lemmings' },
+      { src: '/icons/mac/appleshare.png', label: 'AppleShare' },
+      { src: '/icons/mac/font-suitcase.png', label: 'Font Suitcase' },
+    ],
+  },
+]
+
+// Phone Home per-social-icon customization (icon upload + color per platform)
+function SocialIconCustomization({
+  card,
+  currentContent,
+  onContentChange,
+}: {
+  card: Card
+  currentContent: Record<string, unknown>
+  onContentChange: (updates: Record<string, unknown>) => void
+}) {
+  const getSortedSocialIcons = useProfileStore((s) => s.getSortedSocialIcons)
+  const socialIcons = getSortedSocialIcons()
+  const socialAppIcons = (currentContent.socialAppIcons ?? {}) as Record<string, { appIconUrl?: string; appIconColor?: string }>
+
+  function updatePlatformIcon(platform: string, updates: { appIconUrl?: string; appIconColor?: string }) {
+    const current = socialAppIcons[platform] ?? {}
+    const updated = { ...current, ...updates }
+    // Remove undefined values
+    if (!updated.appIconUrl) delete updated.appIconUrl
+    if (!updated.appIconColor) delete updated.appIconColor
+    const newSocialAppIcons = { ...socialAppIcons }
+    if (Object.keys(updated).length === 0) {
+      delete newSocialAppIcons[platform]
+    } else {
+      newSocialAppIcons[platform] = updated
+    }
+    onContentChange({ socialAppIcons: newSocialAppIcons })
+  }
+
+  if (socialIcons.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Add social icons in Settings to customize their app icons.
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Custom Icons per Social</Label>
+      {socialIcons.map((si) => {
+        const platformMeta = SOCIAL_PLATFORMS[si.platform]
+        if (!platformMeta) return null
+        const override = socialAppIcons[si.platform]
+        return (
+          <div key={si.id} className="space-y-2 border rounded-lg p-2.5 bg-muted/20">
+            <Label className="text-xs font-medium">{platformMeta.label}</Label>
+            <ImageUpload
+              value={override?.appIconUrl}
+              onChange={(url) => updatePlatformIcon(si.platform, { appIconUrl: url })}
+              cardId={`${card.id}-${si.platform}`}
+              cardType="square"
+            />
+            {/* Preset icons */}
+            {PHONE_HOME_ICON_SECTIONS.map((section) => (
+              <div key={section.label} className="space-y-1">
+                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{section.label}</span>
+                <div className="grid grid-cols-5 gap-1">
+                  {section.icons.map((icon) => (
+                    <button
+                      key={icon.src}
+                      type="button"
+                      className={`relative w-full aspect-square rounded-md border overflow-hidden transition-all hover:ring-1 hover:ring-muted-foreground/30 ${
+                        override?.appIconUrl === icon.src
+                          ? 'ring-2 ring-primary ring-offset-1 ring-offset-background'
+                          : 'border-muted'
+                      }`}
+                      onClick={() => updatePlatformIcon(si.platform, { appIconUrl: icon.src })}
+                      title={icon.label}
+                    >
+                      {override?.appIconColor ? (
+                        <div
+                          className="w-full h-full p-1"
+                          style={{
+                            backgroundColor: override.appIconColor,
+                            WebkitMaskImage: `url('${icon.src}')`,
+                            maskImage: `url('${icon.src}')`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                            imageRendering: 'pixelated',
+                          }}
+                        />
+                      ) : (
+                        <img src={icon.src} alt={icon.label} className="w-full h-full object-contain p-1" style={{ imageRendering: 'pixelated' }} draggable={false} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <ColorPicker
+              label="Icon Color"
+              color={override?.appIconColor || ''}
+              onChange={(color) => updatePlatformIcon(si.platform, { appIconColor: color || undefined })}
+            />
+            {override?.appIconColor && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs w-full"
+                onClick={() => updatePlatformIcon(si.platform, { appIconColor: undefined })}
+              >
+                Reset Color
+              </Button>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// Phone Home card controls — extracted so hooks work properly (no IIFE)
+// Default phone home layout dimensions per card type (matches autoLayoutCards logic)
+function getDefaultPhoneHomeSize(cardType: CardType, content?: Record<string, unknown>): { width: 1 | 2 | 4; height: 1 | 2 | 3 } {
+  if (cardType === 'gallery') return { width: 4, height: 2 }
+  if (cardType === 'music') {
+    const embedH = content?.embedHeight as number | undefined
+    return { width: 4, height: (embedH && embedH > 200) ? 2 : 1 }
+  }
+  if (cardType === 'audio' && content?.phoneHomeWidgetMode) return { width: 4, height: 1 }
+  return { width: 1, height: 1 }
+}
+
+function PhoneHomeCardControls({
+  card,
+  currentContent,
+  phoneHomeDock,
+  addToDock,
+  removeFromDock,
+  onContentChange,
+}: {
+  card: Card
+  currentContent: Record<string, unknown>
+  phoneHomeDock: string[]
+  addToDock: (id: string) => void
+  removeFromDock: (id: string) => void
+  onContentChange: (updates: Record<string, unknown>) => void
+}) {
+  const phoneLayout = currentContent.phoneHomeLayout as PhoneHomeLayout | undefined
+  const isInDock = phoneHomeDock.includes(card.id)
+  const canAddToDock = phoneHomeDock.length < 3
+  const defaultSize = getDefaultPhoneHomeSize(card.card_type, currentContent)
+  const defaultLayout = { page: 0, row: 0, col: 0, ...defaultSize }
+
+  return (
+    <div className="space-y-4 border rounded-lg p-3 bg-muted/30">
+      <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Phone Home</Label>
+
+      {/* App Icon Upload — uses square card type to get 1:1 crop */}
+      <div className="space-y-2">
+        <Label className="text-sm">App Icon</Label>
+        <ImageUpload
+          value={currentContent.appIconUrl as string | undefined}
+          onChange={(url) => onContentChange({ appIconUrl: url })}
+          cardId={card.id}
+          cardType="square"
+        />
+        {/* Preset icon picker — sectioned by platform */}
+        <div className="space-y-2.5">
+          <Label className="text-xs text-muted-foreground">Preset Icons</Label>
+          {PHONE_HOME_ICON_SECTIONS.map((section) => {
+            const iconColor = currentContent.appIconColor as string | undefined
+            return (
+              <div key={section.label} className="space-y-1">
+                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{section.label}</span>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {section.icons.map((icon) => (
+                    <button
+                      key={icon.src}
+                      type="button"
+                      className={`relative w-full aspect-square rounded-md border overflow-hidden transition-all hover:ring-1 hover:ring-muted-foreground/30 ${
+                        currentContent.appIconUrl === icon.src
+                          ? 'ring-2 ring-primary ring-offset-1 ring-offset-background'
+                          : 'border-muted'
+                      }`}
+                      onClick={() => onContentChange({ appIconUrl: icon.src })}
+                      title={icon.label}
+                    >
+                      {iconColor ? (
+                        <div
+                          className="w-full h-full p-1"
+                          style={{
+                            backgroundColor: iconColor,
+                            WebkitMaskImage: `url('${icon.src}')`,
+                            maskImage: `url('${icon.src}')`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                            imageRendering: 'pixelated',
+                          }}
+                        />
+                      ) : (
+                        <img src={icon.src} alt={icon.label} className="w-full h-full object-contain p-1" style={{ imageRendering: 'pixelated' }} draggable={false} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+        {/* Icon Color */}
+        <ColorPicker
+          label="Icon Color"
+          color={(currentContent.appIconColor as string) || ''}
+          onChange={(color) => onContentChange({ appIconColor: color || undefined })}
+        />
+        {!!currentContent.appIconColor && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs w-full"
+            onClick={() => onContentChange({ appIconColor: undefined })}
+          >
+            Reset to Default
+          </Button>
+        )}
+        <p className="text-xs text-muted-foreground">Upload your own or pick a preset icon</p>
+      </div>
+
+      {/* Pin to Dock */}
+      <div className="flex items-center justify-between">
+        <div>
+          <Label className="text-sm">Pin to Dock</Label>
+          <p className="text-xs text-muted-foreground">{isInDock ? 'In dock' : canAddToDock ? 'Add to bottom bar' : 'Dock full (3/3)'}</p>
+        </div>
+        <Switch
+          checked={isInDock}
+          disabled={!isInDock && !canAddToDock}
+          onCheckedChange={(checked) => {
+            if (checked) addToDock(card.id)
+            else removeFromDock(card.id)
+          }}
+        />
+      </div>
+
+      {/* Show as Widget — audio cards only */}
+      {card.card_type === 'audio' && !isInDock && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Show as Widget</Label>
+            <p className="text-xs text-muted-foreground">
+              {currentContent.phoneHomeWidgetMode ? 'Inline player' : 'Tap icon to open player'}
+            </p>
+          </div>
+          <Switch
+            checked={!!currentContent.phoneHomeWidgetMode}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                // Enable widget mode — default to 4x1 slim
+                onContentChange({
+                  phoneHomeWidgetMode: true,
+                  phoneHomeLayout: {
+                    ...(phoneLayout ?? defaultLayout),
+                    width: 4,
+                    height: 1,
+                  },
+                })
+              } else {
+                // Disable widget mode — reset to 1x1 icon
+                onContentChange({
+                  phoneHomeWidgetMode: false,
+                  phoneHomeLayout: {
+                    ...(phoneLayout ?? defaultLayout),
+                    width: 1,
+                    height: 1,
+                  },
+                })
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {/* Page Selector */}
+      {!isInDock && (
+        <div className="space-y-2">
+          <Label className="text-sm">Page</Label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={String(phoneLayout?.page ?? 0)}
+            onValueChange={(v) => {
+              if (v) onContentChange({
+                phoneHomeLayout: {
+                  ...(phoneLayout ?? defaultLayout),
+                  page: Number(v),
+                },
+              })
+            }}
+            className="justify-start"
+          >
+            {[0, 1, 2, 3].map((p) => (
+              <ToggleGroupItem key={p} value={String(p)}>
+                {p + 1}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      )}
+
+      {/* Widget Size (for gallery/music, or audio when widget mode is on) */}
+      {!isInDock && (['gallery', 'music'].includes(card.card_type) || (card.card_type === 'audio' && !!currentContent.phoneHomeWidgetMode)) && (
+        <div className="space-y-2">
+          <Label className="text-sm">Widget Size</Label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={`${phoneLayout?.width ?? defaultSize.width}x${phoneLayout?.height ?? defaultSize.height}`}
+            onValueChange={(v) => {
+              if (!v) return
+              const [w, h] = v.split('x').map(Number)
+              onContentChange({
+                phoneHomeLayout: {
+                  ...(phoneLayout ?? defaultLayout),
+                  width: w,
+                  height: h,
+                },
+              })
+            }}
+            className="justify-start"
+          >
+            {card.card_type !== 'gallery' && <ToggleGroupItem value="1x1">Icon</ToggleGroupItem>}
+            <ToggleGroupItem value="2x2">Square</ToggleGroupItem>
+            <ToggleGroupItem value="4x2">Slim</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface CardPropertyEditorProps {
   card: Card
   onClose: () => void
@@ -71,6 +484,9 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const removeCard = usePageStore((state) => state.removeCard)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
   const themeId = useThemeStore((s) => s.themeId)
+  const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
+  const addToDock = useThemeStore((s) => s.addToDock)
+  const removeFromDock = useThemeStore((s) => s.removeFromDock)
   const { undo } = useHistory()
   const [urlError, setUrlError] = useState<string | null>(null)
 
@@ -213,7 +629,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
         <div className="flex items-center justify-between p-4 border-b">
           <div>
             <h2 className="font-semibold text-sm">Social Icons</h2>
-            <p className="text-xs text-muted-foreground">Widget</p>
+            <p className="text-xs text-muted-foreground">{themeId === 'phone-home' ? 'Each social appears as an app icon' : 'Widget'}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
             <X className="h-4 w-4" />
@@ -224,10 +640,21 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
           {/* Social icons editor */}
           <SocialIconsCardFields />
 
+          {/* Phone Home: per-icon customization */}
+          {themeId === 'phone-home' && (
+            <SocialIconCustomization
+              card={card}
+              currentContent={currentContent}
+              onContentChange={handleContentChange}
+            />
+          )}
+
           {/* Position hint */}
-          <p className="text-xs text-muted-foreground">
-            Drag this card to position where social icons appear on your page.
-          </p>
+          {themeId !== 'phone-home' && (
+            <p className="text-xs text-muted-foreground">
+              Drag this card to position where social icons appear on your page.
+            </p>
+          )}
 
           {/* Delete button */}
           <div className="pt-4 border-t">
@@ -287,8 +714,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               />
             </div>
 
-            {/* Card Type Picker - only for convertible types, hidden for Mac cards */}
-            {!isMacCard && isConvertibleType(card.card_type) && (
+            {/* Card Type Picker - only for convertible types, hidden for Mac cards and Phone Home */}
+            {!isMacCard && themeId !== 'phone-home' && isConvertibleType(card.card_type) && (
               <div className="space-y-2">
                 <Label>Card Type</Label>
                 <CardTypePicker
@@ -303,6 +730,18 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               <WordArtStylePicker
                 currentStyleId={(currentContent.wordArtStyle as string) || 'style-one'}
                 onChange={(styleId) => handleContentChange({ wordArtStyle: styleId })}
+              />
+            )}
+
+            {/* Phone Home theme: App Icon + Dock + Page + Widget Size */}
+            {themeId === 'phone-home' && (
+              <PhoneHomeCardControls
+                card={card}
+                currentContent={currentContent}
+                phoneHomeDock={phoneHomeDock}
+                addToDock={addToDock}
+                removeFromDock={removeFromDock}
+                onContentChange={handleContentChange}
               />
             )}
 

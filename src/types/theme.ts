@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led' | 'phone-home'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -101,6 +101,7 @@ export interface ThemeConfig {
   hasWindowChrome?: boolean    // System Settings only
   isListLayout?: boolean       // VCR Menu - simple text list instead of cards
   hasReceiptPhoto?: boolean    // Receipt theme - dithered B&W photo
+  isPhoneHomeLayout?: boolean  // Phone Home - iOS home screen grid layout
 }
 
 export interface ThemeState {
@@ -129,6 +130,9 @@ export interface ThemeState {
   classifiedDeptText?: string        // Classified theme: department line (default 'War Department')
   classifiedCenterText?: string      // Classified theme: center line (default 'Classified Message Center')
   classifiedMessageText?: string     // Classified theme: message line (default 'Incoming Message')
+  phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 3)
+  phoneHomeShowDock?: boolean  // Phone Home theme: show dock bar (default true)
+  phoneHomeVariant?: 'default' | '8-bit'  // Phone Home theme: visual variant
   scatterMode?: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag?: boolean       // Whether visitors can drag cards on public page
   pixels?: {  // Tracking pixel configuration

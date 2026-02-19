@@ -36,6 +36,7 @@ const THEME_CATEGORIES = [
       'classified',
       'departures-board',
       'departures-board-led',
+      'phone-home',
     ] as ThemeId[],
   },
 ] as const
@@ -60,6 +61,59 @@ function ThemeMiniPreview({ theme }: { theme: ThemeConfig }) {
 
   const { colors, style } = defaults
   const isCardLayout = !theme.isListLayout
+
+  // Phone Home layout — grid of rounded app icons + dock
+  if (theme.isPhoneHomeLayout) {
+    return (
+      <div
+        className="w-full h-36 rounded-lg overflow-hidden relative"
+        style={{ backgroundColor: colors.background }}
+      >
+        {/* 3 rows of 4 icon squares */}
+        <div className="absolute inset-0 flex flex-col items-center pt-5 px-5 gap-2.5">
+          {[0, 1, 2].map((row) => (
+            <div key={row} className="flex gap-2.5 w-full justify-center">
+              {[0, 1, 2, 3].map((col) => (
+                <div
+                  key={col}
+                  className="w-[18px] h-[18px] rounded-[5px]"
+                  style={{
+                    backgroundColor: col % 2 === 0 ? colors.accent : colors.text,
+                    opacity: row === 2 && col > 1 ? 0 : 0.6,
+                  }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Dock bar */}
+        <div
+          className="absolute bottom-2 left-3 right-3 h-7 rounded-[8px] flex items-center justify-center gap-2"
+          style={{
+            backgroundColor: colors.cardBg,
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-[14px] h-[14px] rounded-[4px]"
+              style={{ backgroundColor: colors.accent, opacity: 0.7 }}
+            />
+          ))}
+        </div>
+
+        {/* Theme name */}
+        <div
+          className="absolute bottom-[38px] left-0 right-0 text-center text-[9px] truncate px-2"
+          style={{ color: colors.text, opacity: 0.4 }}
+        >
+          {theme.name}
+        </div>
+      </div>
+    )
+  }
 
   if (isCardLayout) {
     return (

@@ -107,8 +107,17 @@ export function AudioPlayer({
 }: AudioPlayerProps) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
 
-  const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : undefined
-  const currentTrackUrl = currentTrack?.audioUrl
+  const placeholderTrack: AudioTrack = {
+    id: 'placeholder',
+    title: 'TRACK TITLE',
+    artist: 'ARTIST NAME',
+    duration: 210,
+    audioUrl: '',
+    storagePath: '',
+  }
+  const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : placeholderTrack
+  const isPlaceholder = tracks.length === 0 || !currentTrack.audioUrl
+  const currentTrackUrl = currentTrack.audioUrl || undefined
 
   // Use the audio player hook (must be called before any early returns)
   const player = useAudioPlayer({
@@ -142,13 +151,8 @@ export function AudioPlayer({
     setIsMarqueeNeeded(text.scrollWidth > container.clientWidth)
   }, [currentTrackIndex])
 
-  if (tracks.length === 0) {
-    return (
-      <div className="w-full p-6 text-center text-muted-foreground">
-        <p className="text-sm">No audio uploaded yet</p>
-        {isEditing && <p className="text-xs mt-1">Upload a track to get started</p>}
-      </div>
-    )
+  if (tracks.length === 0 && !isEditing) {
+    return null
   }
 
   // Handle track switching

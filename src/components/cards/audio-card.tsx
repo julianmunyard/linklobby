@@ -27,6 +27,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'vcr-menu': 'vcr-menu',
     'classified': 'classified',
     'blinkies': 'blinkies',
+    'phone-home': 'blinkies',  // Phone home uses blinkies variant for audio widgets
     'departures-board': 'classified',  // Dark theme - use classified variant
     'departures-board-led': 'classified',
   }
@@ -42,23 +43,27 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
   }
 
   // Empty state - no tracks uploaded yet
-  if (!content.tracks || content.tracks.length === 0) {
-    return (
-      <div className="w-full p-6 text-center text-muted-foreground">
-        <p className="text-sm">No audio uploaded yet</p>
-        {isPreview && (
-          <p className="text-xs mt-1 opacity-75">
-            Upload audio tracks in the editor to get started
-          </p>
-        )}
-      </div>
-    )
+  const hasNoTracks = !content.tracks || content.tracks.length === 0
+
+  if (hasNoTracks && !isPreview) {
+    return null
   }
+
+  // In editor preview with no tracks, use a placeholder track so the card renders
+  const placeholderTrack = {
+    id: 'placeholder',
+    title: 'TRACK TITLE',
+    artist: 'ARTIST NAME',
+    duration: 210,
+    audioUrl: '',
+    storagePath: '',
+  }
+  const displayTracks = hasNoTracks ? [placeholderTrack] : content.tracks
 
   // Render AudioPlayer with all configured settings + theme variant
   return (
     <AudioPlayer
-      tracks={content.tracks}
+      tracks={displayTracks}
       albumArtUrl={content.albumArtUrl}
       showWaveform={content.showWaveform ?? true}
       looping={content.looping ?? false}

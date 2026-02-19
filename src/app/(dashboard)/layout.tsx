@@ -47,7 +47,7 @@ export default async function DashboardLayout({
             <Separator orientation="vertical" className="h-6" />
             {/* Header content will be added by individual pages or Plan 04 */}
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-hidden">
             {children}
           </main>
         </SidebarInset>

@@ -10,6 +10,7 @@ import { StaticWordArtLayout } from "./static-word-art-layout"
 import { StaticLanyardBadgeLayout } from "./static-lanyard-badge-layout"
 import { StaticClassifiedLayout } from "./static-classified-layout"
 import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
+import { StaticPhoneHomeLayout } from "./static-phone-home-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -106,6 +107,10 @@ interface PublicPageRendererProps {
   classifiedMessageText?: string
   // Social icon size
   socialIconSize?: number
+  // Phone Home theme
+  phoneHomeDock?: string[]
+  phoneHomeShowDock?: boolean
+  phoneHomeVariant?: 'default' | '8-bit'
   // Scatter mode
   scatterMode?: boolean
   visitorDrag?: boolean
@@ -163,12 +168,31 @@ export function PublicPageRenderer({
   classifiedCenterText,
   classifiedMessageText,
   socialIconSize,
+  phoneHomeDock,
+  phoneHomeShowDock,
+  phoneHomeVariant,
   scatterMode = false,
   visitorDrag = false,
   cards,
 }: PublicPageRendererProps) {
   // Check if current theme supports scatter mode
   const isScatterLayout = scatterMode && themeId && isScatterTheme(themeId)
+
+  // Phone Home theme uses iOS home screen layout
+  if (themeId === 'phone-home') {
+    return (
+      <StaticPhoneHomeLayout
+        username={username}
+        cards={cards}
+        phoneHomeDock={phoneHomeDock}
+        phoneHomeShowDock={phoneHomeShowDock}
+        phoneHomeVariant={phoneHomeVariant}
+        socialIconsJson={socialIconsJson}
+        socialIconColor={socialIconColor}
+      />
+    )
+  }
+
   // VCR Menu theme uses completely different layout
   if (themeId === 'vcr-menu') {
     // Parse social icons from JSON for VCR theme

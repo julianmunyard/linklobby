@@ -156,9 +156,9 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
   }
 
   async function handleAdd() {
-    if (!selectedPlatform || !url.trim()) return
+    if (!selectedPlatform) return
 
-    const normalizedUrl = normalizeUrl(url)
+    const normalizedUrl = url.trim() ? normalizeUrl(url) : ""
     addSocialIcon(selectedPlatform, normalizedUrl)
 
     // Auto-create social-icons card if it doesn't exist
@@ -199,7 +199,7 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {step === "select" ? "Add Social Icon" : `Add ${selectedPlatform ? SOCIAL_PLATFORMS[selectedPlatform].label : ""} Link`}
+            {step === "select" ? "Add Social Icon" : `Add ${selectedPlatform ? SOCIAL_PLATFORMS[selectedPlatform].label : ""} Icon`}
           </DialogTitle>
         </DialogHeader>
 
@@ -255,18 +255,19 @@ export function SocialIconPicker({ children }: SocialIconPickerProps) {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && url.trim()) {
+                    if (e.key === "Enter") {
                       handleAdd()
                     }
                   }}
                   autoFocus
                 />
+                <p className="text-xs text-muted-foreground">Leave blank to show icon without a link</p>
                 <div className="flex gap-2 justify-end">
                   <Button variant="outline" onClick={handleBack}>
                     <ArrowLeft className="size-4" />
                     Back
                   </Button>
-                  <Button onClick={handleAdd} disabled={!url.trim()}>
+                  <Button onClick={handleAdd}>
                     Add
                   </Button>
                 </div>

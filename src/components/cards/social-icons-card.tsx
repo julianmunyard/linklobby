@@ -45,6 +45,24 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
     <div className="w-full flex flex-wrap gap-4 justify-center py-2">
       {socialIcons.map((icon) => {
         const Icon = PLATFORM_ICONS[icon.platform]
+        const iconContent = (
+          <div style={{ width: socialIconSize, height: socialIconSize }}>
+            <Icon className="w-full h-full" />
+          </div>
+        )
+
+        if (!icon.url) {
+          return (
+            <span
+              key={icon.id}
+              className="inline-block"
+              style={{ color: iconColor, opacity: 0.7 }}
+            >
+              {iconContent}
+            </span>
+          )
+        }
+
         return (
           <a
             key={icon.id}
@@ -55,9 +73,7 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
             style={{ color: iconColor, opacity: 0.7 }}
             onClick={isPreview ? undefined : (e) => e.preventDefault()}
           >
-            <div style={{ width: socialIconSize, height: socialIconSize }}>
-              <Icon className="w-full h-full" />
-            </div>
+            {iconContent}
           </a>
         )
       })}

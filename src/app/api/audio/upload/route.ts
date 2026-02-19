@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { convertToMp3 } from '@/lib/audio/convert-to-mp3'
 
 export const runtime = 'nodejs'
+export const maxDuration = 120 // 2 minutes for large file conversion
 
 const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
 const AUDIO_BUCKET = 'card-audio'

@@ -31,9 +31,37 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
 
   // Fetch profile, page, and cards in single query
   // Using !inner join to require pages table relationship (filters out users without pages)
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select(`
+  // Try with social_icon_color first, fall back without it if column doesn't exist
+  let profile: Record<string, unknown> | null = null
+
+  const selectWithColor = `
+      username,
+      display_name,
+      bio,
+      avatar_url,
+      avatar_feather,
+      show_avatar,
+      show_title,
+      title_size,
+      show_logo,
+      logo_url,
+      logo_scale,
+      profile_layout,
+      show_social_icons,
+      social_icons,
+      header_text_color,
+      social_icon_color,
+      pages!inner (
+        id,
+        user_id,
+        is_published,
+        theme_settings,
+        created_at,
+        updated_at
+      )
+  `
+
+  const selectWithoutColor = `
       username,
       display_name,
       bio,
@@ -57,29 +85,46 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
         created_at,
         updated_at
       )
-    `)
+  `
+
+  const { data, error: profileError } = await supabase
+    .from('profiles')
+    .select(selectWithColor)
     .eq('username', username.toLowerCase())
     .eq('pages.is_published', true)
     .single()
 
-  // Return null for 404 cases (user not found, no page, or unpublished)
-  if (profileError || !profile) {
+  if (profileError?.message?.includes('social_icon_color')) {
+    // Column doesn't exist yet - retry without it
+    const { data: fallback, error: fallbackError } = await supabase
+      .from('profiles')
+      .select(selectWithoutColor)
+      .eq('username', username.toLowerCase())
+      .eq('pages.is_published', true)
+      .single()
+
+    if (fallbackError || !fallback) return null
+    profile = fallback as Record<string, unknown>
+  } else if (profileError || !data) {
     return null
+  } else {
+    profile = data as Record<string, unknown>
   }
 
   // Extract page from nested structure
-  const pageData = Array.isArray(profile.pages) ? profile.pages[0] : profile.pages
+  const pagesRaw = profile.pages as Record<string, unknown>[] | Record<string, unknown> | null
+  const pageData = Array.isArray(pagesRaw) ? pagesRaw[0] : pagesRaw
   if (!pageData) {
     return null
   }
 
   const page: Page = {
-    id: pageData.id,
-    user_id: pageData.user_id,
-    is_published: pageData.is_published,
-    theme_settings: pageData.theme_settings,
-    created_at: pageData.created_at,
-    updated_at: pageData.updated_at,
+    id: pageData.id as string,
+    user_id: pageData.user_id as string,
+    is_published: pageData.is_published as boolean,
+    theme_settings: pageData.theme_settings as Page['theme_settings'],
+    created_at: pageData.created_at as string,
+    updated_at: pageData.updated_at as string,
   }
 
   // Fetch cards separately (cleaner than nested select)
@@ -149,24 +194,24 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
 
   return {
     profile: {
-      username: profile.username,
-      display_name: profile.display_name,
-      bio: profile.bio,
-      avatar_url: profile.avatar_url,
-      avatar_feather: profile.avatar_feather ?? 0,
-      show_avatar: profile.show_avatar ?? true,
-      show_title: profile.show_title ?? true,
+      username: profile.username as string,
+      display_name: profile.display_name as string | null,
+      bio: profile.bio as string | null,
+      avatar_url: profile.avatar_url as string | null,
+      avatar_feather: (profile.avatar_feather as number) ?? 0,
+      show_avatar: (profile.show_avatar as boolean) ?? true,
+      show_title: (profile.show_title as boolean) ?? true,
       title_size: profile.title_size as 'small' | 'large',
-      show_logo: profile.show_logo ?? false,
-      logo_url: profile.logo_url,
-      logo_scale: profile.logo_scale ?? 100,
+      show_logo: (profile.show_logo as boolean) ?? false,
+      logo_url: profile.logo_url as string | null,
+      logo_scale: (profile.logo_scale as number) ?? 100,
       profile_layout: profile.profile_layout as 'classic' | 'hero',
-      show_social_icons: profile.show_social_icons ?? true,
+      show_social_icons: (profile.show_social_icons as boolean) ?? true,
       social_icons: typeof profile.social_icons === 'string'
         ? profile.social_icons
         : JSON.stringify(profile.social_icons || []),
-      header_text_color: profile.header_text_color,
-      social_icon_color: null,
+      header_text_color: profile.header_text_color as string | null,
+      social_icon_color: (profile.social_icon_color as string) ?? null,
     },
     page,
     cards,

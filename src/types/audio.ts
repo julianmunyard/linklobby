@@ -51,6 +51,7 @@ export interface AudioCardContent {
     cardBgScale?: number       // Zoom level (1 = cover, >1 = zoomed in)
     cardBgPosX?: number        // Translate X % (0 = centered)
     cardBgPosY?: number        // Translate Y % (0 = centered)
+    cardBgNone?: boolean       // User explicitly removed bg image (don't fall back to default)
   }
 }
 

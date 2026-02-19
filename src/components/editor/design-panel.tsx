@@ -15,6 +15,7 @@ import { ColorCustomizer } from './color-customizer'
 import { FontPicker } from './font-picker'
 import { StyleControls } from './style-controls'
 import { BackgroundControls } from './background-controls'
+import { TemplatePicker } from './template-picker'
 import { SocialIconsEditor } from './social-icons-editor'
 import { SocialIconPicker } from './social-icon-picker'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -33,13 +34,14 @@ const TABS = [
   { id: 'fonts', label: 'Fonts' },
   { id: 'background', label: 'Background' },
   { id: 'style', label: 'Style' },
+  { id: 'templates', label: 'Templates' },
   { id: 'header', label: 'Header' },
 ] as const
 
 type TabId = typeof TABS[number]['id']
 
 // Themes with fixed fonts where the Fonts tab should be hidden
-const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt']
+const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
 
 interface DesignPanelProps {
   initialSubTab?: string | null
@@ -196,6 +198,8 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
         {activeTab === 'background' && <BackgroundControls />}
 
         {activeTab === 'style' && <StyleControls />}
+
+        {activeTab === 'templates' && <TemplatePicker />}
 
         {activeTab === 'header' && (
           <div className="space-y-6">

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Palette, Sparkles, Image, User, Frame, Moon } from "lucide-react"
+import { useState, useCallback, useRef } from "react"
+import { Palette, Sparkles, Image, User, Frame, Moon, Pipette } from "lucide-react"
 import {
   Drawer,
   DrawerContent,
@@ -21,6 +21,7 @@ import { useProfileStore } from "@/stores/profile-store"
 import { getTheme } from "@/lib/themes"
 import { cn } from "@/lib/utils"
 import type { ProfileLayout } from "@/types/profile"
+import type { BackgroundConfig } from "@/types/theme"
 
 interface MobileQuickSettingsProps {
   onOpenFullSettings: (subTab: string) => void
@@ -512,12 +513,8 @@ export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }:
             {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Status bar color */}
-            <ColorPicker
-              label="Status Bar Color"
-              color={background.topBarColor || '#000000'}
-              onChange={(color) => setBackground({ ...background, topBarColor: color })}
-            />
+            {/* Status bar color — with image sampler */}
+            <StatusBarColorSection background={background} setBackground={setBackground} />
 
             {/* Full settings button */}
             <Button
@@ -591,5 +588,222 @@ export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }:
         </DrawerContent>
       </Drawer>
     </>
+  )
+}
+
+/* Status bar color with mobile eyedropper */
+function StatusBarColorSection({ background, setBackground }: { background: BackgroundConfig; setBackground: (bg: BackgroundConfig) => void }) {
+  const [samplerOpen, setSamplerOpen] = useState(false)
+  const [samplerReady, setSamplerReady] = useState(false)
+  const [previewColor, setPreviewColor] = useState<string | null>(null)
+  const [previewPos, setPreviewPos] = useState<{ x: number; y: number } | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const hasBgImage = (background.type === 'image' || background.type === 'video') && background.value
+
+  // Open sampler: fetch image as blob → draw to canvas (avoids CORS)
+  const openSampler = useCallback(async () => {
+    if (!background.value) return
+    setSamplerOpen(true)
+    setSamplerReady(false)
+    setPreviewColor(null)
+    setPreviewPos(null)
+
+    try {
+      const res = await fetch(background.value)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+
+      const img = new window.Image()
+      img.onload = () => {
+        const canvas = canvasRef.current
+        if (!canvas) { URL.revokeObjectURL(blobUrl); return }
+
+        // Draw at viewport size with object-cover logic so touch coords map 1:1
+        const vw = window.innerWidth
+        const vh = window.innerHeight
+        const dpr = window.devicePixelRatio || 1
+        canvas.width = vw * dpr
+        canvas.height = vh * dpr
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { URL.revokeObjectURL(blobUrl); return }
+        ctx.scale(dpr, dpr)
+
+        // Replicate CSS object-cover: scale image to cover viewport, center it
+        const imgAspect = img.naturalWidth / img.naturalHeight
+        const viewAspect = vw / vh
+        let dw: number, dh: number, dx: number, dy: number
+        if (imgAspect > viewAspect) {
+          // Image wider than viewport — match height, crop sides
+          dh = vh
+          dw = vh * imgAspect
+          dx = (vw - dw) / 2
+          dy = 0
+        } else {
+          // Image taller than viewport — match width, crop top/bottom
+          dw = vw
+          dh = vw / imgAspect
+          dx = 0
+          dy = (vh - dh) / 2
+        }
+        ctx.drawImage(img, dx, dy, dw, dh)
+
+        URL.revokeObjectURL(blobUrl)
+        setSamplerReady(true)
+      }
+      img.onerror = () => {
+        URL.revokeObjectURL(blobUrl)
+        setSamplerOpen(false)
+      }
+      img.src = blobUrl
+    } catch {
+      setSamplerOpen(false)
+    }
+  }, [background.value])
+
+  // Sample pixel directly — canvas is viewport-sized so coords map 1:1
+  const sampleAt = useCallback((clientX: number, clientY: number) => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    const dpr = window.devicePixelRatio || 1
+    const px = Math.floor(clientX * dpr)
+    const py = Math.floor(clientY * dpr)
+    if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height) return null
+    const d = ctx.getImageData(px, py, 1, 1).data
+    return `#${d[0].toString(16).padStart(2, '0')}${d[1].toString(16).padStart(2, '0')}${d[2].toString(16).padStart(2, '0')}`
+  }, [])
+
+  // Store last sampled color in a ref so touchend always has the latest
+  const lastColorRef = useRef<string | null>(null)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!samplerReady) return
+    const t = e.touches[0]
+    const color = sampleAt(t.clientX, t.clientY)
+    if (color) {
+      lastColorRef.current = color
+      setPreviewColor(color)
+      setPreviewPos({ x: t.clientX, y: t.clientY })
+    }
+  }, [samplerReady, sampleAt])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!samplerReady) return
+    e.preventDefault()
+    const t = e.touches[0]
+    const color = sampleAt(t.clientX, t.clientY)
+    if (color) {
+      lastColorRef.current = color
+      setPreviewColor(color)
+      setPreviewPos({ x: t.clientX, y: t.clientY })
+    }
+  }, [samplerReady, sampleAt])
+
+  const handleTouchEnd = useCallback(() => {
+    const color = lastColorRef.current
+    if (color) {
+      setBackground({ ...background, topBarColor: color })
+    }
+    setSamplerOpen(false)
+    setPreviewColor(null)
+    setPreviewPos(null)
+    lastColorRef.current = null
+  }, [background, setBackground])
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (!samplerReady) return
+    const color = sampleAt(e.clientX, e.clientY)
+    if (color) {
+      setBackground({ ...background, topBarColor: color })
+    }
+    setSamplerOpen(false)
+    setPreviewColor(null)
+    setPreviewPos(null)
+  }, [samplerReady, sampleAt, background, setBackground])
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <ColorPicker
+          label="Status Bar Color"
+          color={background.topBarColor || '#000000'}
+          onChange={(color) => setBackground({ ...background, topBarColor: color })}
+        />
+        {hasBgImage && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 px-2 flex-shrink-0"
+            onClick={openSampler}
+            title="Pick from background"
+          >
+            <Pipette className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <canvas ref={canvasRef} className="hidden" />
+
+      {/* Full-screen sampler overlay */}
+      {samplerOpen && (
+        <div
+          className="fixed inset-0 z-[100] touch-none"
+          style={{ cursor: 'crosshair' }}
+          onClick={handleClick}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Show the background image fullscreen so user sees what they're picking from */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={background.value}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+
+          {/* Loading indicator */}
+          {!samplerReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <span className="text-white text-sm">Loading...</span>
+            </div>
+          )}
+
+          {/* Instructions */}
+          {samplerReady && !previewColor && (
+            <div className="absolute top-12 left-0 right-0 flex justify-center pointer-events-none">
+              <span className="bg-black/70 text-white text-xs px-3 py-1.5 rounded-full">
+                Tap or drag to pick a color
+              </span>
+            </div>
+          )}
+
+          {/* Cancel button */}
+          <button
+            className="absolute top-3 right-3 bg-black/70 text-white text-xs px-3 py-1.5 rounded-full z-10"
+            onClick={(e) => { e.stopPropagation(); setSamplerOpen(false); setPreviewColor(null); setPreviewPos(null) }}
+          >
+            Cancel
+          </button>
+
+          {/* Color preview circle following touch */}
+          {previewColor && previewPos && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ left: previewPos.x - 28, top: previewPos.y - 72 }}
+            >
+              <div
+                className="w-14 h-14 rounded-full border-4 border-white shadow-lg"
+                style={{ backgroundColor: previewColor }}
+              />
+              <div className="text-[9px] text-white text-center mt-0.5 font-mono bg-black/60 rounded px-1">
+                {previewColor}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

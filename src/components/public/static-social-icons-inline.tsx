@@ -70,6 +70,25 @@ export function StaticSocialIconsInline({
         const IconComponent = PLATFORM_ICONS[icon.platform]
         if (!IconComponent) return null
 
+        const iconContent = (
+          <div style={{ width: socialIconSize, height: socialIconSize }}>
+            <IconComponent className="w-full h-full" />
+          </div>
+        )
+
+        if (!icon.url) {
+          return (
+            <span
+              key={icon.id}
+              className="text-theme-text"
+              aria-label={icon.platform}
+              style={(socialIconColor || headerTextColor) ? { color: socialIconColor || headerTextColor! } : undefined}
+            >
+              {iconContent}
+            </span>
+          )
+        }
+
         return (
           <a
             key={icon.id}
@@ -80,9 +99,7 @@ export function StaticSocialIconsInline({
             aria-label={icon.platform}
             style={(socialIconColor || headerTextColor) ? { color: socialIconColor || headerTextColor! } : undefined}
           >
-            <div style={{ width: socialIconSize, height: socialIconSize }}>
-              <IconComponent className="w-full h-full" />
-            </div>
+            {iconContent}
           </a>
         )
       })}

@@ -61,6 +61,9 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const classifiedCenterText = themeSettings?.classifiedCenterText ?? 'Classified Message Center'
   const classifiedMessageText = themeSettings?.classifiedMessageText ?? 'Incoming Message'
   const socialIconSize = themeSettings?.socialIconSize ?? 24
+  const phoneHomeDock = themeSettings?.phoneHomeDock ?? []
+  const phoneHomeShowDock = themeSettings?.phoneHomeShowDock ?? true
+  const phoneHomeVariant = (themeSettings?.phoneHomeVariant as 'default' | '8-bit' | undefined) ?? 'default'
   const scatterMode = themeSettings?.scatterMode ?? false
   const visitorDrag = themeSettings?.visitorDrag ?? false
 
@@ -125,6 +128,9 @@ export default async function PublicPage({ params }: PublicPageProps) {
         classifiedCenterText={classifiedCenterText}
         classifiedMessageText={classifiedMessageText}
         socialIconSize={socialIconSize}
+        phoneHomeDock={phoneHomeDock}
+        phoneHomeShowDock={phoneHomeShowDock}
+        phoneHomeVariant={phoneHomeVariant}
         scatterMode={scatterMode}
         visitorDrag={visitorDrag}
         cards={cards}

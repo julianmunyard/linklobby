@@ -13,6 +13,7 @@ import { lanyardBadgeTheme } from './lanyard-badge'
 import { classifiedTheme } from './classified'
 import { departuresBoardTheme } from './departures-board'
 import { departuresBoardLedTheme } from './departures-board-led'
+import { phoneHomeTheme } from './phone-home'
 
 export const THEMES: ThemeConfig[] = [
   macOsTheme,
@@ -28,9 +29,10 @@ export const THEMES: ThemeConfig[] = [
   classifiedTheme,
   departuresBoardTheme,
   departuresBoardLedTheme,
+  phoneHomeTheme,
 ]
 
-export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'blinkies', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh', 'word-art', 'lanyard-badge', 'classified', 'departures-board', 'departures-board-led']
+export const THEME_IDS: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings', 'blinkies', 'vcr-menu', 'ipod-classic', 'receipt', 'macintosh', 'word-art', 'lanyard-badge', 'classified', 'departures-board', 'departures-board-led', 'phone-home']
 
 export function getTheme(id: ThemeId): ThemeConfig | undefined {
   return THEMES.find((theme) => theme.id === id)

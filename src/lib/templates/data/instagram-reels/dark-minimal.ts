@@ -83,18 +83,8 @@ export const instagramReelsDarkMinimal: TemplateDefinition = {
       is_visible: true,
     },
 
-    // Social icons card — links to profiles
-    {
-      card_type: 'social-icons',
-      title: null,
-      description: null,
-      url: null,
-      content: {},
-      size: 'big',
-      position: 'center',
-      sortKey: 'a4',
-      is_visible: true,
-    },
+    // Social icons excluded — icon data lives in profile store,
+    // card is auto-created when user adds icons.
   ],
 
   // Theme state matching instagram-reels defaults (dark minimal palette)

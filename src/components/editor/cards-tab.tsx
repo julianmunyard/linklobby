@@ -39,6 +39,15 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
+// Phone Home theme — limited card types that make sense as app icons / widgets
+const PHONE_HOME_CARD_TYPES: { type: CardType; label: string }[] = [
+  { type: "link", label: "Icon" },
+  { type: "audio", label: "Audio Player" },
+  { type: "music", label: "Music Card" },
+  { type: "gallery", label: "Photo Gallery" },
+  { type: "social-icons", label: "Social Icons" },
+]
+
 type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
 
 const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
@@ -240,6 +249,16 @@ export function CardsTab() {
                     Audio Player
                   </DropdownMenuItem>
                 </>
+              ) : themeId === 'phone-home' ? (
+                PHONE_HOME_CARD_TYPES.map(({ type, label }) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleAddCard(type)}
+                    className="min-h-11"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))
               ) : (
                 CARD_TYPES.map(({ type, label, singleton }) => {
                   const alreadyExists = singleton && cards.some(c => c.card_type === type)
