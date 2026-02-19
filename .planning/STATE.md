@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.2 of 18 - Theme Templates
 Plan: 3 of 4 - Complete
 Status: **Phase 12.2 In Progress - Template apply API route complete**
-Last activity: 2026-02-19 - Completed 12.2-03: POST /api/templates/apply with asset upload and card batch insert
+Last activity: 2026-02-20 - Completed quick task 070: Chaotic Zine theme
 
 Progress: [████████████████████████████░░░░] ~77%
 
@@ -730,6 +730,12 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | fetchUserPage() + getUser() dual auth | 12.2-03 | fetchUserPage gives pageId, getUser gives userId for user-scoped storage paths |
 | User-scoped template asset paths: {userId}/{uuid}.{ext} | 12.2-03 | Each user gets their own copy of template assets in storage, not shared paths |
 | POSITION_REVERSE map for response | 12.2-03 | Converts DB position_x integer back to HorizontalPosition string for Card type |
+| 6 zine fonts via Google Fonts | quick-070 | Permanent Marker, Special Elite, Abril Fatface, Bangers, Rock Salt, Courier Prime — loaded on-demand |
+| nth-child cycling for ransom-note title | quick-070 | Characters styled by index % 5 cycling through font/bg/rotation combos matching exact CSS nth-child rules |
+| 4 torn-paper clip-path variants | quick-070 | Cards cycle through 4 irregular polygon clip-paths with alternating dark/light backgrounds |
+| Grayscale + tape profile photo | quick-070 | grayscale(100%) contrast(120%) filter with semi-transparent tape overlay element |
+| Chaotic Zine uses classified audio variant | quick-070 | Dark-ink theme maps to classified audio player variant |
+| isListLayout for Chaotic Zine | quick-070 | Custom layout replaces standard flow grid — same pattern as classified/receipt/departures-board |
 
 ## Quick Tasks
 
@@ -800,6 +806,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 066 | Blinkies audio mobile drawer three-tab layout | Complete | 71ba66b |
 | 067 | Poolsuite audio player for all standard themes | Complete | d1ee11d |
 | 069 | Fix music card link paste — loose detection + link fallback | Complete | c58b996, 442123c, 78c1e48 |
+| 070 | Chaotic Zine theme — ransom-note title, torn paper cards, tape photo | Complete | 4126ce1, 874c857, b1b77e4 |
 | 070 | Chaotic Zine theme with ransom-note title and torn paper | Complete | 4126ce1, 874c857, b1b77e4 |
 
 ## Phase 10 Progress (IN PROGRESS)
