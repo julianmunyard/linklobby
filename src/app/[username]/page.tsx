@@ -64,6 +64,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const phoneHomeDock = themeSettings?.phoneHomeDock ?? []
   const phoneHomeShowDock = themeSettings?.phoneHomeShowDock ?? true
   const phoneHomeVariant = (themeSettings?.phoneHomeVariant as 'default' | '8-bit' | undefined) ?? 'default'
+  const zineBadgeText = themeSettings?.zineBadgeText ?? 'NEW!'
+  const zineTitleSize = themeSettings?.zineTitleSize ?? 1.0
   const scatterMode = themeSettings?.scatterMode ?? false
   const visitorDrag = themeSettings?.visitorDrag ?? false
 
@@ -131,6 +133,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
         phoneHomeDock={phoneHomeDock}
         phoneHomeShowDock={phoneHomeShowDock}
         phoneHomeVariant={phoneHomeVariant}
+        zineBadgeText={zineBadgeText}
+        zineTitleSize={zineTitleSize}
         scatterMode={scatterMode}
         visitorDrag={visitorDrag}
         cards={cards}

@@ -54,8 +54,9 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
 /**
  * Get character style based on nth-child cycling from the original design.
  */
-function getCharStyle(index: number): React.CSSProperties {
+function getCharStyle(index: number, sizeMultiplier: number = 1.0): React.CSSProperties {
   const n = index + 1
+  const s = sizeMultiplier
 
   let style: React.CSSProperties = {
     display: 'inline-block',
@@ -70,7 +71,7 @@ function getCharStyle(index: number): React.CSSProperties {
     style = {
       ...style,
       fontFamily: 'var(--font-abril-fatface)',
-      fontSize: '2.5rem',
+      fontSize: `${2.5 * s}rem`,
       background: 'var(--theme-text)',
       color: 'var(--theme-background)',
       transform: 'rotate(3deg)',
@@ -81,7 +82,7 @@ function getCharStyle(index: number): React.CSSProperties {
     style = {
       ...style,
       fontFamily: 'var(--font-permanent-marker)',
-      fontSize: '3rem',
+      fontSize: `${3 * s}rem`,
       color: 'var(--theme-text)',
       transform: 'rotate(-2deg) translateY(5px)',
     }
@@ -91,7 +92,7 @@ function getCharStyle(index: number): React.CSSProperties {
     style = {
       ...style,
       fontFamily: 'var(--font-bangers)',
-      fontSize: '3.5rem',
+      fontSize: `${3.5 * s}rem`,
       border: '3px solid var(--theme-text)',
       background: 'transparent',
       color: 'var(--theme-text)',
@@ -118,7 +119,7 @@ function getCharStyle(index: number): React.CSSProperties {
       borderBottom: '4px solid var(--theme-text)',
       background: 'transparent',
       color: 'var(--theme-text)',
-      fontSize: '2rem',
+      fontSize: `${2 * s}rem`,
       transform: 'rotate(0deg)',
       clipPath: undefined,
       border: 'none',
@@ -164,6 +165,8 @@ interface StaticChaoticZineLayoutProps {
   avatarUrl?: string | null
   showAvatar?: boolean
   bio?: string | null
+  zineBadgeText?: string
+  zineTitleSize?: number
 }
 
 export function StaticChaoticZineLayout({
@@ -177,6 +180,8 @@ export function StaticChaoticZineLayout({
   avatarUrl,
   showAvatar = true,
   bio,
+  zineBadgeText = 'NEW!',
+  zineTitleSize = 1.0,
 }: StaticChaoticZineLayoutProps) {
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
@@ -265,7 +270,7 @@ export function StaticChaoticZineLayout({
               return (
                 <span
                   key={index}
-                  style={getCharStyle(index)}
+                  style={getCharStyle(index, zineTitleSize)}
                 >
                   {char}
                 </span>
@@ -406,12 +411,12 @@ export function StaticChaoticZineLayout({
                 <span style={{ position: 'relative', zIndex: 1, color: isDark ? 'var(--theme-background)' : 'var(--theme-text)' }}>
                   {displayText}
                 </span>
-                {index === 0 && (
+                {index === 0 && zineBadgeText && (
                   <span
                     className="zine-badge"
                     style={{ position: 'absolute', top: '-10px', right: '-10px', padding: '0.2rem 0.5rem', fontSize: '1rem', zIndex: 10 }}
                   >
-                    NEW!
+                    {zineBadgeText}
                   </span>
                 )}
               </>

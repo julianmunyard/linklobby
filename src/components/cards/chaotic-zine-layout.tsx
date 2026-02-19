@@ -67,11 +67,10 @@ const ZINE_FONTS = [
  * Get character style based on nth-child cycling from the original design.
  * Faithfully reproduces the CSS nth-child rules from the user's HTML/CSS.
  */
-function getCharStyle(index: number): React.CSSProperties {
-  const n = index + 1 // 1-based for nth-child matching
+function getCharStyle(index: number, sizeMultiplier: number = 1.0): React.CSSProperties {
+  const n = index + 1
+  const s = sizeMultiplier
 
-  // Apply in reverse priority order (later rules override)
-  // Base style for all characters
   let style: React.CSSProperties = {
     display: 'inline-block',
     padding: '2px 6px',
@@ -81,35 +80,32 @@ function getCharStyle(index: number): React.CSSProperties {
     color: 'var(--theme-text)',
   }
 
-  // nth-child(2n) - even characters: dark bg, light text, fat font
   if (n % 2 === 0) {
     style = {
       ...style,
       fontFamily: 'var(--font-abril-fatface)',
-      fontSize: '2.5rem',
+      fontSize: `${2.5 * s}rem`,
       background: 'var(--theme-text)',
       color: 'var(--theme-background)',
       transform: 'rotate(3deg)',
     }
   }
 
-  // nth-child(2n+1) - odd characters: marker font, no bg, ink color
   if (n % 2 === 1) {
     style = {
       ...style,
       fontFamily: 'var(--font-permanent-marker)',
-      fontSize: '3rem',
+      fontSize: `${3 * s}rem`,
       color: 'var(--theme-text)',
       transform: 'rotate(-2deg) translateY(5px)',
     }
   }
 
-  // nth-child(3n) - every 3rd (overrides above)
   if (n % 3 === 0) {
     style = {
       ...style,
       fontFamily: 'var(--font-bangers)',
-      fontSize: '3.5rem',
+      fontSize: `${3.5 * s}rem`,
       border: '3px solid var(--theme-text)',
       background: 'transparent',
       color: 'var(--theme-text)',
@@ -117,7 +113,6 @@ function getCharStyle(index: number): React.CSSProperties {
     }
   }
 
-  // nth-child(4n) - every 4th (overrides above)
   if (n % 4 === 0) {
     style = {
       ...style,
@@ -130,7 +125,6 @@ function getCharStyle(index: number): React.CSSProperties {
     }
   }
 
-  // nth-child(5n) - every 5th (overrides above)
   if (n % 5 === 0) {
     style = {
       ...style,
@@ -138,7 +132,7 @@ function getCharStyle(index: number): React.CSSProperties {
       borderBottom: '4px solid var(--theme-text)',
       background: 'transparent',
       color: 'var(--theme-text)',
-      fontSize: '2rem',
+      fontSize: `${2 * s}rem`,
       transform: 'rotate(0deg)',
       clipPath: undefined,
       border: 'none',
@@ -207,6 +201,8 @@ export function ChaoticZineLayout({
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
+  const zineBadgeText = useThemeStore((s) => s.zineBadgeText)
+  const zineTitleSize = useThemeStore((s) => s.zineTitleSize)
 
   // Profile data
   const displayName = useProfileStore((s) => s.displayName)
@@ -307,7 +303,7 @@ export function ChaoticZineLayout({
               return (
                 <span
                   key={index}
-                  style={getCharStyle(index)}
+                  style={getCharStyle(index, zineTitleSize)}
                 >
                   {char}
                 </span>
@@ -475,13 +471,13 @@ export function ChaoticZineLayout({
                 <span style={{ position: 'relative', zIndex: 1, color: isDark ? 'var(--theme-background)' : 'var(--theme-text)' }}>
                   {displayText}
                 </span>
-                {/* NEW! badge on first card */}
-                {index === 0 && (
+                {/* Badge on first card */}
+                {index === 0 && zineBadgeText && (
                   <span
                     className="zine-badge"
                     style={{ position: 'absolute', top: '-10px', right: '-10px', padding: '0.2rem 0.5rem', fontSize: '1rem', zIndex: 10 }}
                   >
-                    NEW!
+                    {zineBadgeText}
                   </span>
                 )}
               </div>

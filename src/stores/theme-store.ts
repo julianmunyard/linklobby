@@ -48,6 +48,8 @@ interface ThemeStore extends ThemeState {
   phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 3)
   phoneHomeShowDock: boolean // Phone Home theme: show dock bar
   phoneHomeVariant: 'default' | '8-bit' // Phone Home theme: visual variant
+  zineBadgeText: string        // Chaotic Zine theme: badge text on first card
+  zineTitleSize: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
   scatterMode: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag: boolean       // Whether visitors can drag cards on public page
   hasChanges: boolean     // Track if theme has unsaved changes
@@ -86,6 +88,8 @@ interface ThemeStore extends ThemeState {
   removeFromDock: (cardId: string) => void
   setPhoneHomeShowDock: (show: boolean) => void
   setPhoneHomeVariant: (variant: 'default' | '8-bit') => void
+  setZineBadgeText: (text: string) => void
+  setZineTitleSize: (size: number) => void
   setScatterMode: (enabled: boolean) => void
   setVisitorDrag: (enabled: boolean) => void
   resetToThemeDefaults: () => void
@@ -165,6 +169,8 @@ export const useThemeStore = create<ThemeStore>()(
       phoneHomeDock: [],
       phoneHomeShowDock: true,
       phoneHomeVariant: 'default',
+      zineBadgeText: 'NEW!',
+      zineTitleSize: 1.0,
       scatterMode: false,
       visitorDrag: false,
       hasChanges: false,
@@ -427,6 +433,14 @@ export const useThemeStore = create<ThemeStore>()(
         set({ phoneHomeVariant: variant, hasChanges: true })
       },
 
+      setZineBadgeText: (text: string) => {
+        set({ zineBadgeText: text, hasChanges: true })
+      },
+
+      setZineTitleSize: (size: number) => {
+        set({ zineTitleSize: size, hasChanges: true })
+      },
+
       setScatterMode: (enabled: boolean) => {
         set((state) => ({
           scatterMode: enabled,
@@ -498,6 +512,8 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeDock: theme.phoneHomeDock ?? [],
           phoneHomeShowDock: theme.phoneHomeShowDock ?? true,
           phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
+          zineBadgeText: theme.zineBadgeText ?? 'NEW!',
+          zineTitleSize: theme.zineTitleSize ?? 1.0,
           scatterMode: theme.scatterMode ?? false,
           visitorDrag: theme.visitorDrag ?? false,
           hasChanges: false,
@@ -534,6 +550,8 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeDock: state.phoneHomeDock,
           phoneHomeShowDock: state.phoneHomeShowDock,
           phoneHomeVariant: state.phoneHomeVariant,
+          zineBadgeText: state.zineBadgeText,
+          zineTitleSize: state.zineTitleSize,
           scatterMode: state.scatterMode,
           visitorDrag: state.visitorDrag,
         }

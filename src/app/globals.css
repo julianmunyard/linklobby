@@ -1591,12 +1591,23 @@ html, body {
 .zine-card-dark {
   background: var(--theme-text);
   color: var(--theme-background);
+  border: 3px solid var(--theme-text);
+  transition: all 0.2s ease;
+}
+
+.zine-card-dark:hover {
+  background: var(--theme-background);
+  color: var(--theme-text);
 }
 
 .zine-card-light {
-  background: var(--theme-background);
+  background: #fff;
   color: var(--theme-text);
   border: 3px solid var(--theme-text);
+}
+
+.zine-card-light:hover {
+  background: var(--theme-background);
 }
 
 /* Card clip-path variants (cycle through these 4) */

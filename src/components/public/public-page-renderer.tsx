@@ -112,6 +112,9 @@ interface PublicPageRendererProps {
   phoneHomeDock?: string[]
   phoneHomeShowDock?: boolean
   phoneHomeVariant?: 'default' | '8-bit'
+  // Chaotic Zine theme
+  zineBadgeText?: string
+  zineTitleSize?: number
   // Scatter mode
   scatterMode?: boolean
   visitorDrag?: boolean
@@ -172,6 +175,8 @@ export function PublicPageRenderer({
   phoneHomeDock,
   phoneHomeShowDock,
   phoneHomeVariant,
+  zineBadgeText,
+  zineTitleSize,
   scatterMode = false,
   visitorDrag = false,
   cards,
@@ -339,6 +344,8 @@ export function PublicPageRenderer({
         avatarUrl={avatarUrl}
         showAvatar={showAvatar}
         bio={bio}
+        zineBadgeText={zineBadgeText}
+        zineTitleSize={zineTitleSize}
       />
     )
   }
