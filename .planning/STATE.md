@@ -10,21 +10,21 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.2 of 18 - Theme Templates
-Plan: 2 of 4 - Complete
-Status: **Phase 12.2 In Progress - Dev template snapshot tool operational**
-Last activity: 2026-02-19 - Completed 12.2-02: DevTemplateSaver component + editor header integration
+Plan: 3 of 4 - Complete
+Status: **Phase 12.2 In Progress - Template apply API route complete**
+Last activity: 2026-02-19 - Completed 12.2-03: POST /api/templates/apply with asset upload and card batch insert
 
-Progress: [████████████████████████████░░░░] ~76%
+Progress: [████████████████████████████░░░░] ~77%
 
 ### IN PROGRESS: Phase 12.2 - Theme Templates
 
 Building a template library that lets artists apply pre-built page layouts:
 - ✓ Plan 01: Template type system, registry, and first instagram-reels placeholder template
 - ✓ Plan 02: Dev Template Saver (NEXT_PUBLIC_DEV_TOOLS-gated snapshot button in editor header)
-- Plan 03: Template picker UI in the editor
-- Plan 04: Template apply API route (replaces cards, theme, profile)
+- ✓ Plan 03: POST /api/templates/apply — uploads media assets to user Supabase storage, replaces all 3 content path shapes (imageUrl, tracks[], images[]), batch-inserts cards, returns theme + profile for client hydration
+- Plan 04: Template picker UI in the editor
 
-**Current status:** Type system established, dev content pipeline operational. DevTemplateSaver button in editor header — set NEXT_PUBLIC_DEV_TOOLS=true to design templates in editor and capture as JSON. Theme sourced from useThemeStore (not stale pageStore.theme). Ready for template picker UI (Plan 03).
+**Current status:** Apply API route operational. POST `{ templateId, mode }` -> `{ cards, theme, profile, templateName }`. Template picker UI (Plan 04) is the final piece to connect the template library to the editor.
 
 ### IN PROGRESS (PAUSED): Phase 12.1 - Scatter Mode
 
@@ -725,6 +725,11 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | themeId string not ThemeId union | 12.2-01 | Forward-compatible — new themes don't require updating all template type references |
 | mediaAssets relative filenames | 12.2-01 | Apply route prefixes with template.id — keeps template definitions path-agnostic |
 | Template data at src/lib/templates/data/{theme-id}/ | 12.2-01 | One file per template, named export pattern — easy to add templates per theme |
+| Template apply is Node.js runtime (not Edge) | 12.2-03 | Needs fs.readFileSync to read template asset files from disk |
+| Non-fatal asset upload failures | 12.2-03 | Missing/failed assets log warn and skip — card inserts still proceed, missing image beats failed apply |
+| fetchUserPage() + getUser() dual auth | 12.2-03 | fetchUserPage gives pageId, getUser gives userId for user-scoped storage paths |
+| User-scoped template asset paths: {userId}/{uuid}.{ext} | 12.2-03 | Each user gets their own copy of template assets in storage, not shared paths |
+| POSITION_REVERSE map for response | 12.2-03 | Converts DB position_x integer back to HorizontalPosition string for Card type |
 
 ## Quick Tasks
 
