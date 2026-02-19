@@ -800,6 +800,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 066 | Blinkies audio mobile drawer three-tab layout | Complete | 71ba66b |
 | 067 | Poolsuite audio player for all standard themes | Complete | d1ee11d |
 | 069 | Fix music card link paste — loose detection + link fallback | Complete | c58b996, 442123c, 78c1e48 |
+| 070 | Chaotic Zine theme with ransom-note title and torn paper | Complete | 4126ce1, 874c857, b1b77e4 |
 
 ## Phase 10 Progress (IN PROGRESS)
 
