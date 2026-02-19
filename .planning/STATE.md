@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.2 of 18 - Theme Templates
-Plan: 1 of 4 - Complete
-Status: **Phase 12.2 In Progress - Template type system and registry established**
-Last activity: 2026-02-19 - Completed 12.2-01: Template type definitions, registry, first instagram-reels template
+Plan: 2 of 4 - Complete
+Status: **Phase 12.2 In Progress - Dev template snapshot tool operational**
+Last activity: 2026-02-19 - Completed 12.2-02: DevTemplateSaver component + editor header integration
 
 Progress: [████████████████████████████░░░░] ~76%
 
@@ -20,11 +20,11 @@ Progress: [███████████████████████
 
 Building a template library that lets artists apply pre-built page layouts:
 - ✓ Plan 01: Template type system, registry, and first instagram-reels placeholder template
-- Plan 02: Template picker UI in the editor
-- Plan 03: Template apply API route (replaces cards, theme, profile)
-- Plan 04: Additional templates for other themes
+- ✓ Plan 02: Dev Template Saver (NEXT_PUBLIC_DEV_TOOLS-gated snapshot button in editor header)
+- Plan 03: Template picker UI in the editor
+- Plan 04: Template apply API route (replaces cards, theme, profile)
 
-**Current status:** Template type system fully established. TemplateDefinition, TemplateCard, TemplateTheme, TemplateProfile types defined. Registry with getTemplatesByTheme/getTemplate helpers. One instagram-reels dark-minimal template with 5 realistic cards and valid JPEG assets.
+**Current status:** Type system established, dev content pipeline operational. DevTemplateSaver button in editor header — set NEXT_PUBLIC_DEV_TOOLS=true to design templates in editor and capture as JSON. Theme sourced from useThemeStore (not stale pageStore.theme). Ready for template picker UI (Plan 03).
 
 ### IN PROGRESS (PAUSED): Phase 12.1 - Scatter Mode
 
@@ -718,6 +718,8 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | generic-music in MusicPlatform not EmbedPlatform | quick-069 | Fallback display type, not an embeddable platform — keeps EmbedPlatform clean |
 | embeddable flag backward compat | quick-069 | embeddable:undefined treated as true — existing iframe cards unaffected |
 | MusicLinkFallback for all non-iframe states | quick-069 | Single fallback component for embeddable:false AND iframe load errors |
+| DevTemplateSaver in dashboard-header.tsx not editor-header.tsx | 12.2-02 | editor-header.tsx didn't exist; dashboard-header.tsx IS the rendered editor header; created editor-header.tsx as barrel re-export |
+| NEXT_PUBLIC_DEV_TOOLS gate via process.env check | 12.2-02 | Component returns null at top of render if env not set — self-gating, zero impact on production |
 | TemplateTheme omits pixels | 12.2-01 | Tracking pixel config (Facebook, GA4) is user-specific — never cloned from templates into another user's page |
 | TemplateProfile omits avatarUrl/logoUrl | 12.2-01 | Profile photos always user-supplied — templates only suggest display toggles and colors |
 | themeId string not ThemeId union | 12.2-01 | Forward-compatible — new themes don't require updating all template type references |
@@ -871,14 +873,14 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Last activity: 2026-02-18 - Completed quick task 069: Fix music card link paste
-Stopped at: Quick task 069 complete
+Last session: 2026-02-19
+Last activity: 2026-02-19 - Completed 12.2-02: DevTemplateSaver + editor header integration
+Stopped at: 12.2-02 plan complete
 Resume file: None
 
-**Phase 12.1 In Progress:** Plans 01-04 complete (scatter foundation, canvas/card components, UI controls, public scatter mode). Ready for Plan 05 (scatter persistence).
+**Phase 12.2 In Progress:** Plans 01-02 complete. Template type system + dev snapshot tool ready. Need Plan 03 (template picker UI) next.
 
-**Next step:** Execute Phase 12.1 Plan 05 - Scatter Persistence
+**Next step:** Execute Phase 12.2 Plan 03 - Template Picker UI
 
 **This session's work (2026-02-03):**
 
