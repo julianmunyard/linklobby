@@ -102,6 +102,7 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             'macintosh': 'macintosh',
             'ipod-classic': 'ipod-classic',
             'instagram-reels': 'instagram-reels',
+            'chaotic-zine': 'classified',
           }
           const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 

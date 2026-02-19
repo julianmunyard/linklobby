@@ -24,6 +24,11 @@ import {
   Courier_Prime,
   // Classified theme
   Special_Elite,
+  // Chaotic Zine theme
+  Permanent_Marker,
+  Abril_Fatface,
+  Bangers,
+  Rock_Salt,
 } from 'next/font/google'
 import localFont from 'next/font/local'
 
@@ -152,6 +157,35 @@ export const specialElite = Special_Elite({
   subsets: ['latin'],
   weight: ['400'],
   variable: '--font-special-elite',
+  display: 'swap',
+})
+
+// Chaotic Zine theme fonts
+export const permanentMarker = Permanent_Marker({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-permanent-marker',
+  display: 'swap',
+})
+
+export const abrilFatface = Abril_Fatface({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-abril-fatface',
+  display: 'swap',
+})
+
+export const bangers = Bangers({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-bangers',
+  display: 'swap',
+})
+
+export const rockSalt = Rock_Salt({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-rock-salt',
   display: 'swap',
 })
 
@@ -293,6 +327,11 @@ export const fontVariables = [
   // Departures Board fonts
   auxMono.variable,
   ledDotMatrix.variable,
+  // Chaotic Zine fonts
+  permanentMarker.variable,
+  abrilFatface.variable,
+  bangers.variable,
+  rockSalt.variable,
 ].join(' ')
 
 // Font registry for UI font picker
@@ -335,6 +374,11 @@ export const CURATED_FONTS = [
   { id: 'special-elite', name: 'Special Elite', variable: 'var(--font-special-elite)', category: 'retro' as const },
   { id: 'aux-mono', name: 'Aux Mono', variable: 'var(--font-aux-mono)', category: 'retro' as const },
   { id: 'led-dot-matrix', name: 'LED Dot Matrix', variable: 'var(--font-led-dot-matrix)', category: 'retro' as const },
+  // Chaotic Zine fonts
+  { id: 'permanent-marker', name: 'Permanent Marker', variable: 'var(--font-permanent-marker)', category: 'display' as const },
+  { id: 'abril-fatface', name: 'Abril Fatface', variable: 'var(--font-abril-fatface)', category: 'display' as const },
+  { id: 'bangers', name: 'Bangers', variable: 'var(--font-bangers)', category: 'display' as const },
+  { id: 'rock-salt', name: 'Rock Salt', variable: 'var(--font-rock-salt)', category: 'display' as const },
 ] as const
 
 export type FontId = typeof CURATED_FONTS[number]['id']
@@ -380,6 +424,10 @@ export const FONT_FAMILY_MAP: Record<string, string> = {
   'var(--font-special-elite)': specialElite.style.fontFamily,
   'var(--font-aux-mono)': auxMono.style.fontFamily,
   'var(--font-led-dot-matrix)': ledDotMatrix.style.fontFamily,
+  'var(--font-permanent-marker)': permanentMarker.style.fontFamily,
+  'var(--font-abril-fatface)': abrilFatface.style.fontFamily,
+  'var(--font-bangers)': bangers.style.fontFamily,
+  'var(--font-rock-salt)': rockSalt.style.fontFamily,
 }
 
 /** Resolve a font variable reference to its actual font-family value */

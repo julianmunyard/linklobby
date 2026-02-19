@@ -37,6 +37,7 @@ const THEME_CATEGORIES = [
       'departures-board',
       'departures-board-led',
       'phone-home',
+      'chaotic-zine',
     ] as ThemeId[],
   },
 ] as const
