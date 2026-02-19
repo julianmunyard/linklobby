@@ -11,6 +11,7 @@ import { StaticLanyardBadgeLayout } from "./static-lanyard-badge-layout"
 import { StaticClassifiedLayout } from "./static-classified-layout"
 import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
 import { StaticPhoneHomeLayout } from "./static-phone-home-layout"
+import { StaticChaoticZineLayout } from "./static-chaotic-zine-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -319,6 +320,25 @@ export function PublicPageRenderer({
         classifiedDeptText={classifiedDeptText}
         classifiedCenterText={classifiedCenterText}
         classifiedMessageText={classifiedMessageText}
+      />
+    )
+  }
+
+  // Chaotic Zine theme uses ransom-note/cut-and-paste layout
+  if (themeId === 'chaotic-zine') {
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+    return (
+      <StaticChaoticZineLayout
+        username={username}
+        title={displayName || 'ZINE'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        socialIcons={socialIcons}
+        showSocialIcons={showSocialIcons}
+        avatarUrl={avatarUrl}
+        showAvatar={showAvatar}
+        bio={bio}
       />
     )
   }
