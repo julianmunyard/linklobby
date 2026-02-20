@@ -61,12 +61,12 @@ export const artifactTheme: ThemeConfig = {
       id: 'monochrome',
       name: 'Monochrome',
       colors: {
-        background: '#080808',
-        cardBg: '#1a1a1a',      // near black
-        text: '#e8e8e8',        // near white
+        background: '#000000',
+        cardBg: '#000000',      // black
+        text: '#ffffff',        // white
         accent: '#ffffff',      // white
-        border: '#555555',      // mid grey
-        link: '#333333',        // dark grey
+        border: '#000000',      // black
+        link: '#ffffff',        // white
       },
     },
 
