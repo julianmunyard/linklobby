@@ -125,6 +125,28 @@ export function HeaderSection() {
       avatarInputRef.current.value = ""
     }
 
+    // GIF files: skip cropper to preserve animation, upload directly
+    if (file.type === 'image/gif') {
+      setIsUploading(true)
+      setImageType("avatar")
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setUploadError("Not authenticated. Please sign in again.")
+          return
+        }
+        const result = await uploadProfileImage(file, user.id, "avatar")
+        setAvatarUrl(result.url)
+      } catch (error) {
+        console.error("Failed to upload GIF:", error)
+        setUploadError("Failed to upload GIF. Please try again.")
+      } finally {
+        setIsUploading(false)
+      }
+      return
+    }
+
     // Convert HEIC to JPEG if needed
     let fileToUse: Blob = file
     const isHeic = isHeicFile(file)
@@ -264,22 +286,20 @@ export function HeaderSection() {
           />
         }
       >
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarUrl}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-6 w-6 text-muted-foreground" />
-              )}
-            </div>
+        <div className="space-y-3">
+          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="h-6 w-6 text-muted-foreground" />
+            )}
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -295,13 +315,13 @@ export function HeaderSection() {
             </Button>
             {avatarUrl && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => setAvatarUrl(null)}
-                className="text-destructive hover:text-destructive"
+                className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
                 <X className="h-4 w-4 mr-2" />
-                Remove
+                Delete
               </Button>
             )}
           </div>
@@ -409,7 +429,7 @@ export function HeaderSection() {
           />
         }
       >
-        <div className="flex items-center gap-3">
+        <div className="space-y-3">
           {logoUrl && (
             <div className="h-12 max-w-[120px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -420,7 +440,7 @@ export function HeaderSection() {
               />
             </div>
           )}
-          <div className="flex flex-col gap-1">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -436,13 +456,13 @@ export function HeaderSection() {
             </Button>
             {logoUrl && (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => setLogoUrl(null)}
-                className="text-destructive hover:text-destructive"
+                className="border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
                 <X className="h-4 w-4 mr-2" />
-                Remove
+                Delete
               </Button>
             )}
           </div>

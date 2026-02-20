@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Camera, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,10 @@ export function DevTemplateSaver() {
     return null
   }
 
+  // Render Dialog client-side only to avoid Radix ID hydration mismatch
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
@@ -53,9 +57,8 @@ export function DevTemplateSaver() {
       const profileSnapshot = useProfileStore.getState().getSnapshot()
 
       // Filter out card types that don't belong in templates:
-      // - social-icons: icon data lives in profile store, card is auto-created
       // - email-collection: user-specific, not template content
-      const EXCLUDED_CARD_TYPES = ['social-icons', 'email-collection']
+      const EXCLUDED_CARD_TYPES = ['email-collection']
 
       // Strip DB-specific fields from cards
       const cards = pageSnapshot.cards
@@ -95,14 +98,21 @@ export function DevTemplateSaver() {
         // IMPORTANT: theme from useThemeStore (live editor state), NOT pageStore
         theme: themeCopy,
         profile: {
-          profileLayout: profileSnapshot.profileLayout,
+          displayName: profileSnapshot.displayName,
+          bio: profileSnapshot.bio,
+          avatarUrl: profileSnapshot.avatarUrl,
+          avatarFeather: profileSnapshot.avatarFeather,
           showAvatar: profileSnapshot.showAvatar,
           showTitle: profileSnapshot.showTitle,
           titleSize: profileSnapshot.titleSize,
           showSocialIcons: profileSnapshot.showSocialIcons,
           showLogo: profileSnapshot.showLogo,
+          logoUrl: profileSnapshot.logoUrl,
+          logoScale: profileSnapshot.logoScale,
+          profileLayout: profileSnapshot.profileLayout,
           headerTextColor: profileSnapshot.headerTextColor,
           socialIconColor: profileSnapshot.socialIconColor,
+          socialIcons: profileSnapshot.socialIcons,
         },
         mediaAssets,
       }
@@ -136,6 +146,8 @@ export function DevTemplateSaver() {
       setSaving(false)
     }
   }
+
+  if (!mounted) return null
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

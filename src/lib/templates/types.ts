@@ -22,19 +22,28 @@ export type TemplateCard = Omit<Card, 'id' | 'page_id' | 'created_at' | 'updated
 export type TemplateTheme = Omit<ThemeState, 'pixels'>
 
 /**
- * TemplateProfile — Profile display settings that a template can suggest.
- * Never includes avatarUrl or logoUrl — profile photos are always user-supplied.
+ * TemplateProfile — Full profile state a template can set.
+ * Includes display name, bio, avatar, logo, social icons — everything
+ * needed to fully reproduce the demo page. User-specific data (like
+ * avatar/logo URLs) point to template assets that get re-uploaded on apply.
  */
 export type TemplateProfile = Partial<Pick<
   Profile,
   | 'profileLayout'
+  | 'displayName'
+  | 'bio'
+  | 'avatarUrl'
+  | 'avatarFeather'
   | 'showAvatar'
   | 'showTitle'
   | 'titleSize'
   | 'showSocialIcons'
   | 'showLogo'
+  | 'logoUrl'
+  | 'logoScale'
   | 'headerTextColor'
   | 'socialIconColor'
+  | 'socialIcons'
 >>
 
 /**

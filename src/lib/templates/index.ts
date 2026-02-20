@@ -3,13 +3,25 @@
 
 import type { TemplateDefinition } from './types'
 import type { ThemeId } from '@/types/theme'
-import { instagramReelsDarkMinimal } from './data/instagram-reels/dark-minimal'
-
 import { phoneHomeMclovinsIphone } from './data/phone-home/mclovins-iphone'
 
+import { chaoticZineOG } from './data/chaotic-zine/o-g'
+
+import { instagramReelsCards } from './data/instagram-reels/cards'
+
+import { instagramReelsYellowBrown } from './data/instagram-reels/yellow-brown'
+
+import { instagramReelsRedAndBlueHero } from './data/instagram-reels/red-and-blue-hero'
+
+import { instagramReelsCdeez } from './data/instagram-reels/cdeez'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
-  instagramReelsDarkMinimal,
   phoneHomeMclovinsIphone,
+  chaoticZineOG,
+  instagramReelsCards,
+  instagramReelsYellowBrown,
+  instagramReelsRedAndBlueHero,
+  instagramReelsCdeez,
 ]
 
 /**

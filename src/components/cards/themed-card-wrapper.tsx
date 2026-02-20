@@ -44,6 +44,19 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
     )
   }
 
+  // Music cards: no border, no background — the iframe provides its own chrome.
+  // Keep border-radius + overflow-hidden so iframe corners get clipped cleanly.
+  if (cardType === 'music') {
+    return (
+      <div
+        className={cn("overflow-hidden", className)}
+        style={{ borderRadius: 'var(--theme-border-radius)' }}
+      >
+        {children}
+      </div>
+    )
+  }
+
   // Audio cards on all poolsuite themes get SystemSettingsCard for GIF/color support
   // Each theme keeps its own title bar style (traffic lights for mac-os, × for system-settings, none for instagram)
   if (cardType === 'audio' && (themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'system-settings' || themeId === 'blinkies')) {
@@ -111,7 +124,6 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
 
     case 'instagram-reels':
     default:
-      // Standard themed card
       return (
         <div
           className={cn(

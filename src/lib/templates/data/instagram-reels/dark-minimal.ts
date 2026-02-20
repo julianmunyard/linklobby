@@ -72,9 +72,9 @@ export const instagramReelsDarkMinimal: TemplateDefinition = {
       url: null,
       content: {
         platform: 'spotify',
-        embedUrl: 'https://open.spotify.com/album/4aawyAB9vmqN3uQ7FjRGTy',
-        embedIframeUrl: 'https://open.spotify.com/embed/album/4aawyAB9vmqN3uQ7FjRGTy',
-        embedHeight: 352,
+        embedUrl: 'https://open.spotify.com/track/6IRVovQruBNy9PIqOnAxFf',
+        embedIframeUrl: 'https://open.spotify.com/embed/track/6IRVovQruBNy9PIqOnAxFf',
+        embedHeight: 152,
         embeddable: true,
       },
       size: 'big',
@@ -96,7 +96,7 @@ export const instagramReelsDarkMinimal: TemplateDefinition = {
       cardBg: 'oklch(0 0 0)',
       text: 'oklch(0.95 0 0)',
       accent: 'oklch(0.65 0.28 25)',
-      border: 'oklch(0.95 0 0)',
+      border: 'oklch(0 0 0)',
       link: 'oklch(0.95 0 0)',
     },
     fonts: {

@@ -232,7 +232,7 @@ export function StaticProfileHeader({
   // Classic layout: centered circle avatar, title below
   if (profileLayout === "classic") {
     return (
-      <div className="flex flex-col items-center gap-4 px-6 pt-6 pb-2 transition-opacity duration-200">
+      <div className="flex flex-col items-center gap-2 px-6 pt-6 pb-2 transition-opacity duration-200">
         {/* Avatar - small circle (only if showAvatar is true) */}
         {/* When feather > 0, we remove the hard clip and let mask-image handle the soft edge */}
         {showAvatar && (

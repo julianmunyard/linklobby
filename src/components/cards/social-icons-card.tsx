@@ -56,7 +56,7 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
             <span
               key={icon.id}
               className="inline-block"
-              style={{ color: iconColor, opacity: 0.7 }}
+              style={{ color: iconColor }}
             >
               {iconContent}
             </span>
@@ -69,8 +69,8 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
             href={isPreview ? icon.url : undefined}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:opacity-100 transition-opacity inline-block"
-            style={{ color: iconColor, opacity: 0.7 }}
+            className="hover:opacity-70 transition-opacity inline-block"
+            style={{ color: iconColor }}
             onClick={isPreview ? undefined : (e) => e.preventDefault()}
           >
             {iconContent}
