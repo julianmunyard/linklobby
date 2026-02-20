@@ -6,6 +6,7 @@ import { isAudioContent } from '@/types/card'
 import type { AudioCardContent } from '@/types/audio'
 import type { SocialPlatform } from '@/types/profile'
 import { AudioPlayer } from '@/components/audio/audio-player'
+import { SystemSettingsCard } from '@/components/cards/system-settings-card'
 import { cn } from '@/lib/utils'
 import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
@@ -339,18 +340,37 @@ export function ArtifactLayout({
                 padding: '0.75rem 1rem',
               }}
             >
-              <AudioPlayer
-                tracks={audioContent.tracks || []}
-                albumArtUrl={audioContent.albumArtUrl}
-                showWaveform={audioContent.showWaveform ?? true}
-                looping={audioContent.looping ?? false}
-                reverbConfig={audioContent.reverbConfig}
-                playerColors={audioContent.playerColors}
-                cardId={audioCard.id}
-                pageId={audioCard.page_id}
-                isEditing={isPreview}
-                themeVariant="blinkies"
-              />
+              <SystemSettingsCard
+                cardType="audio"
+                transparentBackground={audioContent.transparentBackground === true}
+                titleBarStyle="system-settings"
+                blinkieBg={true}
+                blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter}
+                blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim}
+                blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox}
+                blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox}
+                blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl}
+                blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale}
+                blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX}
+                blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}
+                blinkieCardBgNone={audioContent.blinkieBoxBackgrounds?.cardBgNone}
+                blinkieTextColor={audioContent.blinkieColors?.text}
+              >
+                <AudioPlayer
+                  tracks={audioContent.tracks || []}
+                  albumArtUrl={audioContent.albumArtUrl}
+                  showWaveform={audioContent.showWaveform ?? true}
+                  looping={audioContent.looping ?? false}
+                  reverbConfig={audioContent.reverbConfig}
+                  playerColors={audioContent.playerColors}
+                  blinkieColors={audioContent.blinkieColors}
+                  blinkieCardHasBgImage={!!(audioContent.blinkieBoxBackgrounds?.cardBgUrl) && !(audioContent.transparentBackground)}
+                  cardId={audioCard.id}
+                  pageId={audioCard.page_id}
+                  isEditing={isPreview}
+                  themeVariant="blinkies"
+                />
+              </SystemSettingsCard>
             </div>
           )}
 
