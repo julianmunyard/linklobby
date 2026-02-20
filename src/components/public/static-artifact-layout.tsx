@@ -170,13 +170,14 @@ export function StaticArtifactLayout({
           <div
             style={{
               fontFamily: 'var(--font-archivo-black)',
-              fontSize: '16vw',
+              fontSize: displayName.length <= 6 ? '16vw' : displayName.length <= 10 ? '12vw' : displayName.length <= 16 ? '9vw' : '6vw',
               lineHeight: 0.85,
               letterSpacing: '-0.05em',
               textTransform: 'uppercase',
               color: '#080808',
               overflow: 'hidden',
-              whiteSpace: 'nowrap',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
             }}
           >
             {displayName}

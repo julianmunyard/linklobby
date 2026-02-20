@@ -169,15 +169,16 @@ export function ArtifactLayout({
           <h1
             style={{
               fontFamily: 'var(--font-archivo-black)',
-              fontSize: '16vw',
-              lineHeight: 0.8,
+              fontSize: titleText.length <= 6 ? '16vw' : titleText.length <= 10 ? '12vw' : titleText.length <= 16 ? '9vw' : '6vw',
+              lineHeight: 0.85,
               letterSpacing: '-0.05em',
               textTransform: 'uppercase',
               color: '#080808',
               textAlign: 'center',
               margin: '-10px 0',
               overflow: 'hidden',
-              whiteSpace: 'nowrap',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
               pointerEvents: 'none',
               userSelect: 'none',
             }}
