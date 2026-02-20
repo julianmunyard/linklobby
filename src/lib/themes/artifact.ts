@@ -1,4 +1,15 @@
 // src/lib/themes/artifact.ts
+//
+// Color slot mapping for the artifact layout:
+//   background → page bg / gap color (dark)
+//   cardBg     → block color 1 + hero right panel
+//   text       → block color 2 + social icons footer
+//   border     → block color 3 + header block
+//   link       → block color 4 + hero left panel (CD area)
+//   accent     → block color 5 + marquee banner
+//
+// Each palette should have 5 visually distinct block colors that cycle.
+
 import type { ThemeConfig } from '@/types/theme'
 
 export const artifactTheme: ThemeConfig = {
@@ -8,12 +19,12 @@ export const artifactTheme: ThemeConfig = {
   isListLayout: true,
 
   defaultColors: {
-    background: '#080808',  // page bg / gap color
-    cardBg: '#2F5233',      // primary card block color (green)
-    text: '#F2E8DC',        // light text / cream
-    accent: '#FF8C55',      // marquee / highlight (orange)
-    border: '#FFC0CB',      // header block (pink)
-    link: '#4A6FA5',        // hero right panel (blue)
+    background: '#080808',
+    cardBg: '#2F5233',      // green
+    text: '#F2E8DC',        // cream
+    accent: '#FF8C55',      // orange
+    border: '#FFC0CB',      // pink
+    link: '#4A6FA5',        // blue
   },
 
   defaultFonts: {
@@ -31,100 +42,129 @@ export const artifactTheme: ThemeConfig = {
   },
 
   palettes: [
+    // --- DEFAULT ---
     {
       id: 'brutalist',
       name: 'Brutalist',
       colors: {
         background: '#080808',
-        cardBg: '#2F5233',
-        text: '#F2E8DC',
-        accent: '#FF8C55',
-        border: '#FFC0CB',
-        link: '#4A6FA5',
+        cardBg: '#2F5233',      // forest green
+        text: '#F2E8DC',        // cream
+        accent: '#FF8C55',      // orange
+        border: '#FFC0CB',      // pink
+        link: '#4A6FA5',        // steel blue
       },
     },
+
+    // --- BLACK & WHITE ---
     {
       id: 'monochrome',
       name: 'Monochrome',
       colors: {
+        background: '#080808',
+        cardBg: '#1a1a1a',      // near black
+        text: '#e8e8e8',        // near white
+        accent: '#ffffff',      // white
+        border: '#555555',      // mid grey
+        link: '#333333',        // dark grey
+      },
+    },
+
+    // --- MULTI-COLOR PASTELS ---
+    {
+      id: 'gelato',
+      name: 'Gelato',
+      colors: {
         background: '#0a0a0a',
-        cardBg: '#1a1a1a',
-        text: '#e8e8e8',
-        accent: '#ffffff',
-        border: '#333333',
-        link: '#2a2a2a',
+        cardBg: '#E8A0B8',      // strawberry pink
+        text: '#B8D8C8',        // mint green
+        accent: '#F5D680',      // lemon yellow
+        border: '#C8B8E8',      // lavender
+        link: '#F0C8A8',        // peach
       },
     },
     {
-      id: 'blush',
-      name: 'Blush',
+      id: 'tropicana',
+      name: 'Tropicana',
       colors: {
-        background: '#1a0a10',
-        cardBg: '#8B4566',
-        text: '#F2E8DC',
-        accent: '#E8A0B8',
-        border: '#FFC0CB',
-        link: '#6B3050',
+        background: '#080808',
+        cardBg: '#E85830',      // red-orange
+        text: '#F0D848',        // bright yellow
+        accent: '#48B868',      // tropical green
+        border: '#FF8CB0',      // hot pink
+        link: '#3898D0',        // ocean blue
       },
     },
     {
-      id: 'sage',
-      name: 'Sage',
+      id: 'powder',
+      name: 'Powder',
       colors: {
-        background: '#0a100a',
-        cardBg: '#3D5A3D',
-        text: '#E8EDE4',
-        accent: '#A8C8A0',
-        border: '#C8D8C0',
-        link: '#2A4030',
+        background: '#0a0a0a',
+        cardBg: '#7898C0',      // powder blue
+        text: '#F2E8DC',        // cream
+        accent: '#C89080',      // dusty rose
+        border: '#A8B8A0',      // sage
+        link: '#B8A0C0',        // soft lilac
       },
     },
     {
-      id: 'lavender',
-      name: 'Lavender',
+      id: 'sunset',
+      name: 'Sunset',
       colors: {
-        background: '#0e0a14',
-        cardBg: '#4A3868',
-        text: '#E8E0F0',
-        accent: '#B898D8',
-        border: '#D8C8E8',
-        link: '#352850',
+        background: '#080808',
+        cardBg: '#C83838',      // crimson
+        text: '#F0C868',        // golden
+        accent: '#E87830',      // tangerine
+        border: '#F898A8',      // salmon pink
+        link: '#6848A0',        // deep violet
       },
     },
     {
-      id: 'terracotta',
-      name: 'Terracotta',
+      id: 'earth',
+      name: 'Earth',
       colors: {
-        background: '#140a08',
-        cardBg: '#8B4A30',
-        text: '#F0E0D0',
-        accent: '#D89870',
-        border: '#E8C8A8',
-        link: '#5A3020',
+        background: '#080808',
+        cardBg: '#5A7850',      // olive green
+        text: '#D8C8A8',        // sand
+        accent: '#B86830',      // burnt sienna
+        border: '#A09080',      // warm stone
+        link: '#486068',        // slate teal
       },
     },
     {
-      id: 'ocean',
-      name: 'Ocean',
+      id: 'neon',
+      name: 'Neon',
       colors: {
-        background: '#080e14',
-        cardBg: '#2A4A6A',
-        text: '#D8E8F0',
-        accent: '#80B8D8',
-        border: '#A8D0E8',
-        link: '#1A3050',
+        background: '#080808',
+        cardBg: '#00C878',      // electric green
+        text: '#FF50A0',        // neon pink
+        accent: '#FFD030',      // neon yellow
+        border: '#30B0FF',      // electric blue
+        link: '#C048FF',        // neon purple
       },
     },
     {
-      id: 'midnight',
-      name: 'Midnight',
+      id: 'coastal',
+      name: 'Coastal',
       colors: {
-        background: '#0a0a14',
-        cardBg: '#1a1a3a',
-        text: '#c8c8e0',
-        accent: '#6060b0',
-        border: '#3a3a5a',
-        link: '#282850',
+        background: '#080808',
+        cardBg: '#2868A0',      // deep ocean
+        text: '#E8E0D0',        // driftwood
+        accent: '#E0A868',      // sand gold
+        border: '#88B8C8',      // sea foam
+        link: '#486058',        // kelp green
+      },
+    },
+    {
+      id: 'berry',
+      name: 'Berry',
+      colors: {
+        background: '#0a0808',
+        cardBg: '#6B2848',      // blackberry
+        text: '#E8C8D8',        // blush cream
+        accent: '#D05888',      // raspberry
+        border: '#A878B8',      // mulberry
+        link: '#384068',        // blueberry
       },
     },
   ],
