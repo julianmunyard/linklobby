@@ -12,6 +12,7 @@ import { StaticClassifiedLayout } from "./static-classified-layout"
 import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
 import { StaticPhoneHomeLayout } from "./static-phone-home-layout"
 import { StaticChaoticZineLayout } from "./static-chaotic-zine-layout"
+import { StaticArtifactLayout } from "./static-artifact-layout"
 import type { Card } from "@/types/card"
 import type { BackgroundConfig, ThemeId, ReceiptSticker } from "@/types/theme"
 import type { SocialIcon } from "@/types/profile"
@@ -349,6 +350,25 @@ export function PublicPageRenderer({
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
         zineShowDoodles={zineShowDoodles}
+      />
+    )
+  }
+
+  // Artifact theme uses brutalist grid layout
+  if (themeId === 'artifact') {
+    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
+    return (
+      <StaticArtifactLayout
+        username={username}
+        title={displayName || 'ARTIFACT'}
+        cards={cards}
+        headingSize={headingSize}
+        bodySize={bodySize}
+        socialIcons={socialIcons}
+        showSocialIcons={showSocialIcons}
+        avatarUrl={avatarUrl}
+        showAvatar={showAvatar}
+        bio={bio}
       />
     )
   }
