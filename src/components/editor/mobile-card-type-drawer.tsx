@@ -97,7 +97,7 @@ export function MobileCardTypeDrawer({
 
   const hasImage = card ? !CARD_TYPES_NO_IMAGE.includes(card.card_type) && !isMacCard : false
   const isBlinkieCard = themeId === 'blinkies' && card != null && (card.card_type === 'link' || card.card_type === 'mini')
-  const isBlinkieAudioCard = (themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels') && card != null && card.card_type === 'audio'
+  const isBlinkieAudioCard = (themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'artifact') && card != null && card.card_type === 'audio'
 
   // State for blinkie style picker dialog in audio background tab
   const [audioBoxBgPickerOpen, setAudioBoxBgPickerOpen] = useState(false)

@@ -514,7 +514,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       </div>
 
       {/* Card Background (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
-      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home') && (() => {
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home' || themeId === 'artifact') && (() => {
         const styleId = content.blinkieBoxBackgrounds?.cardOuter
         const styleDef = styleId ? BLINKIE_STYLES[styleId] : null
         return (
@@ -767,7 +767,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       })()}
 
       {/* Blinkie Colors (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
-      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home') && (() => {
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home' || themeId === 'artifact') && (() => {
         const palettes: { name: string; outerBox: string; innerBox: string; text: string; playerBox: string; buttons: string }[] = [
           { name: 'Default',        outerBox: '#3d2020', innerBox: '#c9a832', text: '#9898a8', playerBox: '#8b7db8', buttons: '#b83232' },
           { name: 'Classic',        outerBox: '#F9F0E9', innerBox: '#EDE4DA', text: '#000000', playerBox: '#F9F0E9', buttons: '#F9F0E9' },

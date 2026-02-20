@@ -262,7 +262,6 @@ export function StaticArtifactLayout({
                 aspectRatio: '1',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                boxShadow: '0 0 0 3px #080808, 0 0 0 6px #A6A6A6',
                 animation: audioOpen ? 'artifact-spin 3s linear infinite' : 'none',
               }}
             />
