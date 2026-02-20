@@ -331,6 +331,10 @@ export function ArtifactLayout({
               style={{
                 background: '#080808',
                 padding: '0.75rem 1rem',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                if (onCardClick) onCardClick(audioCard.id)
               }}
             >
               <SystemSettingsCard
