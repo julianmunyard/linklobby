@@ -47,6 +47,14 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const centerCards = themeSettings?.centerCards ?? false
   const vcrCenterContent = themeSettings?.vcrCenterContent ?? false
   const accentColor = themeSettings?.colors?.accent ?? '#2a6eff'
+  const themeColors = themeSettings?.colors ? {
+    background: themeSettings.colors.background,
+    cardBg: themeSettings.colors.cardBg,
+    text: themeSettings.colors.text,
+    accent: themeSettings.colors.accent,
+    border: themeSettings.colors.border,
+    link: themeSettings.colors.link,
+  } : undefined
   const receiptPrice = themeSettings?.receiptPrice ?? 'PRICELESS'
   const receiptStickers = themeSettings?.receiptStickers ?? []
   const receiptFloatAnimation = themeSettings?.receiptFloatAnimation ?? true
@@ -137,6 +145,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
         zineShowDoodles={zineShowDoodles}
+        themeColors={themeColors}
         scatterMode={scatterMode}
         visitorDrag={visitorDrag}
         cards={cards}

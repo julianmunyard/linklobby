@@ -117,6 +117,8 @@ interface PublicPageRendererProps {
   zineBadgeText?: string
   zineTitleSize?: number
   zineShowDoodles?: boolean
+  // Theme colors (for layouts that need hex values for contrast computation)
+  themeColors?: { background: string; cardBg: string; text: string; accent: string; border: string; link: string }
   // Scatter mode
   scatterMode?: boolean
   visitorDrag?: boolean
@@ -180,6 +182,7 @@ export function PublicPageRenderer({
   zineBadgeText,
   zineTitleSize,
   zineShowDoodles,
+  themeColors,
   scatterMode = false,
   visitorDrag = false,
   cards,
@@ -369,6 +372,7 @@ export function PublicPageRenderer({
         avatarUrl={avatarUrl}
         showAvatar={showAvatar}
         bio={bio}
+        themeColors={themeColors}
       />
     )
   }

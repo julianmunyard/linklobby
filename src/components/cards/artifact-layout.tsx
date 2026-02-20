@@ -56,10 +56,16 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
 /** Determine if a hex color is "light" (needs dark text) */
 function isLightColor(hex: string): boolean {
   const c = hex.replace('#', '')
+  if (c.length < 6) return false
   const r = parseInt(c.substring(0, 2), 16)
   const g = parseInt(c.substring(2, 4), 16)
   const b = parseInt(c.substring(4, 6), 16)
   return (r * 299 + g * 587 + b * 114) / 1000 > 140
+}
+
+/** Get contrasting text color for a given background, using palette colors */
+function contrastText(bgHex: string, lightText: string, darkText: string): string {
+  return isLightColor(bgHex) ? darkText : lightText
 }
 
 interface ArtifactLayoutProps {
@@ -114,15 +120,11 @@ export function ArtifactLayout({
     }
   }
 
-  // Header block text needs to contrast with border color (header bg)
-  const headerTextColor = isLightColor(colors.border) ? '#080808' : '#ffffff'
-  // Marquee text needs to contrast with accent color (marquee bg)
-  const marqueeTextColor = isLightColor(colors.accent) ? '#080808' : '#ffffff'
-  // Hero left panel uses a muted tone
-  const heroLeftBg = colors.link
-  const heroLeftText = isLightColor(colors.link) ? '#080808' : '#ffffff'
-  // Footer text
-  const footerTextColor = isLightColor(colors.text) ? '#080808' : '#ffffff'
+  // Contrast text using palette's own text and background colors
+  const headerTextColor = contrastText(colors.border, colors.text, colors.background)
+  const marqueeTextColor = contrastText(colors.accent, colors.text, colors.background)
+  const heroLeftText = contrastText(colors.link, colors.text, colors.background)
+  const footerTextColor = contrastText(colors.text, colors.background, colors.background)
 
   return (
     <div
@@ -266,7 +268,7 @@ export function ArtifactLayout({
           {/* Left panel - CD disc */}
           <div
             style={{
-              background: heroLeftBg,
+              background: colors.link,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -398,8 +400,7 @@ export function ArtifactLayout({
           {/* Link cards */}
           {visibleCards.map((card, i) => {
             const bgColor = blockColors[i % blockColors.length]
-            const isLight = isLightColor(bgColor)
-            const textColor = isLight ? '#080808' : '#ffffff'
+            const textColor = contrastText(bgColor, colors.text, colors.background)
             const isHovered = hoveredIndex === i
             const isSelected = selectedCardId === card.id
 

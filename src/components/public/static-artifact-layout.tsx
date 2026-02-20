@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import type { Card } from '@/types/card'
 import { isAudioContent } from '@/types/card'
@@ -51,13 +51,29 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
   paypal: SiPaypal,
 }
 
+// Default colors matching the Brutalist palette
+const DEFAULT_COLORS = {
+  background: '#080808',
+  cardBg: '#2F5233',
+  text: '#F2E8DC',
+  accent: '#FF8C55',
+  border: '#FFC0CB',
+  link: '#4A6FA5',
+}
+
 /** Determine if a hex color is "light" (needs dark text) */
 function isLightColor(hex: string): boolean {
   const c = hex.replace('#', '')
+  if (c.length < 6) return false
   const r = parseInt(c.substring(0, 2), 16)
   const g = parseInt(c.substring(2, 4), 16)
   const b = parseInt(c.substring(4, 6), 16)
   return (r * 299 + g * 587 + b * 114) / 1000 > 140
+}
+
+/** Get contrasting text color for a given background */
+function contrastText(bgHex: string, lightText: string, darkText: string): string {
+  return isLightColor(bgHex) ? darkText : lightText
 }
 
 interface StaticArtifactLayoutProps {
@@ -71,6 +87,7 @@ interface StaticArtifactLayoutProps {
   avatarUrl?: string | null
   showAvatar?: boolean
   bio?: string | null
+  themeColors?: { background: string; cardBg: string; text: string; accent: string; border: string; link: string }
 }
 
 export function StaticArtifactLayout({
@@ -84,35 +101,18 @@ export function StaticArtifactLayout({
   avatarUrl,
   showAvatar = true,
   bio,
+  themeColors,
 }: StaticArtifactLayoutProps) {
   const [audioOpen, setAudioOpen] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const displayName = title || 'ARTIFACT'
 
-  // Read resolved CSS variable colors for contrast computation
-  const [themeColors, setThemeColors] = useState({
-    background: '#080808',
-    cardBg: '#2F5233',
-    text: '#F2E8DC',
-    accent: '#FF8C55',
-    border: '#FFC0CB',
-    link: '#4A6FA5',
-  })
-
-  useEffect(() => {
-    const style = getComputedStyle(document.documentElement)
-    const bg = style.getPropertyValue('--theme-background').trim()
-    const cardBg = style.getPropertyValue('--theme-card-bg').trim()
-    const text = style.getPropertyValue('--theme-text').trim()
-    const accent = style.getPropertyValue('--theme-accent').trim()
-    const border = style.getPropertyValue('--theme-border').trim()
-    const link = style.getPropertyValue('--theme-link').trim()
-    if (bg) setThemeColors({ background: bg, cardBg, text, accent, border, link })
-  }, [])
+  // Use passed-in colors or defaults
+  const colors = themeColors || DEFAULT_COLORS
 
   // Cycling card block colors derived from palette
-  const blockColors = [themeColors.cardBg, themeColors.text, themeColors.border, themeColors.link, themeColors.accent]
+  const blockColors = [colors.cardBg, colors.text, colors.border, colors.link, colors.accent]
 
   // Find audio card
   const audioCard = cards.find(c => c.card_type === 'audio' && c.is_visible !== false && isAudioContent(c.content))
@@ -131,15 +131,15 @@ export function StaticArtifactLayout({
   const currentYear = new Date().getFullYear()
 
   // Computed contrast colors
-  const headerTextColor = isLightColor(themeColors.border) ? '#080808' : '#ffffff'
-  const marqueeTextColor = isLightColor(themeColors.accent) ? '#080808' : '#ffffff'
-  const heroLeftText = isLightColor(themeColors.link) ? '#080808' : '#ffffff'
-  const footerTextColor = isLightColor(themeColors.text) ? '#080808' : '#ffffff'
+  const headerTextColor = contrastText(colors.border, colors.text, colors.background)
+  const marqueeTextColor = contrastText(colors.accent, colors.text, colors.background)
+  const heroLeftText = contrastText(colors.link, colors.text, colors.background)
+  const footerTextColor = contrastText(colors.text, colors.background, colors.background)
 
   return (
     <div
       className="fixed inset-0 overflow-y-auto overflow-x-hidden"
-      style={{ background: 'var(--theme-background)' }}
+      style={{ background: colors.background }}
     >
       {/* Injected keyframes */}
       <style>{`
@@ -176,7 +176,7 @@ export function StaticArtifactLayout({
         {/* 1. HEADER BLOCK */}
         <div
           style={{
-            background: 'var(--theme-border)',
+            background: colors.border,
             padding: '1rem 1.5rem',
             minHeight: '120px',
             display: 'flex',
@@ -237,7 +237,7 @@ export function StaticArtifactLayout({
         {/* 2. MARQUEE BANNER */}
         <div
           style={{
-            background: 'var(--theme-accent)',
+            background: colors.accent,
             height: '60px',
             overflow: 'hidden',
             position: 'relative',
@@ -274,7 +274,7 @@ export function StaticArtifactLayout({
           {/* Left panel - CD disc */}
           <div
             style={{
-              background: 'var(--theme-link)',
+              background: colors.link,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -314,7 +314,7 @@ export function StaticArtifactLayout({
           {/* Right panel - Profile photo */}
           <div
             style={{
-              background: 'var(--theme-card-bg)',
+              background: colors.cardBg,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -339,7 +339,7 @@ export function StaticArtifactLayout({
                 style={{
                   fontFamily: 'var(--font-archivo-black)',
                   fontSize: '2rem',
-                  color: 'var(--theme-text)',
+                  color: colors.text,
                   opacity: 0.5,
                   textTransform: 'uppercase',
                 }}
@@ -357,7 +357,7 @@ export function StaticArtifactLayout({
             <div
               data-card-id={audioCard.id}
               style={{
-                background: 'var(--theme-background)',
+                background: colors.background,
                 padding: '1rem 1.5rem',
               }}
             >
@@ -397,8 +397,7 @@ export function StaticArtifactLayout({
           {/* Link cards */}
           {visibleCards.map((card, i) => {
             const bgColor = blockColors[i % blockColors.length]
-            const isLight = isLightColor(bgColor)
-            const textColor = isLight ? '#080808' : '#ffffff'
+            const textColor = contrastText(bgColor, colors.text, colors.background)
             const isHovered = hoveredIndex === i
 
             const displayTitle = card.title || card.card_type.toUpperCase()
@@ -496,7 +495,7 @@ export function StaticArtifactLayout({
         {showSocialIcons && socialIcons.length > 0 && (
           <div
             style={{
-              background: 'var(--theme-text)',
+              background: colors.text,
               padding: '1rem',
               minHeight: '80px',
             }}
@@ -526,7 +525,7 @@ export function StaticArtifactLayout({
                       borderRight: isLast ? 'none' : `3px solid ${footerTextColor}`,
                       transition: 'background-color 0.2s ease',
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = themeColors.accent }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.accent }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                   >
                     <IconComp className="w-6 h-6" />
@@ -544,7 +543,7 @@ export function StaticArtifactLayout({
           padding: '1rem',
           textAlign: 'center',
           fontSize: '0.65rem',
-          color: 'var(--theme-text)',
+          color: colors.text,
           opacity: 0.5,
           fontFamily: 'var(--font-space-mono)',
         }}
