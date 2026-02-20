@@ -14,7 +14,7 @@ import { TrackList } from './track-list'
 import { cn } from '@/lib/utils'
 import { trackAudioPlay } from '@/lib/analytics/track-event'
 
-type ThemeVariant = 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
+type ThemeVariant = 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified' | 'artifact'
 
 // Halftone dot pattern — staggered grid matching the Macintosh calculator style
 // Two offset radial-gradient layers create a hex-like dot arrangement
@@ -190,10 +190,11 @@ export function AudioPlayer({
   const isVcr = themeVariant === 'vcr-menu'
   const isClassified = themeVariant === 'classified'
   const isBlinkies = themeVariant === 'blinkies'
+  const isArtifact = themeVariant === 'artifact'
   const isMacOs = themeVariant === 'mac-os'
   const isMacintosh = themeVariant === 'macintosh'
   const isIpodClassic = themeVariant === 'ipod-classic'
-  const isPoolsuite = themeVariant === 'system-settings' || isBlinkies || isMacOs || themeVariant === 'instagram-reels'
+  const isPoolsuite = themeVariant === 'system-settings' || isBlinkies || isMacOs || themeVariant === 'instagram-reels' || isArtifact
   const isCompact = isReceipt || isVcr || isClassified || isPoolsuite || isMacintosh || isIpodClassic
 
   // Color overrides per theme
@@ -712,21 +713,21 @@ export function AudioPlayer({
     )
   }
 
-  // ─── POOLSUITE FM THEME (System Settings, Blinkies, Mac OS, Instagram Reels) ───
+  // ─── POOLSUITE FM THEME (System Settings, Blinkies, Mac OS, Instagram Reels, Artifact) ───
   if (isPoolsuite) {
     // Colors: use custom blinkieColors if set, otherwise follow theme palette
-    const psColor = blinkieColors?.text || 'var(--theme-text, #000000)'
+    const psColor = isArtifact ? '#F2E8DC' : blinkieColors?.text || 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
-      fontFamily: 'var(--font-chikarego), var(--font-ishmeria), monospace',
+      fontFamily: isArtifact ? 'var(--font-space-mono), monospace' : 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
     }
-    // All borders are black, thin, rounded — the Poolsuite way
-    const psBorder = `1px solid ${psColor}`
-    const psRadius = '4px'
+    // Artifact: thick brutalist borders, no radius. Others: thin rounded Poolsuite style
+    const psBorder = isArtifact ? `3px solid ${psColor}` : `1px solid ${psColor}`
+    const psRadius = isArtifact ? '0px' : '4px'
     // Button bg — custom blinkieColors.buttons if set, otherwise theme card bg
-    const btnBg = blinkieCardHasBgImage ? 'transparent' : blinkieColors?.buttons || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
+    const btnBg = isArtifact ? 'transparent' : blinkieCardHasBgImage ? 'transparent' : blinkieColors?.buttons || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
     // Player box bg override (affects inner boxes)
-    const playerBoxBg = blinkieCardHasBgImage ? undefined : blinkieColors?.playerBox || undefined
+    const playerBoxBg = isArtifact ? 'rgba(8,8,8,0.6)' : blinkieCardHasBgImage ? undefined : blinkieColors?.playerBox || undefined
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
@@ -955,7 +956,7 @@ export function AudioPlayer({
               onMixChange={player.setReverbMix}
               foregroundColor={psColor}
               elementBgColor="transparent"
-              themeVariant={isBlinkies ? 'system-settings' : themeVariant}
+              themeVariant={isBlinkies || isArtifact ? 'system-settings' : themeVariant}
             />
             {isEditing && reverbConfig && (
               <ReverbConfigModal
@@ -984,7 +985,7 @@ export function AudioPlayer({
               onTrackSelect={handleTrackSelect}
               foregroundColor={psColor}
               elementBgColor="transparent"
-              themeVariant={isBlinkies ? 'system-settings' : themeVariant}
+              themeVariant={isBlinkies || isArtifact ? 'system-settings' : themeVariant}
             />
           </div>
         )}
