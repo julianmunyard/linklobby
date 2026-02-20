@@ -103,9 +103,9 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
             'ipod-classic': 'ipod-classic',
             'instagram-reels': 'instagram-reels',
             'chaotic-zine': 'classified',
-            'artifact': 'artifact',
+            'artifact': 'blinkies',
           }
-          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified' | 'artifact'
+          const themeVariant = (variantMap[themeId] || 'instagram-reels') as 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'
 
           const isTransparent = audioContent.transparentBackground === true
 

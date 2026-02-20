@@ -349,7 +349,7 @@ export function ArtifactLayout({
                 cardId={audioCard.id}
                 pageId={audioCard.page_id}
                 isEditing={isPreview}
-                themeVariant="artifact"
+                themeVariant="blinkies"
               />
             </div>
           )}

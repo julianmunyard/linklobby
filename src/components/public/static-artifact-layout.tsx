@@ -348,7 +348,7 @@ export function StaticArtifactLayout({
                 playerColors={audioContent.playerColors}
                 cardId={audioCard.id}
                 pageId={audioCard.page_id}
-                themeVariant="artifact"
+                themeVariant="blinkies"
               />
             </div>
           )}
