@@ -17,6 +17,7 @@ import { ClassifiedLayout } from "@/components/cards/classified-layout"
 import { DeparturesBoardLayout } from "@/components/cards/departures-board-layout"
 import { PhoneHomeLayout } from "@/components/cards/phone-home-layout"
 import { ChaoticZineLayout } from "@/components/cards/chaotic-zine-layout"
+import { ArtifactLayout } from "@/components/cards/artifact-layout"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { isScatterTheme } from "@/types/scatter"
@@ -497,6 +498,21 @@ function PreviewContent() {
           selectedCardId={state.selectedCardId}
         />
         <NoiseOverlay />
+      </>
+    )
+  }
+
+  // Artifact theme uses brutalist grid layout
+  if (themeId === 'artifact') {
+    return (
+      <>
+        <ArtifactLayout
+          title={displayName || 'ARTIFACT'}
+          cards={state.cards}
+          isPreview={true}
+          onCardClick={handleCardClick}
+          selectedCardId={state.selectedCardId}
+        />
       </>
     )
   }
