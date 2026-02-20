@@ -37,7 +37,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, zineBadgeText, setZineBadgeText, zineTitleSize, setZineTitleSize, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
   const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
 
@@ -561,38 +561,6 @@ export function StyleControls() {
               placeholder="Incoming Message"
               className="font-mono"
             />
-          </div>
-        </div>
-      )}
-
-      {/* Chaotic Zine Theme: Title Size + Badge Text */}
-      {themeId === 'chaotic-zine' && (
-        <div className="space-y-3">
-          <Label className="text-sm">Zine Settings</Label>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs text-muted-foreground">Title Size</Label>
-              <span className="text-xs text-muted-foreground">{Math.round(zineTitleSize * 100)}%</span>
-            </div>
-            <Slider
-              value={[zineTitleSize]}
-              min={0.5}
-              max={2.0}
-              step={0.1}
-              onValueChange={([v]) => setZineTitleSize(v)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Badge Text</Label>
-            <Input
-              value={zineBadgeText}
-              onChange={(e) => setZineBadgeText(e.target.value)}
-              placeholder="NEW!"
-              className="font-mono uppercase"
-            />
-            <p className="text-xs text-muted-foreground">Text shown on the first card badge. Leave empty to hide.</p>
           </div>
         </div>
       )}
