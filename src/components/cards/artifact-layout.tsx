@@ -252,27 +252,21 @@ export function ArtifactLayout({
               gap: '8px',
             }}
             onClick={() => {
+              if (audioCard && onCardClick) {
+                onCardClick(audioCard.id)
+              }
               if (audioContent) setAudioOpen(prev => !prev)
             }}
           >
-            {/* Vinyl record */}
-            <div
+            {/* CD disc */}
+            <img
+              src="/images/artifact-cd.gif"
+              alt="CD"
               style={{
                 width: 'min(100px, 45%)',
                 aspectRatio: '1',
                 borderRadius: '50%',
-                background: `radial-gradient(circle at center,
-                  #FF8C55 0%, #FF8C55 15%,
-                  #1a1a1a 16%, #1a1a1a 18%,
-                  #2a2a2a 19%, #1a1a1a 21%,
-                  #2a2a2a 22%, #1a1a1a 24%,
-                  #2a2a2a 25%, #1a1a1a 27%,
-                  #2a2a2a 28%, #1a1a1a 30%,
-                  #2a2a2a 31%, #1a1a1a 33%,
-                  #2a2a2a 34%, #1a1a1a 36%,
-                  #2a2a2a 37%, #1a1a1a 39%,
-                  #2a2a2a 40%, #1a1a1a 100%
-                )`,
+                objectFit: 'cover',
                 boxShadow: '0 0 0 3px #080808, 0 0 0 6px #A6A6A6',
                 animation: audioOpen ? 'artifact-spin 3s linear infinite' : 'none',
               }}
