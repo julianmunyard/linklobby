@@ -170,6 +170,8 @@ function PreviewContent() {
             phoneHomeDock: ts.phoneHomeDock ?? [],
             phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
             phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
+            zineBadgeText: ts.zineBadgeText ?? 'NEW!',
+            zineTitleSize: ts.zineTitleSize ?? 1.0,
             scatterMode: ts.scatterMode ?? false,
             visitorDrag: ts.visitorDrag ?? false,
           })
