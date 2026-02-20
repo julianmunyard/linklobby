@@ -38,6 +38,7 @@ const THEME_CATEGORIES = [
       'departures-board-led',
       'phone-home',
       'chaotic-zine',
+      'artifact',
     ] as ThemeId[],
   },
 ] as const
