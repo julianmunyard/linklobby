@@ -115,14 +115,14 @@ export function ArtifactLayout({
   }
 
   // Header block text needs to contrast with border color (header bg)
-  const headerTextColor = isLightColor(colors.border) ? '#080808' : '#F2E8DC'
+  const headerTextColor = isLightColor(colors.border) ? '#080808' : '#ffffff'
   // Marquee text needs to contrast with accent color (marquee bg)
-  const marqueeTextColor = isLightColor(colors.accent) ? '#080808' : '#F2E8DC'
+  const marqueeTextColor = isLightColor(colors.accent) ? '#080808' : '#ffffff'
   // Hero left panel uses a muted tone
   const heroLeftBg = colors.link
-  const heroLeftText = isLightColor(colors.link) ? '#080808' : '#F2E8DC'
+  const heroLeftText = isLightColor(colors.link) ? '#080808' : '#ffffff'
   // Footer text
-  const footerTextColor = isLightColor(colors.text) ? '#080808' : '#F2E8DC'
+  const footerTextColor = isLightColor(colors.text) ? '#080808' : '#ffffff'
 
   return (
     <div
@@ -399,7 +399,7 @@ export function ArtifactLayout({
           {visibleCards.map((card, i) => {
             const bgColor = blockColors[i % blockColors.length]
             const isLight = isLightColor(bgColor)
-            const textColor = isLight ? '#080808' : '#F2E8DC'
+            const textColor = isLight ? '#080808' : '#ffffff'
             const isHovered = hoveredIndex === i
             const isSelected = selectedCardId === card.id
 

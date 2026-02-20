@@ -131,10 +131,10 @@ export function StaticArtifactLayout({
   const currentYear = new Date().getFullYear()
 
   // Computed contrast colors
-  const headerTextColor = isLightColor(themeColors.border) ? '#080808' : '#F2E8DC'
-  const marqueeTextColor = isLightColor(themeColors.accent) ? '#080808' : '#F2E8DC'
-  const heroLeftText = isLightColor(themeColors.link) ? '#080808' : '#F2E8DC'
-  const footerTextColor = isLightColor(themeColors.text) ? '#080808' : '#F2E8DC'
+  const headerTextColor = isLightColor(themeColors.border) ? '#080808' : '#ffffff'
+  const marqueeTextColor = isLightColor(themeColors.accent) ? '#080808' : '#ffffff'
+  const heroLeftText = isLightColor(themeColors.link) ? '#080808' : '#ffffff'
+  const footerTextColor = isLightColor(themeColors.text) ? '#080808' : '#ffffff'
 
   return (
     <div
@@ -398,7 +398,7 @@ export function StaticArtifactLayout({
           {visibleCards.map((card, i) => {
             const bgColor = blockColors[i % blockColors.length]
             const isLight = isLightColor(bgColor)
-            const textColor = isLight ? '#080808' : '#F2E8DC'
+            const textColor = isLight ? '#080808' : '#ffffff'
             const isHovered = hoveredIndex === i
 
             const displayTitle = card.title || card.card_type.toUpperCase()
