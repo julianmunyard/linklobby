@@ -715,19 +715,29 @@ export function AudioPlayer({
 
   // ─── POOLSUITE FM THEME (System Settings, Blinkies, Mac OS, Instagram Reels, Artifact) ───
   if (isPoolsuite) {
+    // Artifact palette constants
+    const artCream = '#F2E8DC'
+    const artOrange = '#FF8C55'
+    const artBlack = '#080808'
+    const artPink = '#FFC0CB'
+    const artGreen = '#2F5233'
+
     // Colors: use custom blinkieColors if set, otherwise follow theme palette
-    const psColor = isArtifact ? '#F2E8DC' : blinkieColors?.text || 'var(--theme-text, #000000)'
+    const psColor = isArtifact ? artCream : blinkieColors?.text || 'var(--theme-text, #000000)'
     const psFont: React.CSSProperties = {
       fontFamily: isArtifact ? 'var(--font-space-mono), monospace' : 'var(--font-chikarego), var(--font-ishmeria), monospace',
       color: psColor,
+      ...(isArtifact ? { letterSpacing: '-0.02em' } : {}),
     }
     // Artifact: thick brutalist borders, no radius. Others: thin rounded Poolsuite style
-    const psBorder = isArtifact ? `3px solid ${psColor}` : `1px solid ${psColor}`
+    const psBorder = isArtifact ? `3px solid ${artCream}` : `1px solid ${psColor}`
     const psRadius = isArtifact ? '0px' : '4px'
-    // Button bg — custom blinkieColors.buttons if set, otherwise theme card bg
-    const btnBg = isArtifact ? 'transparent' : blinkieCardHasBgImage ? 'transparent' : blinkieColors?.buttons || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
+    // Button bg — artifact uses green for buttons, blinkies use custom colors
+    const btnBg = isArtifact ? artGreen : blinkieCardHasBgImage ? 'transparent' : blinkieColors?.buttons || (transparentBackground ? 'transparent' : 'var(--theme-card-bg, #F9F0E9)')
     // Player box bg override (affects inner boxes)
-    const playerBoxBg = isArtifact ? 'rgba(8,8,8,0.6)' : blinkieCardHasBgImage ? undefined : blinkieColors?.playerBox || undefined
+    const playerBoxBg = isArtifact ? artBlack : blinkieCardHasBgImage ? undefined : blinkieColors?.playerBox || undefined
+    // Artifact active button color
+    const artActiveBg = isArtifact ? artOrange : undefined
     // Shared inner box style — little rounded bordered boxes inside the card
     const psBox: React.CSSProperties = {
       border: psBorder,
@@ -774,16 +784,16 @@ export function AudioPlayer({
               disabled={!currentTrack}
               className={cn(
                 'poolsuite-transport-btn flex items-center justify-center w-10 h-8',
-                player.isPlaying && 'poolsuite-active'
+                player.isPlaying && !isArtifact && 'poolsuite-active'
               )}
               style={{
-                backgroundColor: btnBg,
+                backgroundColor: (isArtifact && player.isPlaying) ? artActiveBg : btnBg,
                 borderRight: psBorder,
                 borderRadius: 0,
               }}
               aria-label="Play"
             >
-              <span className="text-sm leading-none" style={{ color: psColor }}>▶</span>
+              <span className="text-sm leading-none" style={{ color: (isArtifact && player.isPlaying) ? artBlack : psColor }}>▶</span>
             </button>
 
             {/* Pause */}
@@ -792,16 +802,16 @@ export function AudioPlayer({
               disabled={!currentTrack}
               className={cn(
                 'poolsuite-transport-btn flex items-center justify-center w-10 h-8',
-                !player.isPlaying && player.isLoaded && 'poolsuite-active'
+                !player.isPlaying && player.isLoaded && !isArtifact && 'poolsuite-active'
               )}
               style={{
-                backgroundColor: btnBg,
+                backgroundColor: (isArtifact && !player.isPlaying && player.isLoaded) ? artActiveBg : btnBg,
                 borderRight: psBorder,
                 borderRadius: 0,
               }}
               aria-label="Pause"
             >
-              <span className="text-sm leading-none font-bold" style={{ color: psColor }}>‖</span>
+              <span className="text-sm leading-none font-bold" style={{ color: (isArtifact && !player.isPlaying && player.isLoaded) ? artBlack : psColor }}>‖</span>
             </button>
 
             {/* Prev */}
@@ -847,16 +857,16 @@ export function AudioPlayer({
               onClick={() => player.setReverbMix(player.reverbMix > 0 ? 0 : 0.3)}
               className={cn(
                 'poolsuite-transport-btn flex items-center justify-center w-10 h-8',
-                player.reverbMix > 0 && 'poolsuite-active'
+                player.reverbMix > 0 && !isArtifact && 'poolsuite-active'
               )}
               style={{
-                backgroundColor: btnBg,
+                backgroundColor: (isArtifact && player.reverbMix > 0) ? artActiveBg : btnBg,
                 borderRadius: 0,
                 border: 'none',
               }}
               aria-label="Toggle reverb"
             >
-              <span className="text-xs leading-none" style={{ color: psColor }}>♪</span>
+              <span className="text-xs leading-none" style={{ color: (isArtifact && player.reverbMix > 0) ? artBlack : psColor }}>♪</span>
             </button>
           </div>
 
@@ -890,9 +900,10 @@ export function AudioPlayer({
                 onClick={() => player.setVarispeedMode(player.varispeedMode === 'timestretch' ? 'natural' : 'timestretch')}
                 className="poolsuite-transport-btn px-1.5 py-0 text-[8px] uppercase tracking-wider"
                 style={{
-                  backgroundColor: btnBg,
-                  color: psColor,
-                  borderRadius: '3px',
+                  backgroundColor: isArtifact ? artPink : btnBg,
+                  color: isArtifact ? artBlack : psColor,
+                  borderRadius: isArtifact ? '0px' : '3px',
+                  fontWeight: isArtifact ? 'bold' : undefined,
                 }}
               >
                 {player.varispeedMode === 'timestretch' ? 'Stretch' : 'Natural'}
@@ -919,9 +930,9 @@ export function AudioPlayer({
                     className="absolute top-0 left-0 h-full z-[1]"
                     style={{
                       width: `${varispeedPercent}%`,
-                      backgroundColor: (transparentBackground || blinkieCardHasBgImage) ? psColor : btnBg,
-                      border: `1px solid ${psColor}`,
-                      borderRadius: '3px',
+                      backgroundColor: isArtifact ? artOrange : (transparentBackground || blinkieCardHasBgImage) ? psColor : btnBg,
+                      border: isArtifact ? `3px solid ${artCream}` : `1px solid ${psColor}`,
+                      borderRadius: isArtifact ? '0px' : '3px',
                     }}
                   />
                 )}

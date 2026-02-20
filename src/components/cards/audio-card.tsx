@@ -17,7 +17,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
   const themeId = themeIdOverride || storeThemeId
 
   // Map ThemeId to ThemeVariant
-  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified'> = {
+  const themeVariantMap: Record<string, 'instagram-reels' | 'mac-os' | 'macintosh' | 'system-settings' | 'blinkies' | 'receipt' | 'ipod-classic' | 'vcr-menu' | 'classified' | 'artifact'> = {
     'instagram-reels': 'instagram-reels',
     'mac-os': 'mac-os',
     'macintosh': 'macintosh',
@@ -30,6 +30,7 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'phone-home': 'blinkies',  // Phone home uses blinkies variant for audio widgets
     'departures-board': 'classified',  // Dark theme - use classified variant
     'departures-board-led': 'classified',
+    'artifact': 'artifact',
   }
   const themeVariant = themeVariantMap[themeId] || 'instagram-reels'
 
