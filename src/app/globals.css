@@ -1672,3 +1672,47 @@ html, body {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Artifact theme */
+@keyframes artifact-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes artifact-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.artifact-card-hover {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.artifact-vinyl {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+    #FF8C55 0%, #FF8C55 15%,
+    #1a1a1a 16%, #1a1a1a 18%,
+    #2a2a2a 19%, #1a1a1a 21%,
+    #2a2a2a 22%, #1a1a1a 24%,
+    #2a2a2a 25%, #1a1a1a 27%,
+    #2a2a2a 28%, #1a1a1a 30%,
+    #2a2a2a 31%, #1a1a1a 33%,
+    #2a2a2a 34%, #1a1a1a 36%,
+    #2a2a2a 37%, #1a1a1a 39%,
+    #2a2a2a 40%, #1a1a1a 100%
+  );
+  box-shadow: 0 0 0 3px #080808, 0 0 0 6px #A6A6A6;
+}
+
+.artifact-vinyl.spinning {
+  animation: artifact-spin 3s linear infinite;
+}
+
+.artifact-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
