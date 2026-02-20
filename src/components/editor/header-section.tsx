@@ -101,10 +101,6 @@ export function HeaderSection() {
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
   const setSocialIconSize = useThemeStore((state) => state.setSocialIconSize)
-  const zineTitleSize = useThemeStore((state) => state.zineTitleSize)
-  const setZineTitleSize = useThemeStore((state) => state.setZineTitleSize)
-  const zineBadgeText = useThemeStore((state) => state.zineBadgeText)
-  const setZineBadgeText = useThemeStore((state) => state.setZineBadgeText)
 
   // Local state for crop dialog
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
@@ -400,36 +396,6 @@ export function HeaderSection() {
         )}
       </CollapsibleSection>
 
-      {/* Chaotic Zine: Title Size + Badge Text */}
-      {themeId === 'chaotic-zine' && (
-        <CollapsibleSection title="Zine Title" defaultOpen={true}>
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs text-muted-foreground">Title Size</Label>
-                <span className="text-xs text-muted-foreground">{Math.round(zineTitleSize * 100)}%</span>
-              </div>
-              <Slider
-                value={[zineTitleSize]}
-                min={0.5}
-                max={2.0}
-                step={0.1}
-                onValueChange={([v]) => setZineTitleSize(v)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Badge Text</Label>
-              <Input
-                value={zineBadgeText}
-                onChange={(e) => setZineBadgeText(e.target.value)}
-                placeholder="NEW!"
-                className="uppercase"
-              />
-              <p className="text-xs text-muted-foreground">Shown on first card. Leave empty to hide.</p>
-            </div>
-          </div>
-        </CollapsibleSection>
-      )}
 
       {/* Logo */}
       <CollapsibleSection
