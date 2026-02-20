@@ -24,6 +24,8 @@ import {
   Courier_Prime,
   // Classified theme
   Special_Elite,
+  // Artifact theme
+  Space_Mono,
   // Chaotic Zine theme
   Permanent_Marker,
   Abril_Fatface,
@@ -189,6 +191,14 @@ export const rockSalt = Rock_Salt({
   display: 'swap',
 })
 
+// Artifact theme font
+export const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-space-mono',
+  display: 'swap',
+})
+
 // Departures Board theme font
 export const auxMono = localFont({
   src: '../../public/fonts/AuxMono-Regular.ttf',
@@ -327,6 +337,8 @@ export const fontVariables = [
   // Departures Board fonts
   auxMono.variable,
   ledDotMatrix.variable,
+  // Artifact theme font
+  spaceMono.variable,
   // Chaotic Zine fonts
   permanentMarker.variable,
   abrilFatface.variable,
@@ -374,6 +386,8 @@ export const CURATED_FONTS = [
   { id: 'special-elite', name: 'Special Elite', variable: 'var(--font-special-elite)', category: 'retro' as const },
   { id: 'aux-mono', name: 'Aux Mono', variable: 'var(--font-aux-mono)', category: 'retro' as const },
   { id: 'led-dot-matrix', name: 'LED Dot Matrix', variable: 'var(--font-led-dot-matrix)', category: 'retro' as const },
+  // Artifact theme font
+  { id: 'space-mono', name: 'Space Mono', variable: 'var(--font-space-mono)', category: 'retro' as const },
   // Chaotic Zine fonts
   { id: 'permanent-marker', name: 'Permanent Marker', variable: 'var(--font-permanent-marker)', category: 'display' as const },
   { id: 'abril-fatface', name: 'Abril Fatface', variable: 'var(--font-abril-fatface)', category: 'display' as const },
@@ -424,6 +438,7 @@ export const FONT_FAMILY_MAP: Record<string, string> = {
   'var(--font-special-elite)': specialElite.style.fontFamily,
   'var(--font-aux-mono)': auxMono.style.fontFamily,
   'var(--font-led-dot-matrix)': ledDotMatrix.style.fontFamily,
+  'var(--font-space-mono)': spaceMono.style.fontFamily,
   'var(--font-permanent-marker)': permanentMarker.style.fontFamily,
   'var(--font-abril-fatface)': abrilFatface.style.fontFamily,
   'var(--font-bangers)': bangers.style.fontFamily,

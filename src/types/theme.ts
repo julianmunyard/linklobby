@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led' | 'phone-home' | 'chaotic-zine'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led' | 'phone-home' | 'chaotic-zine' | 'artifact'
 
 export interface ColorPalette {
   background: string      // Page background
