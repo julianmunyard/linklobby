@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { Card } from '@/types/card'
 import { isAudioContent } from '@/types/card'
@@ -51,8 +51,14 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
   paypal: SiPaypal,
 }
 
-const ARTIFACT_COLORS = ['#2F5233', '#F2E8DC', '#FFC0CB', '#A6A6A6', '#FF8C55']
-const LIGHT_BG_COLORS = ['#F2E8DC', '#FFC0CB', '#A6A6A6']
+/** Determine if a hex color is "light" (needs dark text) */
+function isLightColor(hex: string): boolean {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 140
+}
 
 interface StaticArtifactLayoutProps {
   username: string
@@ -84,6 +90,30 @@ export function StaticArtifactLayout({
 
   const displayName = title || 'ARTIFACT'
 
+  // Read resolved CSS variable colors for contrast computation
+  const [themeColors, setThemeColors] = useState({
+    background: '#080808',
+    cardBg: '#2F5233',
+    text: '#F2E8DC',
+    accent: '#FF8C55',
+    border: '#FFC0CB',
+    link: '#4A6FA5',
+  })
+
+  useEffect(() => {
+    const style = getComputedStyle(document.documentElement)
+    const bg = style.getPropertyValue('--theme-background').trim()
+    const cardBg = style.getPropertyValue('--theme-card-bg').trim()
+    const text = style.getPropertyValue('--theme-text').trim()
+    const accent = style.getPropertyValue('--theme-accent').trim()
+    const border = style.getPropertyValue('--theme-border').trim()
+    const link = style.getPropertyValue('--theme-link').trim()
+    if (bg) setThemeColors({ background: bg, cardBg, text, accent, border, link })
+  }, [])
+
+  // Cycling card block colors derived from palette
+  const blockColors = [themeColors.cardBg, themeColors.text, themeColors.border, themeColors.link, themeColors.accent]
+
   // Find audio card
   const audioCard = cards.find(c => c.card_type === 'audio' && c.is_visible !== false && isAudioContent(c.content))
   const audioContent = audioCard && isAudioContent(audioCard.content) ? (audioCard.content as unknown as AudioCardContent) : null
@@ -100,10 +130,16 @@ export function StaticArtifactLayout({
 
   const currentYear = new Date().getFullYear()
 
+  // Computed contrast colors
+  const headerTextColor = isLightColor(themeColors.border) ? '#080808' : '#F2E8DC'
+  const marqueeTextColor = isLightColor(themeColors.accent) ? '#080808' : '#F2E8DC'
+  const heroLeftText = isLightColor(themeColors.link) ? '#080808' : '#F2E8DC'
+  const footerTextColor = isLightColor(themeColors.text) ? '#080808' : '#F2E8DC'
+
   return (
     <div
       className="fixed inset-0 overflow-y-auto overflow-x-hidden"
-      style={{ background: '#080808' }}
+      style={{ background: 'var(--theme-background)' }}
     >
       {/* Injected keyframes */}
       <style>{`
@@ -137,10 +173,10 @@ export function StaticArtifactLayout({
           minHeight: '100vh',
         }}
       >
-        {/* 1. HEADER BLOCK - Pink */}
+        {/* 1. HEADER BLOCK */}
         <div
           style={{
-            background: '#FFC0CB',
+            background: 'var(--theme-border)',
             padding: '1rem 1.5rem',
             minHeight: '120px',
             display: 'flex',
@@ -149,7 +185,6 @@ export function StaticArtifactLayout({
             overflow: 'hidden',
           }}
         >
-          {/* Top metadata row */}
           <div
             style={{
               display: 'flex',
@@ -157,7 +192,7 @@ export function StaticArtifactLayout({
               fontFamily: 'var(--font-space-mono)',
               fontSize: '0.7rem',
               fontWeight: 'bold',
-              color: '#080808',
+              color: headerTextColor,
               letterSpacing: '-0.02em',
             }}
           >
@@ -166,7 +201,6 @@ export function StaticArtifactLayout({
             <span>EST. {currentYear}</span>
           </div>
 
-          {/* Giant display name */}
           <div
             style={{
               fontFamily: 'var(--font-archivo-black)',
@@ -174,7 +208,7 @@ export function StaticArtifactLayout({
               lineHeight: 0.85,
               letterSpacing: '-0.05em',
               textTransform: 'uppercase',
-              color: '#080808',
+              color: headerTextColor,
               overflow: 'hidden',
               wordBreak: 'break-word',
               overflowWrap: 'break-word',
@@ -183,7 +217,6 @@ export function StaticArtifactLayout({
             {displayName}
           </div>
 
-          {/* Bottom metadata row */}
           <div
             style={{
               display: 'flex',
@@ -191,7 +224,7 @@ export function StaticArtifactLayout({
               fontFamily: 'var(--font-space-mono)',
               fontSize: '0.65rem',
               fontWeight: 'bold',
-              color: '#080808',
+              color: headerTextColor,
               letterSpacing: '-0.02em',
             }}
           >
@@ -201,10 +234,10 @@ export function StaticArtifactLayout({
           </div>
         </div>
 
-        {/* 2. MARQUEE BANNER - Orange */}
+        {/* 2. MARQUEE BANNER */}
         <div
           style={{
-            background: '#FF8C55',
+            background: 'var(--theme-accent)',
             height: '60px',
             overflow: 'hidden',
             position: 'relative',
@@ -226,7 +259,7 @@ export function StaticArtifactLayout({
                   fontFamily: 'var(--font-archivo-black)',
                   fontSize: '1.8rem',
                   textTransform: 'uppercase',
-                  color: '#080808',
+                  color: marqueeTextColor,
                   paddingRight: '2rem',
                 }}
               >
@@ -238,10 +271,10 @@ export function StaticArtifactLayout({
 
         {/* 3. TWO-PANEL HERO (25vh) */}
         <div style={{ display: 'grid', gridTemplateColumns: '40% 60%', gap: '3px' }}>
-          {/* Left panel - Grey with vinyl record */}
+          {/* Left panel - CD disc */}
           <div
             style={{
-              background: '#A6A6A6',
+              background: 'var(--theme-link)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -254,7 +287,6 @@ export function StaticArtifactLayout({
               if (audioContent) setAudioOpen(prev => !prev)
             }}
           >
-            {/* CD disc */}
             <img
               src="/images/artifact-cd.gif"
               alt="CD"
@@ -271,7 +303,7 @@ export function StaticArtifactLayout({
                 fontFamily: 'var(--font-space-mono)',
                 fontSize: '0.6rem',
                 fontWeight: 'bold',
-                color: '#080808',
+                color: heroLeftText,
                 letterSpacing: '0.1em',
               }}
             >
@@ -279,10 +311,10 @@ export function StaticArtifactLayout({
             </span>
           </div>
 
-          {/* Right panel - Blue with profile photo */}
+          {/* Right panel - Profile photo */}
           <div
             style={{
-              background: '#4A6FA5',
+              background: 'var(--theme-card-bg)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -307,7 +339,7 @@ export function StaticArtifactLayout({
                 style={{
                   fontFamily: 'var(--font-archivo-black)',
                   fontSize: '2rem',
-                  color: '#F2E8DC',
+                  color: 'var(--theme-text)',
                   opacity: 0.5,
                   textTransform: 'uppercase',
                 }}
@@ -325,7 +357,7 @@ export function StaticArtifactLayout({
             <div
               data-card-id={audioCard.id}
               style={{
-                background: '#080808',
+                background: 'var(--theme-background)',
                 padding: '1rem 1.5rem',
               }}
             >
@@ -364,9 +396,9 @@ export function StaticArtifactLayout({
 
           {/* Link cards */}
           {visibleCards.map((card, i) => {
-            const bgColor = ARTIFACT_COLORS[i % ARTIFACT_COLORS.length]
-            const isLightBg = LIGHT_BG_COLORS.includes(bgColor)
-            const textColor = isLightBg ? '#080808' : '#F2E8DC'
+            const bgColor = blockColors[i % blockColors.length]
+            const isLight = isLightColor(bgColor)
+            const textColor = isLight ? '#080808' : '#F2E8DC'
             const isHovered = hoveredIndex === i
 
             const displayTitle = card.title || card.card_type.toUpperCase()
@@ -460,11 +492,11 @@ export function StaticArtifactLayout({
           })}
         </div>
 
-        {/* 5. SOCIAL ICONS FOOTER - Cream */}
+        {/* 5. SOCIAL ICONS FOOTER */}
         {showSocialIcons && socialIcons.length > 0 && (
           <div
             style={{
-              background: '#F2E8DC',
+              background: 'var(--theme-text)',
               padding: '1rem',
               minHeight: '80px',
             }}
@@ -490,11 +522,11 @@ export function StaticArtifactLayout({
                       alignItems: 'center',
                       justifyContent: 'center',
                       padding: '0.75rem',
-                      color: '#080808',
-                      borderRight: isLast ? 'none' : '3px solid #080808',
+                      color: footerTextColor,
+                      borderRight: isLast ? 'none' : `3px solid ${footerTextColor}`,
                       transition: 'background-color 0.2s ease',
                     }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#FFC0CB' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = themeColors.accent }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                   >
                     <IconComp className="w-6 h-6" />
@@ -512,16 +544,17 @@ export function StaticArtifactLayout({
           padding: '1rem',
           textAlign: 'center',
           fontSize: '0.65rem',
-          color: '#A6A6A6',
+          color: 'var(--theme-text)',
+          opacity: 0.5,
           fontFamily: 'var(--font-space-mono)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-          <Link href={`/privacy?username=${username}`} style={{ color: '#A6A6A6', textDecoration: 'none' }}>
+          <Link href={`/privacy?username=${username}`} style={{ color: 'inherit', textDecoration: 'none' }}>
             Privacy Policy
           </Link>
           <span>///</span>
-          <Link href="/terms" style={{ color: '#A6A6A6', textDecoration: 'none' }}>
+          <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>
             Terms of Service
           </Link>
         </div>

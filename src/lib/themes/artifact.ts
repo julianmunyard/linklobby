@@ -8,12 +8,12 @@ export const artifactTheme: ThemeConfig = {
   isListLayout: true,
 
   defaultColors: {
-    background: '#080808',  // black
-    cardBg: '#2F5233',      // green
-    text: '#F2E8DC',        // cream
-    accent: '#FF8C55',      // orange
-    border: '#080808',      // black
-    link: '#F2E8DC',        // cream
+    background: '#080808',  // page bg / gap color
+    cardBg: '#2F5233',      // primary card block color (green)
+    text: '#F2E8DC',        // light text / cream
+    accent: '#FF8C55',      // marquee / highlight (orange)
+    border: '#FFC0CB',      // header block (pink)
+    link: '#4A6FA5',        // hero right panel (blue)
   },
 
   defaultFonts: {
@@ -39,56 +39,92 @@ export const artifactTheme: ThemeConfig = {
         cardBg: '#2F5233',
         text: '#F2E8DC',
         accent: '#FF8C55',
-        border: '#080808',
-        link: '#F2E8DC',
+        border: '#FFC0CB',
+        link: '#4A6FA5',
       },
     },
     {
-      id: 'neon-terminal',
-      name: 'Neon Terminal',
+      id: 'monochrome',
+      name: 'Monochrome',
       colors: {
-        background: '#0a1a0a',
-        cardBg: '#0d0d0d',
-        text: '#00ff41',
-        accent: '#ff0040',
-        border: '#00ff41',
-        link: '#00ff41',
+        background: '#0a0a0a',
+        cardBg: '#1a1a1a',
+        text: '#e8e8e8',
+        accent: '#ffffff',
+        border: '#333333',
+        link: '#2a2a2a',
       },
     },
     {
-      id: 'concrete',
-      name: 'Concrete',
+      id: 'blush',
+      name: 'Blush',
       colors: {
-        background: '#A6A6A6',
-        cardBg: '#F2E8DC',
-        text: '#080808',
-        accent: '#FF8C55',
-        border: '#080808',
-        link: '#080808',
+        background: '#1a0a10',
+        cardBg: '#8B4566',
+        text: '#F2E8DC',
+        accent: '#E8A0B8',
+        border: '#FFC0CB',
+        link: '#6B3050',
       },
     },
     {
-      id: 'inverted',
-      name: 'Inverted',
+      id: 'sage',
+      name: 'Sage',
       colors: {
-        background: '#F2E8DC',
-        cardBg: '#FFC0CB',
-        text: '#080808',
-        accent: '#4A6FA5',
-        border: '#080808',
-        link: '#080808',
+        background: '#0a100a',
+        cardBg: '#3D5A3D',
+        text: '#E8EDE4',
+        accent: '#A8C8A0',
+        border: '#C8D8C0',
+        link: '#2A4030',
+      },
+    },
+    {
+      id: 'lavender',
+      name: 'Lavender',
+      colors: {
+        background: '#0e0a14',
+        cardBg: '#4A3868',
+        text: '#E8E0F0',
+        accent: '#B898D8',
+        border: '#D8C8E8',
+        link: '#352850',
+      },
+    },
+    {
+      id: 'terracotta',
+      name: 'Terracotta',
+      colors: {
+        background: '#140a08',
+        cardBg: '#8B4A30',
+        text: '#F0E0D0',
+        accent: '#D89870',
+        border: '#E8C8A8',
+        link: '#5A3020',
+      },
+    },
+    {
+      id: 'ocean',
+      name: 'Ocean',
+      colors: {
+        background: '#080e14',
+        cardBg: '#2A4A6A',
+        text: '#D8E8F0',
+        accent: '#80B8D8',
+        border: '#A8D0E8',
+        link: '#1A3050',
       },
     },
     {
       id: 'midnight',
       name: 'Midnight',
       colors: {
-        background: '#0a1428',
-        cardBg: '#1a2a4a',
-        text: '#e8e8e8',
-        accent: '#4A6FA5',
-        border: '#0a1428',
-        link: '#e8e8e8',
+        background: '#0a0a14',
+        cardBg: '#1a1a3a',
+        text: '#c8c8e0',
+        accent: '#6060b0',
+        border: '#3a3a5a',
+        link: '#282850',
       },
     },
   ],

@@ -53,8 +53,14 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
   paypal: SiPaypal,
 }
 
-const ARTIFACT_COLORS = ['#2F5233', '#F2E8DC', '#FFC0CB', '#A6A6A6', '#FF8C55']
-const LIGHT_BG_COLORS = ['#F2E8DC', '#FFC0CB', '#A6A6A6']
+/** Determine if a hex color is "light" (needs dark text) */
+function isLightColor(hex: string): boolean {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 140
+}
 
 interface ArtifactLayoutProps {
   title: string
@@ -81,6 +87,13 @@ export function ArtifactLayout({
   const showSocialIcons = useProfileStore((s) => s.showSocialIcons)
   const titleText = displayName || title || 'ARTIFACT'
 
+  // Read palette colors from theme store
+  const colors = useThemeStore((s) => s.colors)
+
+  // Cycling card block colors derived from palette
+  // Order: cardBg, text, border (header), a muted mix, accent
+  const blockColors = [colors.cardBg, colors.text, colors.border, colors.link, colors.accent]
+
   const audioCard = cards.find(c => c.card_type === 'audio' && c.is_visible !== false && isAudioContent(c.content))
   const audioContent = audioCard && isAudioContent(audioCard.content) ? (audioCard.content as unknown as AudioCardContent) : null
 
@@ -101,10 +114,20 @@ export function ArtifactLayout({
     }
   }
 
+  // Header block text needs to contrast with border color (header bg)
+  const headerTextColor = isLightColor(colors.border) ? '#080808' : '#F2E8DC'
+  // Marquee text needs to contrast with accent color (marquee bg)
+  const marqueeTextColor = isLightColor(colors.accent) ? '#080808' : '#F2E8DC'
+  // Hero left panel uses a muted tone
+  const heroLeftBg = colors.link
+  const heroLeftText = isLightColor(colors.link) ? '#080808' : '#F2E8DC'
+  // Footer text
+  const footerTextColor = isLightColor(colors.text) ? '#080808' : '#F2E8DC'
+
   return (
     <div
       className="fixed inset-0 overflow-y-auto overflow-x-hidden"
-      style={{ background: '#080808' }}
+      style={{ background: 'var(--theme-background)' }}
     >
       {/* Injected keyframes */}
       <style>{`
@@ -138,10 +161,10 @@ export function ArtifactLayout({
           minHeight: '100vh',
         }}
       >
-        {/* 1. HEADER BLOCK - Pink */}
+        {/* 1. HEADER BLOCK */}
         <div
           style={{
-            background: '#FFC0CB',
+            background: colors.border,
             padding: '0.75rem 1rem',
             minHeight: '120px',
             display: 'flex',
@@ -157,7 +180,7 @@ export function ArtifactLayout({
               fontFamily: 'var(--font-space-mono)',
               fontSize: '0.6rem',
               fontWeight: 'bold',
-              color: '#080808',
+              color: headerTextColor,
               letterSpacing: '-0.02em',
             }}
           >
@@ -173,7 +196,7 @@ export function ArtifactLayout({
               lineHeight: 0.85,
               letterSpacing: '-0.05em',
               textTransform: 'uppercase',
-              color: '#080808',
+              color: headerTextColor,
               textAlign: 'center',
               margin: '-10px 0',
               overflow: 'hidden',
@@ -193,7 +216,7 @@ export function ArtifactLayout({
               fontFamily: 'var(--font-space-mono)',
               fontSize: '0.55rem',
               fontWeight: 'bold',
-              color: '#080808',
+              color: headerTextColor,
               letterSpacing: '-0.02em',
             }}
           >
@@ -203,10 +226,10 @@ export function ArtifactLayout({
           </div>
         </div>
 
-        {/* 2. MARQUEE BANNER - Orange */}
+        {/* 2. MARQUEE BANNER */}
         <div
           style={{
-            background: '#FF8C55',
+            background: colors.accent,
             height: '60px',
             overflow: 'hidden',
             position: 'relative',
@@ -228,7 +251,7 @@ export function ArtifactLayout({
                   fontFamily: 'var(--font-archivo-black)',
                   fontSize: '1.5rem',
                   textTransform: 'uppercase',
-                  color: '#080808',
+                  color: marqueeTextColor,
                   paddingRight: '2rem',
                 }}
               >
@@ -240,10 +263,10 @@ export function ArtifactLayout({
 
         {/* 3. TWO-PANEL HERO (25vh) */}
         <div style={{ display: 'grid', gridTemplateColumns: '40% 60%', gap: '3px' }}>
-          {/* Left panel - Grey with vinyl record */}
+          {/* Left panel - CD disc */}
           <div
             style={{
-              background: '#A6A6A6',
+              background: heroLeftBg,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -276,7 +299,7 @@ export function ArtifactLayout({
                 fontFamily: 'var(--font-space-mono)',
                 fontSize: '0.5rem',
                 fontWeight: 'bold',
-                color: '#080808',
+                color: heroLeftText,
                 letterSpacing: '0.1em',
               }}
             >
@@ -284,10 +307,10 @@ export function ArtifactLayout({
             </span>
           </div>
 
-          {/* Right panel - Blue with profile photo */}
+          {/* Right panel - Profile photo */}
           <div
             style={{
-              background: '#4A6FA5',
+              background: colors.cardBg,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -312,7 +335,7 @@ export function ArtifactLayout({
                 style={{
                   fontFamily: 'var(--font-archivo-black)',
                   fontSize: '1.5rem',
-                  color: '#F2E8DC',
+                  color: colors.text,
                   opacity: 0.5,
                   textTransform: 'uppercase',
                 }}
@@ -330,7 +353,7 @@ export function ArtifactLayout({
             <div
               data-card-id={audioCard.id}
               style={{
-                background: '#080808',
+                background: 'var(--theme-background)',
                 padding: '0.75rem 1rem',
                 cursor: 'pointer',
               }}
@@ -374,9 +397,9 @@ export function ArtifactLayout({
 
           {/* Link cards */}
           {visibleCards.map((card, i) => {
-            const bgColor = ARTIFACT_COLORS[i % ARTIFACT_COLORS.length]
-            const isLightBg = LIGHT_BG_COLORS.includes(bgColor)
-            const textColor = isLightBg ? '#080808' : '#F2E8DC'
+            const bgColor = blockColors[i % blockColors.length]
+            const isLight = isLightColor(bgColor)
+            const textColor = isLight ? '#080808' : '#F2E8DC'
             const isHovered = hoveredIndex === i
             const isSelected = selectedCardId === card.id
 
@@ -461,11 +484,11 @@ export function ArtifactLayout({
           })}
         </div>
 
-        {/* 5. SOCIAL ICONS FOOTER - Cream */}
+        {/* 5. SOCIAL ICONS FOOTER */}
         {showSocialIcons && socialIcons.length > 0 && (
           <div
             style={{
-              background: '#F2E8DC',
+              background: colors.text,
               minHeight: '60px',
               display: 'grid',
               gridTemplateColumns: `repeat(${Math.min(socialIcons.length, 4)}, 1fr)`,
@@ -483,8 +506,8 @@ export function ArtifactLayout({
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '0.5rem',
-                    color: '#080808',
-                    borderRight: isLast ? 'none' : '3px solid #080808',
+                    color: footerTextColor,
+                    borderRight: isLast ? 'none' : `3px solid ${footerTextColor}`,
                   }}
                 >
                   <IconComp className="w-5 h-5" />

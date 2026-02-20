@@ -785,12 +785,6 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
           { name: 'Dusk Cherry',    outerBox: '#2d1520', innerBox: '#a04058', text: '#e8c8d0', playerBox: '#703048', buttons: '#d0a040' },
           { name: 'Slate & Rust',   outerBox: '#282830', innerBox: '#707088', text: '#d8d8e0', playerBox: '#484860', buttons: '#c06838' },
           { name: 'Deep Lagoon',    outerBox: '#102028', innerBox: '#286878', text: '#b0d0d8', playerBox: '#1a4858', buttons: '#c86080' },
-          { name: 'Monochrome',     outerBox: '#1a1a1a', innerBox: '#333333', text: '#e0e0e0', playerBox: '#4a4a4a', buttons: '#ffffff' },
-          { name: 'Blush Cream',    outerBox: '#F2E8DC', innerBox: '#FFC0CB', text: '#080808', playerBox: '#e8c8b8', buttons: '#2F5233' },
-          { name: 'Soft Mint',      outerBox: '#d4e8d8', innerBox: '#a8d0b0', text: '#1a3020', playerBox: '#b8d8c0', buttons: '#5a8868' },
-          { name: 'Peach Dusk',     outerBox: '#f0d8c8', innerBox: '#e8a888', text: '#3a2018', playerBox: '#d8b8a0', buttons: '#c07050' },
-          { name: 'Powder Blue',    outerBox: '#c8d8e8', innerBox: '#90b0d0', text: '#182838', playerBox: '#a0c0d8', buttons: '#4A6FA5' },
-          { name: 'Lilac Fog',      outerBox: '#dcd0e8', innerBox: '#b8a0d0', text: '#281838', playerBox: '#c8b0d8', buttons: '#8060a8' },
         ]
         return (
         <div className="space-y-3">
