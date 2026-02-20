@@ -135,6 +135,7 @@ export interface ThemeState {
   phoneHomeVariant?: 'default' | '8-bit'  // Phone Home theme: visual variant
   zineBadgeText?: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize?: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
+  zineShowDoodles?: boolean     // Chaotic Zine theme: show decorative doodles/scribbles
   scatterMode?: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag?: boolean       // Whether visitors can drag cards on public page
   pixels?: {  // Tracking pixel configuration

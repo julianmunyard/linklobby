@@ -115,6 +115,7 @@ interface PublicPageRendererProps {
   // Chaotic Zine theme
   zineBadgeText?: string
   zineTitleSize?: number
+  zineShowDoodles?: boolean
   // Scatter mode
   scatterMode?: boolean
   visitorDrag?: boolean
@@ -177,6 +178,7 @@ export function PublicPageRenderer({
   phoneHomeVariant,
   zineBadgeText,
   zineTitleSize,
+  zineShowDoodles,
   scatterMode = false,
   visitorDrag = false,
   cards,
@@ -346,6 +348,7 @@ export function PublicPageRenderer({
         bio={bio}
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
+        zineShowDoodles={zineShowDoodles}
       />
     )
   }

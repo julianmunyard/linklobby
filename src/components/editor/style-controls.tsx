@@ -37,7 +37,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles } = useThemeStore()
   const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
 
@@ -514,6 +514,20 @@ export function StyleControls() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Chaotic Zine Theme: Show Doodles Toggle */}
+      {themeId === 'chaotic-zine' && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Doodles</Label>
+            <p className="text-xs text-muted-foreground">Arrows, scribbles and background marks</p>
+          </div>
+          <Switch
+            checked={zineShowDoodles}
+            onCheckedChange={setZineShowDoodles}
+          />
         </div>
       )}
 

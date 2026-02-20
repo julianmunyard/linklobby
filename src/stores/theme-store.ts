@@ -50,6 +50,7 @@ interface ThemeStore extends ThemeState {
   phoneHomeVariant: 'default' | '8-bit' // Phone Home theme: visual variant
   zineBadgeText: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
+  zineShowDoodles: boolean     // Chaotic Zine theme: show decorative doodles/scribbles
   scatterMode: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag: boolean       // Whether visitors can drag cards on public page
   hasChanges: boolean     // Track if theme has unsaved changes
@@ -90,6 +91,7 @@ interface ThemeStore extends ThemeState {
   setPhoneHomeVariant: (variant: 'default' | '8-bit') => void
   setZineBadgeText: (text: string) => void
   setZineTitleSize: (size: number) => void
+  setZineShowDoodles: (show: boolean) => void
   setScatterMode: (enabled: boolean) => void
   setVisitorDrag: (enabled: boolean) => void
   resetToThemeDefaults: () => void
@@ -171,6 +173,7 @@ export const useThemeStore = create<ThemeStore>()(
       phoneHomeVariant: 'default',
       zineBadgeText: 'NEW!',
       zineTitleSize: 1.0,
+      zineShowDoodles: true,
       scatterMode: false,
       visitorDrag: false,
       hasChanges: false,
@@ -441,6 +444,10 @@ export const useThemeStore = create<ThemeStore>()(
         set({ zineTitleSize: size, hasChanges: true })
       },
 
+      setZineShowDoodles: (show: boolean) => {
+        set({ zineShowDoodles: show, hasChanges: true })
+      },
+
       setScatterMode: (enabled: boolean) => {
         set((state) => ({
           scatterMode: enabled,
@@ -514,6 +521,7 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
           zineBadgeText: theme.zineBadgeText ?? 'NEW!',
           zineTitleSize: theme.zineTitleSize ?? 1.0,
+          zineShowDoodles: theme.zineShowDoodles ?? true,
           scatterMode: theme.scatterMode ?? false,
           visitorDrag: theme.visitorDrag ?? false,
           hasChanges: false,
@@ -552,6 +560,7 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeVariant: state.phoneHomeVariant,
           zineBadgeText: state.zineBadgeText,
           zineTitleSize: state.zineTitleSize,
+          zineShowDoodles: state.zineShowDoodles,
           scatterMode: state.scatterMode,
           visitorDrag: state.visitorDrag,
         }

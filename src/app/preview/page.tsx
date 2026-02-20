@@ -172,6 +172,7 @@ function PreviewContent() {
             phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
             zineBadgeText: ts.zineBadgeText ?? 'NEW!',
             zineTitleSize: ts.zineTitleSize ?? 1.0,
+            zineShowDoodles: ts.zineShowDoodles ?? true,
             scatterMode: ts.scatterMode ?? false,
             visitorDrag: ts.visitorDrag ?? false,
           })

@@ -203,6 +203,7 @@ export function ChaoticZineLayout({
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
   const zineBadgeText = useThemeStore((s) => s.zineBadgeText)
   const zineTitleSize = useThemeStore((s) => s.zineTitleSize)
+  const zineShowDoodles = useThemeStore((s) => s.zineShowDoodles)
 
   // Profile data
   const displayName = useProfileStore((s) => s.displayName)
@@ -256,38 +257,42 @@ export function ChaoticZineLayout({
   return (
     <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--theme-background)' }}>
       {/* Large faded typography decorations */}
-      <div
-        style={{
-          fontFamily: 'var(--font-rock-salt)',
-          fontSize: '4rem',
-          position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          opacity: 0.1,
-          transform: 'rotate(-30deg)',
-          pointerEvents: 'none',
-          zIndex: 0,
-          color: 'var(--theme-text)',
-        }}
-      >
-        &amp;
-      </div>
-      <div
-        style={{
-          fontFamily: 'var(--font-bangers)',
-          fontSize: '5rem',
-          position: 'absolute',
-          top: '100px',
-          left: '-10px',
-          opacity: 0.1,
-          transform: 'rotate(10deg)',
-          pointerEvents: 'none',
-          zIndex: 0,
-          color: 'var(--theme-text)',
-        }}
-      >
-        ?!
-      </div>
+      {zineShowDoodles && (
+        <>
+          <div
+            style={{
+              fontFamily: 'var(--font-rock-salt)',
+              fontSize: '4rem',
+              position: 'absolute',
+              bottom: '20px',
+              right: '20px',
+              opacity: 0.1,
+              transform: 'rotate(-30deg)',
+              pointerEvents: 'none',
+              zIndex: 0,
+              color: 'var(--theme-text)',
+            }}
+          >
+            &amp;
+          </div>
+          <div
+            style={{
+              fontFamily: 'var(--font-bangers)',
+              fontSize: '5rem',
+              position: 'absolute',
+              top: '100px',
+              left: '-10px',
+              opacity: 0.1,
+              transform: 'rotate(10deg)',
+              pointerEvents: 'none',
+              zIndex: 0,
+              color: 'var(--theme-text)',
+            }}
+          >
+            ?!
+          </div>
+        </>
+      )}
 
       {/* Main content - chaos-wrapper from original design */}
       <div className="relative z-10 flex flex-col items-center" style={{ maxWidth: '480px', margin: '0 auto', padding: '2rem 1.5rem', minHeight: '100vh' }}>
@@ -364,19 +369,23 @@ export function ChaoticZineLayout({
         </div>
 
         {/* SVG Scribble decorations - positioned relative to content */}
-        <svg
-          style={{ position: 'absolute', top: '180px', right: '10px', width: '60px', transform: 'rotate(20deg)', pointerEvents: 'none', zIndex: 0 }}
-          viewBox="0 0 100 100"
-        >
-          <path d="M10,10 Q50,50 90,90 M90,90 L70,50 M90,90 L50,80" fill="none" stroke="var(--theme-text)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
-        </svg>
-        <svg
-          style={{ position: 'absolute', bottom: '50px', left: '-20px', width: '100px', opacity: 0.25, transform: 'rotate(-10deg)', pointerEvents: 'none', zIndex: 0 }}
-          viewBox="0 0 100 100"
-        >
-          <path d="M10,50 Q30,10 50,50 T90,50" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
-          <path d="M15,60 Q35,20 55,60 T95,60" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
-        </svg>
+        {zineShowDoodles && (
+          <>
+            <svg
+              style={{ position: 'absolute', top: '180px', right: '10px', width: '60px', transform: 'rotate(20deg)', pointerEvents: 'none', zIndex: 0 }}
+              viewBox="0 0 100 100"
+            >
+              <path d="M10,10 Q50,50 90,90 M90,90 L70,50 M90,90 L50,80" fill="none" stroke="var(--theme-text)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+            </svg>
+            <svg
+              style={{ position: 'absolute', bottom: '50px', left: '-20px', width: '100px', opacity: 0.25, transform: 'rotate(-10deg)', pointerEvents: 'none', zIndex: 0 }}
+              viewBox="0 0 100 100"
+            >
+              <path d="M10,50 Q30,10 50,50 T90,50" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
+              <path d="M15,60 Q35,20 55,60 T95,60" fill="none" stroke="var(--theme-text)" strokeWidth="2" />
+            </svg>
+          </>
+        )}
 
         {/* Cards Section - link-stack from original */}
         <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
