@@ -94,6 +94,21 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
       )
     }
 
+    case 'artifact':
+      return (
+        <div
+          className={cn("overflow-hidden border-2 border-black", className)}
+          style={{
+            borderRadius: 0,
+            backgroundColor: isTransparent ? 'transparent' : 'var(--theme-card-bg)',
+            color: 'var(--theme-text)',
+            fontFamily: 'var(--font-space-mono)',
+          }}
+        >
+          {children}
+        </div>
+      )
+
     case 'instagram-reels':
     default:
       // Standard themed card
