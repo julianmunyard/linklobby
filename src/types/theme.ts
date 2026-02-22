@@ -62,20 +62,38 @@ export interface BackgroundConfig {
   dimOverlay?: boolean       // Whether to dim the background
   dimIntensity?: number      // Dim opacity (0-100, default 40)
   // Glitch effect (glitchGL)
-  glitchEffect?: boolean           // Master toggle
-  glitchType?: 'crt' | 'pixelation' | 'glitch'  // Which effect preset
-  glitchIntensity?: number         // Master intensity 0-100, default 50
-  // CRT sub-controls
+  glitchEffect?: boolean
+  glitchType?: 'crt' | 'pixelation' | 'glitch'
+  glitchIntensity?: number         // 0-100, default 50
+  // CRT
+  glitchCrtPreset?: 'consumer-tv' | 'arcade-monitor' | 'computer-monitor' | 'broadcast-monitor'
   glitchCrtScanlines?: number      // 0-100, default 70
+  glitchCrtScanlineThickness?: number // 0-100, default 80
   glitchCrtCurvature?: number      // 0-20, default 8
   glitchCrtAberration?: number     // 0-100 (maps to 0-0.01), default 40
-  // Pixelation sub-controls
-  glitchPixelSize?: number         // 2-32, default 8
-  glitchPixelShape?: 'square' | 'circle'  // default 'square'
-  // Glitch sub-controls
+  glitchCrtBrightness?: number     // 50-200, default 120
+  glitchCrtPhosphorGlow?: number   // 0-100, default 40
+  glitchCrtFlicker?: boolean       // default false
+  glitchCrtFlickerIntensity?: number // 0-100, default 50
+  glitchCrtLineMovement?: boolean  // default false
+  glitchCrtLineSpeed?: number      // 0-100, default 50 (maps to 0-3)
+  glitchCrtLineDirection?: 'up' | 'down' | 'left' | 'right'
+  // Pixelation
+  glitchPixelSize?: number         // 2-64, default 8
+  glitchPixelShape?: 'square' | 'circle' | 'diamond' | 'cross' | 'plus'
+  glitchPixelBitDepth?: 'none' | '1-bit' | '4-bit' | '8-bit'
+  glitchPixelDithering?: 'none' | 'floyd-steinberg' | 'bayer'
+  glitchPixelDirection?: 'square' | 'horizontal' | 'vertical'
+  // Glitch
   glitchRgbShift?: number          // 0-100 (maps to 0-0.05), default 0
   glitchDigitalNoise?: number      // 0-100 (maps to 0-0.5), default 10
   glitchLineDisplacement?: number  // 0-100 (maps to 0-0.1), default 10
+  glitchSignalDropout?: number     // 0-100, default 5
+  glitchSyncError?: number         // 0-100, default 5
+  glitchInterference?: number      // 0-100, default 20
+  glitchFrameGhost?: number        // 0-100, default 30
+  glitchStutter?: number           // 0-100, default 10
+  glitchDatamosh?: number          // 0-100, default 50
 }
 
 // Receipt sticker configuration

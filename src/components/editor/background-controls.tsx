@@ -225,12 +225,43 @@ export function BackgroundControls() {
           {/* CRT sub-controls */}
           {(background.glitchType ?? 'crt') === 'crt' && (
             <>
+              {/* Preset */}
+              <div className="space-y-2">
+                <Label className="text-xs">Monitor Preset</Label>
+                <div className="grid grid-cols-2 gap-1">
+                  {([
+                    { id: 'consumer-tv', label: 'TV' },
+                    { id: 'arcade-monitor', label: 'Arcade' },
+                    { id: 'computer-monitor', label: 'Computer' },
+                    { id: 'broadcast-monitor', label: 'Broadcast' },
+                  ] as const).map(({ id, label }) => (
+                    <button
+                      key={id}
+                      onClick={() => setBackground({ ...background, glitchCrtPreset: id })}
+                      className={`px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                        (background.glitchCrtPreset ?? 'consumer-tv') === id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs">Scanlines</Label>
                   <span className="text-xs text-muted-foreground">{background.glitchCrtScanlines ?? 70}%</span>
                 </div>
                 <Slider value={[background.glitchCrtScanlines ?? 70]} onValueChange={([v]) => setBackground({ ...background, glitchCrtScanlines: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Scanline Thickness</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtScanlineThickness ?? 80}%</span>
+                </div>
+                <Slider value={[background.glitchCrtScanlineThickness ?? 80]} onValueChange={([v]) => setBackground({ ...background, glitchCrtScanlineThickness: v })} min={0} max={100} step={5} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -246,6 +277,73 @@ export function BackgroundControls() {
                 </div>
                 <Slider value={[background.glitchCrtAberration ?? 40]} onValueChange={([v]) => setBackground({ ...background, glitchCrtAberration: v })} min={0} max={100} step={5} />
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Brightness</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtBrightness ?? 120}%</span>
+                </div>
+                <Slider value={[background.glitchCrtBrightness ?? 120]} onValueChange={([v]) => setBackground({ ...background, glitchCrtBrightness: v })} min={50} max={200} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Phosphor Glow</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtPhosphorGlow ?? 40}%</span>
+                </div>
+                <Slider value={[background.glitchCrtPhosphorGlow ?? 40]} onValueChange={([v]) => setBackground({ ...background, glitchCrtPhosphorGlow: v })} min={0} max={100} step={5} />
+              </div>
+              {/* Animated CRT options */}
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Line Movement</Label>
+                <Switch
+                  checked={background.glitchCrtLineMovement ?? false}
+                  onCheckedChange={(checked) => setBackground({ ...background, glitchCrtLineMovement: checked })}
+                />
+              </div>
+              {background.glitchCrtLineMovement && (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Line Speed</Label>
+                      <span className="text-xs text-muted-foreground">{background.glitchCrtLineSpeed ?? 50}%</span>
+                    </div>
+                    <Slider value={[background.glitchCrtLineSpeed ?? 50]} onValueChange={([v]) => setBackground({ ...background, glitchCrtLineSpeed: v })} min={5} max={100} step={5} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Direction</Label>
+                    <div className="grid grid-cols-4 gap-1">
+                      {(['up', 'down', 'left', 'right'] as const).map((dir) => (
+                        <button
+                          key={dir}
+                          onClick={() => setBackground({ ...background, glitchCrtLineDirection: dir })}
+                          className={`px-1 py-1 rounded text-xs font-medium transition-colors capitalize ${
+                            (background.glitchCrtLineDirection ?? 'up') === dir
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                          }`}
+                        >
+                          {dir}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Flicker</Label>
+                <Switch
+                  checked={background.glitchCrtFlicker ?? false}
+                  onCheckedChange={(checked) => setBackground({ ...background, glitchCrtFlicker: checked })}
+                />
+              </div>
+              {background.glitchCrtFlicker && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Flicker Intensity</Label>
+                    <span className="text-xs text-muted-foreground">{background.glitchCrtFlickerIntensity ?? 50}%</span>
+                  </div>
+                  <Slider value={[background.glitchCrtFlickerIntensity ?? 50]} onValueChange={([v]) => setBackground({ ...background, glitchCrtFlickerIntensity: v })} min={5} max={100} step={5} />
+                </div>
+              )}
             </>
           )}
 
@@ -257,22 +355,76 @@ export function BackgroundControls() {
                   <Label className="text-xs">Pixel Size</Label>
                   <span className="text-xs text-muted-foreground">{background.glitchPixelSize ?? 8}px</span>
                 </div>
-                <Slider value={[background.glitchPixelSize ?? 8]} onValueChange={([v]) => setBackground({ ...background, glitchPixelSize: v })} min={2} max={32} step={1} />
+                <Slider value={[background.glitchPixelSize ?? 8]} onValueChange={([v]) => setBackground({ ...background, glitchPixelSize: v })} min={2} max={64} step={1} />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs">Pixel Shape</Label>
-                <div className="flex gap-2">
-                  {(['square', 'circle'] as const).map((shape) => (
+                <div className="flex gap-1">
+                  {(['square', 'circle', 'diamond', 'cross', 'plus'] as const).map((shape) => (
                     <button
                       key={shape}
                       onClick={() => setBackground({ ...background, glitchPixelShape: shape })}
-                      className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                      className={`flex-1 px-1 py-1.5 rounded text-xs font-medium transition-colors capitalize ${
                         (background.glitchPixelShape ?? 'square') === shape
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted hover:bg-muted/80 text-muted-foreground'
                       }`}
                     >
-                      {shape.charAt(0).toUpperCase() + shape.slice(1)}
+                      {shape.length > 4 ? shape.slice(0, 4) : shape}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Bit Depth</Label>
+                <div className="grid grid-cols-4 gap-1">
+                  {(['none', '1-bit', '4-bit', '8-bit'] as const).map((depth) => (
+                    <button
+                      key={depth}
+                      onClick={() => setBackground({ ...background, glitchPixelBitDepth: depth })}
+                      className={`px-1 py-1.5 rounded text-xs font-medium transition-colors ${
+                        (background.glitchPixelBitDepth ?? 'none') === depth
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {depth === 'none' ? 'Full' : depth}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Dithering</Label>
+                <div className="grid grid-cols-3 gap-1">
+                  {(['none', 'floyd-steinberg', 'bayer'] as const).map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setBackground({ ...background, glitchPixelDithering: d })}
+                      className={`px-1 py-1.5 rounded text-xs font-medium transition-colors ${
+                        (background.glitchPixelDithering ?? 'none') === d
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {d === 'floyd-steinberg' ? 'Floyd' : d === 'none' ? 'None' : 'Bayer'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Direction</Label>
+                <div className="grid grid-cols-3 gap-1">
+                  {(['square', 'horizontal', 'vertical'] as const).map((dir) => (
+                    <button
+                      key={dir}
+                      onClick={() => setBackground({ ...background, glitchPixelDirection: dir })}
+                      className={`px-1 py-1.5 rounded text-xs font-medium transition-colors capitalize ${
+                        (background.glitchPixelDirection ?? 'square') === dir
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {dir === 'horizontal' ? 'Horiz' : dir === 'vertical' ? 'Vert' : dir}
                     </button>
                   ))}
                 </div>
@@ -303,6 +455,48 @@ export function BackgroundControls() {
                   <span className="text-xs text-muted-foreground">{background.glitchLineDisplacement ?? 10}%</span>
                 </div>
                 <Slider value={[background.glitchLineDisplacement ?? 10]} onValueChange={([v]) => setBackground({ ...background, glitchLineDisplacement: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Signal Dropout</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchSignalDropout ?? 5}%</span>
+                </div>
+                <Slider value={[background.glitchSignalDropout ?? 5]} onValueChange={([v]) => setBackground({ ...background, glitchSignalDropout: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Sync Error</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchSyncError ?? 5}%</span>
+                </div>
+                <Slider value={[background.glitchSyncError ?? 5]} onValueChange={([v]) => setBackground({ ...background, glitchSyncError: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Interference</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchInterference ?? 20}%</span>
+                </div>
+                <Slider value={[background.glitchInterference ?? 20]} onValueChange={([v]) => setBackground({ ...background, glitchInterference: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Frame Ghost</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchFrameGhost ?? 30}%</span>
+                </div>
+                <Slider value={[background.glitchFrameGhost ?? 30]} onValueChange={([v]) => setBackground({ ...background, glitchFrameGhost: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Stutter</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchStutter ?? 10}%</span>
+                </div>
+                <Slider value={[background.glitchStutter ?? 10]} onValueChange={([v]) => setBackground({ ...background, glitchStutter: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Datamosh</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchDatamosh ?? 50}%</span>
+                </div>
+                <Slider value={[background.glitchDatamosh ?? 50]} onValueChange={([v]) => setBackground({ ...background, glitchDatamosh: v })} min={0} max={100} step={5} />
               </div>
             </>
           )}
