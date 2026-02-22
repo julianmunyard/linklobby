@@ -63,6 +63,7 @@ export interface BackgroundConfig {
   dimIntensity?: number      // Dim opacity (0-100, default 40)
   // Glitch effect (glitchGL)
   glitchEffect?: boolean
+  glitchFullPage?: boolean         // Overlay on top of cards (mix-blend-mode)
   glitchType?: 'crt' | 'pixelation' | 'glitch'
   glitchIntensity?: number         // 0-100, default 50
   // CRT

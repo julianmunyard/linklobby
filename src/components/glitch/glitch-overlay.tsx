@@ -153,6 +153,7 @@ function configKey(bg: BackgroundConfig): string {
     bg.glitchFrameGhost ?? 30,
     bg.glitchStutter ?? 10,
     bg.glitchDatamosh ?? 50,
+    bg.glitchFullPage ?? false,
     // Background source
     bg.type,
     bg.value ?? '',
@@ -169,11 +170,13 @@ function GlitchInstance({
   wrapperId,
   targetId,
   imgSrc,
+  fullPage,
 }: {
   background: BackgroundConfig
   wrapperId: string
   targetId: string
   imgSrc: string
+  fullPage: boolean
 }) {
   const effectRef = useRef<any>(null)
 
@@ -225,8 +228,13 @@ function GlitchInstance({
   return (
     <div
       id={wrapperId}
-      className="fixed inset-0 -z-[4] pointer-events-none"
-      style={{ overflow: 'hidden', position: 'fixed' }}
+      className="fixed inset-0 pointer-events-none"
+      style={{
+        overflow: 'hidden',
+        position: 'fixed',
+        zIndex: fullPage ? 30 : -4,
+        mixBlendMode: fullPage ? 'overlay' : 'normal',
+      }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -268,6 +276,7 @@ export function GlitchOverlay() {
       wrapperId="glitch-bg-wrapper"
       targetId="glitch-bg-source"
       imgSrc={getGlitchImgSrc(background)}
+      fullPage={background.glitchFullPage ?? false}
     />
   )
 }

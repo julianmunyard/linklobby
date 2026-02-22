@@ -101,8 +101,13 @@ export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
   return (
     <div
       id="static-glitch-bg-wrapper"
-      className="fixed inset-0 -z-[4] pointer-events-none"
-      style={{ overflow: 'hidden', position: 'fixed' }}
+      className="fixed inset-0 pointer-events-none"
+      style={{
+        overflow: 'hidden',
+        position: 'fixed',
+        zIndex: background.glitchFullPage ? 30 : -4,
+        mixBlendMode: background.glitchFullPage ? 'overlay' : 'normal',
+      }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

@@ -187,6 +187,15 @@ export function BackgroundControls() {
 
       {background.glitchEffect && (
         <div className="space-y-4 pl-4 border-l-2 border-border">
+          {/* Full Page Toggle */}
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Full Page</Label>
+            <Switch
+              checked={background.glitchFullPage ?? false}
+              onCheckedChange={(checked) => setBackground({ ...background, glitchFullPage: checked })}
+            />
+          </div>
+
           {/* Effect Type Selector */}
           <div className="space-y-2">
             <Label className="text-xs">Effect Type</Label>
