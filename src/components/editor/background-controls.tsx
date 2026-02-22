@@ -9,7 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone, Pipette } from 'lucide-react'
+import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone, Pipette, Zap } from 'lucide-react'
 import type { BackgroundConfig } from '@/types/theme'
 
 // Available frame overlays
@@ -170,6 +170,146 @@ export function BackgroundControls() {
     })
     input.click()
   }, [background, setBackground])
+
+  // Glitch effects section (shared by all themes)
+  const glitchSection = (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Zap className="w-4 h-4 text-muted-foreground" />
+          <Label className="text-xs font-medium text-muted-foreground">Glitch Effects</Label>
+        </div>
+        <Switch
+          checked={background.glitchEffect ?? false}
+          onCheckedChange={(checked) => setBackground({ ...background, glitchEffect: checked })}
+        />
+      </div>
+
+      {background.glitchEffect && (
+        <div className="space-y-4 pl-4 border-l-2 border-border">
+          {/* Effect Type Selector */}
+          <div className="space-y-2">
+            <Label className="text-xs">Effect Type</Label>
+            <div className="flex gap-1">
+              {(['crt', 'pixelation', 'glitch'] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setBackground({ ...background, glitchType: type })}
+                  className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                    (background.glitchType ?? 'crt') === type
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                  }`}
+                >
+                  {type === 'crt' ? 'CRT' : type === 'pixelation' ? 'Pixel' : 'Glitch'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Master Intensity */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Intensity</Label>
+              <span className="text-xs text-muted-foreground">{background.glitchIntensity ?? 50}%</span>
+            </div>
+            <Slider
+              value={[background.glitchIntensity ?? 50]}
+              onValueChange={([v]) => setBackground({ ...background, glitchIntensity: v })}
+              min={10}
+              max={100}
+              step={5}
+            />
+          </div>
+
+          {/* CRT sub-controls */}
+          {(background.glitchType ?? 'crt') === 'crt' && (
+            <>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Scanlines</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtScanlines ?? 70}%</span>
+                </div>
+                <Slider value={[background.glitchCrtScanlines ?? 70]} onValueChange={([v]) => setBackground({ ...background, glitchCrtScanlines: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Curvature</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtCurvature ?? 8}</span>
+                </div>
+                <Slider value={[background.glitchCrtCurvature ?? 8]} onValueChange={([v]) => setBackground({ ...background, glitchCrtCurvature: v })} min={0} max={20} step={1} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Chromatic Aberration</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchCrtAberration ?? 40}%</span>
+                </div>
+                <Slider value={[background.glitchCrtAberration ?? 40]} onValueChange={([v]) => setBackground({ ...background, glitchCrtAberration: v })} min={0} max={100} step={5} />
+              </div>
+            </>
+          )}
+
+          {/* Pixelation sub-controls */}
+          {(background.glitchType ?? 'crt') === 'pixelation' && (
+            <>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Pixel Size</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchPixelSize ?? 8}px</span>
+                </div>
+                <Slider value={[background.glitchPixelSize ?? 8]} onValueChange={([v]) => setBackground({ ...background, glitchPixelSize: v })} min={2} max={32} step={1} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs">Pixel Shape</Label>
+                <div className="flex gap-2">
+                  {(['square', 'circle'] as const).map((shape) => (
+                    <button
+                      key={shape}
+                      onClick={() => setBackground({ ...background, glitchPixelShape: shape })}
+                      className={`flex-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                        (background.glitchPixelShape ?? 'square') === shape
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {shape.charAt(0).toUpperCase() + shape.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Glitch sub-controls */}
+          {(background.glitchType ?? 'crt') === 'glitch' && (
+            <>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">RGB Shift</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchRgbShift ?? 0}%</span>
+                </div>
+                <Slider value={[background.glitchRgbShift ?? 0]} onValueChange={([v]) => setBackground({ ...background, glitchRgbShift: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Digital Noise</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchDigitalNoise ?? 10}%</span>
+                </div>
+                <Slider value={[background.glitchDigitalNoise ?? 10]} onValueChange={([v]) => setBackground({ ...background, glitchDigitalNoise: v })} min={0} max={100} step={5} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Line Displacement</Label>
+                  <span className="text-xs text-muted-foreground">{background.glitchLineDisplacement ?? 10}%</span>
+                </div>
+                <Slider value={[background.glitchLineDisplacement ?? 10]} onValueChange={([v]) => setBackground({ ...background, glitchLineDisplacement: v })} min={0} max={100} step={5} />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
 
   // Status bar color picker (shared by all themes)
   const statusBarSection = (
@@ -342,12 +482,18 @@ export function BackgroundControls() {
                 value={[background.noiseIntensity ?? 15]}
                 onValueChange={handleNoiseIntensityChange}
                 min={5}
-                max={50}
+                max={15}
                 step={1}
               />
             </div>
           )}
         </div>
+
+        {/* Divider */}
+        <div className="h-px bg-border" />
+
+        {/* Glitch Effects */}
+        {glitchSection}
 
         {/* Divider */}
         <div className="h-px bg-border" />
@@ -667,7 +813,7 @@ export function BackgroundControls() {
               value={[background.noiseIntensity ?? 15]}
               onValueChange={handleNoiseIntensityChange}
               min={5}
-              max={50}
+              max={15}
               step={1}
             />
           </div>
@@ -707,6 +853,12 @@ export function BackgroundControls() {
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Glitch Effects */}
+      {glitchSection}
 
       {/* Divider */}
       <div className="h-px bg-border" />

@@ -7,14 +7,12 @@ import { ScatterCanvas } from "@/components/canvas/scatter-canvas"
 import { MultiSelectProvider, useMultiSelectContext } from "@/contexts/multi-select-context"
 import { ProfileHeader } from "@/components/preview/profile-header"
 import { PageBackground, FrameOverlay, NoiseOverlay, DimOverlay } from "@/components/preview/page-background"
+import { GlitchOverlay } from "@/components/glitch/glitch-overlay"
 import { VcrMenuLayout } from "@/components/cards/vcr-menu-layout"
 import { IpodClassicLayout } from "@/components/cards/ipod-classic-layout"
 import { ReceiptLayout } from "@/components/cards/receipt-layout"
 import { MacintoshLayout } from "@/components/cards/macintosh-layout"
 import { WordArtLayout } from "@/components/cards/word-art-layout"
-import { LanyardBadgeLayout } from "@/components/cards/lanyard-badge-layout"
-import { ClassifiedLayout } from "@/components/cards/classified-layout"
-import { DeparturesBoardLayout } from "@/components/cards/departures-board-layout"
 import { PhoneHomeLayout } from "@/components/cards/phone-home-layout"
 import { ChaoticZineLayout } from "@/components/cards/chaotic-zine-layout"
 import { ArtifactLayout } from "@/components/cards/artifact-layout"
@@ -134,50 +132,66 @@ function PreviewContent() {
       }
 
       if (event.data?.type === "STATE_UPDATE") {
-        setState(event.data.payload)
-        // Sync profile to store for ProfileHeader component
-        if (event.data.payload.profile) {
-          useProfileStore.getState().initializeProfile(event.data.payload.profile)
-        }
-        // Sync theme state for ThemeApplicator
-        if (event.data.payload.themeState) {
-          const ts = event.data.payload.themeState
-          // Update theme store with received state
-          useThemeStore.setState({
-            themeId: ts.themeId,
-            paletteId: ts.paletteId,
-            colors: ts.colors,
-            fonts: ts.fonts,
-            style: ts.style,
-            background: ts.background,
-            cardTypeFontSizes: ts.cardTypeFontSizes,
-            socialIconSize: ts.socialIconSize,
-            centerCards: ts.centerCards ?? false,
-            vcrCenterContent: ts.vcrCenterContent ?? false,
-            receiptPrice: ts.receiptPrice ?? 'PRICELESS',
-            receiptStickers: ts.receiptStickers ?? [],
-            receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
-            receiptPaperTexture: ts.receiptPaperTexture ?? false,
-            ipodStickers: ts.ipodStickers ?? [],
-            ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
-            macPattern: ts.macPattern ?? '',
-            macPatternColor: ts.macPatternColor ?? '#c0c0c0',
-            wordArtTitleStyle: ts.wordArtTitleStyle ?? 'style-eleven',
-            lanyardActiveView: ts.lanyardActiveView ?? 0,
-            classifiedStampText: ts.classifiedStampText ?? 'SECRET',
-            classifiedDeptText: ts.classifiedDeptText ?? 'War Department',
-            classifiedCenterText: ts.classifiedCenterText ?? 'Classified Message Center',
-            classifiedMessageText: ts.classifiedMessageText ?? 'Incoming Message',
-            phoneHomeDock: ts.phoneHomeDock ?? [],
-            phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
-            phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
-            zineBadgeText: ts.zineBadgeText ?? 'NEW!',
-            zineTitleSize: ts.zineTitleSize ?? 1.0,
-            zineShowDoodles: ts.zineShowDoodles ?? true,
-            scatterMode: ts.scatterMode ?? false,
-            visitorDrag: ts.visitorDrag ?? false,
-          })
-        }
+        const payload = event.data.payload
+        // Defer store updates to next microtask so React finishes committing
+        // child components before Zustand fires subscription updates.
+        // Prevents "Can't perform a React state update on a component that
+        // hasn't mounted yet" when the parent sends STATE_UPDATE immediately
+        // after PREVIEW_READY (before children finish mounting).
+        queueMicrotask(() => {
+          setState(payload)
+          // Sync profile to store for ProfileHeader component
+          if (payload.profile) {
+            useProfileStore.getState().initializeProfile(payload.profile)
+          }
+          // Sync theme state for ThemeApplicator
+          if (payload.themeState) {
+            const ts = payload.themeState
+            useThemeStore.setState({
+              themeId: ts.themeId,
+              paletteId: ts.paletteId,
+              colors: ts.colors,
+              fonts: ts.fonts,
+              style: ts.style,
+              background: ts.background,
+              cardTypeFontSizes: ts.cardTypeFontSizes,
+              socialIconSize: ts.socialIconSize,
+              centerCards: ts.centerCards ?? false,
+              vcrCenterContent: ts.vcrCenterContent ?? false,
+              receiptPrice: ts.receiptPrice ?? 'PRICELESS',
+              receiptStickers: ts.receiptStickers ?? [],
+              receiptFloatAnimation: ts.receiptFloatAnimation ?? true,
+              receiptPaperTexture: ts.receiptPaperTexture ?? false,
+              ipodStickers: ts.ipodStickers ?? [],
+              ipodTexture: ts.ipodTexture ?? '/images/metal-texture.jpeg',
+              macPattern: ts.macPattern ?? '',
+              macPatternColor: ts.macPatternColor ?? '#c0c0c0',
+              wordArtTitleStyle: ts.wordArtTitleStyle ?? 'style-eleven',
+              phoneHomeDock: ts.phoneHomeDock ?? [],
+              phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
+              phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
+              zineBadgeText: ts.zineBadgeText ?? 'NEW!',
+              zineTitleSize: ts.zineTitleSize ?? 1.0,
+              zineShowDoodles: ts.zineShowDoodles ?? true,
+              artifactMarqueeText: ts.artifactMarqueeText ?? 'LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER',
+              artifactHeaderTopLeft: ts.artifactHeaderTopLeft ?? 'USER.ID_99',
+              artifactHeaderTopCenter: ts.artifactHeaderTopCenter ?? '[ONLINE]',
+              artifactHeaderTopRight: ts.artifactHeaderTopRight ?? '',
+              artifactHeaderBottomLeft: ts.artifactHeaderBottomLeft ?? 'DIGITAL // PHY',
+              artifactHeaderBottomCenter: ts.artifactHeaderBottomCenter ?? '///',
+              artifactHeaderBottomRight: ts.artifactHeaderBottomRight ?? 'SYS_ADMIN',
+              artifactShowHeaderMeta: ts.artifactShowHeaderMeta ?? true,
+              artifactHeroOverlay: ts.artifactHeroOverlay ?? true,
+              artifactHeroMediaType: (ts.artifactHeroMediaType as 'image' | 'video') ?? 'image',
+              artifactHeroImageUrl: ts.artifactHeroImageUrl ?? '',
+              artifactHeroVideoUrl: ts.artifactHeroVideoUrl ?? '',
+              artifactHeroPositionX: ts.artifactHeroPositionX ?? 50,
+              artifactHeroPositionY: ts.artifactHeroPositionY ?? 50,
+              scatterMode: ts.scatterMode ?? false,
+              visitorDrag: ts.visitorDrag ?? false,
+            })
+          }
+        }) // end queueMicrotask
       }
     }
 
@@ -311,6 +325,7 @@ function PreviewContent() {
         />
 
         {/* Noise overlay */}
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -335,6 +350,7 @@ function PreviewContent() {
         />
 
         {/* Noise overlay */}
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -359,6 +375,7 @@ function PreviewContent() {
         />
 
         {/* Noise overlay */}
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -384,63 +401,10 @@ function PreviewContent() {
         />
 
         {/* Noise overlay */}
+        <GlitchOverlay />
         <NoiseOverlay />
         {/* Frame overlay */}
         <FrameOverlay />
-      </>
-    )
-  }
-
-  // Lanyard Badge theme uses 3D lanyard with badge card
-  if (themeId === 'lanyard-badge') {
-    return (
-      <>
-        <PageBackground />
-        <DimOverlay />
-        <LanyardBadgeLayout
-          title={displayName || 'BADGE'}
-          cards={state.cards}
-          isPreview={true}
-          onCardClick={handleCardClick}
-          selectedCardId={state.selectedCardId}
-        />
-        <NoiseOverlay />
-      </>
-    )
-  }
-
-  // Classified Document theme uses military document layout
-  if (themeId === 'classified') {
-    return (
-      <>
-        <PageBackground />
-        <DimOverlay />
-        <ClassifiedLayout
-          title={displayName || 'SECRET'}
-          cards={state.cards}
-          isPreview={true}
-          onCardClick={handleCardClick}
-          selectedCardId={state.selectedCardId}
-        />
-        <NoiseOverlay />
-      </>
-    )
-  }
-
-  // Departures Board themes use airport departures display layout
-  if (themeId === 'departures-board' || themeId === 'departures-board-led') {
-    return (
-      <>
-        <PageBackground />
-        <DimOverlay />
-        <DeparturesBoardLayout
-          title={displayName || 'DEPARTURES'}
-          cards={state.cards}
-          isPreview={true}
-          onCardClick={handleCardClick}
-          selectedCardId={state.selectedCardId}
-        />
-        <NoiseOverlay />
       </>
     )
   }
@@ -460,6 +424,7 @@ function PreviewContent() {
           selectedCardId={state.selectedCardId}
           wordArtTitleStyle={wordArtTitleStyle}
         />
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -479,6 +444,7 @@ function PreviewContent() {
           onMoveCards={handleMoveCards}
           selectedCardId={state.selectedCardId}
         />
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -497,6 +463,7 @@ function PreviewContent() {
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
         />
+        <GlitchOverlay />
         <NoiseOverlay />
       </>
     )
@@ -512,6 +479,22 @@ function PreviewContent() {
           isPreview={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
+          onHeaderClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'style' } },
+                window.location.origin
+              )
+            }
+          }}
+          onAddAudioCard={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'ADD_AUDIO_CARD' },
+                window.location.origin
+              )
+            }
+          }}
         />
       </>
     )
@@ -600,6 +583,7 @@ function PreviewContent() {
         </div>
 
         {/* Noise overlay */}
+        <GlitchOverlay />
         <NoiseOverlay />
         {/* Frame overlay */}
         <FrameOverlay />
@@ -696,6 +680,8 @@ function PreviewContent() {
         </div>
       </div>
 
+      {/* Glitch overlay */}
+      <GlitchOverlay />
       {/* Noise overlay */}
       <NoiseOverlay />
       {/* Frame overlay - sits ON TOP of everything */}

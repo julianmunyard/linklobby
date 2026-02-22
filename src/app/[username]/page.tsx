@@ -4,6 +4,7 @@ import { fetchPublicPageData } from "@/lib/supabase/public"
 import { PublicPageRenderer } from "@/components/public/public-page-renderer"
 import { ThemeInjector } from "@/components/public/theme-injector"
 import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOverlay } from "@/components/public/static-overlays"
+import { StaticGlitchOverlay } from "@/components/glitch/static-glitch-overlay"
 import { ClickTracker } from "@/components/public/click-tracker"
 import { PixelLoader } from "@/components/pixels/pixel-loader"
 
@@ -64,10 +65,6 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const macPattern = themeSettings?.macPattern ?? ''
   const macPatternColor = themeSettings?.macPatternColor ?? '#c0c0c0'
   const wordArtTitleStyle = themeSettings?.wordArtTitleStyle ?? 'style-eleven'
-  const classifiedStampText = themeSettings?.classifiedStampText ?? 'SECRET'
-  const classifiedDeptText = themeSettings?.classifiedDeptText ?? 'War Department'
-  const classifiedCenterText = themeSettings?.classifiedCenterText ?? 'Classified Message Center'
-  const classifiedMessageText = themeSettings?.classifiedMessageText ?? 'Incoming Message'
   const socialIconSize = themeSettings?.socialIconSize ?? 24
   const phoneHomeDock = themeSettings?.phoneHomeDock ?? []
   const phoneHomeShowDock = themeSettings?.phoneHomeShowDock ?? true
@@ -75,6 +72,20 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const zineBadgeText = themeSettings?.zineBadgeText ?? 'NEW!'
   const zineTitleSize = themeSettings?.zineTitleSize ?? 1.0
   const zineShowDoodles = themeSettings?.zineShowDoodles ?? true
+  const artifactMarqueeText = (themeSettings?.artifactMarqueeText as string | undefined) ?? 'LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER'
+  const artifactHeaderTopLeft = (themeSettings?.artifactHeaderTopLeft as string | undefined) ?? 'USER.ID_99'
+  const artifactHeaderTopCenter = (themeSettings?.artifactHeaderTopCenter as string | undefined) ?? '[ONLINE]'
+  const artifactHeaderTopRight = (themeSettings?.artifactHeaderTopRight as string | undefined) ?? ''
+  const artifactHeaderBottomLeft = (themeSettings?.artifactHeaderBottomLeft as string | undefined) ?? 'DIGITAL // PHY'
+  const artifactHeaderBottomCenter = (themeSettings?.artifactHeaderBottomCenter as string | undefined) ?? '///'
+  const artifactHeaderBottomRight = (themeSettings?.artifactHeaderBottomRight as string | undefined) ?? 'SYS_ADMIN'
+  const artifactShowHeaderMeta = (themeSettings?.artifactShowHeaderMeta as boolean | undefined) ?? true
+  const artifactHeroOverlay = (themeSettings?.artifactHeroOverlay as boolean | undefined) ?? true
+  const artifactHeroMediaType = (themeSettings?.artifactHeroMediaType as 'image' | 'video' | undefined) ?? 'image'
+  const artifactHeroImageUrl = (themeSettings?.artifactHeroImageUrl as string | undefined) ?? ''
+  const artifactHeroVideoUrl = (themeSettings?.artifactHeroVideoUrl as string | undefined) ?? ''
+  const artifactHeroPositionX = (themeSettings?.artifactHeroPositionX as number | undefined) ?? 50
+  const artifactHeroPositionY = (themeSettings?.artifactHeroPositionY as number | undefined) ?? 50
   const scatterMode = themeSettings?.scatterMode ?? false
   const visitorDrag = themeSettings?.visitorDrag ?? false
 
@@ -134,10 +145,6 @@ export default async function PublicPage({ params }: PublicPageProps) {
         macPattern={macPattern}
         macPatternColor={macPatternColor}
         wordArtTitleStyle={wordArtTitleStyle}
-        classifiedStampText={classifiedStampText}
-        classifiedDeptText={classifiedDeptText}
-        classifiedCenterText={classifiedCenterText}
-        classifiedMessageText={classifiedMessageText}
         socialIconSize={socialIconSize}
         phoneHomeDock={phoneHomeDock}
         phoneHomeShowDock={phoneHomeShowDock}
@@ -145,6 +152,20 @@ export default async function PublicPage({ params }: PublicPageProps) {
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
         zineShowDoodles={zineShowDoodles}
+        artifactMarqueeText={artifactMarqueeText}
+        artifactHeaderTopLeft={artifactHeaderTopLeft}
+        artifactHeaderTopCenter={artifactHeaderTopCenter}
+        artifactHeaderTopRight={artifactHeaderTopRight}
+        artifactHeaderBottomLeft={artifactHeaderBottomLeft}
+        artifactHeaderBottomCenter={artifactHeaderBottomCenter}
+        artifactHeaderBottomRight={artifactHeaderBottomRight}
+        artifactShowHeaderMeta={artifactShowHeaderMeta}
+        artifactHeroOverlay={artifactHeroOverlay}
+        artifactHeroMediaType={artifactHeroMediaType}
+        artifactHeroImageUrl={artifactHeroImageUrl}
+        artifactHeroVideoUrl={artifactHeroVideoUrl}
+        artifactHeroPositionX={artifactHeroPositionX}
+        artifactHeroPositionY={artifactHeroPositionY}
         themeColors={themeColors}
         scatterMode={scatterMode}
         visitorDrag={visitorDrag}
@@ -164,6 +185,9 @@ export default async function PublicPage({ params }: PublicPageProps) {
         pageId={page.id}
         cards={cards.map(card => ({ id: card.id }))}
       />
+
+      {/* Glitch overlay (if enabled) */}
+      <StaticGlitchOverlay background={background} />
 
       {/* Noise overlay (if enabled) */}
       <StaticNoiseOverlay background={background} />
