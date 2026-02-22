@@ -15,7 +15,7 @@ export function buildGlitchOptions(background: BackgroundConfig) {
   return {
     intensity,
     aspectCorrection: true,
-    interaction: { enabled: false },
+    interaction: { enabled: false, customSize: '10vw' },
     effects: {
       crt: {
         enabled: type === 'crt',
