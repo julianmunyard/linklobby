@@ -36,12 +36,17 @@ function getGlitchImgSrc(background: BackgroundConfig): string {
  */
 export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
   const effectRef = useRef<any>(null)
+  const [mounted, setMounted] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
+  // Only render on client — solidColorDataUrl needs document.createElement('canvas')
+  // which returns '' on server, causing hydration mismatch
+  useEffect(() => { setMounted(true) }, [])
+
   useEffect(() => {
-    if (!background.glitchEffect || loaded) return
+    if (!mounted || !background.glitchEffect || loaded) return
     loadGlitchScripts().then(setLoaded).catch(() => setLoaded(false))
-  }, [background.glitchEffect, loaded])
+  }, [mounted, background.glitchEffect, loaded])
 
   useEffect(() => {
     if (!loaded || !background.glitchEffect) return
@@ -88,7 +93,8 @@ export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
     }
   }, [loaded, background])
 
-  if (!background.glitchEffect) return null
+  // Render nothing on server and during hydration — avoids src mismatch
+  if (!mounted || !background.glitchEffect) return null
 
   const imgSrc = getGlitchImgSrc(background)
 
