@@ -213,6 +213,7 @@ export function GlitchOverlay() {
         id={GLITCH_TARGET_ID}
         src={imgSrc}
         alt=""
+        crossOrigin="anonymous"
         style={{
           width: '100%',
           height: '100%',

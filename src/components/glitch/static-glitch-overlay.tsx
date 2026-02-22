@@ -134,6 +134,7 @@ export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
         id={STATIC_GLITCH_TARGET_ID}
         src={imgSrc}
         alt=""
+        crossOrigin="anonymous"
         style={{
           width: '100%',
           height: '100%',
