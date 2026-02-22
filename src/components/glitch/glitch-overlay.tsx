@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useThemeStore } from '@/stores/theme-store'
 import type { BackgroundConfig } from '@/types/theme'
 
@@ -76,7 +76,6 @@ export async function loadGlitchScripts(): Promise<boolean> {
 
 /**
  * Generate a solid-color image data URL for use as an <img> src.
- * glitchGL works best with <img> elements — it reads naturalWidth/naturalHeight.
  */
 function solidColorDataUrl(color: string): string {
   if (typeof document === 'undefined') return ''
@@ -91,9 +90,6 @@ function solidColorDataUrl(color: string): string {
   return canvas.toDataURL('image/png')
 }
 
-/**
- * Get the image source for glitchGL based on background config.
- */
 function getGlitchImgSrc(background: BackgroundConfig): string {
   if (background.type === 'image' && background.value) {
     return background.value
@@ -103,88 +99,61 @@ function getGlitchImgSrc(background: BackgroundConfig): string {
 }
 
 /**
- * Shared hook for glitchGL lifecycle: destroy old instance, restore the
- * <img> element glitchGL replaced, create fresh instance.
- *
- * glitchGL's updateOptions doesn't reliably switch between effect types
- * (CRT/pixelation/glitch). Safer to always destroy + recreate.
+ * Build a stable config key from all glitch-relevant background fields.
+ * When this key changes, React unmounts and remounts the GlitchInstance,
+ * giving glitchGL a completely fresh DOM element every time.
  */
-export function useGlitchEffect(
-  background: BackgroundConfig,
-  loaded: boolean,
-  wrapperId: string,
-  targetId: string,
-) {
+function configKey(bg: BackgroundConfig): string {
+  return [
+    bg.glitchType ?? 'crt',
+    bg.glitchIntensity ?? 50,
+    bg.glitchCrtScanlines ?? 70,
+    bg.glitchCrtCurvature ?? 8,
+    bg.glitchCrtAberration ?? 40,
+    bg.glitchPixelSize ?? 8,
+    bg.glitchPixelShape ?? 'square',
+    bg.glitchRgbShift ?? 0,
+    bg.glitchDigitalNoise ?? 10,
+    bg.glitchLineDisplacement ?? 10,
+    bg.type,
+    bg.value ?? '',
+  ].join('|')
+}
+
+/**
+ * Inner component that mounts once per config key.
+ * On mount: waits for img load → inits glitchGL.
+ * On unmount: disposes glitchGL. React cleans up all DOM.
+ */
+function GlitchInstance({
+  background,
+  wrapperId,
+  targetId,
+  imgSrc,
+}: {
+  background: BackgroundConfig
+  wrapperId: string
+  targetId: string
+  imgSrc: string
+}) {
   const effectRef = useRef<any>(null)
-  const imgSrcRef = useRef<string>('')
 
-  // Store current img src for restoration
-  imgSrcRef.current = getGlitchImgSrc(background)
-
-  const destroyEffect = useCallback(() => {
-    if (effectRef.current) {
-      try { effectRef.current.dispose() } catch {}
-      effectRef.current = null
-    }
-  }, [])
-
-  // Restore the <img> that glitchGL hid, remove any canvas it created
-  const resetWrapper = useCallback(() => {
-    const wrapper = document.getElementById(wrapperId)
-    if (!wrapper) return
-
-    // Remove any canvas elements glitchGL created
-    wrapper.querySelectorAll('canvas, [data-glitch-target]').forEach(el => el.remove())
-
-    // Restore or create the img element
-    let img = document.getElementById(targetId) as HTMLImageElement | null
-    if (!img) {
-      img = document.createElement('img')
-      img.id = targetId
-      img.alt = ''
-      img.crossOrigin = 'anonymous'
-      img.style.width = '100%'
-      img.style.height = '100%'
-      img.style.objectFit = 'cover'
-      img.style.display = 'block'
-      wrapper.appendChild(img)
-    }
-    // Make sure it's visible (glitchGL sets visibility: hidden)
-    img.style.visibility = 'visible'
-    img.src = imgSrcRef.current
-
-    return img
-  }, [wrapperId, targetId])
-
-  // Main effect: destroy + recreate on ANY config change
   useEffect(() => {
-    if (!loaded || !background.glitchEffect) {
-      destroyEffect()
-      return
-    }
-
     const glitchGL = (window as any).glitchGL
     if (!glitchGL) return
 
-    // Always destroy old instance first
-    destroyEffect()
-
-    // Reset the wrapper DOM (restore img, remove old canvases)
-    const img = resetWrapper()
+    const options = buildGlitchOptions(background)
+    const img = document.getElementById(targetId) as HTMLImageElement | null
     if (!img) return
 
-    const options = buildGlitchOptions(background)
-
-    // Wait for img to be ready, then initialize
     const init = () => {
       try {
         effectRef.current = glitchGL({ target: `#${targetId}`, ...options })
 
-        // Ensure the canvas fills the wrapper
-        const wrapper = document.getElementById(wrapperId)
-        if (wrapper) {
-          // Small delay for glitchGL to insert its canvas
-          requestAnimationFrame(() => {
+        // Ensure the canvas glitchGL creates fills the wrapper
+        requestAnimationFrame(() => {
+          const wrapper = document.getElementById(wrapperId)
+          if (wrapper) {
             const canvas = wrapper.querySelector('canvas')
             if (canvas) {
               canvas.style.width = '100%'
@@ -192,15 +161,13 @@ export function useGlitchEffect(
               canvas.style.position = 'absolute'
               canvas.style.inset = '0'
             }
-          })
-        }
+          }
+        })
       } catch (err) {
         console.error('glitchGL init failed:', err)
       }
     }
 
-    // If img already loaded (data URL or cached), init immediately after a frame
-    // Otherwise wait for load event
     if (img.complete && img.naturalWidth > 0) {
       requestAnimationFrame(init)
     } else {
@@ -208,75 +175,23 @@ export function useGlitchEffect(
     }
 
     return () => {
-      destroyEffect()
+      if (effectRef.current) {
+        try { effectRef.current.dispose() } catch {}
+        effectRef.current = null
+      }
     }
-  }, [
-    loaded,
-    background.glitchEffect,
-    background.glitchType,
-    background.glitchIntensity,
-    background.glitchCrtScanlines,
-    background.glitchCrtCurvature,
-    background.glitchCrtAberration,
-    background.glitchPixelSize,
-    background.glitchPixelShape,
-    background.glitchRgbShift,
-    background.glitchDigitalNoise,
-    background.glitchLineDisplacement,
-    // Also react to background source changes
-    background.type,
-    background.value,
-    destroyEffect,
-    resetWrapper,
-    targetId,
-    wrapperId,
-  ])
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      destroyEffect()
-    }
-  }, [destroyEffect])
-}
-
-// Unique IDs
-const GLITCH_WRAPPER_ID = 'glitch-bg-wrapper'
-const GLITCH_TARGET_ID = 'glitch-bg-source'
-
-/**
- * GlitchOverlay - Editor preview version.
- * Reads from theme store (same pattern as NoiseOverlay/DimOverlay).
- *
- * Architecture: A fixed-position wrapper div contains an <img> target.
- * glitchGL replaces the <img> with a canvas as a sibling, but both stay
- * inside the wrapper so the canvas inherits the fixed positioning context.
- */
-export function GlitchOverlay() {
-  const { background } = useThemeStore()
-  const [loaded, setLoaded] = useState(false)
-
-  // Load scripts on first enable
-  useEffect(() => {
-    if (!background.glitchEffect || loaded) return
-    loadGlitchScripts().then(setLoaded).catch(() => setLoaded(false))
-  }, [background.glitchEffect, loaded])
-
-  useGlitchEffect(background, loaded, GLITCH_WRAPPER_ID, GLITCH_TARGET_ID)
-
-  if (!background.glitchEffect) return null
-
-  const imgSrc = getGlitchImgSrc(background)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Mount-only: config changes cause remount via key
 
   return (
     <div
-      id={GLITCH_WRAPPER_ID}
+      id={wrapperId}
       className="fixed inset-0 -z-[4] pointer-events-none"
       style={{ overflow: 'hidden', position: 'fixed' }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        id={GLITCH_TARGET_ID}
+        id={targetId}
         src={imgSrc}
         alt=""
         crossOrigin="anonymous"
@@ -288,5 +203,32 @@ export function GlitchOverlay() {
         }}
       />
     </div>
+  )
+}
+
+/**
+ * GlitchOverlay - Editor preview version.
+ * Reads from theme store. Uses key-based remounting so glitchGL
+ * always gets a fresh DOM element — no stale render loop issues.
+ */
+export function GlitchOverlay() {
+  const { background } = useThemeStore()
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    if (!background.glitchEffect || loaded) return
+    loadGlitchScripts().then(setLoaded).catch(() => setLoaded(false))
+  }, [background.glitchEffect, loaded])
+
+  if (!background.glitchEffect || !loaded) return null
+
+  return (
+    <GlitchInstance
+      key={configKey(background)}
+      background={background}
+      wrapperId="glitch-bg-wrapper"
+      targetId="glitch-bg-source"
+      imgSrc={getGlitchImgSrc(background)}
+    />
   )
 }

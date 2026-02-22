@@ -1,19 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { BackgroundConfig } from '@/types/theme'
-import { loadGlitchScripts, useGlitchEffect } from './glitch-overlay'
-
-const STATIC_GLITCH_WRAPPER_ID = 'static-glitch-bg-wrapper'
-const STATIC_GLITCH_TARGET_ID = 'static-glitch-bg-source'
+import { buildGlitchOptions, loadGlitchScripts } from './glitch-overlay'
 
 interface StaticGlitchOverlayProps {
   background: BackgroundConfig
 }
 
-/**
- * Generate a solid-color image data URL for glitchGL target.
- */
 function solidColorDataUrl(color: string): string {
   if (typeof document === 'undefined') return ''
   const canvas = document.createElement('canvas')
@@ -37,9 +31,11 @@ function getGlitchImgSrc(background: BackgroundConfig): string {
 
 /**
  * StaticGlitchOverlay - Public page version.
- * Takes BackgroundConfig as props instead of reading from store.
+ * Takes BackgroundConfig as props. Initializes once on mount (public pages
+ * don't have live config changes).
  */
 export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
+  const effectRef = useRef<any>(null)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -47,7 +43,50 @@ export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
     loadGlitchScripts().then(setLoaded).catch(() => setLoaded(false))
   }, [background.glitchEffect, loaded])
 
-  useGlitchEffect(background, loaded, STATIC_GLITCH_WRAPPER_ID, STATIC_GLITCH_TARGET_ID)
+  useEffect(() => {
+    if (!loaded || !background.glitchEffect) return
+
+    const glitchGL = (window as any).glitchGL
+    if (!glitchGL) return
+
+    const options = buildGlitchOptions(background)
+    const img = document.getElementById('static-glitch-bg-source') as HTMLImageElement | null
+    if (!img) return
+
+    const init = () => {
+      try {
+        effectRef.current = glitchGL({ target: '#static-glitch-bg-source', ...options })
+
+        requestAnimationFrame(() => {
+          const wrapper = document.getElementById('static-glitch-bg-wrapper')
+          if (wrapper) {
+            const canvas = wrapper.querySelector('canvas')
+            if (canvas) {
+              canvas.style.width = '100%'
+              canvas.style.height = '100%'
+              canvas.style.position = 'absolute'
+              canvas.style.inset = '0'
+            }
+          }
+        })
+      } catch (err) {
+        console.error('glitchGL init failed:', err)
+      }
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+      requestAnimationFrame(init)
+    } else {
+      img.onload = () => requestAnimationFrame(init)
+    }
+
+    return () => {
+      if (effectRef.current) {
+        try { effectRef.current.dispose() } catch {}
+        effectRef.current = null
+      }
+    }
+  }, [loaded, background])
 
   if (!background.glitchEffect) return null
 
@@ -55,13 +94,13 @@ export function StaticGlitchOverlay({ background }: StaticGlitchOverlayProps) {
 
   return (
     <div
-      id={STATIC_GLITCH_WRAPPER_ID}
+      id="static-glitch-bg-wrapper"
       className="fixed inset-0 -z-[4] pointer-events-none"
       style={{ overflow: 'hidden', position: 'fixed' }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        id={STATIC_GLITCH_TARGET_ID}
+        id="static-glitch-bg-source"
         src={imgSrc}
         alt=""
         crossOrigin="anonymous"
