@@ -1,6 +1,6 @@
 // src/types/theme.ts
 
-export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'lanyard-badge' | 'classified' | 'departures-board' | 'departures-board-led' | 'phone-home' | 'chaotic-zine' | 'artifact'
+export type ThemeId = 'mac-os' | 'instagram-reels' | 'system-settings' | 'blinkies' | 'vcr-menu' | 'ipod-classic' | 'receipt' | 'macintosh' | 'word-art' | 'phone-home' | 'chaotic-zine' | 'artifact'
 
 export interface ColorPalette {
   background: string      // Page background
@@ -61,6 +61,21 @@ export interface BackgroundConfig {
   // Dim overlay
   dimOverlay?: boolean       // Whether to dim the background
   dimIntensity?: number      // Dim opacity (0-100, default 40)
+  // Glitch effect (glitchGL)
+  glitchEffect?: boolean           // Master toggle
+  glitchType?: 'crt' | 'pixelation' | 'glitch'  // Which effect preset
+  glitchIntensity?: number         // Master intensity 0-100, default 50
+  // CRT sub-controls
+  glitchCrtScanlines?: number      // 0-100, default 70
+  glitchCrtCurvature?: number      // 0-20, default 8
+  glitchCrtAberration?: number     // 0-100 (maps to 0-0.01), default 40
+  // Pixelation sub-controls
+  glitchPixelSize?: number         // 2-32, default 8
+  glitchPixelShape?: 'square' | 'circle'  // default 'square'
+  // Glitch sub-controls
+  glitchRgbShift?: number          // 0-100 (maps to 0-0.05), default 0
+  glitchDigitalNoise?: number      // 0-100 (maps to 0-0.5), default 10
+  glitchLineDisplacement?: number  // 0-100 (maps to 0-0.1), default 10
 }
 
 // Receipt sticker configuration
@@ -125,17 +140,27 @@ export interface ThemeState {
   macPattern?: string       // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor?: string  // Macintosh theme: background color behind pattern (default '#c0c0c0')
   wordArtTitleStyle?: string  // Word Art theme: style ID for the title text
-  lanyardActiveView?: number  // Lanyard theme: active card view index (0-4)
-  classifiedStampText?: string       // Classified theme: stamp text (default 'SECRET')
-  classifiedDeptText?: string        // Classified theme: department line (default 'War Department')
-  classifiedCenterText?: string      // Classified theme: center line (default 'Classified Message Center')
-  classifiedMessageText?: string     // Classified theme: message line (default 'Incoming Message')
   phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 3)
   phoneHomeShowDock?: boolean  // Phone Home theme: show dock bar (default true)
   phoneHomeVariant?: 'default' | '8-bit'  // Phone Home theme: visual variant
   zineBadgeText?: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize?: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
   zineShowDoodles?: boolean     // Chaotic Zine theme: show decorative doodles/scribbles
+  // Artifact theme
+  artifactMarqueeText?: string        // Marquee banner text
+  artifactHeaderTopLeft?: string      // Top-left metadata
+  artifactHeaderTopCenter?: string    // Top-center metadata
+  artifactHeaderTopRight?: string     // Top-right metadata
+  artifactHeaderBottomLeft?: string   // Bottom-left metadata
+  artifactHeaderBottomCenter?: string // Bottom-center metadata
+  artifactHeaderBottomRight?: string  // Bottom-right metadata
+  artifactShowHeaderMeta?: boolean    // Toggle all 6 metadata texts on/off
+  artifactHeroOverlay?: boolean       // Grayscale + multiply overlay on hero photo
+  artifactHeroMediaType?: 'image' | 'video'  // Hero media type
+  artifactHeroImageUrl?: string       // Uploaded image URL for hero area (overrides avatar)
+  artifactHeroVideoUrl?: string       // Video URL for hero area
+  artifactHeroPositionX?: number      // objectPosition X% (0-100)
+  artifactHeroPositionY?: number      // objectPosition Y% (0-100)
   scatterMode?: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag?: boolean       // Whether visitors can drag cards on public page
   pixels?: {  // Tracking pixel configuration
