@@ -61,6 +61,21 @@ export function EditorLayout() {
     }
   }, [isMobileLayout, selectedCardId])
 
+  // Listen for OPEN_DESIGN_TAB events from preview iframe (e.g. artifact header click)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      const tab = detail?.tab || 'style'
+      setInitialDesignTab(tab)
+      if (isMobileLayout) {
+        setMobileSheetOpen(true)
+        setTypeDrawerOpen(false)
+      }
+    }
+    window.addEventListener('open-design-tab', handler)
+    return () => window.removeEventListener('open-design-tab', handler)
+  }, [isMobileLayout])
+
   const onLayoutChanged = useCallback((layout: Layout) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
@@ -202,7 +217,10 @@ export function EditorLayout() {
           maxSize="60%"
           className="bg-background"
         >
-          <EditorPanel />
+          <EditorPanel
+            initialDesignTab={initialDesignTab}
+            onDesignTabConsumed={() => setInitialDesignTab(null)}
+          />
         </Panel>
 
         {/* Resize handle with extended hit area */}

@@ -31,6 +31,34 @@ export async function uploadBackgroundImage(file: File): Promise<string> {
   return publicUrl
 }
 
+export async function uploadStickerImage(file: File): Promise<string> {
+  const supabase = createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  if (!file.type.startsWith('image/')) throw new Error('File must be an image')
+  if (file.size > 20 * 1024 * 1024) throw new Error('Image must be less than 20MB')
+
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+  const filename = `${user.id}/stickers/${Date.now()}.${ext}`
+
+  const { data, error } = await supabase.storage
+    .from(BACKGROUND_BUCKET)
+    .upload(filename, file, {
+      cacheControl: '3600',
+      upsert: false
+    })
+
+  if (error) throw error
+
+  const { data: { publicUrl } } = supabase.storage
+    .from(BACKGROUND_BUCKET)
+    .getPublicUrl(data.path)
+
+  return publicUrl
+}
+
 export async function uploadBackgroundVideo(file: File): Promise<string> {
   const supabase = createClient()
 

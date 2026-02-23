@@ -15,6 +15,38 @@ import { instagramReelsRedAndBlueHero } from './data/instagram-reels/red-and-blu
 
 import { instagramReelsCdeez } from './data/instagram-reels/cdeez'
 
+import { macOsMyMac } from './data/mac-os/my-mac'
+
+import { systemSettingsMakeItRed } from './data/system-settings/make-it-red'
+
+import { systemSettingsLinksOnAPage } from './data/system-settings/links-on-a-page'
+
+import { systemSettingsQuiteBeskoke } from './data/system-settings/quite-beskoke'
+
+import { systemSettingsSpreadThemOut } from './data/system-settings/spread-them-out'
+
+import { blinkiesBlinkies } from './data/blinkies/blinkies'
+
+import { blinkiesMakeItRed } from './data/blinkies/make-it-red'
+
+import { blinkiesBlinkOnce } from './data/blinkies/blink-once'
+
+import { vcrMenuHomeVideo } from './data/vcr-menu/home-video'
+
+import { ipodClassicYourIpod } from './data/ipod-classic/your-ipod'
+
+import { macintosh84Tosh } from './data/macintosh/84-tosh'
+
+import { macintosh84Macintosh } from './data/macintosh/84-macintosh'
+
+import { wordArtJustWordArt } from './data/word-art/just-word-art'
+
+import { phoneHomeWindowsPhone } from './data/phone-home/windows-phone'
+
+import { chaoticZineSimpleNew } from './data/chaotic-zine/simple-new'
+
+import { artifactBrutal } from './data/artifact/brutal'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
   phoneHomeMclovinsIphone,
   chaoticZineOG,
@@ -22,6 +54,22 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   instagramReelsYellowBrown,
   instagramReelsRedAndBlueHero,
   instagramReelsCdeez,
+  macOsMyMac,
+  systemSettingsMakeItRed,
+  systemSettingsLinksOnAPage,
+  systemSettingsQuiteBeskoke,
+  systemSettingsSpreadThemOut,
+  blinkiesBlinkies,
+  blinkiesMakeItRed,
+  blinkiesBlinkOnce,
+  vcrMenuHomeVideo,
+  ipodClassicYourIpod,
+  macintosh84Tosh,
+  macintosh84Macintosh,
+  wordArtJustWordArt,
+  phoneHomeWindowsPhone,
+  chaoticZineSimpleNew,
+  artifactBrutal,
 ]
 
 /**

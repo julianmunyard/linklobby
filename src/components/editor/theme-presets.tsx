@@ -1,15 +1,32 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
+import { toast } from 'sonner'
 import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
+import { useProfileStore } from '@/stores/profile-store'
 import { THEMES, getThemeDefaults } from '@/lib/themes'
 import { migrateToMacintosh, migrateFromMacintosh } from '@/lib/card-migration'
+import { getTemplatesByTheme } from '@/lib/templates'
+import type { TemplateDefinition } from '@/lib/templates'
 import { cn } from '@/lib/utils'
-import { Check, ChevronRight, ArrowLeft } from 'lucide-react'
+import { Check, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { ThemeId, ThemeConfig } from '@/types/theme'
+import type { ThemeId, ThemeConfig, ThemeState } from '@/types/theme'
+import type { Card } from '@/types/card'
+import type { Profile } from '@/types/profile'
 import { isScatterTheme } from '@/types/scatter'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 // ---------------------------------------------------------------------------
 // Category definitions
@@ -32,10 +49,6 @@ const THEME_CATEGORIES = [
       'receipt',
       'macintosh',
       'word-art',
-      'lanyard-badge',
-      'classified',
-      'departures-board',
-      'departures-board-led',
       'phone-home',
       'chaotic-zine',
       'artifact',
@@ -333,6 +346,60 @@ function CategoryDetailView({
     (state) => state.setAllCardsTransparency
   )
 
+  const [applyingTemplateId, setApplyingTemplateId] = useState<string | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [pendingTemplate, setPendingTemplate] = useState<TemplateDefinition | null>(null)
+
+  async function applyTemplate(template: TemplateDefinition, mode: 'replace' | 'add') {
+    setApplyingTemplateId(template.id)
+    setShowConfirm(false)
+
+    try {
+      const res = await fetch('/api/templates/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: template.id, mode }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err?.error || `HTTP ${res.status}`)
+      }
+
+      const data = await res.json() as {
+        cards: Card[]
+        theme: ThemeState
+        profile: Partial<Profile>
+        templateName: string
+      }
+
+      usePageStore.getState().setCards(data.cards)
+      useThemeStore.getState().loadFromDatabase(data.theme)
+      useProfileStore.getState().initializeProfile(data.profile)
+
+      useThemeStore.setState({ hasChanges: true })
+      useProfileStore.setState({ hasChanges: true })
+
+      toast.success(`Template "${data.templateName}" applied!`)
+    } catch (err) {
+      console.error('[ThemePresets] apply template error:', err)
+      toast.error('Failed to apply template. Please try again.')
+    } finally {
+      setApplyingTemplateId(null)
+      setPendingTemplate(null)
+    }
+  }
+
+  function handleTemplateClick(template: TemplateDefinition) {
+    const existingCardCount = usePageStore.getState().cards.length
+    if (existingCardCount > 0) {
+      setPendingTemplate(template)
+      setShowConfirm(true)
+    } else {
+      applyTemplate(template, 'replace')
+    }
+  }
+
   const category = THEME_CATEGORIES.find((c) => c.id === categoryId)!
   const themes = getCategoryThemes(categoryId)
 
@@ -367,6 +434,7 @@ function CategoryDetailView({
   }
 
   return (
+    <>
     <div className="flex flex-col gap-3">
       {/* Back button */}
       <button
@@ -462,11 +530,86 @@ function CategoryDetailView({
                   </div>
                 </div>
               )}
+
+              {/* Template thumbnails */}
+              {isSelected && (() => {
+                const themeTemplates = getTemplatesByTheme(theme.id)
+                if (themeTemplates.length === 0) return null
+                return (
+                  <div className="mt-2 space-y-1.5">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                      Templates
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {themeTemplates.map((template) => {
+                        const isApplying = applyingTemplateId === template.id
+                        return (
+                          <button
+                            key={template.id}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleTemplateClick(template)
+                            }}
+                            disabled={applyingTemplateId !== null}
+                            className={cn(
+                              'relative h-10 w-7 rounded overflow-hidden border-2 transition-all',
+                              'border-transparent hover:border-accent',
+                              isApplying && 'border-accent'
+                            )}
+                            title={template.name}
+                          >
+                            <Image
+                              src={template.thumbnailPath}
+                              alt={template.name}
+                              fill
+                              className="object-cover"
+                              sizes="28px"
+                            />
+                            {isApplying && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                <Loader2 className="w-3 h-3 text-white animate-spin" />
+                              </div>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )
         })}
       </div>
     </div>
+
+    {/* Template apply confirmation dialog */}
+    <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Apply Template?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have {usePageStore.getState().cards.length} existing card
+            {usePageStore.getState().cards.length === 1 ? '' : 's'}. What would you like to do?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="outline"
+            onClick={() => pendingTemplate && applyTemplate(pendingTemplate, 'add')}
+          >
+            Add to my page
+          </AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => pendingTemplate && applyTemplate(pendingTemplate, 'replace')}
+          >
+            Replace my page
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
 

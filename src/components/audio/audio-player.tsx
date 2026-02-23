@@ -260,7 +260,7 @@ export function AudioPlayer({
         </div>
 
         {/* Controls: varispeed + bordered reverb box */}
-        <div className="flex items-stretch gap-0 px-3 py-2">
+        <div data-no-drag className="flex items-stretch gap-0 px-3 py-2">
           <div className="flex-1 min-w-0 pr-3">
             <VarispeedSlider
               speed={player.speed}
@@ -391,7 +391,7 @@ export function AudioPlayer({
           </div>
 
           {/* Controls: varispeed + bordered reverb box */}
-          <div className="flex items-stretch gap-0 px-3 py-2">
+          <div data-no-drag className="flex items-stretch gap-0 px-3 py-2">
             <div className="flex-1 min-w-0 pr-3">
               <div className="text-[10px] uppercase tracking-widest mb-1 opacity-60">Varispeed</div>
               <VarispeedSlider
@@ -1363,7 +1363,7 @@ export function AudioPlayer({
 
       {isReceipt ? (
         /* Receipt: Varispeed + Reverb side by side in a compact row */
-        <div className="flex items-start gap-3">
+        <div data-no-drag className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <VarispeedSlider
               speed={player.speed}

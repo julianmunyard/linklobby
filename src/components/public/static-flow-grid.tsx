@@ -88,16 +88,13 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
         // Audio cards: render AudioPlayer directly with correct themeVariant
         // (bypasses AudioCard which relies on Zustand store not available on public pages)
         // Wrapped in themed card chrome to match editor appearance
-        if (card.card_type === 'audio' && themeId && isAudioContent(card.content)) {
-          const audioContent = card.content as AudioCardContent
+        if (card.card_type === 'audio' && themeId) {
+          const audioContent = isAudioContent(card.content) ? (card.content as AudioCardContent) : { tracks: [] } as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
             'blinkies': 'blinkies',
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
-            'classified': 'classified',
-            'departures-board': 'classified',  // Dark theme - use classified variant
-            'departures-board-led': 'classified',
             'mac-os': 'mac-os',
             'macintosh': 'macintosh',
             'ipod-classic': 'ipod-classic',

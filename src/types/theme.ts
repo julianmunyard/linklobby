@@ -159,9 +159,9 @@ export interface ThemeState {
   macPattern?: string       // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor?: string  // Macintosh theme: background color behind pattern (default '#c0c0c0')
   wordArtTitleStyle?: string  // Word Art theme: style ID for the title text
-  phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 3)
+  phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock?: boolean  // Phone Home theme: show dock bar (default true)
-  phoneHomeVariant?: 'default' | '8-bit'  // Phone Home theme: visual variant
+  phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'  // Phone Home theme: visual variant
   zineBadgeText?: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize?: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
   zineShowDoodles?: boolean     // Chaotic Zine theme: show decorative doodles/scribbles

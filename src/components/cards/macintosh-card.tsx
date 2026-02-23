@@ -874,10 +874,12 @@ export function MacintoshSocials({ card, onClick, isSelected }: MacCardProps) {
   const content = card.content as Record<string, unknown>
   const windowBgColor = (content?.socialWindowBgColor as string) || '#fff'
 
+  const socialsLabel = card.title || 'SOCIALS'
+
   if (!showSocialIcons || socialIcons.length === 0) {
     return (
       <WindowWrapper onClick={onClick} isSelected={isSelected}>
-        <LinesTitleBar title="Socials" />
+        <LinesTitleBar title={socialsLabel} />
         <div style={{ background: windowBgColor, padding: '16px', textAlign: 'center' }}>
           <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#666' }}>
             No social icons added
@@ -889,7 +891,7 @@ export function MacintoshSocials({ card, onClick, isSelected }: MacCardProps) {
 
   return (
     <WindowWrapper onClick={onClick} isSelected={isSelected}>
-      <LinesTitleBar title="Socials" />
+      <LinesTitleBar title={socialsLabel} />
       <div style={{ background: windowBgColor, padding: '12px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
           {socialIcons.map((icon) => {
@@ -1132,7 +1134,7 @@ export function MacintoshGallery({ card, onClick, isSelected }: MacCardProps) {
     >
       <LinesTitleBar title={title} />
       {/* Full-bleed image area */}
-      <div style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', position: 'relative', overflow: 'hidden' }}>
         {images.length === 0 ? (
           <div style={{ aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
             <p style={{ fontFamily: TITLE_FONT, fontSize: '14px', color: '#666' }}>No photos yet</p>

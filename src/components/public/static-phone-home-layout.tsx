@@ -706,6 +706,7 @@ export function StaticPhoneHomeLayout({
   const isWin95 = phoneHomeVariant === 'windows-95'
   const [currentPage, setCurrentPage] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const rubberBandRef = useRef<HTMLDivElement>(null)
 
   const socialIcons: SocialIcon[] = useMemo(
     () => (socialIconsJson ? JSON.parse(socialIconsJson) : []),
@@ -769,19 +770,61 @@ export function StaticPhoneHomeLayout({
     setCurrentPage(page)
   }, [])
 
+  // Desktop-only edge rubber band (mobile gets native bounce via overscroll-behavior: contain)
+  useEffect(() => {
+    const scrollEl = containerRef.current
+    const wrapper = rubberBandRef.current
+    if (!scrollEl || !wrapper) return
+    if ('ontouchstart' in window) return // skip on touch devices
+
+    let offset = 0
+    let timer: ReturnType<typeof setTimeout> | null = null
+
+    const release = () => {
+      if (offset === 0) return
+      wrapper.style.transition = 'transform 400ms cubic-bezier(0.25, 1, 0.5, 1)'
+      wrapper.style.transform = ''
+      offset = 0
+      const cleanup = () => { wrapper.style.transition = '' }
+      wrapper.addEventListener('transitionend', cleanup, { once: true })
+      setTimeout(cleanup, 500)
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+      const atStart = scrollEl.scrollLeft <= 0
+      const atEnd = scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.offsetWidth - 1
+      if ((atStart && e.deltaX < 0) || (atEnd && e.deltaX > 0)) {
+        offset += e.deltaX * -0.3
+        offset = Math.max(-60, Math.min(60, offset))
+        wrapper.style.transition = ''
+        wrapper.style.transform = `translateX(${offset}px)`
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(release, 200)
+      } else if (offset !== 0) {
+        release()
+      }
+    }
+
+    scrollEl.addEventListener('wheel', onWheel, { passive: true })
+    return () => scrollEl.removeEventListener('wheel', onWheel)
+  }, [])
+
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ height: '100dvh' }}>
       {/* Status bar */}
       <PhoneHomeStatusBar />
 
-      {/* Swipeable grid area */}
+      <div ref={rubberBandRef} className="flex-1 min-h-0">
       <div
         ref={containerRef}
-        className="flex-1 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+        className="h-full flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
         style={{
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
+          overscrollBehavior: 'contain',
+          touchAction: 'pan-x',
         } as React.CSSProperties}
         onScroll={handleScroll}
       >
@@ -921,6 +964,7 @@ export function StaticPhoneHomeLayout({
               </div>
             </div>
           ))}
+      </div>
       </div>
 
       {/* Pagination dots */}

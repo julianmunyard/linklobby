@@ -40,17 +40,27 @@ interface ThemeStore extends ThemeState {
   macPattern: string  // Macintosh theme: pattern image path ('' = default CSS checkerboard)
   macPatternColor: string  // Macintosh theme: background color behind pattern
   wordArtTitleStyle: string  // Word Art theme: style ID for title text
-  lanyardActiveView: number  // Lanyard theme: active card view index (0-4)
-  classifiedStampText: string       // Classified theme: stamp text
-  classifiedDeptText: string        // Classified theme: department line
-  classifiedCenterText: string      // Classified theme: center line
-  classifiedMessageText: string     // Classified theme: message line
-  phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 3)
+  phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock: boolean // Phone Home theme: show dock bar
-  phoneHomeVariant: 'default' | '8-bit' // Phone Home theme: visual variant
+  phoneHomeVariant: 'default' | '8-bit' | 'windows-95' // Phone Home theme: visual variant
   zineBadgeText: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
   zineShowDoodles: boolean     // Chaotic Zine theme: show decorative doodles/scribbles
+  // Artifact theme
+  artifactMarqueeText: string
+  artifactHeaderTopLeft: string
+  artifactHeaderTopCenter: string
+  artifactHeaderTopRight: string
+  artifactHeaderBottomLeft: string
+  artifactHeaderBottomCenter: string
+  artifactHeaderBottomRight: string
+  artifactShowHeaderMeta: boolean
+  artifactHeroOverlay: boolean
+  artifactHeroMediaType: 'image' | 'video'
+  artifactHeroImageUrl: string
+  artifactHeroVideoUrl: string
+  artifactHeroPositionX: number
+  artifactHeroPositionY: number
   scatterMode: boolean       // Whether scatter (freeform) positioning is enabled
   visitorDrag: boolean       // Whether visitors can drag cards on public page
   hasChanges: boolean     // Track if theme has unsaved changes
@@ -80,18 +90,27 @@ interface ThemeStore extends ThemeState {
   setMacPattern: (pattern: string) => void
   setMacPatternColor: (color: string) => void
   setWordArtTitleStyle: (style: string) => void
-  setLanyardActiveView: (view: number) => void
-  setClassifiedStampText: (text: string) => void
-  setClassifiedDeptText: (text: string) => void
-  setClassifiedCenterText: (text: string) => void
-  setClassifiedMessageText: (text: string) => void
   addToDock: (cardId: string) => void
   removeFromDock: (cardId: string) => void
   setPhoneHomeShowDock: (show: boolean) => void
-  setPhoneHomeVariant: (variant: 'default' | '8-bit') => void
+  setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => void
   setZineBadgeText: (text: string) => void
   setZineTitleSize: (size: number) => void
   setZineShowDoodles: (show: boolean) => void
+  setArtifactMarqueeText: (text: string) => void
+  setArtifactHeaderTopLeft: (text: string) => void
+  setArtifactHeaderTopCenter: (text: string) => void
+  setArtifactHeaderTopRight: (text: string) => void
+  setArtifactHeaderBottomLeft: (text: string) => void
+  setArtifactHeaderBottomCenter: (text: string) => void
+  setArtifactHeaderBottomRight: (text: string) => void
+  setArtifactShowHeaderMeta: (show: boolean) => void
+  setArtifactHeroOverlay: (enabled: boolean) => void
+  setArtifactHeroMediaType: (type: 'image' | 'video') => void
+  setArtifactHeroImageUrl: (url: string) => void
+  setArtifactHeroVideoUrl: (url: string) => void
+  setArtifactHeroPositionX: (x: number) => void
+  setArtifactHeroPositionY: (y: number) => void
   setScatterMode: (enabled: boolean) => void
   setVisitorDrag: (enabled: boolean) => void
   resetToThemeDefaults: () => void
@@ -163,17 +182,26 @@ export const useThemeStore = create<ThemeStore>()(
       macPattern: '',
       macPatternColor: '#c0c0c0',
       wordArtTitleStyle: 'style-eleven',
-      lanyardActiveView: 0,
-      classifiedStampText: 'SECRET',
-      classifiedDeptText: 'War Department',
-      classifiedCenterText: 'Classified Message Center',
-      classifiedMessageText: 'Incoming Message',
       phoneHomeDock: [],
       phoneHomeShowDock: true,
       phoneHomeVariant: 'default',
       zineBadgeText: 'NEW!',
       zineTitleSize: 1.0,
       zineShowDoodles: true,
+      artifactMarqueeText: 'LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER',
+      artifactHeaderTopLeft: 'USER.ID_99',
+      artifactHeaderTopCenter: '[ONLINE]',
+      artifactHeaderTopRight: '',
+      artifactHeaderBottomLeft: 'DIGITAL // PHY',
+      artifactHeaderBottomCenter: '///',
+      artifactHeaderBottomRight: 'SYS_ADMIN',
+      artifactShowHeaderMeta: true,
+      artifactHeroOverlay: true,
+      artifactHeroMediaType: 'image' as const,
+      artifactHeroImageUrl: '',
+      artifactHeroVideoUrl: '',
+      artifactHeroPositionX: 50,
+      artifactHeroPositionY: 50,
       scatterMode: false,
       visitorDrag: false,
       hasChanges: false,
@@ -213,6 +241,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: defaults.style,
           background: newBackground,
           centerCards: shouldCenter,
+          phoneHomeVariant: themeId === 'phone-home' ? '8-bit' : 'default',
           hasChanges: true,
         })
         // Sync default text color to header title and social icon color
@@ -394,29 +423,9 @@ export const useThemeStore = create<ThemeStore>()(
         set({ wordArtTitleStyle: style, hasChanges: true })
       },
 
-      setLanyardActiveView: (view: number) => {
-        set({ lanyardActiveView: view, hasChanges: true })
-      },
-
-      setClassifiedStampText: (text: string) => {
-        set({ classifiedStampText: text, hasChanges: true })
-      },
-
-      setClassifiedDeptText: (text: string) => {
-        set({ classifiedDeptText: text, hasChanges: true })
-      },
-
-      setClassifiedCenterText: (text: string) => {
-        set({ classifiedCenterText: text, hasChanges: true })
-      },
-
-      setClassifiedMessageText: (text: string) => {
-        set({ classifiedMessageText: text, hasChanges: true })
-      },
-
       addToDock: (cardId: string) => {
         set((state) => {
-          if (state.phoneHomeDock.includes(cardId) || state.phoneHomeDock.length >= 3) return state
+          if (state.phoneHomeDock.includes(cardId) || state.phoneHomeDock.length >= 4) return state
           return { phoneHomeDock: [...state.phoneHomeDock, cardId], hasChanges: true }
         })
       },
@@ -432,7 +441,7 @@ export const useThemeStore = create<ThemeStore>()(
         set({ phoneHomeShowDock: show, hasChanges: true })
       },
 
-      setPhoneHomeVariant: (variant: 'default' | '8-bit') => {
+      setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => {
         set({ phoneHomeVariant: variant, hasChanges: true })
       },
 
@@ -446,6 +455,62 @@ export const useThemeStore = create<ThemeStore>()(
 
       setZineShowDoodles: (show: boolean) => {
         set({ zineShowDoodles: show, hasChanges: true })
+      },
+
+      setArtifactMarqueeText: (text: string) => {
+        set({ artifactMarqueeText: text, hasChanges: true })
+      },
+
+      setArtifactHeaderTopLeft: (text: string) => {
+        set({ artifactHeaderTopLeft: text, hasChanges: true })
+      },
+
+      setArtifactHeaderTopCenter: (text: string) => {
+        set({ artifactHeaderTopCenter: text, hasChanges: true })
+      },
+
+      setArtifactHeaderTopRight: (text: string) => {
+        set({ artifactHeaderTopRight: text, hasChanges: true })
+      },
+
+      setArtifactHeaderBottomLeft: (text: string) => {
+        set({ artifactHeaderBottomLeft: text, hasChanges: true })
+      },
+
+      setArtifactHeaderBottomCenter: (text: string) => {
+        set({ artifactHeaderBottomCenter: text, hasChanges: true })
+      },
+
+      setArtifactHeaderBottomRight: (text: string) => {
+        set({ artifactHeaderBottomRight: text, hasChanges: true })
+      },
+
+      setArtifactShowHeaderMeta: (show: boolean) => {
+        set({ artifactShowHeaderMeta: show, hasChanges: true })
+      },
+
+      setArtifactHeroOverlay: (enabled: boolean) => {
+        set({ artifactHeroOverlay: enabled, hasChanges: true })
+      },
+
+      setArtifactHeroMediaType: (type: 'image' | 'video') => {
+        set({ artifactHeroMediaType: type, hasChanges: true })
+      },
+
+      setArtifactHeroImageUrl: (url: string) => {
+        set({ artifactHeroImageUrl: url, hasChanges: true })
+      },
+
+      setArtifactHeroVideoUrl: (url: string) => {
+        set({ artifactHeroVideoUrl: url, hasChanges: true })
+      },
+
+      setArtifactHeroPositionX: (x: number) => {
+        set({ artifactHeroPositionX: x, hasChanges: true })
+      },
+
+      setArtifactHeroPositionY: (y: number) => {
+        set({ artifactHeroPositionY: y, hasChanges: true })
       },
 
       setScatterMode: (enabled: boolean) => {
@@ -511,17 +576,26 @@ export const useThemeStore = create<ThemeStore>()(
           macPattern: theme.macPattern ?? '',
           macPatternColor: theme.macPatternColor ?? '#c0c0c0',
           wordArtTitleStyle: theme.wordArtTitleStyle ?? 'style-eleven',
-          lanyardActiveView: theme.lanyardActiveView ?? 0,
-          classifiedStampText: theme.classifiedStampText ?? 'SECRET',
-          classifiedDeptText: theme.classifiedDeptText ?? 'War Department',
-          classifiedCenterText: theme.classifiedCenterText ?? 'Classified Message Center',
-          classifiedMessageText: theme.classifiedMessageText ?? 'Incoming Message',
           phoneHomeDock: theme.phoneHomeDock ?? [],
           phoneHomeShowDock: theme.phoneHomeShowDock ?? true,
           phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
           zineBadgeText: theme.zineBadgeText ?? 'NEW!',
           zineTitleSize: theme.zineTitleSize ?? 1.0,
           zineShowDoodles: theme.zineShowDoodles ?? true,
+          artifactMarqueeText: theme.artifactMarqueeText ?? 'LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER',
+          artifactHeaderTopLeft: theme.artifactHeaderTopLeft ?? 'USER.ID_99',
+          artifactHeaderTopCenter: theme.artifactHeaderTopCenter ?? '[ONLINE]',
+          artifactHeaderTopRight: theme.artifactHeaderTopRight ?? '',
+          artifactHeaderBottomLeft: theme.artifactHeaderBottomLeft ?? 'DIGITAL // PHY',
+          artifactHeaderBottomCenter: theme.artifactHeaderBottomCenter ?? '///',
+          artifactHeaderBottomRight: theme.artifactHeaderBottomRight ?? 'SYS_ADMIN',
+          artifactShowHeaderMeta: theme.artifactShowHeaderMeta ?? true,
+          artifactHeroOverlay: theme.artifactHeroOverlay ?? true,
+          artifactHeroMediaType: (theme.artifactHeroMediaType as 'image' | 'video') ?? 'image',
+          artifactHeroImageUrl: theme.artifactHeroImageUrl ?? '',
+          artifactHeroVideoUrl: theme.artifactHeroVideoUrl ?? '',
+          artifactHeroPositionX: theme.artifactHeroPositionX ?? 50,
+          artifactHeroPositionY: theme.artifactHeroPositionY ?? 50,
           scatterMode: theme.scatterMode ?? false,
           visitorDrag: theme.visitorDrag ?? false,
           hasChanges: false,
@@ -550,17 +624,26 @@ export const useThemeStore = create<ThemeStore>()(
           macPattern: state.macPattern,
           macPatternColor: state.macPatternColor,
           wordArtTitleStyle: state.wordArtTitleStyle,
-          lanyardActiveView: state.lanyardActiveView,
-          classifiedStampText: state.classifiedStampText,
-          classifiedDeptText: state.classifiedDeptText,
-          classifiedCenterText: state.classifiedCenterText,
-          classifiedMessageText: state.classifiedMessageText,
           phoneHomeDock: state.phoneHomeDock,
           phoneHomeShowDock: state.phoneHomeShowDock,
           phoneHomeVariant: state.phoneHomeVariant,
           zineBadgeText: state.zineBadgeText,
           zineTitleSize: state.zineTitleSize,
           zineShowDoodles: state.zineShowDoodles,
+          artifactMarqueeText: state.artifactMarqueeText,
+          artifactHeaderTopLeft: state.artifactHeaderTopLeft,
+          artifactHeaderTopCenter: state.artifactHeaderTopCenter,
+          artifactHeaderTopRight: state.artifactHeaderTopRight,
+          artifactHeaderBottomLeft: state.artifactHeaderBottomLeft,
+          artifactHeaderBottomCenter: state.artifactHeaderBottomCenter,
+          artifactHeaderBottomRight: state.artifactHeaderBottomRight,
+          artifactShowHeaderMeta: state.artifactShowHeaderMeta,
+          artifactHeroOverlay: state.artifactHeroOverlay,
+          artifactHeroMediaType: state.artifactHeroMediaType,
+          artifactHeroImageUrl: state.artifactHeroImageUrl,
+          artifactHeroVideoUrl: state.artifactHeroVideoUrl,
+          artifactHeroPositionX: state.artifactHeroPositionX,
+          artifactHeroPositionY: state.artifactHeroPositionY,
           scatterMode: state.scatterMode,
           visitorDrag: state.visitorDrag,
         }

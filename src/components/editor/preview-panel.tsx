@@ -30,6 +30,7 @@ export function PreviewPanel() {
   const reorderCards = usePageStore((state) => state.reorderCards)
   const reorderMultipleCards = usePageStore((state) => state.reorderMultipleCards)
   const selectCard = usePageStore((state) => state.selectCard)
+  const addCard = usePageStore((state) => state.addCard)
   const updateCard = usePageStore((state) => state.updateCard)
   const getProfileSnapshot = useProfileStore((state) => state.getSnapshot)
   const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
@@ -142,8 +143,8 @@ export function PreviewPanel() {
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, scatterMode, visitorDrag } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, lanyardActiveView, classifiedStampText, classifiedDeptText, classifiedCenterText, classifiedMessageText, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, scatterMode, visitorDrag }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin
@@ -189,6 +190,23 @@ export function PreviewPanel() {
         case "UPDATE_IPOD_STICKER":
           updateIpodSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break
+        case "OPEN_DESIGN_TAB": {
+          // Artifact header click → open style tab in editor
+          const openStyleEvent = new CustomEvent('open-design-tab', { detail: { tab: event.data.payload?.tab || 'style' } })
+          window.dispatchEvent(openStyleEvent)
+          break
+        }
+        case "ADD_AUDIO_CARD": {
+          // Artifact CD click with no audio card → add one and select it
+          addCard('audio')
+          // Select the newly added card (it's the last one in the store)
+          const newCards = usePageStore.getState().cards
+          const newAudioCard = newCards.find(c => c.card_type === 'audio')
+          if (newAudioCard) {
+            selectCard(newAudioCard.id)
+          }
+          break
+        }
         case "PINCH_START":
           iframePinchingRef.current = true
           pinchStartScaleRef.current = scaleRef.current
@@ -211,7 +229,7 @@ export function PreviewPanel() {
 
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [reorderCards, reorderMultipleCards, selectCard, saveCards, updateCard, updateReceiptSticker, updateIpodSticker])
+  }, [reorderCards, reorderMultipleCards, selectCard, addCard, saveCards, updateCard, updateReceiptSticker, updateIpodSticker])
 
   // Prevent native zoom on the parent page (Safari gesture events)
   useEffect(() => {

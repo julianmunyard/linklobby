@@ -62,6 +62,8 @@ export function IpodClassicLayout({
   const lastAngleRef = useRef<number | null>(null)
   const accumulatedRotation = useRef(0)
   const DEGREES_PER_ITEM = 30 // Rotate 30 degrees to move one item
+  const currentSpeedRef = useRef(1.0) // Track varispeed for wheel control
+  const SPEED_STEP = 0.05 // Speed change per wheel step
 
   // Tap detection on touch wheel — distinguish taps from scroll gestures
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
@@ -314,8 +316,35 @@ export function IpodClassicLayout({
     const wheel = wheelRef.current
     if (!wheel) return
 
-    // No scrolling on release/nowplaying screen
-    if (currentScreen === 'release' || currentScreen === 'nowplaying') return
+    // No scrolling on release screen
+    if (currentScreen === 'release') return
+
+    // On nowplaying screen, wheel rotation controls varispeed
+    if (currentScreen === 'nowplaying') {
+      const rect = wheel.getBoundingClientRect()
+      const currentAngle = getAngleFromCenter(clientX, clientY, rect)
+
+      if (lastAngleRef.current !== null) {
+        let delta = currentAngle - lastAngleRef.current
+        if (delta > 180) delta -= 360
+        if (delta < -180) delta += 360
+        accumulatedRotation.current += delta
+
+        if (Math.abs(accumulatedRotation.current) >= DEGREES_PER_ITEM) {
+          const direction = accumulatedRotation.current > 0 ? 1 : -1
+          const steps = Math.floor(Math.abs(accumulatedRotation.current) / DEGREES_PER_ITEM)
+          const newSpeed = Math.round(Math.max(0.5, Math.min(1.5, currentSpeedRef.current + direction * steps * SPEED_STEP)) * 100) / 100
+          currentSpeedRef.current = newSpeed
+          const engine = getAudioEngine()
+          engine.setVarispeed(newSpeed, 'natural')
+          window.dispatchEvent(new CustomEvent('ipod-varispeed', { detail: { speed: newSpeed } }))
+          accumulatedRotation.current = accumulatedRotation.current % DEGREES_PER_ITEM
+        }
+      }
+
+      lastAngleRef.current = currentAngle
+      return
+    }
 
     let menuLength = 0
     if (currentScreen === 'main') {
@@ -490,9 +519,13 @@ export function IpodClassicLayout({
     dragStartRef.current = null
   }
 
+  // Find the social-icons card title for the socials screen header
+  const socialIconsCard = visibleCards.find(c => c.card_type === 'social-icons')
+  const socialsLabel = socialIconsCard?.title || 'SOCIALS'
+
   let displayTitle = title || 'Menu'
   if (currentScreen === 'socials') {
-    displayTitle = 'Socials'
+    displayTitle = socialsLabel
   } else if (currentScreen === 'nowplaying') {
     displayTitle = 'Now Playing'
   } else if (currentScreen === 'release') {
@@ -570,7 +603,7 @@ export function IpodClassicLayout({
                     <>
                       {menuCards.map((card, index) => {
                         const isSelected = selectedIndex === index
-                        const displayText = card.card_type === 'social-icons' ? 'Socials' : (card.title || card.card_type)
+                        const displayText = card.card_type === 'social-icons' ? (card.title || 'SOCIALS') : (card.title || card.card_type)
                         const isLongText = displayText.length > 25
 
                         // Text cards render as non-interactive section dividers
@@ -825,7 +858,7 @@ export function IpodClassicLayout({
                   })()
                 ) : currentScreen === 'nowplaying' ? (
                   activeAudioCard ? (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col h-full overflow-hidden">
                       <AudioCard
                         card={activeAudioCard}
                         isPreview={isPreview}

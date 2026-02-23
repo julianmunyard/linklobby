@@ -167,6 +167,18 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     engine.setLooping(looping)
   }, [looping])
 
+  // Listen for iPod wheel varispeed changes to sync display state
+  useEffect(() => {
+    const handleIpodVarispeed = (e: Event) => {
+      const speed = (e as CustomEvent).detail?.speed
+      if (typeof speed === 'number') {
+        setSpeedState(speed)
+      }
+    }
+    window.addEventListener('ipod-varispeed', handleIpodVarispeed)
+    return () => window.removeEventListener('ipod-varispeed', handleIpodVarispeed)
+  }, [])
+
   // Apply reverb config when it changes
   useEffect(() => {
     if (reverbConfig) {

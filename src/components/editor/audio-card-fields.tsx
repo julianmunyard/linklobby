@@ -41,6 +41,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
   const trackInputRef = useRef<HTMLInputElement>(null)
   const artInputRef = useRef<HTMLInputElement>(null)
   const cardBgInputRef = useRef<HTMLInputElement>(null)
+  const originalFileRef = useRef<File | null>(null)
 
   const tracks = content.tracks || []
   const reverbConfig = content.reverbConfig || DEFAULT_REVERB_CONFIG
@@ -182,6 +183,25 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       return
     }
 
+    originalFileRef.current = file
+
+    // GIFs: upload directly to preserve animation (canvas destroys frames)
+    if (file.type === 'image/gif') {
+      try {
+        setIsUploadingArt(true)
+        const result = await uploadCardImageBlob(file, cardId, file.type)
+        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+        toast.success('Album art uploaded')
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Upload failed'
+        toast.error(message)
+      } finally {
+        setIsUploadingArt(false)
+      }
+      if (artInputRef.current) artInputRef.current.value = ''
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string
@@ -200,10 +220,12 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
     try {
       setIsUploadingArt(true)
 
-      const fileToCompress = new File([croppedBlob], 'album-art.jpg', { type: croppedBlob.type })
+      const isPng = originalFileRef.current?.type === 'image/png'
+      const ext = isPng ? 'png' : 'jpg'
+      const fileToCompress = new File([croppedBlob], `album-art.${ext}`, { type: croppedBlob.type })
       const compressedBlob = await compressImageForUpload(fileToCompress)
 
-      const result = await uploadCardImageBlob(compressedBlob, cardId)
+      const result = await uploadCardImageBlob(compressedBlob, cardId, isPng ? 'image/png' : 'image/jpeg')
       onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
       toast.success('Album art uploaded')
     } catch (err) {
@@ -881,6 +903,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
           imageSrc={imageToCrop}
           initialAspect={1} // Square for album art
           onCropComplete={handleCropComplete}
+          outputFormat={originalFileRef.current?.type === 'image/png' ? 'image/png' : 'image/jpeg'}
         />
       )}
     </div>

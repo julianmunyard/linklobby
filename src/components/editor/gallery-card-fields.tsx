@@ -25,6 +25,7 @@ interface GalleryCardFieldsProps {
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
   isMacCard?: boolean
+  isPhoneHome?: boolean
 }
 
 // Separate component to avoid hooks in conditional
@@ -128,7 +129,7 @@ function SortableImage({
   )
 }
 
-export function GalleryCardFields({ content, onChange, cardId, isMacCard }: GalleryCardFieldsProps) {
+export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhoneHome }: GalleryCardFieldsProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Crop dialog state
@@ -259,8 +260,8 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard }: Gall
 
   return (
     <div className="space-y-4">
-      {/* Gallery Style Toggle - hidden on Macintosh theme (carousel only) */}
-      {!isMacCard && (
+      {/* Gallery Style Toggle - hidden on Macintosh theme (carousel only) and Phone Home */}
+      {!isMacCard && !isPhoneHome && (
         <div className="space-y-2">
           <Label>Gallery Style</Label>
           <ToggleGroup
@@ -281,8 +282,8 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard }: Gall
         </div>
       )}
 
-      {/* Circular Gallery Settings - only show when circular style selected (default) and not Mac */}
-      {!isMacCard && content.galleryStyle !== 'carousel' && (
+      {/* Circular Gallery Settings - only show when circular style selected (default), not Mac, not Phone Home */}
+      {!isMacCard && !isPhoneHome && content.galleryStyle !== 'carousel' && (
         <div className="space-y-4 p-3 bg-muted/50 rounded-lg">
           <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Circular Settings</Label>
 

@@ -99,7 +99,7 @@ export function MacintoshLayout({
       /* Two-layer approach for PNG patterns: pattern + color overlay.
          Uses mix-blend-mode instead of background-blend-mode for iOS Safari compatibility. */
       <div style={{ position: 'fixed', zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: '500px auto', imageRendering: 'pixelated' as const }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: 'min(1200px, 250vw) auto', imageRendering: 'pixelated' as const }} />
         <div style={{ position: 'absolute', inset: 0, backgroundColor: macPatternColor, mixBlendMode: 'multiply' }} />
       </div>
     ) : (

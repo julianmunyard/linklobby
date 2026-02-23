@@ -129,14 +129,17 @@ export async function uploadProfileImage(
 
   const supabase = createClient()
 
-  // Generate unique filename: userId/type-uuid.jpg
-  // Always .jpg since getCroppedImg outputs JPEG
-  const fileName = `${userId}/${type}-${generateId()}.jpg`
+  // Determine extension and content type from blob
+  const isGif = blob.type === 'image/gif'
+  const isPng = blob.type === 'image/png'
+  const ext = isGif ? 'gif' : isPng ? 'png' : 'jpg'
+  const contentType = isGif ? 'image/gif' : isPng ? 'image/png' : 'image/jpeg'
+  const fileName = `${userId}/${type}-${generateId()}.${ext}`
 
   const { data, error } = await supabase.storage
     .from(PROFILE_BUCKET)
     .upload(fileName, blob, {
-      contentType: "image/jpeg",
+      contentType,
       upsert: false,
     })
 

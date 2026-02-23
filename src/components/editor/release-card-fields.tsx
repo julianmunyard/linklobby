@@ -36,6 +36,7 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const originalFileRef = useRef<File | null>(null)
 
   // Merge with defaults
   const values: Partial<ReleaseCardContent> = {
@@ -77,6 +78,25 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       return
     }
 
+    originalFileRef.current = file
+
+    // GIFs: upload directly to preserve animation (canvas destroys frames)
+    if (file.type === 'image/gif') {
+      try {
+        setIsUploading(true)
+        const result = await uploadCardImageBlob(file, cardId, file.type)
+        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+        toast.success('Album art uploaded')
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Upload failed'
+        setUploadError(message)
+      } finally {
+        setIsUploading(false)
+      }
+      if (inputRef.current) inputRef.current.value = ''
+      return
+    }
+
     const reader = new FileReader()
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string
@@ -96,10 +116,12 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       setIsUploading(true)
       setUploadError(null)
 
-      const fileToCompress = new File([croppedBlob], 'album-art.jpg', { type: croppedBlob.type })
+      const isPng = originalFileRef.current?.type === 'image/png'
+      const ext = isPng ? 'png' : 'jpg'
+      const fileToCompress = new File([croppedBlob], `album-art.${ext}`, { type: croppedBlob.type })
       const compressedBlob = await compressImageForUpload(fileToCompress)
 
-      const result = await uploadCardImageBlob(compressedBlob, cardId)
+      const result = await uploadCardImageBlob(compressedBlob, cardId, isPng ? 'image/png' : 'image/jpeg')
       onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
       toast.success('Album art uploaded')
     } catch (err) {
@@ -360,6 +382,7 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
           imageSrc={imageToCrop}
           onCropComplete={handleCropComplete}
           initialAspect={1} // Square aspect for album art
+          outputFormat={originalFileRef.current?.type === 'image/png' ? 'image/png' : 'image/jpeg'}
         />
       )}
     </div>

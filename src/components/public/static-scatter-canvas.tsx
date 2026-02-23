@@ -205,16 +205,13 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         // This must happen BEFORE the scatterPos check — cards without saved positions
         // still need direct AudioPlayer rendering to work on public pages.
         // Matches the same pattern used in StaticFlowGrid.
-        if (card.card_type === 'audio' && isAudioContent(card.content)) {
-          const audioContent = card.content as AudioCardContent
+        if (card.card_type === 'audio') {
+          const audioContent = isAudioContent(card.content) ? (card.content as AudioCardContent) : { tracks: [] } as AudioCardContent
           const variantMap: Record<string, string> = {
             'system-settings': 'system-settings',
             'blinkies': 'blinkies',
             'vcr-menu': 'vcr-menu',
             'receipt': 'receipt',
-            'classified': 'classified',
-            'departures-board': 'classified',
-            'departures-board-led': 'classified',
             'mac-os': 'mac-os',
             'macintosh': 'macintosh',
             'ipod-classic': 'ipod-classic',

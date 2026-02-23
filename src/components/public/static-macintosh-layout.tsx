@@ -195,7 +195,7 @@ export function StaticMacintoshLayout({
         /* Two-layer approach for PNG patterns: pattern + color overlay.
            Uses mix-blend-mode instead of background-blend-mode for iOS Safari compatibility. */
         <div className="fixed" style={{ zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh' }}>
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: '500px auto', imageRendering: 'pixelated' as const }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: 'min(1200px, 250vw) auto', imageRendering: 'pixelated' as const }} />
           <div style={{ position: 'absolute', inset: 0, backgroundColor: bgColor, mixBlendMode: 'multiply' }} />
         </div>
       ) : (
@@ -412,19 +412,23 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     return <StaticMacSocials card={card} socialIcons={socialIcons || []} />
   }
 
-  // Audio card renders with mac-os theme variant
-  if (card.card_type === 'audio' && isAudioContent(card.content)) {
-    const audioContent = card.content as AudioCardContent
+  // Audio card renders with macintosh theme variant — always render even with no tracks
+  if (card.card_type === 'audio') {
+    const audioContent = isAudioContent(card.content) ? (card.content as AudioCardContent) : { tracks: [] } as AudioCardContent
+    const hasNoTracks = !audioContent.tracks || audioContent.tracks.length === 0
+    // Placeholder track so AudioPlayer renders its UI even when no track is uploaded
+    const placeholderTrack = { id: 'placeholder', title: 'TRACK TITLE', artist: 'ARTIST NAME', duration: 210, audioUrl: '', storagePath: '' }
+    const displayTracks = hasNoTracks ? [placeholderTrack] : audioContent.tracks
     return (
       <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
         <LinesTitleBar title={card.title || 'Now Playing'} />
         <div style={{ background: audioContent.playerColors?.elementBgColor || '#fff' }}>
           <AudioPlayer
-            tracks={audioContent.tracks || []}
+            tracks={displayTracks}
             albumArtUrl={audioContent.albumArtUrl}
             showWaveform={audioContent.showWaveform ?? true}
             looping={audioContent.looping ?? false}
-            autoplay={audioContent.autoplay ?? false}
+            autoplay={false}
             transparentBackground={audioContent.transparentBackground ?? false}
             reverbConfig={audioContent.reverbConfig}
             playerColors={audioContent.playerColors}
@@ -479,9 +483,11 @@ function StaticMacSocials({ card, socialIcons }: { card: Card; socialIcons: Soci
   const content = card.content as Record<string, unknown>
   const windowBgColor = (content?.socialWindowBgColor as string) || '#fff'
 
+  const socialsLabel = card.title || 'SOCIALS'
+
   return (
     <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
-      <LinesTitleBar title="Socials" />
+      <LinesTitleBar title={socialsLabel} />
       <div style={{ background: windowBgColor, padding: '12px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
           {socialIcons.map((icon) => {
@@ -1353,7 +1359,7 @@ function StaticMacGallery({ card }: { card: Card }) {
   return (
     <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
       <LinesTitleBar title={title} />
-      <div style={{ background: '#000', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', position: 'relative', overflow: 'hidden' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={images[currentIndex]?.url}

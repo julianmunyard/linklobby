@@ -7,9 +7,6 @@ import { StaticIpodClassicLayout } from "./static-ipod-classic-layout"
 import { StaticReceiptLayout } from "./static-receipt-layout"
 import { StaticMacintoshLayout } from "./static-macintosh-layout"
 import { StaticWordArtLayout } from "./static-word-art-layout"
-import { StaticLanyardBadgeLayout } from "./static-lanyard-badge-layout"
-import { StaticClassifiedLayout } from "./static-classified-layout"
-import { StaticDeparturesBoardLayout } from "./static-departures-board-layout"
 import { StaticPhoneHomeLayout } from "./static-phone-home-layout"
 import { StaticChaoticZineLayout } from "./static-chaotic-zine-layout"
 import { StaticArtifactLayout } from "./static-artifact-layout"
@@ -102,11 +99,6 @@ interface PublicPageRendererProps {
   macPatternColor?: string
   // Word Art theme
   wordArtTitleStyle?: string
-  // Classified theme
-  classifiedStampText?: string
-  classifiedDeptText?: string
-  classifiedCenterText?: string
-  classifiedMessageText?: string
   // Social icon size
   socialIconSize?: number
   // Phone Home theme
@@ -117,6 +109,21 @@ interface PublicPageRendererProps {
   zineBadgeText?: string
   zineTitleSize?: number
   zineShowDoodles?: boolean
+  // Artifact theme
+  artifactMarqueeText?: string
+  artifactHeaderTopLeft?: string
+  artifactHeaderTopCenter?: string
+  artifactHeaderTopRight?: string
+  artifactHeaderBottomLeft?: string
+  artifactHeaderBottomCenter?: string
+  artifactHeaderBottomRight?: string
+  artifactShowHeaderMeta?: boolean
+  artifactHeroOverlay?: boolean
+  artifactHeroMediaType?: 'image' | 'video'
+  artifactHeroImageUrl?: string
+  artifactHeroVideoUrl?: string
+  artifactHeroPositionX?: number
+  artifactHeroPositionY?: number
   // Theme colors (for layouts that need hex values for contrast computation)
   themeColors?: { background: string; cardBg: string; text: string; accent: string; border: string; link: string }
   // Scatter mode
@@ -171,10 +178,6 @@ export function PublicPageRenderer({
   macPattern,
   macPatternColor,
   wordArtTitleStyle,
-  classifiedStampText,
-  classifiedDeptText,
-  classifiedCenterText,
-  classifiedMessageText,
   socialIconSize,
   phoneHomeDock,
   phoneHomeShowDock,
@@ -182,6 +185,20 @@ export function PublicPageRenderer({
   zineBadgeText,
   zineTitleSize,
   zineShowDoodles,
+  artifactMarqueeText,
+  artifactHeaderTopLeft,
+  artifactHeaderTopCenter,
+  artifactHeaderTopRight,
+  artifactHeaderBottomLeft,
+  artifactHeaderBottomCenter,
+  artifactHeaderBottomRight,
+  artifactShowHeaderMeta,
+  artifactHeroOverlay,
+  artifactHeroMediaType,
+  artifactHeroImageUrl,
+  artifactHeroVideoUrl,
+  artifactHeroPositionX,
+  artifactHeroPositionY,
   themeColors,
   scatterMode = false,
   visitorDrag = false,
@@ -297,43 +314,6 @@ export function PublicPageRenderer({
     )
   }
 
-  // Lanyard Badge theme uses 3D lanyard with badge card
-  if (themeId === 'lanyard-badge') {
-    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
-    return (
-      <StaticLanyardBadgeLayout
-        username={username}
-        title={displayName || 'BADGE'}
-        cards={cards}
-        headingSize={headingSize}
-        bodySize={bodySize}
-        socialIcons={socialIcons}
-        accentColor={accentColor}
-        avatarUrl={avatarUrl}
-        showAvatar={showAvatar}
-      />
-    )
-  }
-
-  // Classified Document theme uses military document layout
-  if (themeId === 'classified') {
-    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
-    return (
-      <StaticClassifiedLayout
-        username={username}
-        title={displayName || 'SECRET'}
-        cards={cards}
-        headingSize={headingSize}
-        bodySize={bodySize}
-        socialIcons={socialIcons}
-        showSocialIcons={showSocialIcons}
-        classifiedStampText={classifiedStampText}
-        classifiedDeptText={classifiedDeptText}
-        classifiedCenterText={classifiedCenterText}
-        classifiedMessageText={classifiedMessageText}
-      />
-    )
-  }
 
   // Chaotic Zine theme uses ransom-note/cut-and-paste layout
   if (themeId === 'chaotic-zine') {
@@ -373,23 +353,20 @@ export function PublicPageRenderer({
         showAvatar={showAvatar}
         bio={bio}
         themeColors={themeColors}
-      />
-    )
-  }
-
-  // Departures Board themes use airport departures display layout
-  if (themeId === 'departures-board' || themeId === 'departures-board-led') {
-    const socialIcons: SocialIcon[] = socialIconsJson ? JSON.parse(socialIconsJson) : []
-    return (
-      <StaticDeparturesBoardLayout
-        username={username}
-        title={displayName || 'DEPARTURES'}
-        cards={cards}
-        headingSize={headingSize}
-        bodySize={bodySize}
-        socialIcons={socialIcons}
-        showSocialIcons={showSocialIcons}
-        isLed={themeId === 'departures-board-led'}
+        artifactMarqueeText={artifactMarqueeText}
+        artifactHeaderTopLeft={artifactHeaderTopLeft}
+        artifactHeaderTopCenter={artifactHeaderTopCenter}
+        artifactHeaderTopRight={artifactHeaderTopRight}
+        artifactHeaderBottomLeft={artifactHeaderBottomLeft}
+        artifactHeaderBottomCenter={artifactHeaderBottomCenter}
+        artifactHeaderBottomRight={artifactHeaderBottomRight}
+        artifactShowHeaderMeta={artifactShowHeaderMeta}
+        artifactHeroOverlay={artifactHeroOverlay}
+        artifactHeroMediaType={artifactHeroMediaType}
+        artifactHeroImageUrl={artifactHeroImageUrl}
+        artifactHeroVideoUrl={artifactHeroVideoUrl}
+        artifactHeroPositionX={artifactHeroPositionX}
+        artifactHeroPositionY={artifactHeroPositionY}
       />
     )
   }

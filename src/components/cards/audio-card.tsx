@@ -25,11 +25,8 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
     'receipt': 'receipt',
     'ipod-classic': 'ipod-classic',
     'vcr-menu': 'vcr-menu',
-    'classified': 'classified',
     'blinkies': 'blinkies',
     'phone-home': 'blinkies',  // Phone home uses blinkies variant for audio widgets
-    'departures-board': 'classified',  // Dark theme - use classified variant
-    'departures-board-led': 'classified',
     'artifact': 'blinkies',
   }
   const themeVariant = themeVariantMap[themeId] || 'instagram-reels'

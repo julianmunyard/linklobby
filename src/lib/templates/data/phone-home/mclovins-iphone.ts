@@ -482,11 +482,6 @@ export const phoneHomeMclovinsIphone: TemplateDefinition = {
     "macPattern": "",
     "macPatternColor": "#a37710",
     "wordArtTitleStyle": "style-four",
-    "lanyardActiveView": 0,
-    "classifiedStampText": "fuck you",
-    "classifiedDeptText": "idiot",
-    "classifiedCenterText": "idiot brain",
-    "classifiedMessageText": "shut up",
     "phoneHomeDock": [
       "31e26e4a-6db4-4715-bcf6-fe4fb617e0b5",
       "c2be249f-face-4178-bdb9-ed6e8df4a0b9"

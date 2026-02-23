@@ -26,9 +26,8 @@ export function Noise({
     const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
-    let frame = 0
-    let animationId: number
-    const canvasSize = 1024
+    const canvasSize = 512
+    let intervalId: ReturnType<typeof setInterval> | undefined
 
     const resize = () => {
       if (!canvas) return
@@ -54,21 +53,17 @@ export function Noise({
       ctx.putImageData(imageData, 0, 0)
     }
 
-    const loop = () => {
-      if (frame % patternRefreshInterval === 0) {
-        drawGrain()
-      }
-      frame++
-      animationId = window.requestAnimationFrame(loop)
-    }
-
     window.addEventListener('resize', resize)
     resize()
-    loop()
+    drawGrain()
+
+    // Refresh at ~5fps using setInterval instead of rAF to avoid
+    // blocking the main thread during scroll/touch interactions
+    intervalId = setInterval(drawGrain, 200)
 
     return () => {
       window.removeEventListener('resize', resize)
-      window.cancelAnimationFrame(animationId)
+      clearInterval(intervalId)
     }
   }, [patternSize, patternScaleX, patternScaleY, patternRefreshInterval, patternAlpha])
 

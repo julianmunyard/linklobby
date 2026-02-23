@@ -74,6 +74,8 @@ interface ArtifactLayoutProps {
   isPreview?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
+  onHeaderClick?: () => void
+  onAddAudioCard?: () => void
 }
 
 export function ArtifactLayout({
@@ -82,6 +84,8 @@ export function ArtifactLayout({
   isPreview = false,
   onCardClick,
   selectedCardId,
+  onHeaderClick,
+  onAddAudioCard,
 }: ArtifactLayoutProps) {
   const [audioOpen, setAudioOpen] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
@@ -96,11 +100,29 @@ export function ArtifactLayout({
   // Read palette colors from theme store
   const colors = useThemeStore((s) => s.colors)
 
+  // Artifact-specific settings
+  const artifactMarqueeText = useThemeStore((s) => s.artifactMarqueeText)
+  const artifactHeaderTopLeft = useThemeStore((s) => s.artifactHeaderTopLeft)
+  const artifactHeaderTopCenter = useThemeStore((s) => s.artifactHeaderTopCenter)
+  const artifactHeaderTopRight = useThemeStore((s) => s.artifactHeaderTopRight)
+  const artifactHeaderBottomLeft = useThemeStore((s) => s.artifactHeaderBottomLeft)
+  const artifactHeaderBottomCenter = useThemeStore((s) => s.artifactHeaderBottomCenter)
+  const artifactHeaderBottomRight = useThemeStore((s) => s.artifactHeaderBottomRight)
+  const artifactShowHeaderMeta = useThemeStore((s) => s.artifactShowHeaderMeta)
+  const artifactHeroOverlay = useThemeStore((s) => s.artifactHeroOverlay)
+  const artifactHeroMediaType = useThemeStore((s) => s.artifactHeroMediaType)
+  const artifactHeroImageUrl = useThemeStore((s) => s.artifactHeroImageUrl)
+  const artifactHeroVideoUrl = useThemeStore((s) => s.artifactHeroVideoUrl)
+  const artifactHeroPositionX = useThemeStore((s) => s.artifactHeroPositionX)
+  const artifactHeroPositionY = useThemeStore((s) => s.artifactHeroPositionY)
+
+  const marqueeText = artifactMarqueeText || 'LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER'
+
   // Cycling card block colors derived from palette
   // Order: cardBg, text, border (header), a muted mix, accent
   const blockColors = [colors.cardBg, colors.text, colors.border, colors.link, colors.accent]
 
-  const audioCard = cards.find(c => c.card_type === 'audio' && c.is_visible !== false && isAudioContent(c.content))
+  const audioCard = cards.find(c => c.card_type === 'audio' && c.is_visible !== false)
   const audioContent = audioCard && isAudioContent(audioCard.content) ? (audioCard.content as unknown as AudioCardContent) : null
 
   const visibleCards = sortCardsBySortKey(
@@ -173,23 +195,29 @@ export function ArtifactLayout({
             flexDirection: 'column',
             justifyContent: 'space-between',
             overflow: 'hidden',
+            cursor: isPreview ? 'pointer' : 'default',
+          }}
+          onClick={() => {
+            if (isPreview && onHeaderClick) onHeaderClick()
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontFamily: 'var(--font-space-mono)',
-              fontSize: '0.6rem',
-              fontWeight: 'bold',
-              color: headerTextColor,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            <span>USER.ID_{String(titleText.length).padStart(2, '0')}</span>
-            <span>[ONLINE]</span>
-            <span>EST. {currentYear}</span>
-          </div>
+          {artifactShowHeaderMeta && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontFamily: 'var(--font-space-mono)',
+                fontSize: '0.6rem',
+                fontWeight: 'bold',
+                color: headerTextColor,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              <span>{artifactHeaderTopLeft || `USER.ID_${String(titleText.length).padStart(2, '0')}`}</span>
+              <span>{artifactHeaderTopCenter || '[ONLINE]'}</span>
+              <span>{artifactHeaderTopRight || `EST. ${currentYear}`}</span>
+            </div>
+          )}
 
           <h1
             style={{
@@ -211,21 +239,23 @@ export function ArtifactLayout({
             {titleText}
           </h1>
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontFamily: 'var(--font-space-mono)',
-              fontSize: '0.55rem',
-              fontWeight: 'bold',
-              color: headerTextColor,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            <span>DIGITAL // PHY</span>
-            <span>///</span>
-            <span>SYS_ADMIN</span>
-          </div>
+          {artifactShowHeaderMeta && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontFamily: 'var(--font-space-mono)',
+                fontSize: '0.55rem',
+                fontWeight: 'bold',
+                color: headerTextColor,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              <span>{artifactHeaderBottomLeft || 'DIGITAL // PHY'}</span>
+              <span>{artifactHeaderBottomCenter || '///'}</span>
+              <span>{artifactHeaderBottomRight || 'SYS_ADMIN'}</span>
+            </div>
+          )}
         </div>
 
         {/* 2. MARQUEE BANNER */}
@@ -257,7 +287,7 @@ export function ArtifactLayout({
                   paddingRight: '2rem',
                 }}
               >
-                {'>>> LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER >>> LINKS_DATABASE /// ACCESS_GRANTED >>> CONNECT_NOW /// NET_RUNNER '}
+                {`>>> ${marqueeText} >>> ${marqueeText} `}
               </span>
             ))}
           </div>
@@ -274,14 +304,19 @@ export function ArtifactLayout({
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              cursor: audioContent ? 'pointer' : 'default',
+              cursor: isPreview ? 'pointer' : (audioContent ? 'pointer' : 'default'),
               gap: '8px',
             }}
             onClick={() => {
+              if (!audioCard && isPreview && onAddAudioCard) {
+                // No audio card exists — ask editor to create one
+                onAddAudioCard()
+                return
+              }
               if (audioCard && onCardClick) {
                 onCardClick(audioCard.id)
               }
-              if (audioContent) setAudioOpen(prev => !prev)
+              if (audioCard) setAudioOpen(prev => !prev)
             }}
           >
             {/* CD disc */}
@@ -305,11 +340,11 @@ export function ArtifactLayout({
                 letterSpacing: '0.1em',
               }}
             >
-              {audioOpen ? 'NOW PLAYING' : audioContent ? 'PLAY' : 'NO TRACK'}
+              {audioOpen ? 'NOW PLAYING' : audioCard ? 'PLAY' : (isPreview ? 'ADD TRACK' : 'NO TRACK')}
             </span>
           </div>
 
-          {/* Right panel - Profile photo */}
+          {/* Right panel - Profile photo / video */}
           <div
             style={{
               background: colors.cardBg,
@@ -320,16 +355,33 @@ export function ArtifactLayout({
               position: 'relative',
             }}
           >
-            {showAvatar && avatarUrl ? (
+            {artifactHeroMediaType === 'video' && artifactHeroVideoUrl ? (
+              <video
+                src={artifactHeroVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: `${artifactHeroPositionX}% ${artifactHeroPositionY}%`,
+                  filter: artifactHeroOverlay ? 'grayscale(100%) contrast(1.25)' : 'none',
+                  mixBlendMode: artifactHeroOverlay ? 'multiply' : 'normal',
+                }}
+              />
+            ) : (artifactHeroImageUrl || (showAvatar && avatarUrl)) ? (
               <img
-                src={avatarUrl}
+                src={artifactHeroImageUrl || avatarUrl || ''}
                 alt={titleText}
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  filter: 'grayscale(100%) contrast(1.25)',
-                  mixBlendMode: 'multiply',
+                  objectPosition: `${artifactHeroPositionX}% ${artifactHeroPositionY}%`,
+                  filter: artifactHeroOverlay ? 'grayscale(100%) contrast(1.25)' : 'none',
+                  mixBlendMode: artifactHeroOverlay ? 'multiply' : 'normal',
                 }}
               />
             ) : (
@@ -351,51 +403,58 @@ export function ArtifactLayout({
         {/* 4. LINK CARDS SECTION + AUDIO */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflow: 'auto' }}>
           {/* Audio player (conditionally shown) */}
-          {audioOpen && audioContent && audioCard && (
-            <div
-              data-card-id={audioCard.id}
-              style={{
-                background: 'var(--theme-background)',
-                padding: '0.75rem 1rem',
-                cursor: 'pointer',
-              }}
-              onClick={() => {
-                if (onCardClick) onCardClick(audioCard.id)
-              }}
-            >
-              <SystemSettingsCard
-                cardType="audio"
-                transparentBackground={audioContent.transparentBackground === true}
-                titleBarStyle="system-settings"
-                blinkieBg={true}
-                blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter}
-                blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim}
-                blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox}
-                blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox}
-                blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl}
-                blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale}
-                blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX}
-                blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}
-                blinkieCardBgNone={audioContent.blinkieBoxBackgrounds?.cardBgNone}
-                blinkieTextColor={audioContent.blinkieColors?.text}
+          {audioOpen && audioCard && (() => {
+            // Artifact theme: audio player always matches the theme palette
+            const innerText = contrastText(colors.cardBg, colors.text, colors.background)
+            const artifactBlinkieColors = {
+              outerBox: colors.border,
+              innerBox: colors.cardBg,
+              text: innerText,
+              playerBox: colors.link,
+              buttons: colors.accent,
+            }
+            return (
+              <div
+                data-card-id={audioCard.id}
+                className="artifact-audio-square"
+                style={{
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  if (onCardClick) onCardClick(audioCard.id)
+                }}
               >
-                <AudioPlayer
-                  tracks={audioContent.tracks || []}
-                  albumArtUrl={audioContent.albumArtUrl}
-                  showWaveform={audioContent.showWaveform ?? true}
-                  looping={audioContent.looping ?? false}
-                  reverbConfig={audioContent.reverbConfig}
-                  playerColors={audioContent.playerColors}
-                  blinkieColors={audioContent.blinkieColors}
-                  blinkieCardHasBgImage={!!(audioContent.blinkieBoxBackgrounds?.cardBgUrl) && !(audioContent.transparentBackground)}
-                  cardId={audioCard.id}
-                  pageId={audioCard.page_id}
-                  isEditing={isPreview}
-                  themeVariant="blinkies"
-                />
-              </SystemSettingsCard>
-            </div>
-          )}
+                <style>{`
+                  .artifact-audio-square div[style*="border-radius"] { border-radius: 0 !important; }
+                  .artifact-audio-square > div > div:first-child button.w-4.h-4 { display: none; }
+                `}</style>
+                <SystemSettingsCard
+                  cardType="audio"
+                  transparentBackground={false}
+                  titleBarStyle="system-settings"
+                  blinkieBg={false}
+                  blinkieCardBgNone={true}
+                  blinkieOuterBoxColor={artifactBlinkieColors.outerBox}
+                  blinkieInnerBoxColor={artifactBlinkieColors.innerBox}
+                  blinkieTextColor={artifactBlinkieColors.text}
+                >
+                  <AudioPlayer
+                    tracks={audioContent?.tracks || []}
+                    albumArtUrl={audioContent?.albumArtUrl}
+                    showWaveform={audioContent?.showWaveform ?? true}
+                    looping={audioContent?.looping ?? false}
+                    reverbConfig={audioContent?.reverbConfig}
+                    blinkieColors={artifactBlinkieColors}
+                    blinkieCardHasBgImage={false}
+                    cardId={audioCard.id}
+                    pageId={audioCard.page_id}
+                    isEditing={isPreview}
+                    themeVariant="blinkies"
+                  />
+                </SystemSettingsCard>
+              </div>
+            )
+          })()}
 
           {/* Link cards */}
           {visibleCards.map((card, i) => {

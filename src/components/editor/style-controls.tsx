@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import { useThemeStore } from '@/stores/theme-store'
 import { getTheme } from '@/lib/themes'
 import { Label } from '@/components/ui/label'
@@ -7,7 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
+import { X, Upload, Loader2 } from 'lucide-react'
 import { usePageStore } from '@/stores/page-store'
 import type { ThemeId } from '@/types/theme'
 import { isScatterTheme } from '@/types/scatter'
@@ -21,6 +22,15 @@ const RECEIPT_STICKERS = [
   { id: 'price-tag-1', src: '/images/stickers/price-tag-1.jpeg', label: 'Price Tag 1' },
   { id: 'price-tag-2', src: '/images/stickers/price-tag-2.jpeg', label: 'Price Tag 2' },
   { id: 'cleared-stamp', src: '/images/stickers/cleared-stamp.jpeg', label: 'Cleared' },
+  { id: 'handle-w-care', src: '/images/stickers/handle-w-care.png', label: 'Handle W Care' },
+  { id: 'ladybug', src: '/images/stickers/ladybug.png', label: 'Ladybug' },
+  { id: 'mexicans', src: '/images/stickers/mexicans.png', label: 'Mexicans' },
+  { id: 'mf-doom', src: '/images/stickers/mf-doom.png', label: 'MF DOOM' },
+  { id: 'musiq', src: '/images/stickers/musiq.png', label: 'Musiq' },
+  { id: 'no-sub', src: '/images/stickers/no-sub.png', label: 'No Sub' },
+  { id: 'nyc', src: '/images/stickers/nyc.png', label: 'NYC' },
+  { id: 'pink', src: '/images/stickers/pink.png', label: 'Pink' },
+  { id: 'dc-globe', src: '/images/stickers/dc-globe.png', label: 'Globe' },
 ]
 
 // Available textures for iPod theme
@@ -37,9 +47,43 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, classifiedStampText, setClassifiedStampText, classifiedDeptText, setClassifiedDeptText, classifiedCenterText, setClassifiedCenterText, classifiedMessageText, setClassifiedMessageText, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles, artifactMarqueeText, setArtifactMarqueeText, artifactHeaderTopLeft, setArtifactHeaderTopLeft, artifactHeaderTopCenter, setArtifactHeaderTopCenter, artifactHeaderTopRight, setArtifactHeaderTopRight, artifactHeaderBottomLeft, setArtifactHeaderBottomLeft, artifactHeaderBottomCenter, setArtifactHeaderBottomCenter, artifactHeaderBottomRight, setArtifactHeaderBottomRight, artifactShowHeaderMeta, setArtifactShowHeaderMeta, artifactHeroOverlay, setArtifactHeroOverlay, artifactHeroMediaType, setArtifactHeroMediaType, artifactHeroImageUrl, setArtifactHeroImageUrl, artifactHeroVideoUrl, setArtifactHeroVideoUrl, artifactHeroPositionX, setArtifactHeroPositionX, artifactHeroPositionY, setArtifactHeroPositionY } = useThemeStore()
   const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
+  const [stickerUploading, setStickerUploading] = useState<'receipt' | 'ipod' | null>(null)
+  const receiptStickerInputRef = useRef<HTMLInputElement>(null)
+  const ipodStickerInputRef = useRef<HTMLInputElement>(null)
+
+  const handleStickerUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'receipt' | 'ipod') => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setStickerUploading(target)
+    try {
+      const { uploadStickerImage } = await import('@/lib/storage')
+      const url = await uploadStickerImage(file)
+      const sticker = {
+        id: `custom-${Date.now()}`,
+        src: url,
+        x: 50 + Math.random() * 20 - 10,
+        y: 30 + Math.random() * 20 - 10,
+        rotation: Math.random() * 30 - 15,
+        scale: 0.8 + Math.random() * 0.4,
+        behindText: false,
+      }
+      if (target === 'receipt') {
+        addReceiptSticker(sticker)
+      } else {
+        addIpodSticker(sticker)
+      }
+    } catch (error) {
+      console.error('Sticker upload failed:', error)
+    } finally {
+      setStickerUploading(null)
+      if (target === 'receipt' && receiptStickerInputRef.current) receiptStickerInputRef.current.value = ''
+      if (target === 'ipod' && ipodStickerInputRef.current) ipodStickerInputRef.current.value = ''
+    }
+  }
 
   // Hide card style controls for list-layout themes
   const showCardStyleControls = !LIST_LAYOUT_THEMES.includes(themeId)
@@ -244,6 +288,24 @@ export function StyleControls() {
                 />
               </button>
             ))}
+            <input
+              ref={receiptStickerInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleStickerUpload(e, 'receipt')}
+            />
+            <button
+              onClick={() => receiptStickerInputRef.current?.click()}
+              disabled={stickerUploading === 'receipt'}
+              className="p-1 rounded border-2 border-dashed border-muted-foreground/30 hover:border-primary transition-colors flex items-center justify-center aspect-square"
+            >
+              {stickerUploading === 'receipt' ? (
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              ) : (
+                <Upload className="w-5 h-5 text-muted-foreground" />
+              )}
+            </button>
           </div>
 
           {/* Active stickers list */}
@@ -379,6 +441,24 @@ export function StyleControls() {
                 />
               </button>
             ))}
+            <input
+              ref={ipodStickerInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleStickerUpload(e, 'ipod')}
+            />
+            <button
+              onClick={() => ipodStickerInputRef.current?.click()}
+              disabled={stickerUploading === 'ipod'}
+              className="p-1 rounded border-2 border-dashed border-muted-foreground/30 hover:border-primary transition-colors flex items-center justify-center aspect-square"
+            >
+              {stickerUploading === 'ipod' ? (
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              ) : (
+                <Upload className="w-5 h-5 text-muted-foreground" />
+              )}
+            </button>
           </div>
 
           {/* Active stickers list */}
@@ -479,6 +559,16 @@ export function StyleControls() {
               >
                 8-Bit
               </button>
+              <button
+                onClick={() => setPhoneHomeVariant('windows-95')}
+                className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  phoneHomeVariant === 'windows-95'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                }`}
+              >
+                Win 95
+              </button>
             </div>
           </div>
 
@@ -531,52 +621,38 @@ export function StyleControls() {
         </div>
       )}
 
-      {/* Classified Theme: Header Text Fields */}
-      {themeId === 'classified' && (
-        <div className="space-y-3">
-          <Label className="text-sm">Document Text</Label>
-          <p className="text-xs text-muted-foreground">Customize the classified document header text</p>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Stamp Text</Label>
-            <Input
-              value={classifiedStampText}
-              onChange={(e) => setClassifiedStampText(e.target.value)}
-              placeholder="SECRET"
-              className="font-mono uppercase"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Department</Label>
-            <Input
-              value={classifiedDeptText}
-              onChange={(e) => setClassifiedDeptText(e.target.value)}
-              placeholder="War Department"
-              className="font-mono"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Center Line</Label>
-            <Input
-              value={classifiedCenterText}
-              onChange={(e) => setClassifiedCenterText(e.target.value)}
-              placeholder="Classified Message Center"
-              className="font-mono"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Message Line</Label>
-            <Input
-              value={classifiedMessageText}
-              onChange={(e) => setClassifiedMessageText(e.target.value)}
-              placeholder="Incoming Message"
-              className="font-mono"
-            />
-          </div>
-        </div>
+      {/* Artifact Theme Settings */}
+      {themeId === 'artifact' && (
+        <ArtifactSettings
+          artifactShowHeaderMeta={artifactShowHeaderMeta}
+          setArtifactShowHeaderMeta={setArtifactShowHeaderMeta}
+          artifactHeaderTopLeft={artifactHeaderTopLeft}
+          setArtifactHeaderTopLeft={setArtifactHeaderTopLeft}
+          artifactHeaderTopCenter={artifactHeaderTopCenter}
+          setArtifactHeaderTopCenter={setArtifactHeaderTopCenter}
+          artifactHeaderTopRight={artifactHeaderTopRight}
+          setArtifactHeaderTopRight={setArtifactHeaderTopRight}
+          artifactHeaderBottomLeft={artifactHeaderBottomLeft}
+          setArtifactHeaderBottomLeft={setArtifactHeaderBottomLeft}
+          artifactHeaderBottomCenter={artifactHeaderBottomCenter}
+          setArtifactHeaderBottomCenter={setArtifactHeaderBottomCenter}
+          artifactHeaderBottomRight={artifactHeaderBottomRight}
+          setArtifactHeaderBottomRight={setArtifactHeaderBottomRight}
+          artifactMarqueeText={artifactMarqueeText}
+          setArtifactMarqueeText={setArtifactMarqueeText}
+          artifactHeroOverlay={artifactHeroOverlay}
+          setArtifactHeroOverlay={setArtifactHeroOverlay}
+          artifactHeroMediaType={artifactHeroMediaType}
+          setArtifactHeroMediaType={setArtifactHeroMediaType}
+          artifactHeroImageUrl={artifactHeroImageUrl}
+          setArtifactHeroImageUrl={setArtifactHeroImageUrl}
+          artifactHeroVideoUrl={artifactHeroVideoUrl}
+          setArtifactHeroVideoUrl={setArtifactHeroVideoUrl}
+          artifactHeroPositionX={artifactHeroPositionX}
+          setArtifactHeroPositionX={setArtifactHeroPositionX}
+          artifactHeroPositionY={artifactHeroPositionY}
+          setArtifactHeroPositionY={setArtifactHeroPositionY}
+        />
       )}
 
       {/* Style Preview */}
@@ -592,6 +668,322 @@ export function StyleControls() {
         >
           Card Preview
         </div>
+      </div>
+    </div>
+  )
+}
+
+// Artifact theme settings sub-component
+function ArtifactSettings({
+  artifactShowHeaderMeta, setArtifactShowHeaderMeta,
+  artifactHeaderTopLeft, setArtifactHeaderTopLeft,
+  artifactHeaderTopCenter, setArtifactHeaderTopCenter,
+  artifactHeaderTopRight, setArtifactHeaderTopRight,
+  artifactHeaderBottomLeft, setArtifactHeaderBottomLeft,
+  artifactHeaderBottomCenter, setArtifactHeaderBottomCenter,
+  artifactHeaderBottomRight, setArtifactHeaderBottomRight,
+  artifactMarqueeText, setArtifactMarqueeText,
+  artifactHeroOverlay, setArtifactHeroOverlay,
+  artifactHeroMediaType, setArtifactHeroMediaType,
+  artifactHeroImageUrl, setArtifactHeroImageUrl,
+  artifactHeroVideoUrl, setArtifactHeroVideoUrl,
+  artifactHeroPositionX, setArtifactHeroPositionX,
+  artifactHeroPositionY, setArtifactHeroPositionY,
+}: {
+  artifactShowHeaderMeta: boolean
+  setArtifactShowHeaderMeta: (v: boolean) => void
+  artifactHeaderTopLeft: string
+  setArtifactHeaderTopLeft: (v: string) => void
+  artifactHeaderTopCenter: string
+  setArtifactHeaderTopCenter: (v: string) => void
+  artifactHeaderTopRight: string
+  setArtifactHeaderTopRight: (v: string) => void
+  artifactHeaderBottomLeft: string
+  setArtifactHeaderBottomLeft: (v: string) => void
+  artifactHeaderBottomCenter: string
+  setArtifactHeaderBottomCenter: (v: string) => void
+  artifactHeaderBottomRight: string
+  setArtifactHeaderBottomRight: (v: string) => void
+  artifactMarqueeText: string
+  setArtifactMarqueeText: (v: string) => void
+  artifactHeroOverlay: boolean
+  setArtifactHeroOverlay: (v: boolean) => void
+  artifactHeroMediaType: 'image' | 'video'
+  setArtifactHeroMediaType: (v: 'image' | 'video') => void
+  artifactHeroImageUrl: string
+  setArtifactHeroImageUrl: (v: string) => void
+  artifactHeroVideoUrl: string
+  setArtifactHeroVideoUrl: (v: string) => void
+  artifactHeroPositionX: number
+  setArtifactHeroPositionX: (v: number) => void
+  artifactHeroPositionY: number
+  setArtifactHeroPositionY: (v: number) => void
+}) {
+  const [isVideoUploading, setIsVideoUploading] = useState(false)
+  const [isImageUploading, setIsImageUploading] = useState(false)
+  const videoInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsImageUploading(true)
+    try {
+      const { uploadBackgroundImage } = await import('@/lib/storage')
+      const url = await uploadBackgroundImage(file)
+      setArtifactHeroImageUrl(url)
+      setArtifactHeroMediaType('image')
+    } catch (error) {
+      console.error('Image upload failed:', error)
+    } finally {
+      setIsImageUploading(false)
+      if (imageInputRef.current) imageInputRef.current.value = ''
+    }
+  }
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsVideoUploading(true)
+    try {
+      const { uploadBackgroundVideo } = await import('@/lib/storage')
+      const url = await uploadBackgroundVideo(file)
+      setArtifactHeroVideoUrl(url)
+      setArtifactHeroMediaType('video')
+    } catch (error) {
+      console.error('Video upload failed:', error)
+    } finally {
+      setIsVideoUploading(false)
+      if (videoInputRef.current) videoInputRef.current.value = ''
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Label className="text-sm font-medium">Artifact Settings</Label>
+      <p className="text-xs text-muted-foreground -mt-2">Click the header in the preview to jump here</p>
+
+      {/* Header Metadata Toggle */}
+      <div className="flex items-center justify-between">
+        <div>
+          <Label className="text-sm">Show Metadata</Label>
+          <p className="text-xs text-muted-foreground">Small text around the title</p>
+        </div>
+        <Switch
+          checked={artifactShowHeaderMeta}
+          onCheckedChange={setArtifactShowHeaderMeta}
+        />
+      </div>
+
+      {/* Header Metadata Fields */}
+      {artifactShowHeaderMeta && (
+        <div className="space-y-2 border-l-2 border-muted pl-3">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Top Left</Label>
+              <Input
+                value={artifactHeaderTopLeft}
+                onChange={(e) => setArtifactHeaderTopLeft(e.target.value)}
+                placeholder="USER.ID_99"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Top Center</Label>
+              <Input
+                value={artifactHeaderTopCenter}
+                onChange={(e) => setArtifactHeaderTopCenter(e.target.value)}
+                placeholder="[ONLINE]"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Top Right</Label>
+              <Input
+                value={artifactHeaderTopRight}
+                onChange={(e) => setArtifactHeaderTopRight(e.target.value)}
+                placeholder="EST. 2024"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Bottom Left</Label>
+              <Input
+                value={artifactHeaderBottomLeft}
+                onChange={(e) => setArtifactHeaderBottomLeft(e.target.value)}
+                placeholder="DIGITAL // PHY"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Bottom Center</Label>
+              <Input
+                value={artifactHeaderBottomCenter}
+                onChange={(e) => setArtifactHeaderBottomCenter(e.target.value)}
+                placeholder="///"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground">Bottom Right</Label>
+              <Input
+                value={artifactHeaderBottomRight}
+                onChange={(e) => setArtifactHeaderBottomRight(e.target.value)}
+                placeholder="SYS_ADMIN"
+                className="font-mono text-xs h-8"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Marquee Text */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Marquee Text</Label>
+        <Input
+          value={artifactMarqueeText}
+          onChange={(e) => setArtifactMarqueeText(e.target.value)}
+          placeholder="LINKS_DATABASE /// ACCESS_GRANTED"
+          className="font-mono text-xs"
+        />
+      </div>
+
+      {/* Hero Overlay Toggle */}
+      <div className="flex items-center justify-between">
+        <div>
+          <Label className="text-sm">Grayscale Overlay</Label>
+          <p className="text-xs text-muted-foreground">B&W filter on hero photo</p>
+        </div>
+        <Switch
+          checked={artifactHeroOverlay}
+          onCheckedChange={setArtifactHeroOverlay}
+        />
+      </div>
+
+      {/* Hero Media Type */}
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Hero Media</Label>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant={artifactHeroMediaType === 'image' ? 'default' : 'outline'}
+            onClick={() => setArtifactHeroMediaType('image')}
+            className="flex-1 text-xs h-8"
+          >
+            Image
+          </Button>
+          <Button
+            size="sm"
+            variant={artifactHeroMediaType === 'video' ? 'default' : 'outline'}
+            onClick={() => setArtifactHeroMediaType('video')}
+            className="flex-1 text-xs h-8"
+          >
+            Video
+          </Button>
+        </div>
+      </div>
+
+      {/* Image Upload (when image mode) */}
+      {artifactHeroMediaType === 'image' && (
+        <div className="space-y-2 border-l-2 border-muted pl-3">
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*,.heic,.heif"
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full text-xs h-8"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={isImageUploading}
+          >
+            {isImageUploading ? (
+              <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Uploading...</>
+            ) : (
+              <><Upload className="w-3 h-3 mr-1" /> {artifactHeroImageUrl ? 'Replace Image' : 'Upload Hero Image'}</>
+            )}
+          </Button>
+          {artifactHeroImageUrl && (
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-muted-foreground truncate flex-1">Uploaded</p>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-1 text-[10px] text-muted-foreground"
+                onClick={() => setArtifactHeroImageUrl('')}
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
+          {!artifactHeroImageUrl && (
+            <p className="text-[10px] text-muted-foreground">Falls back to profile photo if empty</p>
+          )}
+        </div>
+      )}
+
+      {/* Video Upload (when video mode) */}
+      {artifactHeroMediaType === 'video' && (
+        <div className="space-y-2 border-l-2 border-muted pl-3">
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={handleVideoUpload}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full text-xs h-8"
+            onClick={() => videoInputRef.current?.click()}
+            disabled={isVideoUploading}
+          >
+            {isVideoUploading ? (
+              <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Uploading...</>
+            ) : (
+              <><Upload className="w-3 h-3 mr-1" /> {artifactHeroVideoUrl ? 'Replace Video' : 'Upload Video'}</>
+            )}
+          </Button>
+          {artifactHeroVideoUrl && (
+            <p className="text-[10px] text-muted-foreground truncate">Uploaded</p>
+          )}
+        </div>
+      )}
+
+      {/* Position Sliders */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs text-muted-foreground">Position X</Label>
+          <span className="text-xs text-muted-foreground">{artifactHeroPositionX}%</span>
+        </div>
+        <Slider
+          value={[artifactHeroPositionX]}
+          onValueChange={([v]) => setArtifactHeroPositionX(v)}
+          min={0}
+          max={100}
+          step={1}
+        />
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs text-muted-foreground">Position Y</Label>
+          <span className="text-xs text-muted-foreground">{artifactHeroPositionY}%</span>
+        </div>
+        <Slider
+          value={[artifactHeroPositionY]}
+          onValueChange={([v]) => setArtifactHeroPositionY(v)}
+          min={0}
+          max={100}
+          step={1}
+        />
       </div>
     </div>
   )
