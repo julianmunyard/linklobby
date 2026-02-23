@@ -131,12 +131,14 @@ function AppIcon({
   onTap,
   size = 'normal',
   is8Bit = false,
+  isWin95 = false,
 }: {
   card: Card
   isSelected?: boolean
   onTap: (cardId: string) => void
   size?: 'normal' | 'dock'
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   const content = card.content as Record<string, unknown>
   const appIconUrl = content.appIconUrl as string | undefined
@@ -148,7 +150,7 @@ function AppIcon({
   const displaySrc = iconSrc || fallbackIcon
   const label = card.title || card.card_type
   const isDock = size === 'dock'
-  const iconRadius = is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
+  const iconRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
 
   return (
     <button
@@ -193,7 +195,7 @@ function AppIcon({
       {!isDock && (
         <span
           className="text-[11px] leading-tight text-center truncate max-w-[70px] text-theme-text"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+          style={isWin95 ? undefined : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
           {label}
         </span>
@@ -213,6 +215,7 @@ function SocialAppIcon({
   onTap,
   size = 'normal',
   is8Bit = false,
+  isWin95 = false,
 }: {
   socialIcon: SocialIcon
   parentCard: Card
@@ -220,6 +223,7 @@ function SocialAppIcon({
   onTap: (cardId: string) => void
   size?: 'normal' | 'dock'
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   const content = parentCard.content as Record<string, unknown>
   const socialAppIcons = content.socialAppIcons as Record<string, { appIconUrl?: string; appIconColor?: string }> | undefined
@@ -231,7 +235,7 @@ function SocialAppIcon({
   const PlatformIcon = PLATFORM_ICONS[socialIcon.platform]
   const label = platformMeta?.label || socialIcon.platform
   const isDock = size === 'dock'
-  const iconRadius = is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
+  const iconRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
 
   return (
     <button
@@ -276,7 +280,7 @@ function SocialAppIcon({
       {!isDock && (
         <span
           className="text-[11px] leading-tight text-center truncate max-w-[70px] text-theme-text"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+          style={isWin95 ? undefined : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
           {label}
         </span>
@@ -289,7 +293,7 @@ function SocialAppIcon({
 // Photo Widget
 // ---------------------------------------------------------------------------
 
-function PhotoWidget({ card, is8Bit = false }: { card: Card; is8Bit?: boolean }) {
+function PhotoWidget({ card, is8Bit = false, isWin95 = false }: { card: Card; is8Bit?: boolean; isWin95?: boolean }) {
   const content = card.content as unknown as GalleryCardContent
   const images = content.images ?? []
   const [idx, setIdx] = useState(0)
@@ -300,7 +304,7 @@ function PhotoWidget({ card, is8Bit = false }: { card: Card; is8Bit?: boolean })
     return () => clearInterval(id)
   }, [images.length])
 
-  const borderRadius = is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
+  const borderRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
 
   if (images.length === 0) {
     return (
@@ -405,29 +409,24 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
   const embedHeight = customHeight
     || (isSlim ? (SLIM_EMBED_HEIGHTS[platform] || 80) : (SQUARE_EMBED_HEIGHTS[platform] || 152))
 
-  const needsScroll = platform === 'apple-music' && !isSlim
-  // Apple Music: make iframe taller than container so container scrolls
-  const iframeHeight = needsScroll ? 800 : embedHeight
-
   return (
     <div
       className={cn('w-full rounded-[16px] relative', onClick && 'cursor-pointer')}
       style={{
         height: embedHeight,
-        overflow: needsScroll ? 'auto' : 'hidden',
-        WebkitOverflowScrolling: 'touch',
+        overflow: 'hidden',
       }}
     >
       <iframe
         src={iframeUrl}
         width="100%"
-        height={iframeHeight}
+        height={embedHeight}
         frameBorder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title={card.title || 'Music embed'}
-        style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: onClick ? 'none' : 'auto' }}
-        scrolling={needsScroll ? 'yes' : 'no'}
+        style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: 'none' }}
+        scrolling="no"
       />
       {/* Click overlay for card selection in editor */}
       {onClick && (
@@ -441,49 +440,6 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
 }
 
 // ---------------------------------------------------------------------------
-// Audio Modal (editor preview — uses AudioCard which reads from useThemeStore)
-// ---------------------------------------------------------------------------
-
-function AudioModal({ card, onClose }: { card: Card; onClose: () => void }) {
-  const ac = isAudioContent(card.content) ? card.content as unknown as AudioCardContent : null
-  const isTransparent = ac?.transparentBackground ?? false
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
-      <div
-        className="relative w-full rounded-t-[20px] p-5 pb-6 animate-in slide-in-from-bottom duration-300"
-        style={{ backgroundColor: 'var(--theme-card-bg, rgba(20,20,20,0.95))', backdropFilter: 'blur(24px)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-4" />
-        {card.title && (
-          <h3 className="text-theme-text text-sm font-semibold mb-3 text-center truncate">{card.title}</h3>
-        )}
-        <SystemSettingsCard
-          cardType="audio"
-          transparentBackground={isTransparent}
-          titleBarStyle="system-settings"
-          blinkieBg
-          blinkieCardOuter={ac?.blinkieBoxBackgrounds?.cardOuter}
-          blinkieCardOuterDim={ac?.blinkieBoxBackgrounds?.cardOuterDim}
-          blinkieOuterBoxColor={ac?.blinkieColors?.outerBox}
-          blinkieInnerBoxColor={ac?.blinkieColors?.innerBox}
-          blinkieCardBgUrl={ac?.blinkieBoxBackgrounds?.cardBgUrl}
-          blinkieCardBgScale={ac?.blinkieBoxBackgrounds?.cardBgScale}
-          blinkieCardBgPosX={ac?.blinkieBoxBackgrounds?.cardBgPosX}
-          blinkieCardBgPosY={ac?.blinkieBoxBackgrounds?.cardBgPosY}
-          blinkieCardBgNone={ac?.blinkieBoxBackgrounds?.cardBgNone}
-          blinkieTextColor={ac?.blinkieColors?.text}
-        >
-          <AudioCard card={card} />
-        </SystemSettingsCard>
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Dock
 // ---------------------------------------------------------------------------
 
@@ -492,13 +448,40 @@ function Dock({
   selectedCardId,
   onCardClick,
   is8Bit = false,
+  isWin95 = false,
 }: {
   dockCards: Card[]
   selectedCardId?: string | null
   onCardClick: (cardId: string) => void
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   if (dockCards.length === 0) return null
+
+  if (isWin95) {
+    return (
+      <div
+        className="mb-0 px-3 py-[6px] flex items-center justify-center gap-[3px]"
+        style={{
+          background: 'var(--theme-card-bg, #c0c0c0)',
+          boxShadow: 'inset 0 1px 0 #dfdfdf, inset 0 -1px 0 #808080, inset 0 2px 0 #ffffff, inset 0 -2px 0 #404040',
+        }}
+      >
+        {dockCards.map((card) => (
+          <div
+            key={card.id}
+            className="p-[3px]"
+            style={{
+              background: 'var(--theme-card-bg, #c0c0c0)',
+              boxShadow: 'inset -2px -2px 0 #404040, inset 2px 2px 0 #ffffff, inset -3px -3px 0 #808080, inset 3px 3px 0 #dfdfdf',
+            }}
+          >
+            <AppIcon card={card} onTap={onCardClick} isSelected={selectedCardId === card.id} size="dock" isWin95 />
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   if (is8Bit) {
     return (
@@ -557,6 +540,7 @@ function DraggableGridItem({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      data-no-swipe
       className={className}
       style={{
         ...style,
@@ -582,11 +566,8 @@ function DroppableCell({ id, data }: { id: string; data: { page: number; row: nu
       ref={setNodeRef}
       className="rounded-[14px] transition-all duration-150"
       style={{
-        gridColumn: `${data.col + 1} / span 1`,
-        gridRow: `${data.row + 1} / span 1`,
         backgroundColor: isOver ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.05)',
         border: isOver ? '2px solid rgba(59,130,246,0.5)' : '2px dashed rgba(255,255,255,0.1)',
-        minHeight: 76,
       }}
     />
   )
@@ -601,7 +582,7 @@ type GridItem = { card: Card; layout: PhoneHomeLayout; socialIcon?: SocialIcon }
 function autoLayoutCards(
   cards: Card[],
   dockIds: string[],
-  variant: 'default' | '8-bit' = 'default',
+  variant: 'default' | '8-bit' | 'windows-95' = 'default',
   socialIcons: SocialIcon[] = [],
 ): { pages: Array<Array<GridItem>> } {
   const gridCards = cards.filter((c) => c.is_visible && !dockIds.includes(c.id))
@@ -651,7 +632,7 @@ function autoLayoutCards(
 
     let w = 1, h = 1
     if (explicit) { w = explicit.width; h = explicit.height }
-    else if (card.card_type === 'gallery' && isGalleryContent(card.content)) {
+    else if (card.card_type === 'gallery') {
       if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     }
     else if (card.card_type === 'music') {
@@ -689,8 +670,9 @@ function autoLayoutCards(
       if (placedOnPage) continue
     }
 
+    const startPage = explicit ? explicit.page : 0
     let placed = false
-    for (let p = 0; p < pages.length && !placed; p++) {
+    for (let p = startPage; p < pages.length && !placed; p++) {
       for (let r = 0; r < MAX_ROWS_PER_PAGE && !placed; r++) {
         for (let c = 0; c <= GRID_COLS - w && !placed; c++) {
           if (isSlotFree(p, r, c, w, h)) {
@@ -736,13 +718,12 @@ export function PhoneHomeLayout({
   selectedCardId,
 }: PhoneHomeLayoutProps) {
   const [currentPage, setCurrentPage] = useState(0)
-  const [audioCard, setAudioCard] = useState<Card | null>(null)
-  const swipeRef = useRef<{ startX: number; startY: number; startTime: number } | null>(null)
 
   const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
   const phoneHomeShowDock = useThemeStore((s) => s.phoneHomeShowDock)
   const phoneHomeVariant = useThemeStore((s) => s.phoneHomeVariant ?? 'default')
   const is8Bit = phoneHomeVariant === '8-bit'
+  const isWin95 = phoneHomeVariant === 'windows-95'
 
   const sortedCards = useMemo(() => sortCardsBySortKey(cards), [cards])
 
@@ -774,14 +755,7 @@ export function PhoneHomeLayout({
       onCardClick(cardId)
     }
 
-    // Also handle special card types
-    if (card.card_type === 'audio' && isAudioContent(card.content)) {
-      // Only open modal for icon mode (1x1), not widget mode
-      const audioContent = card.content as Record<string, unknown>
-      const audioLayout = audioContent.phoneHomeLayout as PhoneHomeLayout | undefined
-      const isWidget = audioLayout && (audioLayout.width > 1 || audioLayout.height > 1)
-      if (!isWidget) setAudioCard(card)
-    }
+    // Audio cards render inline — no modal needed
   }, [sortedCards, isPreview, onCardClick])
 
   // ---------------------------------------------------------------------------
@@ -829,10 +803,11 @@ export function PhoneHomeLayout({
           edgeTimerRef.current = setTimeout(() => {
             edgeTimerRef.current = null
             if (nearLeft && currentPageRef.current > 0) {
-              setCurrentPage((p) => Math.max(0, p - 1))
-            } else if (nearRight) {
-              // Allow creating one page beyond current count
-              setCurrentPage((p) => Math.min(p + 1, Math.max(pageCountRef.current, p + 1)))
+              const newPage = currentPageRef.current - 1
+              gridContainerRef.current?.scrollTo({ left: newPage * (gridContainerRef.current?.offsetWidth || 375), behavior: 'smooth' })
+            } else if (nearRight && currentPageRef.current < pageCountRef.current) {
+              const newPage = currentPageRef.current + 1
+              gridContainerRef.current?.scrollTo({ left: newPage * (gridContainerRef.current?.offsetWidth || 375), behavior: 'smooth' })
             }
           }, 400)
         }
@@ -962,8 +937,10 @@ export function PhoneHomeLayout({
         markCells(layout.page, layout.row, layout.col, layout.width, layout.height)
         finalPositions.push({ item, newLayout: layout })
       } else {
-        // Displaced — find next available slot starting from its current page
-        const slot = findFreeSlot(layout.page, layout.width, layout.height)
+        // Displaced — find next available slot starting from the drop position's page
+        // (not the item's original page, which could be earlier and cause backwards placement)
+        const searchFrom = Math.max(layout.page, targetPage)
+        const slot = findFreeSlot(searchFrom, layout.width, layout.height)
         if (slot) {
           markCells(slot.page, slot.row, slot.col, layout.width, layout.height)
           const newLayout: PhoneHomeLayout = {
@@ -1058,136 +1035,25 @@ export function PhoneHomeLayout({
   }, [])
 
   // ---------------------------------------------------------------------------
-  // Continuous swipe: follows finger/mouse in real-time, snaps on release
+  // Scroll-snap page navigation (native browser physics)
   // ---------------------------------------------------------------------------
-
-  const swipeDragOffset = useRef(0) // px offset while dragging
-  const swipeAnimating = useRef(false) // true during snap-back animation
-  const pagesContainerRef = useRef<HTMLDivElement>(null)
-
-  const updateSwipeTransform = useCallback((offset: number, animate: boolean) => {
-    const el = pagesContainerRef.current
-    if (!el) return
-    const baseTranslate = -(currentPage * 100)
-    const containerWidth = gridContainerRef.current?.offsetWidth || 375
-    const pxToPercent = (offset / containerWidth) * 100
-    el.style.transition = animate ? 'transform 300ms ease-out' : 'none'
-    el.style.transform = `translateX(${baseTranslate + pxToPercent}%)`
-  }, [currentPage])
-
-  const handleSwipeStart = useCallback((clientX: number, clientY: number) => {
-    if (swipeAnimating.current) return
-    swipeRef.current = { startX: clientX, startY: clientY, startTime: Date.now() }
-    swipeDragOffset.current = 0
-  }, [])
-
-  const handleSwipeMove = useCallback((clientX: number, clientY: number) => {
-    if (!swipeRef.current) return
-    const deltaX = clientX - swipeRef.current.startX
-    const deltaY = clientY - swipeRef.current.startY
-    // If vertical scroll intent, cancel swipe
-    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaX) < 10) return
-    // Add resistance at edges (first/last page)
-    let offset = deltaX
-    if ((currentPage === 0 && deltaX > 0) || (currentPage >= pageCount - 1 && deltaX < 0)) {
-      offset = deltaX * 0.3 // rubber band effect
-    }
-    swipeDragOffset.current = offset
-    updateSwipeTransform(offset, false)
-  }, [currentPage, pageCount, updateSwipeTransform])
-
-  const handleSwipeEnd = useCallback((clientX: number, clientY: number) => {
-    if (!swipeRef.current) return
-    const deltaX = clientX - swipeRef.current.startX
-    const elapsed = Date.now() - swipeRef.current.startTime
-    swipeRef.current = null
-    const velocity = Math.abs(deltaX) / Math.max(elapsed, 1) // px/ms
-    const containerWidth = gridContainerRef.current?.offsetWidth || 375
-    const threshold = containerWidth * 0.25 // 25% of width
-    // Fast flick (velocity > 0.3px/ms) or dragged past 25% → change page
-    let targetPage = currentPage
-    if (deltaX < -threshold || (deltaX < -30 && velocity > 0.3)) {
-      targetPage = Math.min(currentPage + 1, pageCount - 1)
-    } else if (deltaX > threshold || (deltaX > 30 && velocity > 0.3)) {
-      targetPage = Math.max(currentPage - 1, 0)
-    }
-    // Animate to target page
-    swipeDragOffset.current = 0
-    swipeAnimating.current = true
-    setCurrentPage(targetPage)
-    // Use rAF to ensure state has updated before animating
-    requestAnimationFrame(() => {
-      const el = pagesContainerRef.current
-      if (el) {
-        el.style.transition = 'transform 300ms ease-out'
-        el.style.transform = `translateX(-${targetPage * 100}%)`
-      }
-      setTimeout(() => { swipeAnimating.current = false }, 320)
-    })
-  }, [currentPage, pageCount])
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (activeDragId) return
-    handleSwipeStart(e.touches[0].clientX, e.touches[0].clientY)
-  }, [handleSwipeStart, activeDragId])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (activeDragId) return
-    handleSwipeMove(e.touches[0].clientX, e.touches[0].clientY)
-  }, [handleSwipeMove, activeDragId])
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (activeDragId) return
-    handleSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)
-  }, [handleSwipeEnd, activeDragId])
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (activeDragId) return
-    handleSwipeStart(e.clientX, e.clientY)
-  }, [handleSwipeStart, activeDragId])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (activeDragId) return
-    handleSwipeMove(e.clientX, e.clientY)
-  }, [handleSwipeMove, activeDragId])
-
-  const handleMouseUp = useCallback((e: React.MouseEvent) => {
-    if (activeDragId) return
-    handleSwipeEnd(e.clientX, e.clientY)
-  }, [handleSwipeEnd, activeDragId])
-
-  // Two-finger trackpad scroll for page swiping on desktop
-  const wheelAccum = useRef(0)
-  const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const navLock = useRef(false)
 
   const goToPage = useCallback((page: number) => {
     setCurrentPage(page)
-    navLock.current = true
-    setTimeout(() => { navLock.current = false }, 500)
+    const el = gridContainerRef.current
+    if (!el) return
+    el.scrollTo({ left: page * el.offsetWidth, behavior: 'smooth' })
   }, [])
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (navLock.current || activeDragId) return
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
-
-    wheelAccum.current += e.deltaX
-    if (wheelTimer.current) clearTimeout(wheelTimer.current)
-    wheelTimer.current = setTimeout(() => { wheelAccum.current = 0 }, 200)
-
-    const threshold = 80
-    if (Math.abs(wheelAccum.current) >= threshold) {
-      const direction = wheelAccum.current > 0 ? 1 : -1
-      wheelAccum.current = 0
-      setCurrentPage((p) => {
-        const next = p + direction
-        if (next < 0 || next >= pageCount) return p
-        return next
-      })
-      navLock.current = true
-      setTimeout(() => { navLock.current = false }, 500)
-    }
-  }, [pageCount, activeDragId])
+  const handleScroll = useCallback(() => {
+    if (activeDragId) return
+    const el = gridContainerRef.current
+    if (!el) return
+    const w = el.offsetWidth
+    if (w === 0) return
+    const page = Math.round(el.scrollLeft / w)
+    setCurrentPage(page)
+  }, [activeDragId])
 
   // ---------------------------------------------------------------------------
   // Grid item renderer (shared between DnD and non-DnD modes)
@@ -1215,6 +1081,7 @@ export function PhoneHomeLayout({
             onTap={handleIconTap}
             isSelected={selectedCardId === card.id}
             is8Bit={is8Bit}
+            isWin95={isWin95}
           />
         </div>
       )
@@ -1236,31 +1103,36 @@ export function PhoneHomeLayout({
     }
 
     // Gallery widgets
-    if (card.card_type === 'gallery' && isGalleryContent(card.content) && (layout.width > 1 || layout.height > 1)) {
+    if (card.card_type === 'gallery') {
+      const isFullWidth = layout.width === 4
+      const galleryStyle: React.CSSProperties = {
+        gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
+        gridRow: `${layout.row + 1} / span ${layout.height}`,
+      }
       const inner = (
         <div
-          className={cn(selectedCardId === card.id && `ring-2 ring-blue-500 ${is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`)}
-          style={{ aspectRatio: `${layout.width} / ${layout.height}`, cursor: 'pointer', width: '100%', height: '100%' }}
+          className={cn(isFullWidth && 'w-full', selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`)}
+          style={{ aspectRatio: isFullWidth ? `${layout.width} / ${layout.height}` : '1 / 1', cursor: 'pointer', width: '100%', height: '100%' }}
           onClick={() => handleIconTap(card.id)}
         >
-          <PhotoWidget card={card} is8Bit={is8Bit} />
+          <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
         </div>
       )
       if (isPreview) {
         return (
-          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={gridStyle}>
+          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={galleryStyle}>
             {inner}
           </DraggableGridItem>
         )
       }
-      return <div key={card.id} style={gridStyle}>{inner}</div>
+      return <div key={card.id} style={galleryStyle}>{inner}</div>
     }
 
     // Music widgets
     if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
       const inner = (
         <div
-          className={cn(selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
           style={{ cursor: 'pointer', width: '100%' }}
         >
           <MusicWidget card={card} layout={layout} onClick={handleIconTap} />
@@ -1276,13 +1148,17 @@ export function PhoneHomeLayout({
       return <div key={card.id} style={gridStyle}>{inner}</div>
     }
 
-    // Audio widgets
-    if (card.card_type === 'audio' && (layout.width > 1 || layout.height > 1) && isAudioContent(card.content)) {
+    // Audio cards — always render inline, full width
+    if (card.card_type === 'audio' && isAudioContent(card.content)) {
       const ac = card.content as unknown as AudioCardContent
       const isTransparent = ac.transparentBackground ?? false
+      const fullWidthStyle: React.CSSProperties = {
+        gridColumn: '1 / -1',
+        gridRow: `${layout.row + 1} / span ${layout.height}`,
+      }
       const inner = (
         <div
-          className={cn(selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer', width: '100%' }}
           onClick={() => handleIconTap(card.id)}
         >
@@ -1308,18 +1184,18 @@ export function PhoneHomeLayout({
       )
       if (isPreview) {
         return (
-          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={gridStyle}>
+          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={fullWidthStyle}>
             {inner}
           </DraggableGridItem>
         )
       }
-      return <div key={card.id} style={gridStyle}>{inner}</div>
+      return <div key={card.id} style={fullWidthStyle}>{inner}</div>
     }
 
     // Default 1x1 icon
     const inner = (
       <div className="flex items-center justify-center w-full h-full">
-        <AppIcon card={card} onTap={handleIconTap} isSelected={selectedCardId === card.id} is8Bit={is8Bit} />
+        <AppIcon card={card} onTap={handleIconTap} isSelected={selectedCardId === card.id} is8Bit={is8Bit} isWin95={isWin95} />
       </div>
     )
     if (isPreview) {
@@ -1336,7 +1212,7 @@ export function PhoneHomeLayout({
       )
     }
     return <div key={card.id} className="flex items-center justify-center" style={gridStyle}>{inner}</div>
-  }, [handleIconTap, selectedCardId, is8Bit, isPreview])
+  }, [handleIconTap, selectedCardId, is8Bit, isWin95, isPreview])
 
   // ---------------------------------------------------------------------------
   // DragOverlay content
@@ -1349,7 +1225,7 @@ export function PhoneHomeLayout({
     if (socialIcon) {
       return (
         <div className="pointer-events-none" style={{ transform: 'scale(0.9)', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}>
-          <SocialAppIcon socialIcon={socialIcon} parentCard={card} onTap={() => {}} is8Bit={is8Bit} />
+          <SocialAppIcon socialIcon={socialIcon} parentCard={card} onTap={() => {}} is8Bit={is8Bit} isWin95={isWin95} />
         </div>
       )
     }
@@ -1375,10 +1251,10 @@ export function PhoneHomeLayout({
 
     return (
       <div className="pointer-events-none" style={{ transform: 'scale(0.9)', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' }}>
-        <AppIcon card={card} onTap={() => {}} is8Bit={is8Bit} />
+        <AppIcon card={card} onTap={() => {}} is8Bit={is8Bit} isWin95={isWin95} />
       </div>
     )
-  }, [activeDragData, is8Bit])
+  }, [activeDragData, is8Bit, isWin95])
 
   // ---------------------------------------------------------------------------
   // Render
@@ -1386,50 +1262,81 @@ export function PhoneHomeLayout({
 
   const gridArea = (
     <div
-      className="flex-1 relative overflow-hidden"
+      className="flex-1 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
       ref={gridContainerRef}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onWheel={handleWheel}
+      style={{
+        scrollSnapType: 'x mandatory',
+        WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none',
+      } as React.CSSProperties}
+      onScroll={handleScroll}
     >
-      <div
-        ref={pagesContainerRef}
-        className="flex h-full"
-        style={{ transform: `translateX(-${currentPage * 100}%)`, transition: activeDragId ? 'none' : 'transform 300ms ease-out' }}
-      >
-        {pages.map((pageItems, pageIdx) => (
-          <div key={pageIdx} className="w-full shrink-0 px-5 pt-3 pb-20">
-            <div className="grid gap-y-5 gap-x-3 w-full" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-              {pageItems.map(({ card, layout, socialIcon }) =>
-                renderGridItem(card, layout, socialIcon, pageIdx),
-              )}
+      {pages.map((pageItems, pageIdx) => (
+        <div key={pageIdx} className="min-w-full shrink-0 px-5 pt-3 pb-20" style={{ scrollSnapAlign: 'start' }}>
+            <div className="relative">
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+                {pageItems.map(({ card, layout, socialIcon }) =>
+                  renderGridItem(card, layout, socialIcon, pageIdx),
+                )}
+              </div>
 
-              {/* Droppable targets on ALL cells during drag — reflow handles displacement */}
-              {isPreview && activeDragId && pageIdx === currentPage && (() => {
-                const cells: React.ReactNode[] = []
-                for (let r = 0; r < MAX_ROWS_PER_PAGE; r++) {
-                  for (let c = 0; c < GRID_COLS; c++) {
-                    cells.push(
-                      <DroppableCell
-                        key={`drop-${pageIdx}-${r}-${c}`}
-                        id={`drop-${pageIdx}-${r}-${c}`}
-                        data={{ page: pageIdx, row: r, col: c }}
-                      />,
-                    )
-                  }
-                }
-                return cells
-              })()}
+              {/* Droppable targets overlay — matches the items grid exactly */}
+              {isPreview && activeDragId && pageIdx === currentPage && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ zIndex: 10 }}
+                >
+                  <div
+                    className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto pointer-events-auto"
+                    style={{
+                      gridTemplateColumns: 'repeat(4, 1fr)',
+                      gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)`,
+                    }}
+                  >
+                    {(() => {
+                      const cells: React.ReactNode[] = []
+                      for (let r = 0; r < MAX_ROWS_PER_PAGE; r++) {
+                        for (let c = 0; c < GRID_COLS; c++) {
+                          cells.push(
+                            <DroppableCell
+                              key={`drop-${pageIdx}-${r}-${c}`}
+                              id={`drop-${pageIdx}-${r}-${c}`}
+                              data={{ page: pageIdx, row: r, col: c }}
+                            />,
+                          )
+                        }
+                      }
+                      return cells
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
-      </div>
 
-      {/* Edge indicators during drag — show the user they can drag to edges */}
+        {/* Extra blank page for DnD drops */}
+        {isPreview && activeDragId && (
+          <div key="dnd-new-page" className="min-w-full shrink-0 px-5 pt-3 pb-20" style={{ scrollSnapAlign: 'start' }}>
+            <div className="relative">
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+              </div>
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+                <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto pointer-events-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+                  {Array.from({ length: MAX_ROWS_PER_PAGE * GRID_COLS }).map((_, i) => {
+                    const r = Math.floor(i / GRID_COLS)
+                    const c = i % GRID_COLS
+                    return (
+                      <DroppableCell key={`drop-new-${r}-${c}`} id={`drop-${pages.length}-${r}-${c}`} data={{ page: pages.length, row: r, col: c }} />
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edge indicators during drag — show the user they can drag to edges */}
       {isPreview && activeDragId && (
         <>
           {currentPage > 0 && (
@@ -1457,6 +1364,7 @@ export function PhoneHomeLayout({
         <DndContext
           sensors={sensors}
           measuring={measuringConfig}
+          autoScroll={false}
           onDragStart={handleDndDragStart}
           onDragEnd={handleDndDragEnd}
           onDragCancel={handleDndDragCancel}
@@ -1475,11 +1383,9 @@ export function PhoneHomeLayout({
 
       {/* Dock */}
       {phoneHomeShowDock && (
-        <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} />
+        <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} isWin95={isWin95} />
       )}
 
-      {/* Audio modal */}
-      {audioCard && <AudioModal card={audioCard} onClose={() => setAudioCard(null)} />}
     </div>
   )
 }
