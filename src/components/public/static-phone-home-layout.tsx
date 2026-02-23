@@ -62,7 +62,7 @@ interface StaticPhoneHomeLayoutProps {
   cards: Card[]
   phoneHomeDock?: string[]
   phoneHomeShowDock?: boolean
-  phoneHomeVariant?: 'default' | '8-bit'
+  phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'
   socialIconsJson?: string | null
   socialIconColor?: string | null
 }
@@ -171,11 +171,13 @@ function AppIcon({
   onTap,
   size = 'normal',
   is8Bit = false,
+  isWin95 = false,
 }: {
   card: Card
   onTap: (card: Card) => void
   size?: 'normal' | 'dock'
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   const content = card.content as Record<string, unknown>
   const appIconUrl = content.appIconUrl as string | undefined
@@ -188,7 +190,7 @@ function AppIcon({
   const displaySrc = iconSrc || fallbackIcon
   const label = card.title || card.card_type
   const isDock = size === 'dock'
-  const iconRadius = is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
+  const iconRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
 
   return (
     <button
@@ -201,11 +203,7 @@ function AppIcon({
           isDock ? 'w-[52px] h-[52px]' : 'w-[60px] h-[60px]',
           iconRadius,
         )}
-        style={
-          displaySrc
-            ? undefined
-            : { background: fallback.bg }
-        }
+        style={displaySrc ? undefined : { background: fallback.bg }}
       >
         {displaySrc && appIconColor ? (
           <div
@@ -240,7 +238,7 @@ function AppIcon({
       {!isDock && (
         <span
           className="text-[11px] leading-tight text-center truncate max-w-[70px] text-theme-text"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+          style={isWin95 ? undefined : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
           {label}
         </span>
@@ -258,11 +256,13 @@ function SocialAppIcon({
   parentCard,
   size = 'normal',
   is8Bit = false,
+  isWin95 = false,
 }: {
   socialIcon: SocialIcon
   parentCard: Card
   size?: 'normal' | 'dock'
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   const content = parentCard.content as Record<string, unknown>
   const socialAppIcons = content.socialAppIcons as Record<string, { appIconUrl?: string; appIconColor?: string }> | undefined
@@ -274,7 +274,7 @@ function SocialAppIcon({
   const PlatformIcon = PLATFORM_ICONS[socialIcon.platform]
   const label = platformMeta?.label || socialIcon.platform
   const isDock = size === 'dock'
-  const iconRadius = is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
+  const iconRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? (isDock ? 'rounded-[6px]' : 'rounded-[8px]') : (isDock ? 'rounded-[12px]' : 'rounded-[14px]')
 
   return (
     <a
@@ -318,7 +318,7 @@ function SocialAppIcon({
       {!isDock && (
         <span
           className="text-[11px] leading-tight text-center truncate max-w-[70px] text-theme-text"
-          style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+          style={isWin95 ? undefined : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
           {label}
         </span>
@@ -335,10 +335,12 @@ function PhotoWidget({
   card,
   layout,
   is8Bit = false,
+  isWin95 = false,
 }: {
   card: Card
   layout: PhoneHomeLayout
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   const content = card.content as unknown as GalleryCardContent
   const images = content.images ?? []
@@ -351,7 +353,7 @@ function PhotoWidget({
     return () => clearInterval(id)
   }, [images.length])
 
-  const borderRadius = is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
+  const borderRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
 
   if (images.length === 0) {
     return (
@@ -470,99 +472,29 @@ function MusicWidget({
   const embedHeight = customHeight
     || (isSlim ? (SLIM_EMBED_HEIGHTS[platform] || 80) : (SQUARE_EMBED_HEIGHTS[platform] || 152))
 
-  // Apple Music needs scrollable container for album/playlist embeds
-  const needsScroll = platform === 'apple-music' && !isSlim
-  // Apple Music: make iframe taller than container so container scrolls
-  const iframeHeight = needsScroll ? 800 : embedHeight
-
   return (
     <div
       className="w-full rounded-[16px]"
       style={{
         height: embedHeight,
-        overflow: needsScroll ? 'auto' : 'hidden',
-        WebkitOverflowScrolling: 'touch',
+        overflow: 'hidden',
       }}
     >
       <iframe
         src={iframeUrl}
         width="100%"
-        height={iframeHeight}
+        height={embedHeight}
         frameBorder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title={card.title || 'Music embed'}
-        style={{ background: 'transparent', borderRadius: '16px', border: 0 }}
-        scrolling={needsScroll ? 'yes' : 'no'}
+        style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: 'none' }}
+        scrolling="no"
       />
     </div>
   )
 }
 
-// ---------------------------------------------------------------------------
-// Audio Player Modal
-// ---------------------------------------------------------------------------
-
-function PhoneHomePlayerModal({
-  card,
-  onClose,
-}: {
-  card: Card
-  onClose: () => void
-}) {
-  const audioContent = card.content as unknown as AudioCardContent
-
-  return (
-    <div className="fixed inset-0 z-[60] flex items-end" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
-      <div
-        className="relative w-full max-w-[430px] mx-auto rounded-t-[20px] p-5 pb-[max(env(safe-area-inset-bottom),24px)] animate-in slide-in-from-bottom duration-300"
-        style={{ backgroundColor: 'var(--theme-card-bg, rgba(20,20,20,0.95))', backdropFilter: 'blur(24px)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-4" />
-        {card.title && (
-          <h3 className="text-theme-text text-sm font-semibold mb-3 text-center truncate">
-            {card.title}
-          </h3>
-        )}
-        {/* AudioPlayer rendered directly per CLAUDE.md rule 2, wrapped in SystemSettingsCard for blinkies chrome */}
-        <SystemSettingsCard
-          cardType="audio"
-          transparentBackground={audioContent.transparentBackground ?? false}
-          titleBarStyle="system-settings"
-          blinkieBg
-          blinkieCardOuter={audioContent.blinkieBoxBackgrounds?.cardOuter}
-          blinkieCardOuterDim={audioContent.blinkieBoxBackgrounds?.cardOuterDim}
-          blinkieOuterBoxColor={audioContent.blinkieColors?.outerBox}
-          blinkieInnerBoxColor={audioContent.blinkieColors?.innerBox}
-          blinkieCardBgUrl={audioContent.blinkieBoxBackgrounds?.cardBgUrl}
-          blinkieCardBgScale={audioContent.blinkieBoxBackgrounds?.cardBgScale}
-          blinkieCardBgPosX={audioContent.blinkieBoxBackgrounds?.cardBgPosX}
-          blinkieCardBgPosY={audioContent.blinkieBoxBackgrounds?.cardBgPosY}
-          blinkieCardBgNone={audioContent.blinkieBoxBackgrounds?.cardBgNone}
-          blinkieTextColor={audioContent.blinkieColors?.text}
-        >
-          <AudioPlayer
-            tracks={audioContent.tracks || []}
-            albumArtUrl={audioContent.albumArtUrl}
-            showWaveform={audioContent.showWaveform ?? true}
-            looping={audioContent.looping ?? false}
-            autoplay={false}
-            transparentBackground={audioContent.transparentBackground ?? false}
-            reverbConfig={audioContent.reverbConfig}
-            playerColors={audioContent.playerColors}
-            blinkieColors={audioContent.blinkieColors}
-            blinkieCardHasBgImage={!!(audioContent.blinkieBoxBackgrounds?.cardBgUrl) && !(audioContent.transparentBackground)}
-            cardId={card.id}
-            pageId={card.page_id}
-            themeVariant="blinkies"
-          />
-        </SystemSettingsCard>
-      </div>
-    </div>
-  )
-}
 
 // ---------------------------------------------------------------------------
 // Dock Bar
@@ -572,12 +504,39 @@ function PhoneHomeDock({
   dockCards,
   onTap,
   is8Bit = false,
+  isWin95 = false,
 }: {
   dockCards: Card[]
   onTap: (card: Card) => void
   is8Bit?: boolean
+  isWin95?: boolean
 }) {
   if (dockCards.length === 0) return null
+
+  if (isWin95) {
+    return (
+      <div
+        className="mb-0 pb-[max(env(safe-area-inset-bottom),0px)] px-3 py-[6px] flex items-center justify-center gap-[3px]"
+        style={{
+          background: 'var(--theme-card-bg, #c0c0c0)',
+          boxShadow: 'inset 0 1px 0 #dfdfdf, inset 0 -1px 0 #808080, inset 0 2px 0 #ffffff, inset 0 -2px 0 #404040',
+        }}
+      >
+        {dockCards.map((card) => (
+          <div
+            key={card.id}
+            className="p-[3px]"
+            style={{
+              background: 'var(--theme-card-bg, #c0c0c0)',
+              boxShadow: 'inset -2px -2px 0 #404040, inset 2px 2px 0 #ffffff, inset -3px -3px 0 #808080, inset 3px 3px 0 #dfdfdf',
+            }}
+          >
+            <AppIcon card={card} onTap={onTap} size="dock" isWin95 />
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   if (is8Bit) {
     return (
@@ -619,7 +578,7 @@ type GridItem = { card: Card; layout: PhoneHomeLayout; socialIcon?: SocialIcon }
 function autoLayoutCards(
   cards: Card[],
   dockIds: string[],
-  variant: 'default' | '8-bit' = 'default',
+  variant: 'default' | '8-bit' | 'windows-95' = 'default',
   socialIcons: SocialIcon[] = [],
 ): { pages: Array<Array<GridItem>> } {
   const gridCards = cards.filter((c) => c.is_visible && !dockIds.includes(c.id))
@@ -667,7 +626,7 @@ function autoLayoutCards(
 
     let w = 1, h = 1
     if (explicit) { w = explicit.width; h = explicit.height }
-    else if (card.card_type === 'gallery' && isGalleryContent(card.content)) {
+    else if (card.card_type === 'gallery') {
       if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     } else if (card.card_type === 'music') {
       w = 4
@@ -704,8 +663,9 @@ function autoLayoutCards(
       if (placedOnPage) continue
     }
 
+    const startPage = explicit ? explicit.page : 0
     let placed = false
-    for (let p = 0; p < pages.length && !placed; p++) {
+    for (let p = startPage; p < pages.length && !placed; p++) {
       for (let r = 0; r < MAX_ROWS_PER_PAGE && !placed; r++) {
         for (let c = 0; c <= GRID_COLS - w && !placed; c++) {
           if (isSlotFree(p, r, c, w, h)) {
@@ -743,9 +703,8 @@ export function StaticPhoneHomeLayout({
   socialIconColor,
 }: StaticPhoneHomeLayoutProps) {
   const is8Bit = phoneHomeVariant === '8-bit'
+  const isWin95 = phoneHomeVariant === 'windows-95'
   const [currentPage, setCurrentPage] = useState(0)
-  const [playerCard, setPlayerCard] = useState<Card | null>(null)
-  const touchRef = useRef<{ startX: number; startY: number; startTime: number } | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const socialIcons: SocialIcon[] = useMemo(
@@ -775,14 +734,8 @@ export function StaticPhoneHomeLayout({
   // Handle card taps
   const handleTap = useCallback(
     (card: Card) => {
-      if (card.card_type === 'audio' && isAudioContent(card.content)) {
-        // Only open modal for icon mode (1x1), not widget mode
-        const audioContent = card.content as Record<string, unknown>
-        const audioLayout = audioContent.phoneHomeLayout as PhoneHomeLayout | undefined
-        const isWidget = audioLayout && (audioLayout.width > 1 || audioLayout.height > 1)
-        if (!isWidget) setPlayerCard(card)
-        return
-      }
+      // Audio cards render inline — no modal needed
+      if (card.card_type === 'audio') return
       if (card.card_type === 'music') {
         // Music cards with embed URLs open externally
         const url = (card.content as Record<string, unknown>).embedUrl as string | undefined
@@ -799,154 +752,48 @@ export function StaticPhoneHomeLayout({
     [],
   )
 
-  // Continuous swipe: follows finger/mouse in real-time, snaps on release
-  const pagesContainerRef = useRef<HTMLDivElement>(null)
-  const swipeAnimating = useRef(false)
-  const swipeDragOffset = useRef(0)
-
-  const updateSwipeTransform = useCallback((offset: number, animate: boolean) => {
-    const el = pagesContainerRef.current
-    if (!el) return
-    const baseTranslate = -(currentPage * 100)
-    const containerWidth = containerRef.current?.offsetWidth || 375
-    const pxToPercent = (offset / containerWidth) * 100
-    el.style.transition = animate ? 'transform 300ms ease-out' : 'none'
-    el.style.transform = `translateX(${baseTranslate + pxToPercent}%)`
-  }, [currentPage])
-
-  const handleDragStart = useCallback((clientX: number, clientY: number) => {
-    if (swipeAnimating.current) return
-    touchRef.current = { startX: clientX, startY: clientY, startTime: Date.now() }
-    swipeDragOffset.current = 0
-  }, [])
-
-  const handleDragMove = useCallback((clientX: number, clientY: number) => {
-    if (!touchRef.current) return
-    const deltaX = clientX - touchRef.current.startX
-    const deltaY = clientY - touchRef.current.startY
-    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaX) < 10) return
-    let offset = deltaX
-    if ((currentPage === 0 && deltaX > 0) || (currentPage >= pageCount - 1 && deltaX < 0)) {
-      offset = deltaX * 0.3
-    }
-    swipeDragOffset.current = offset
-    updateSwipeTransform(offset, false)
-  }, [currentPage, pageCount, updateSwipeTransform])
-
-  const handleDragEnd = useCallback((clientX: number, clientY: number) => {
-    if (!touchRef.current) return
-    const deltaX = clientX - touchRef.current.startX
-    const elapsed = Date.now() - touchRef.current.startTime
-    touchRef.current = null
-    const velocity = Math.abs(deltaX) / Math.max(elapsed, 1)
-    const containerWidth = containerRef.current?.offsetWidth || 375
-    const threshold = containerWidth * 0.25
-    let targetPage = currentPage
-    if (deltaX < -threshold || (deltaX < -30 && velocity > 0.3)) {
-      targetPage = Math.min(currentPage + 1, pageCount - 1)
-    } else if (deltaX > threshold || (deltaX > 30 && velocity > 0.3)) {
-      targetPage = Math.max(currentPage - 1, 0)
-    }
-    swipeDragOffset.current = 0
-    swipeAnimating.current = true
-    setCurrentPage(targetPage)
-    requestAnimationFrame(() => {
-      const el = pagesContainerRef.current
-      if (el) {
-        el.style.transition = 'transform 300ms ease-out'
-        el.style.transform = `translateX(-${targetPage * 100}%)`
-      }
-      setTimeout(() => { swipeAnimating.current = false }, 320)
-    })
-  }, [currentPage, pageCount])
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX, e.touches[0].clientY)
-  }, [handleDragStart])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY)
-  }, [handleDragMove])
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    handleDragEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)
-  }, [handleDragEnd])
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    handleDragStart(e.clientX, e.clientY)
-  }, [handleDragStart])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    handleDragMove(e.clientX, e.clientY)
-  }, [handleDragMove])
-
-  const handleMouseUp = useCallback((e: React.MouseEvent) => {
-    handleDragEnd(e.clientX, e.clientY)
-  }, [handleDragEnd])
-
-  // Two-finger trackpad scroll for page swiping on desktop
-  const wheelAccum = useRef(0)
-  const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const navLock = useRef(false)
-
+  // Scroll-snap page navigation (native browser physics)
   const goToPage = useCallback((page: number) => {
     setCurrentPage(page)
-    navLock.current = true
-    setTimeout(() => { navLock.current = false }, 500)
+    const el = containerRef.current
+    if (!el) return
+    el.scrollTo({ left: page * el.offsetWidth, behavior: 'smooth' })
   }, [])
 
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (navLock.current) return
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
-
-    wheelAccum.current += e.deltaX
-    if (wheelTimer.current) clearTimeout(wheelTimer.current)
-    wheelTimer.current = setTimeout(() => { wheelAccum.current = 0 }, 200)
-
-    const threshold = 80
-    if (Math.abs(wheelAccum.current) >= threshold) {
-      const direction = wheelAccum.current > 0 ? 1 : -1
-      wheelAccum.current = 0
-      setCurrentPage((p) => {
-        const next = p + direction
-        if (next < 0 || next >= pageCount) return p
-        return next
-      })
-      navLock.current = true
-      setTimeout(() => { navLock.current = false }, 500)
-    }
-  }, [pageCount])
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current
+    if (!el) return
+    const w = el.offsetWidth
+    if (w === 0) return
+    const page = Math.round(el.scrollLeft / w)
+    setCurrentPage(page)
+  }, [])
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none">
+    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ height: '100dvh' }}>
       {/* Status bar */}
       <PhoneHomeStatusBar />
 
       {/* Swipeable grid area */}
       <div
         ref={containerRef}
-        className="flex-1 relative overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onWheel={handleWheel}
+        className="flex-1 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+        style={{
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+        } as React.CSSProperties}
+        onScroll={handleScroll}
       >
-        <div
-          ref={pagesContainerRef}
-          className="flex h-full"
-          style={{ transform: `translateX(-${currentPage * 100}%)`, transition: 'transform 300ms ease-out' }}
-        >
-          {pages.map((pageItems, pageIdx) => (
-            <div
-              key={pageIdx}
-              className="w-full shrink-0 px-5 pt-3 pb-20"
-            >
+        {pages.map((pageItems, pageIdx) => (
+          <div
+            key={pageIdx}
+            className="min-w-full shrink-0 px-5 pt-3 pb-20"
+            style={{ scrollSnapAlign: 'start' }}
+          >
               {/* Grid container */}
               <div
-                className="grid gap-y-5 gap-x-3 w-full"
+                className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                 }}
@@ -967,23 +814,26 @@ export function StaticPhoneHomeLayout({
                           socialIcon={socialIcon}
                           parentCard={card}
                           is8Bit={is8Bit}
+                          isWin95={isWin95}
                         />
                       </div>
                     )
                   }
 
                   // Gallery widgets span multiple cells
-                  if (card.card_type === 'gallery' && isGalleryContent(card.content) && (layout.width > 1 || layout.height > 1)) {
+                  if (card.card_type === 'gallery') {
+                    const isFullWidth = layout.width === 4
                     return (
                       <div
                         key={card.id}
+                        className={isFullWidth ? 'w-full' : ''}
                         style={{
-                          gridColumn: `${layout.col + 1} / span ${layout.width}`,
+                          gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
-                          aspectRatio: `${layout.width} / ${layout.height}`,
+                          aspectRatio: isFullWidth ? `${layout.width} / ${layout.height}` : '1 / 1',
                         }}
                       >
-                        <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} />
+                        <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
                       </div>
                     )
                   }
@@ -993,6 +843,7 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
+                        className="w-full"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -1003,16 +854,17 @@ export function StaticPhoneHomeLayout({
                     )
                   }
 
-                  // Audio widgets (4x1 slim or 2x2 square — widget mode)
+                  // Audio cards — always render inline (any size)
                   // Per CLAUDE.md rule #2: render AudioPlayer directly on public page
-                  if (card.card_type === 'audio' && (layout.width > 1 || layout.height > 1) && isAudioContent(card.content)) {
+                  if (card.card_type === 'audio' && isAudioContent(card.content)) {
                     const ac = card.content as unknown as AudioCardContent
                     const isTransparent = ac.transparentBackground ?? false
                     return (
                       <div
                         key={card.id}
+                        className="w-full"
                         style={{
-                          gridColumn: `${layout.col + 1} / span ${layout.width}`,
+                          gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
                         }}
                       >
@@ -1062,14 +914,13 @@ export function StaticPhoneHomeLayout({
                         gridRow: `${layout.row + 1} / span ${layout.height}`,
                       }}
                     >
-                      <AppIcon card={card} onTap={handleTap} is8Bit={is8Bit} />
+                      <AppIcon card={card} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} />
                     </div>
                   )
                 })}
               </div>
             </div>
           ))}
-        </div>
       </div>
 
       {/* Pagination dots */}
@@ -1078,15 +929,7 @@ export function StaticPhoneHomeLayout({
       )}
 
       {/* Dock */}
-      {phoneHomeShowDock && <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} />}
-
-      {/* Audio Player Modal */}
-      {playerCard && (
-        <PhoneHomePlayerModal
-          card={playerCard}
-          onClose={() => setPlayerCard(null)}
-        />
-      )}
+      {phoneHomeShowDock && <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} />}
 
     </div>
   )
