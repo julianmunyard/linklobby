@@ -1,10 +1,11 @@
 "use client"
 
-import { Plus, Paintbrush, Palette } from "lucide-react"
+import { Plus, Paintbrush, Palette, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface MobileFABProps {
+  onOpenFeatured?: () => void
   onAddCard: () => void
   onOpenDesign: () => void
   onOpenPresets: () => void
@@ -12,13 +13,14 @@ interface MobileFABProps {
 
 /**
  * Floating Action Button stack for mobile.
- * Three vertically stacked buttons (bottom-right):
- *   Top:    Presets (theme selection)
- *   Middle: Design (colors, background, style, header)
+ * Four vertically stacked buttons (bottom-right):
+ *   Top:    Featured (template gallery)
+ *   2nd:    Presets (theme selection)
+ *   3rd:    Design (colors, background, style, header)
  *   Bottom: + (add card / links tab)
  * Hidden on desktop (md:hidden).
  */
-export function MobileFAB({ onAddCard, onOpenDesign, onOpenPresets }: MobileFABProps) {
+export function MobileFAB({ onOpenFeatured, onAddCard, onOpenDesign, onOpenPresets }: MobileFABProps) {
   return (
     <div
       className={cn(
@@ -26,6 +28,21 @@ export function MobileFAB({ onAddCard, onOpenDesign, onOpenPresets }: MobileFABP
         "md:hidden" // Only visible on mobile
       )}
     >
+      {/* Featured FAB */}
+      {onOpenFeatured && (
+        <Button
+          size="icon-lg"
+          onClick={onOpenFeatured}
+          className={cn(
+            "h-14 w-14 rounded-full shadow-lg",
+            "touch-none"
+          )}
+          aria-label="Featured themes"
+        >
+          <Sparkles className="h-6 w-6" />
+        </Button>
+      )}
+
       {/* Presets FAB */}
       <Button
         size="icon-lg"

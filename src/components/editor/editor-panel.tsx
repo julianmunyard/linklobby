@@ -48,9 +48,10 @@ interface EditorPanelProps {
   initialDesignTab?: string | null
   onTabConsumed?: () => void
   onDesignTabConsumed?: () => void
+  onTemplateApplied?: () => void
 }
 
-export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTabConsumed, onDesignTabConsumed }: EditorPanelProps = {}) {
+export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTabConsumed, onDesignTabConsumed, onTemplateApplied }: EditorPanelProps = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get("tab")
@@ -178,7 +179,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
               "data-[state=inactive]:hidden"
             )}
           >
-            <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} />
+            <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onTemplateApplied={onTemplateApplied} />
           </TabsContent>
 
           <TabsContent

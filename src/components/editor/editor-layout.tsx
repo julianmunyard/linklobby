@@ -76,6 +76,12 @@ export function EditorLayout() {
     return () => window.removeEventListener('open-design-tab', handler)
   }, [isMobileLayout])
 
+  const handleTemplateApplied = useCallback(() => {
+    if (isMobileLayout) {
+      setMobileSheetOpen(false)
+    }
+  }, [isMobileLayout])
+
   const onLayoutChanged = useCallback((layout: Layout) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(layout))
@@ -151,6 +157,11 @@ export function EditorLayout() {
 
         {/* FAB stack: Presets, Design, Add Card */}
         <MobileFAB
+          onOpenFeatured={() => {
+            setInitialTab('featured')
+            setInitialDesignTab(null)
+            setMobileSheetOpen(true)
+          }}
           onAddCard={() => {
             setInitialTab('links')
             setInitialDesignTab(null)
@@ -186,6 +197,7 @@ export function EditorLayout() {
             initialDesignTab={initialDesignTab}
             onTabConsumed={() => setInitialTab(null)}
             onDesignTabConsumed={() => setInitialDesignTab(null)}
+            onTemplateApplied={handleTemplateApplied}
           />
         </MobileBottomSheet>
       </div>
@@ -220,6 +232,7 @@ export function EditorLayout() {
           <EditorPanel
             initialDesignTab={initialDesignTab}
             onDesignTabConsumed={() => setInitialDesignTab(null)}
+            onTemplateApplied={handleTemplateApplied}
           />
         </Panel>
 
