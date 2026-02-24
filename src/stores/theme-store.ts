@@ -42,6 +42,7 @@ interface ThemeStore extends ThemeState {
   wordArtTitleStyle: string  // Word Art theme: style ID for title text
   phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock: boolean // Phone Home theme: show dock bar
+  phoneHomeDockTranslucent: boolean // Phone Home theme: translucent dock (modern variant)
   phoneHomeVariant: 'default' | '8-bit' | 'windows-95' // Phone Home theme: visual variant
   zineBadgeText: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
@@ -93,6 +94,7 @@ interface ThemeStore extends ThemeState {
   addToDock: (cardId: string) => void
   removeFromDock: (cardId: string) => void
   setPhoneHomeShowDock: (show: boolean) => void
+  setPhoneHomeDockTranslucent: (translucent: boolean) => void
   setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => void
   setZineBadgeText: (text: string) => void
   setZineTitleSize: (size: number) => void
@@ -184,6 +186,7 @@ export const useThemeStore = create<ThemeStore>()(
       wordArtTitleStyle: 'style-eleven',
       phoneHomeDock: [],
       phoneHomeShowDock: true,
+      phoneHomeDockTranslucent: true,
       phoneHomeVariant: 'default',
       zineBadgeText: 'NEW!',
       zineTitleSize: 1.0,
@@ -441,6 +444,10 @@ export const useThemeStore = create<ThemeStore>()(
         set({ phoneHomeShowDock: show, hasChanges: true })
       },
 
+      setPhoneHomeDockTranslucent: (translucent: boolean) => {
+        set({ phoneHomeDockTranslucent: translucent, hasChanges: true })
+      },
+
       setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => {
         set({ phoneHomeVariant: variant, hasChanges: true })
       },
@@ -578,6 +585,7 @@ export const useThemeStore = create<ThemeStore>()(
           wordArtTitleStyle: theme.wordArtTitleStyle ?? 'style-eleven',
           phoneHomeDock: theme.phoneHomeDock ?? [],
           phoneHomeShowDock: theme.phoneHomeShowDock ?? true,
+          phoneHomeDockTranslucent: theme.phoneHomeDockTranslucent ?? true,
           phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
           zineBadgeText: theme.zineBadgeText ?? 'NEW!',
           zineTitleSize: theme.zineTitleSize ?? 1.0,
@@ -626,6 +634,7 @@ export const useThemeStore = create<ThemeStore>()(
           wordArtTitleStyle: state.wordArtTitleStyle,
           phoneHomeDock: state.phoneHomeDock,
           phoneHomeShowDock: state.phoneHomeShowDock,
+          phoneHomeDockTranslucent: state.phoneHomeDockTranslucent,
           phoneHomeVariant: state.phoneHomeVariant,
           zineBadgeText: state.zineBadgeText,
           zineTitleSize: state.zineTitleSize,

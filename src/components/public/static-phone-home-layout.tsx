@@ -62,6 +62,7 @@ interface StaticPhoneHomeLayoutProps {
   cards: Card[]
   phoneHomeDock?: string[]
   phoneHomeShowDock?: boolean
+  phoneHomeDockTranslucent?: boolean
   phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'
   socialIconsJson?: string | null
   socialIconColor?: string | null
@@ -353,7 +354,7 @@ function PhotoWidget({
     return () => clearInterval(id)
   }, [images.length])
 
-  const borderRadius = isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
+  const borderRadius = isWin95 ? 'rounded-[8px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'
 
   if (images.length === 0) {
     return (
@@ -378,7 +379,7 @@ function PhotoWidget({
           draggable={false}
         />
       ))}
-      {images.length > 1 && !is8Bit && (
+      {images.length > 1 && !is8Bit && !isWin95 && (
         <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] text-white font-medium">
           {currentIdx + 1}/{images.length}
         </div>
@@ -443,8 +444,9 @@ function MusicWidget({
   const embedUrl = content.embedUrl as string | undefined
   const embedIframeUrl = content.embedIframeUrl as string | undefined
   const embeddable = content.embeddable as boolean | undefined
-  const customHeight = content.embedHeight as number | undefined
-  const isSlim = layout.width === 4 && layout.height === 1
+  const autoplay = content.autoplay as boolean | undefined
+  // Layout height determines embed variant: <=2 rows = compact, >2 = full
+  const isSlim = layout.height <= 2
 
   // If no embed URL or not embeddable, fall back to a tappable icon
   if ((!embedUrl && !embedIframeUrl) || embeddable === false) {
@@ -467,29 +469,36 @@ function MusicWidget({
     iframeUrl = adjustBandcampSize(iframeUrl, !isSlim)
   }
 
-  // Use custom height from embed code if available (e.g. Bandcamp variants),
-  // otherwise use platform defaults
-  const embedHeight = customHeight
-    || (isSlim ? (SLIM_EMBED_HEIGHTS[platform] || 80) : (SQUARE_EMBED_HEIGHTS[platform] || 152))
+  // Append autoplay param per platform
+  if (autoplay && iframeUrl) {
+    const sep = iframeUrl.includes('?') ? '&' : '?'
+    if (platform === 'soundcloud') {
+      iframeUrl += `${sep}auto_play=true`
+    } else {
+      // Spotify, Apple Music, Audiomack all use autoplay=1
+      iframeUrl += `${sep}autoplay=1`
+    }
+  }
+
+  // Slim: always use compact heights. Square: Bandcamp uses its custom height, others use full.
+  const customHeight = content.embedHeight as number | undefined
+  const embedHeight = isSlim
+    ? (SLIM_EMBED_HEIGHTS[platform] || 152)
+    : (platform === 'bandcamp' && customHeight)
+      ? customHeight
+      : (SQUARE_EMBED_HEIGHTS[platform] || 352)
 
   return (
-    <div
-      className="w-full rounded-[16px]"
-      style={{
-        height: embedHeight,
-        overflow: 'hidden',
-      }}
-    >
+    <div className="w-full h-full rounded-[16px] overflow-hidden">
       <iframe
         src={iframeUrl}
         width="100%"
-        height={embedHeight}
+        height={isSlim ? embedHeight : '100%'}
         frameBorder="0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title={card.title || 'Music embed'}
-        style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: 'none' }}
-        scrolling="no"
+        style={{ background: 'transparent', borderRadius: '16px', border: 0 }}
       />
     </div>
   )
@@ -505,18 +514,20 @@ function PhoneHomeDock({
   onTap,
   is8Bit = false,
   isWin95 = false,
+  translucent = true,
 }: {
   dockCards: Card[]
   onTap: (card: Card) => void
   is8Bit?: boolean
   isWin95?: boolean
+  translucent?: boolean
 }) {
   if (dockCards.length === 0) return null
 
   if (isWin95) {
     return (
       <div
-        className="mb-0 pb-[max(env(safe-area-inset-bottom),0px)] px-3 py-[6px] flex items-center justify-center gap-[3px]"
+        className={cn("mb-0 pb-[max(env(safe-area-inset-bottom),0px)] px-3 py-[6px] flex items-center", dockCards.length >= 4 ? "justify-center gap-[3px]" : "justify-evenly")}
         style={{
           background: 'var(--theme-card-bg, #c0c0c0)',
           boxShadow: 'inset 0 1px 0 #dfdfdf, inset 0 -1px 0 #808080, inset 0 2px 0 #ffffff, inset 0 -2px 0 #404040',
@@ -556,10 +567,13 @@ function PhoneHomeDock({
   return (
     <div
       className="mx-3 mb-[max(env(safe-area-inset-bottom),8px)] rounded-[22px] px-5 py-2.5 flex items-center justify-center gap-5"
-      style={{
-        backgroundColor: 'var(--theme-card-bg, rgba(30,30,30,0.5))',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+      style={translucent ? {
+        backgroundColor: 'rgba(30,30,30,0.35)',
+        backdropFilter: 'blur(40px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+        border: '1px solid rgba(255,255,255,0.12)',
+      } : {
+        backgroundColor: 'var(--theme-card-bg, rgba(30,30,30,0.85))',
       }}
     >
       {dockCards.map((card) => (
@@ -629,11 +643,24 @@ function autoLayoutCards(
     else if (card.card_type === 'gallery') {
       if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     } else if (card.card_type === 'music') {
-      w = 4
-      const embedH = content.embedHeight as number | undefined
-      h = (embedH && embedH > 200) ? 2 : 1
-    } else if (card.card_type === 'audio' && content.phoneHomeWidgetMode) {
-      w = 4; h = 1
+      const widgetSize = (content.phoneHomeWidgetSize as string) || 'wide'
+      if (widgetSize === 'icon') {
+        w = 1; h = 1
+      } else if (widgetSize === 'square') {
+        w = 4; h = 4
+        // Bandcamp custom heights may need more rows
+        if ((content.platform as string) === 'bandcamp') {
+          const embedH = content.embedHeight as number | undefined
+          if (embedH) h = Math.max(4, Math.ceil((embedH + 20) / 96))
+        }
+      } else {
+        w = 4; h = 2 // wide/compact
+      }
+    }
+
+    // Audio cards always render full-width and need 3 rows for full player
+    if (card.card_type === 'audio') {
+      w = 4; h = 3
     }
 
     itemsToPlace.push({ card, w, h, explicit })
@@ -698,6 +725,7 @@ export function StaticPhoneHomeLayout({
   cards,
   phoneHomeDock = [],
   phoneHomeShowDock = true,
+  phoneHomeDockTranslucent = true,
   phoneHomeVariant = 'default',
   socialIconsJson,
   socialIconColor,
@@ -706,7 +734,7 @@ export function StaticPhoneHomeLayout({
   const isWin95 = phoneHomeVariant === 'windows-95'
   const [currentPage, setCurrentPage] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
-  const rubberBandRef = useRef<HTMLDivElement>(null)
+
 
   const socialIcons: SocialIcon[] = useMemo(
     () => (socialIconsJson ? JSON.parse(socialIconsJson) : []),
@@ -761,77 +789,59 @@ export function StaticPhoneHomeLayout({
     el.scrollTo({ left: page * el.offsetWidth, behavior: 'smooth' })
   }, [])
 
-  const handleScroll = useCallback(() => {
+  // Update currentPage only after scroll settles to avoid re-renders mid-swipe
+  useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    const w = el.offsetWidth
-    if (w === 0) return
-    const page = Math.round(el.scrollLeft / w)
-    setCurrentPage(page)
-  }, [])
 
-  // Desktop-only edge rubber band (mobile gets native bounce via overscroll-behavior: contain)
-  useEffect(() => {
-    const scrollEl = containerRef.current
-    const wrapper = rubberBandRef.current
-    if (!scrollEl || !wrapper) return
-    if ('ontouchstart' in window) return // skip on touch devices
-
-    let offset = 0
     let timer: ReturnType<typeof setTimeout> | null = null
 
-    const release = () => {
-      if (offset === 0) return
-      wrapper.style.transition = 'transform 400ms cubic-bezier(0.25, 1, 0.5, 1)'
-      wrapper.style.transform = ''
-      offset = 0
-      const cleanup = () => { wrapper.style.transition = '' }
-      wrapper.addEventListener('transitionend', cleanup, { once: true })
-      setTimeout(cleanup, 500)
+    const updatePage = () => {
+      const w = el.offsetWidth
+      if (w === 0) return
+      setCurrentPage(Math.round(el.scrollLeft / w))
     }
 
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
-      const atStart = scrollEl.scrollLeft <= 0
-      const atEnd = scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.offsetWidth - 1
-      if ((atStart && e.deltaX < 0) || (atEnd && e.deltaX > 0)) {
-        offset += e.deltaX * -0.3
-        offset = Math.max(-60, Math.min(60, offset))
-        wrapper.style.transition = ''
-        wrapper.style.transform = `translateX(${offset}px)`
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(release, 200)
-      } else if (offset !== 0) {
-        release()
-      }
+    const onScroll = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(updatePage, 300)
     }
 
-    scrollEl.addEventListener('wheel', onWheel, { passive: true })
-    return () => scrollEl.removeEventListener('wheel', onWheel)
+    const onScrollEnd = () => {
+      if (timer) clearTimeout(timer)
+      updatePage()
+    }
+
+    el.addEventListener('scroll', onScroll, { passive: true })
+    el.addEventListener('scrollend', onScrollEnd, { passive: true })
+    return () => {
+      if (timer) clearTimeout(timer)
+      el.removeEventListener('scroll', onScroll)
+      el.removeEventListener('scrollend', onScrollEnd)
+    }
   }, [])
+
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ height: '100dvh' }}>
       {/* Status bar */}
       <PhoneHomeStatusBar />
 
-      <div ref={rubberBandRef} className="flex-1 min-h-0">
       <div
         ref={containerRef}
-        className="h-full flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+        className="flex-1 min-h-0 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
         style={{
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
-          overscrollBehavior: 'contain',
-          touchAction: 'pan-x',
+          overscrollBehaviorX: 'contain',
         } as React.CSSProperties}
-        onScroll={handleScroll}
+
       >
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="min-w-full shrink-0 px-5 pt-3 pb-20"
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden"
             style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid container */}
@@ -839,6 +849,7 @@ export function StaticPhoneHomeLayout({
                 className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
+                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)`,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
@@ -881,12 +892,12 @@ export function StaticPhoneHomeLayout({
                     )
                   }
 
-                  // Music widgets (4x1 wide or 2x2)
+                  // Music widgets (4x2 slim or larger)
                   if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
                     return (
                       <div
                         key={card.id}
-                        className="w-full"
+                        className="w-full h-full overflow-hidden"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -965,7 +976,6 @@ export function StaticPhoneHomeLayout({
             </div>
           ))}
       </div>
-      </div>
 
       {/* Pagination dots */}
       {pageCount > 1 && (
@@ -973,7 +983,7 @@ export function StaticPhoneHomeLayout({
       )}
 
       {/* Dock */}
-      {phoneHomeShowDock && <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} />}
+      {phoneHomeShowDock && <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />}
 
     </div>
   )

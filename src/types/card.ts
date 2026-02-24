@@ -199,6 +199,8 @@ export interface GameCardContent {
 // Music platform types (includes generic-music for loose/fallback detection)
 export type MusicPlatform = 'spotify' | 'apple-music' | 'soundcloud' | 'bandcamp' | 'audiomack' | 'generic-music'
 
+export type PhoneHomeWidgetSize = 'wide' | 'square' | 'icon'
+
 export interface MusicCardContent {
   platform?: MusicPlatform       // Detected platform from URL
   embedUrl?: string              // Original URL pasted by user
@@ -207,12 +209,14 @@ export interface MusicCardContent {
   thumbnailUrl?: string          // From oEmbed (if available)
   title?: string                 // From oEmbed (if available)
   embeddable?: boolean           // false when URL was domain-matched but not regex-matched (shows link fallback)
+  phoneHomeWidgetSize?: PhoneHomeWidgetSize  // Phone Home: wide (4x2), square (4x4), icon (1x1)
   // Bandcamp-specific (requires page fetch to get IDs)
   bandcampAlbumId?: string
   bandcampTrackId?: string
   textColor?: string             // Override text color
   fuzzyText?: FuzzyTextSettings  // Distress text effect
   noBorder?: boolean             // Remove card border/background styling
+  autoplay?: boolean             // Auto-play embed on page load
 }
 
 // After countdown action options

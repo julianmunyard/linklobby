@@ -47,6 +47,8 @@ import { chaoticZineSimpleNew } from './data/chaotic-zine/simple-new'
 
 import { artifactBrutal } from './data/artifact/brutal'
 
+import { phoneHomeBurple } from './data/phone-home/burple'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
   phoneHomeMclovinsIphone,
   chaoticZineOG,
@@ -70,6 +72,7 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   phoneHomeWindowsPhone,
   chaoticZineSimpleNew,
   artifactBrutal,
+  phoneHomeBurple,
 ]
 
 /**

@@ -193,7 +193,7 @@ export const phoneHomeMclovinsIphone: TemplateDefinition = {
           "row": 3,
           "page": 0,
           "width": 4,
-          "height": 1
+          "height": 2
         },
         "transparentBackground": false
       },

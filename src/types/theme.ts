@@ -161,6 +161,7 @@ export interface ThemeState {
   wordArtTitleStyle?: string  // Word Art theme: style ID for the title text
   phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock?: boolean  // Phone Home theme: show dock bar (default true)
+  phoneHomeDockTranslucent?: boolean  // Phone Home theme: translucent dock (modern variant, default true)
   phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'  // Phone Home theme: visual variant
   zineBadgeText?: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize?: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)

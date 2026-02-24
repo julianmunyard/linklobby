@@ -5,11 +5,13 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, AlertCircle, CheckCircle2, Music } from 'lucide-react'
+import { Loader2, AlertCircle, CheckCircle2, Music, RectangleHorizontal, Square, AppWindow } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { detectPlatform, detectPlatformLoose, fetchPlatformEmbed, isMusicPlatform } from '@/lib/platform-embed'
 import type { EmbedPlatform } from '@/lib/platform-embed'
-import type { MusicCardContent, MusicPlatform } from '@/types/card'
+import type { MusicCardContent, MusicPlatform, PhoneHomeWidgetSize } from '@/types/card'
+import { useThemeStore } from '@/stores/theme-store'
+import { cn } from '@/lib/utils'
 
 // Platform display info
 const PLATFORM_INFO: Record<MusicPlatform, { name: string; icon: React.ComponentType<{ className?: string }> }> = {
@@ -31,6 +33,8 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
   const [urlInput, setUrlInput] = useState(content.embedUrl || '')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const themeId = useThemeStore((s) => s.themeId)
+  const isPhoneHome = themeId === 'phone-home'
 
   // Extract Bandcamp embed URL and height from iframe code or direct URL
   function extractBandcampEmbed(input: string): { embedUrl: string; originalUrl?: string; height?: number } | null {
@@ -121,6 +125,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           platform,
           embedUrl: input,
           embedIframeUrl: embedInfo.embedUrl,
+          embedHeight: undefined, // Clear stale Bandcamp heights
           thumbnailUrl: embedInfo.thumbnailUrl,
           title: embedInfo.title,
           embeddable: true,
@@ -142,6 +147,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         platform: loosePlatform,
         embedUrl: input,
         embedIframeUrl: undefined,
+        embedHeight: undefined,
         thumbnailUrl: undefined,
         title: undefined,
         embeddable: false,
@@ -215,6 +221,47 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
             checked={content.noBorder ?? false}
             onCheckedChange={(checked) => onChange({ noBorder: checked })}
           />
+        </div>
+      )}
+
+      {/* Autoplay Option */}
+      {content.platform && content.embeddable !== false && (
+        <div className="flex items-center justify-between">
+          <Label htmlFor="autoplay" className="text-sm">Autoplay</Label>
+          <Switch
+            id="autoplay"
+            checked={content.autoplay ?? false}
+            onCheckedChange={(checked) => onChange({ autoplay: checked })}
+          />
+        </div>
+      )}
+
+      {/* Phone Home Widget Size Picker */}
+      {isPhoneHome && content.platform && content.embeddable !== false && (
+        <div className="space-y-2">
+          <Label className="text-sm">Widget Size</Label>
+          <div className="flex gap-2">
+            {([
+              { value: 'wide' as PhoneHomeWidgetSize, label: 'Wide', icon: RectangleHorizontal },
+              { value: 'square' as PhoneHomeWidgetSize, label: 'Square', icon: Square },
+              { value: 'icon' as PhoneHomeWidgetSize, label: 'Icon', icon: AppWindow },
+            ]).map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                className={cn(
+                  'flex-1 flex flex-col items-center gap-1 rounded-md border px-3 py-2 text-xs transition-colors',
+                  (content.phoneHomeWidgetSize || 'wide') === value
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:bg-muted/50 text-muted-foreground'
+                )}
+                onClick={() => onChange({ phoneHomeWidgetSize: value })}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
