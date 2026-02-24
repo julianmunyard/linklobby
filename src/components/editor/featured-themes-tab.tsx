@@ -43,6 +43,7 @@ const FEATURED_IDS = [
   'word-art-just-word-art',
   'chaotic-zine-simple-new',
   'artifact-brutal',
+  'mac-os-white-light',
 ]
 
 // Video preview paths keyed by template ID
@@ -58,6 +59,7 @@ const PREVIEW_VIDEOS: Record<string, string> = {
   'word-art-just-word-art': '/templates/previews/word-art-just-word-art.mp4',
   'chaotic-zine-simple-new': '/templates/previews/chaotic-zine-simple-new.mp4',
   'artifact-brutal': '/templates/previews/artifact-brutal.mp4',
+  'mac-os-white-light': '/templates/previews/mac-os-white-light.mp4',
 }
 
 // ---------------------------------------------------------------------------
