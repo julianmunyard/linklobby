@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.2 of 18 - Theme Templates
 Plan: 3 of 4 - Complete
 Status: **Phase 12.2 In Progress - Template apply API route complete**
-Last activity: 2026-02-24 - Completed quick task 074: Featured Themes tab as default editor landing
+Last activity: 2026-02-24 - Completed quick task 075: Featured themes apply on click + mobile preview dismiss
 
 Progress: [████████████████████████████░░░░] ~77%
 
