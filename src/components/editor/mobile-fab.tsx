@@ -1,6 +1,7 @@
 "use client"
 
-import { Plus, Paintbrush, Palette, Sparkles } from "lucide-react"
+import { useState, useRef } from "react"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -13,70 +14,93 @@ interface MobileFABProps {
 
 /**
  * Floating Action Button stack for mobile.
- * Four vertically stacked buttons (bottom-right):
- *   Top:    Featured (template gallery)
- *   2nd:    Presets (theme selection)
- *   3rd:    Design (colors, background, style, header)
- *   Bottom: + (add card / links tab)
+ * Three text pill buttons + one icon button (bottom-right).
+ * Swipe right to dismiss, swipe left (or tap tab) to bring back.
  * Hidden on desktop (md:hidden).
  */
 export function MobileFAB({ onOpenFeatured, onAddCard, onOpenDesign, onOpenPresets }: MobileFABProps) {
+  const [collapsed, setCollapsed] = useState(false)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return
+    const touch = e.changedTouches[0]
+    const deltaX = touch.clientX - touchStartRef.current.x
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y)
+    touchStartRef.current = null
+
+    // Swipe right to collapse (horizontal > vertical, at least 40px)
+    if (deltaX > 40 && deltaX > deltaY) {
+      setCollapsed(true)
+    }
+    // Swipe left to expand
+    if (deltaX < -40 && Math.abs(deltaX) > deltaY) {
+      setCollapsed(false)
+    }
+  }
+
   return (
     <div
       className={cn(
-        "fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3",
-        "md:hidden" // Only visible on mobile
+        "fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3",
+        "md:hidden",
+        "transition-transform duration-200 ease-out",
+        collapsed && "translate-x-[calc(100%+24px)]"
       )}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* Featured FAB */}
+      {/* Swipe-back tab — visible when collapsed */}
+      {collapsed && (
+        <button
+          onClick={() => setCollapsed(false)}
+          className="fixed bottom-10 right-0 z-50 h-16 w-5 rounded-l-md bg-muted/80 backdrop-blur-sm border border-r-0 border-border"
+          aria-label="Show quick actions"
+        />
+      )}
+
+      {/* Themes FAB */}
       {onOpenFeatured && (
         <Button
-          size="icon-lg"
+          size="lg"
           onClick={onOpenFeatured}
-          className={cn(
-            "h-14 w-14 rounded-full shadow-lg",
-            "touch-none"
-          )}
-          aria-label="Featured themes"
+          className="h-10 rounded-full shadow-lg px-5 touch-none"
+          aria-label="Themes"
         >
-          <Sparkles className="h-6 w-6" />
+          <span className="text-sm font-medium">Themes</span>
         </Button>
       )}
 
       {/* Presets FAB */}
       <Button
-        size="icon-lg"
+        size="lg"
         onClick={onOpenPresets}
-        className={cn(
-          "h-14 w-14 rounded-full shadow-lg",
-          "touch-none"
-        )}
+        className="h-10 rounded-full shadow-lg px-5 touch-none"
         aria-label="Theme presets"
       >
-        <Palette className="h-6 w-6" />
+        <span className="text-sm font-medium">Presets</span>
       </Button>
 
-      {/* Design FAB */}
+      {/* Colors FAB */}
       <Button
-        size="icon-lg"
+        size="lg"
         onClick={onOpenDesign}
-        className={cn(
-          "h-14 w-14 rounded-full shadow-lg",
-          "touch-none"
-        )}
-        aria-label="Design settings"
+        className="h-10 rounded-full shadow-lg px-5 touch-none"
+        aria-label="Colors"
       >
-        <Paintbrush className="h-6 w-6" />
+        <span className="text-sm font-medium">Colors</span>
       </Button>
 
-      {/* Add card FAB */}
+      {/* Add card FAB — icon only */}
       <Button
         size="icon-lg"
         onClick={onAddCard}
-        className={cn(
-          "h-14 w-14 rounded-full shadow-lg",
-          "touch-none"
-        )}
+        className="h-14 w-14 rounded-full shadow-lg touch-none"
         aria-label="Add card"
       >
         <Plus className="h-6 w-6" />

@@ -169,6 +169,7 @@ function PreviewContent() {
               wordArtTitleStyle: ts.wordArtTitleStyle ?? 'style-eleven',
               phoneHomeDock: ts.phoneHomeDock ?? [],
               phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
+              phoneHomeDockTranslucent: ts.phoneHomeDockTranslucent ?? true,
               phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
               zineBadgeText: ts.zineBadgeText ?? 'NEW!',
               zineTitleSize: ts.zineTitleSize ?? 1.0,

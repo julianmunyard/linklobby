@@ -41,7 +41,7 @@ export interface PhoneHomeLayout {
   row: number     // Row in the grid (0-based)
   col: number     // Column in the grid (0-based, max 3)
   width: 1 | 2 | 4   // Grid columns spanned
-  height: 1 | 2 | 3  // Grid rows spanned
+  height: 1 | 2 | 3 | 4 | 5 | 6  // Grid rows spanned
 }
 
 import type { AudioCardContent } from './audio'

@@ -1,6 +1,54 @@
-import type { Card } from '@/types/card'
+import type { Card, CardType } from '@/types/card'
 import { generateAppendKey } from '@/lib/ordering'
 import { generateId } from '@/lib/utils'
+
+// ---------------------------------------------------------------------------
+// Blinkies migration
+// ---------------------------------------------------------------------------
+
+/** Card types that should convert to link cards for the blinkies theme */
+const BLINKIES_CONVERTIBLE: CardType[] = ['hero', 'square', 'horizontal']
+
+/**
+ * Migrate cards when switching TO the blinkies theme.
+ * Converts hero/square/horizontal to link so they render as animated blinkies.
+ * Stashes original card_type in content._preBlinkiesType for restoration.
+ */
+export function migrateToBlinkies(cards: Card[]): Card[] {
+  const now = new Date().toISOString()
+  return cards.map((c) => {
+    if (!BLINKIES_CONVERTIBLE.includes(c.card_type)) return c
+    return {
+      ...c,
+      card_type: 'link' as CardType,
+      content: { ...c.content, _preBlinkiesType: c.card_type },
+      updated_at: now,
+    }
+  })
+}
+
+/**
+ * Migrate cards when switching FROM the blinkies theme.
+ * Restores original card_type from content._preBlinkiesType.
+ */
+export function migrateFromBlinkies(cards: Card[]): Card[] {
+  const now = new Date().toISOString()
+  return cards.map((c) => {
+    const prev = (c.content as Record<string, unknown>)?._preBlinkiesType as CardType | undefined
+    if (!prev) return c
+    const { _preBlinkiesType, blinkieStyle, ...restContent } = c.content as Record<string, unknown>
+    return {
+      ...c,
+      card_type: prev,
+      content: restContent,
+      updated_at: now,
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Macintosh migration
+// ---------------------------------------------------------------------------
 
 interface MacLink {
   title: string

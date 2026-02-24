@@ -184,8 +184,8 @@ export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
   // Filter visible cards only
   const visibleCards = localCards.filter((card) => card.is_visible)
 
-  // Dynamic min-height: at least viewport, grows to contain all cards
-  const dynamicMinHeight = useMemo(() => {
+  // Dynamic height: just tall enough to contain all cards, no extra space
+  const dynamicHeight = useMemo(() => {
     if (referenceHeight === 0) return '100vh'
     let maxBottom = 0
     localCards.forEach(card => {
@@ -194,18 +194,18 @@ export function ScatterCanvas({ cards: propCards }: ScatterCanvasProps) {
       const pos = layouts[themeId]
       if (pos) {
         const pixelY = (pos.y / 100) * referenceHeight
-        maxBottom = Math.max(maxBottom, pixelY + referenceHeight * 0.5)
+        const cardHeight = (pos.height / 100) * referenceHeight
+        maxBottom = Math.max(maxBottom, pixelY + cardHeight)
       }
     })
-    // Use CSS max() so canvas is always at least viewport height
-    return maxBottom > 0 ? `max(100vh, ${maxBottom}px)` : '100vh'
+    return maxBottom > 0 ? `${maxBottom + 24}px` : '100vh'
   }, [localCards, themeId, referenceHeight])
 
   return (
     <div
       ref={canvasRef}
       className="relative w-full select-none"
-      style={{ minHeight: dynamicMinHeight, touchAction: arrangeMode ? 'none' : 'auto', WebkitUserSelect: 'none' } as React.CSSProperties}
+      style={{ minHeight: dynamicHeight, touchAction: arrangeMode ? 'none' : 'auto', WebkitUserSelect: 'none' } as React.CSSProperties}
       onClick={(e) => {
         e.stopPropagation()
         handleCanvasClick(e)

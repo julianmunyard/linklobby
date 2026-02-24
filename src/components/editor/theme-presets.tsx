@@ -7,7 +7,7 @@ import { useThemeStore } from '@/stores/theme-store'
 import { usePageStore } from '@/stores/page-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { THEMES, getThemeDefaults } from '@/lib/themes'
-import { migrateToMacintosh, migrateFromMacintosh } from '@/lib/card-migration'
+import { migrateToMacintosh, migrateFromMacintosh, migrateToBlinkies, migrateFromBlinkies } from '@/lib/card-migration'
 import { getTemplatesByTheme } from '@/lib/templates'
 import type { TemplateDefinition } from '@/lib/templates'
 import { cn } from '@/lib/utils'
@@ -407,10 +407,25 @@ function CategoryDetailView({
     const currentThemeId = themeId
     const cards = usePageStore.getState().cards
 
+    // Migrate FROM current theme first (restore original card types)
+    let migrated = cards
+    if (currentThemeId === 'macintosh' && newThemeId !== 'macintosh') {
+      migrated = migrateFromMacintosh(migrated)
+    }
+    if (currentThemeId === 'blinkies' && newThemeId !== 'blinkies') {
+      migrated = migrateFromBlinkies(migrated)
+    }
+
+    // Migrate TO new theme
     if (newThemeId === 'macintosh' && currentThemeId !== 'macintosh') {
-      usePageStore.getState().setCards(migrateToMacintosh(cards))
-    } else if (newThemeId !== 'macintosh' && currentThemeId === 'macintosh') {
-      usePageStore.getState().setCards(migrateFromMacintosh(cards))
+      migrated = migrateToMacintosh(migrated)
+    }
+    if (newThemeId === 'blinkies' && currentThemeId !== 'blinkies') {
+      migrated = migrateToBlinkies(migrated)
+    }
+
+    if (migrated !== cards) {
+      usePageStore.getState().setCards(migrated)
     }
 
     // Preserve scatter layout when switching between scatter-enabled themes

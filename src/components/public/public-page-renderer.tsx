@@ -104,6 +104,7 @@ interface PublicPageRendererProps {
   // Phone Home theme
   phoneHomeDock?: string[]
   phoneHomeShowDock?: boolean
+  phoneHomeDockTranslucent?: boolean
   phoneHomeVariant?: 'default' | '8-bit'
   // Chaotic Zine theme
   zineBadgeText?: string
@@ -181,6 +182,7 @@ export function PublicPageRenderer({
   socialIconSize,
   phoneHomeDock,
   phoneHomeShowDock,
+  phoneHomeDockTranslucent,
   phoneHomeVariant,
   zineBadgeText,
   zineTitleSize,
@@ -215,6 +217,7 @@ export function PublicPageRenderer({
         cards={cards}
         phoneHomeDock={phoneHomeDock}
         phoneHomeShowDock={phoneHomeShowDock}
+        phoneHomeDockTranslucent={phoneHomeDockTranslucent}
         phoneHomeVariant={phoneHomeVariant}
         socialIconsJson={socialIconsJson}
         socialIconColor={socialIconColor}

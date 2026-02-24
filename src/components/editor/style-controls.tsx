@@ -47,7 +47,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles, artifactMarqueeText, setArtifactMarqueeText, artifactHeaderTopLeft, setArtifactHeaderTopLeft, artifactHeaderTopCenter, setArtifactHeaderTopCenter, artifactHeaderTopRight, setArtifactHeaderTopRight, artifactHeaderBottomLeft, setArtifactHeaderBottomLeft, artifactHeaderBottomCenter, setArtifactHeaderBottomCenter, artifactHeaderBottomRight, setArtifactHeaderBottomRight, artifactShowHeaderMeta, setArtifactShowHeaderMeta, artifactHeroOverlay, setArtifactHeroOverlay, artifactHeroMediaType, setArtifactHeroMediaType, artifactHeroImageUrl, setArtifactHeroImageUrl, artifactHeroVideoUrl, setArtifactHeroVideoUrl, artifactHeroPositionX, setArtifactHeroPositionX, artifactHeroPositionY, setArtifactHeroPositionY } = useThemeStore()
+  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeDockTranslucent, setPhoneHomeDockTranslucent, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles, artifactMarqueeText, setArtifactMarqueeText, artifactHeaderTopLeft, setArtifactHeaderTopLeft, artifactHeaderTopCenter, setArtifactHeaderTopCenter, artifactHeaderTopRight, setArtifactHeaderTopRight, artifactHeaderBottomLeft, setArtifactHeaderBottomLeft, artifactHeaderBottomCenter, setArtifactHeaderBottomCenter, artifactHeaderBottomRight, setArtifactHeaderBottomRight, artifactShowHeaderMeta, setArtifactShowHeaderMeta, artifactHeroOverlay, setArtifactHeroOverlay, artifactHeroMediaType, setArtifactHeroMediaType, artifactHeroImageUrl, setArtifactHeroImageUrl, artifactHeroVideoUrl, setArtifactHeroVideoUrl, artifactHeroPositionX, setArtifactHeroPositionX, artifactHeroPositionY, setArtifactHeroPositionY } = useThemeStore()
   const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
   const [stickerUploading, setStickerUploading] = useState<'receipt' | 'ipod' | null>(null)
@@ -582,6 +582,19 @@ export function StyleControls() {
               onCheckedChange={setPhoneHomeShowDock}
             />
           </div>
+
+          {phoneHomeShowDock && phoneHomeVariant === 'default' && (
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm">Translucent Dock</Label>
+                <p className="text-xs text-muted-foreground">Glass effect with background blur</p>
+              </div>
+              <Switch
+                checked={phoneHomeDockTranslucent}
+                onCheckedChange={setPhoneHomeDockTranslucent}
+              />
+            </div>
+          )}
 
           {phoneHomeDock.length > 0 && (
             <div className="space-y-2">

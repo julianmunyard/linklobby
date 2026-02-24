@@ -7,4 +7,4 @@
  * NEXT_PUBLIC_DEV_TOOLS=true, so it has zero impact on production builds.
  */
 export { DashboardHeader as EditorHeader } from "@/components/dashboard/dashboard-header"
-export { DevTemplateSaver } from "@/components/editor/dev-template-saver"
+export { DevTemplateSaver, DevTemplateManager, DevQuickResave } from "@/components/editor/dev-template-saver"

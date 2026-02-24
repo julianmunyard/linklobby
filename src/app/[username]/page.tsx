@@ -68,6 +68,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const socialIconSize = themeSettings?.socialIconSize ?? 24
   const phoneHomeDock = themeSettings?.phoneHomeDock ?? []
   const phoneHomeShowDock = themeSettings?.phoneHomeShowDock ?? true
+  const phoneHomeDockTranslucent = themeSettings?.phoneHomeDockTranslucent ?? true
   const phoneHomeVariant = (themeSettings?.phoneHomeVariant as 'default' | '8-bit' | undefined) ?? 'default'
   const zineBadgeText = themeSettings?.zineBadgeText ?? 'NEW!'
   const zineTitleSize = themeSettings?.zineTitleSize ?? 1.0
@@ -148,6 +149,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         socialIconSize={socialIconSize}
         phoneHomeDock={phoneHomeDock}
         phoneHomeShowDock={phoneHomeShowDock}
+        phoneHomeDockTranslucent={phoneHomeDockTranslucent}
         phoneHomeVariant={phoneHomeVariant}
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}

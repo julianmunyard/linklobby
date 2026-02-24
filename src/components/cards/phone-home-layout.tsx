@@ -399,18 +399,35 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
 
   let iframeUrl = embedIframeUrl || (embedUrl ? getEmbedUrl(embedUrl, platform as EmbedPlatform) : '')
 
-  // Bandcamp: only adjust size if user didn't paste a specific embed code
-  if (platform === 'bandcamp' && !embedIframeUrl) {
-    iframeUrl = adjustBandcampSize(iframeUrl, !isSlim)
+  const customHeight = content.embedHeight as number | undefined
+  const isBandcamp = platform === 'bandcamp'
+
+  // Bandcamp: render exactly as the embed specifies — no rounding, no overflow clipping, no size adjustment
+  if (isBandcamp) {
+    return (
+      <div className={cn('w-full relative', onClick && 'cursor-pointer')}>
+        <iframe
+          src={iframeUrl}
+          width="100%"
+          height={customHeight || 470}
+          frameBorder="0"
+          seamless
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title={card.title || 'Bandcamp embed'}
+          style={{ border: 0, background: 'transparent', pointerEvents: onClick ? 'none' : undefined }}
+        />
+        {onClick && (
+          <div className="absolute inset-0 z-10" onClick={() => onClick(card.id)} />
+        )}
+      </div>
+    )
   }
 
-  // Slim: always use compact heights. Square: Bandcamp uses its custom height, others use full.
-  const customHeight = content.embedHeight as number | undefined
+  // Non-Bandcamp: slot-based heights with rounded widget style
   const embedHeight = isSlim
     ? (SLIM_EMBED_HEIGHTS[platform] || 152)
-    : (platform === 'bandcamp' && customHeight)
-      ? customHeight
-      : (SQUARE_EMBED_HEIGHTS[platform] || 352)
+    : (SQUARE_EMBED_HEIGHTS[platform] || 352)
 
   return (
     <div
@@ -426,12 +443,8 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
         title={card.title || 'Music embed'}
         style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: onClick ? 'none' : undefined }}
       />
-      {/* Click overlay for card selection in editor */}
       {onClick && (
-        <div
-          className="absolute inset-0 z-10"
-          onClick={() => onClick(card.id)}
-        />
+        <div className="absolute inset-0 z-10" onClick={() => onClick(card.id)} />
       )}
     </div>
   )
@@ -634,24 +647,25 @@ function autoLayoutCards(
     }
 
     let w = 1, h = 1
-    if (explicit) { w = explicit.width; h = explicit.height }
-    else if (card.card_type === 'gallery') {
-      if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
-    }
-    else if (card.card_type === 'music') {
-      const widgetSize = (content.phoneHomeWidgetSize as string) || 'wide'
-      if (widgetSize === 'icon') {
-        w = 1; h = 1
-      } else if (widgetSize === 'square') {
-        w = 4; h = 4
-        // Bandcamp custom heights may need more rows
-        if ((content.platform as string) === 'bandcamp') {
-          const embedH = content.embedHeight as number | undefined
-          if (embedH) h = Math.max(4, Math.ceil((embedH + 20) / 96))
+    // Music cards: always derive size from platform, ignore explicit layout
+    if (card.card_type === 'music') {
+      if ((content.platform as string) === 'bandcamp') {
+        const embedH = content.embedHeight as number | undefined
+        w = 4
+        if (embedH && embedH > 200) {
+          h = Math.max(4, Math.ceil((embedH + 20) / 96))
+        } else if (embedH && embedH <= 50) {
+          h = 1
+        } else {
+          h = 2
         }
       } else {
-        w = 4; h = 2 // wide/compact
+        w = 4; h = 2
       }
+    }
+    else if (explicit) { w = explicit.width; h = explicit.height }
+    else if (card.card_type === 'gallery') {
+      if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     }
 
     // Audio cards always render full-width and need 3 rows for full player
@@ -667,10 +681,12 @@ function autoLayoutCards(
 
     if (explicit) {
       const pageIdx = explicit.page
+      // Use computed w/h (may differ from explicit for music cards)
+      const resolvedLayout: PhoneHomeLayout = { ...explicit, width: w as 1 | 2 | 4, height: h as PhoneHomeLayout['height'] }
       while (pages.length <= pageIdx) { pages.push([]); occupied.set(pages.length - 1, new Set()) }
       if (isSlotFree(pageIdx, explicit.row, explicit.col, w, h)) {
         markSlot(pageIdx, explicit.row, explicit.col, w, h)
-        pages[pageIdx].push({ card, layout: explicit, socialIcon })
+        pages[pageIdx].push({ card, layout: resolvedLayout, socialIcon })
         continue
       }
       let placedOnPage = false
@@ -678,7 +694,7 @@ function autoLayoutCards(
         for (let c = 0; c <= GRID_COLS - w && !placedOnPage; c++) {
           if (isSlotFree(pageIdx, r, c, w, h)) {
             markSlot(pageIdx, r, c, w, h)
-            pages[pageIdx].push({ card, layout: { page: pageIdx, row: r, col: c, width: w as 1 | 2 | 4, height: h as 1 | 2 | 3 }, socialIcon })
+            pages[pageIdx].push({ card, layout: { page: pageIdx, row: r, col: c, width: w as 1 | 2 | 4, height: h as PhoneHomeLayout['height'] }, socialIcon })
             placedOnPage = true
           }
         }
@@ -693,7 +709,7 @@ function autoLayoutCards(
         for (let c = 0; c <= GRID_COLS - w && !placed; c++) {
           if (isSlotFree(p, r, c, w, h)) {
             markSlot(p, r, c, w, h)
-            pages[p].push({ card, layout: { page: p, row: r, col: c, width: w as 1 | 2 | 4, height: h as 1 | 2 | 3 }, socialIcon })
+            pages[p].push({ card, layout: { page: p, row: r, col: c, width: w as 1 | 2 | 4, height: h as PhoneHomeLayout['height'] }, socialIcon })
             placed = true
           }
         }
@@ -704,7 +720,7 @@ function autoLayoutCards(
       const newPageIdx = pages.length
       pages.push([]); occupied.set(newPageIdx, new Set())
       markSlot(newPageIdx, 0, 0, w, h)
-      pages[newPageIdx].push({ card, layout: { page: newPageIdx, row: 0, col: 0, width: w as 1 | 2 | 4, height: h as 1 | 2 | 3 }, socialIcon })
+      pages[newPageIdx].push({ card, layout: { page: newPageIdx, row: 0, col: 0, width: w as 1 | 2 | 4, height: h as PhoneHomeLayout['height'] }, socialIcon })
     }
   }
 
@@ -1150,11 +1166,10 @@ export function PhoneHomeLayout({
     if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
       const musicGridStyle: React.CSSProperties = {
         ...gridStyle,
-        overflow: 'hidden',
       }
       const inner = (
         <div
-          className={cn('w-full h-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
           style={{ cursor: 'pointer' }}
         >
           <MusicWidget card={card} layout={layout} onClick={handleIconTap} />

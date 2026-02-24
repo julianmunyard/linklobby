@@ -14,7 +14,7 @@ import { useProfileStore } from "@/stores/profile-store"
 import { useCards } from "@/hooks/use-cards"
 import { useHistory } from "@/hooks/use-history"
 import { cn } from "@/lib/utils"
-import { DevTemplateSaver } from "@/components/editor/dev-template-saver"
+import { DevTemplateSaver, DevTemplateManager, DevQuickResave } from "@/components/editor/dev-template-saver"
 
 interface DashboardHeaderProps {
   username: string
@@ -132,8 +132,10 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
 
       {/* Right side: Dev tools, Undo/Redo, Save status and button */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Dev-only template snapshot button — invisible in production */}
+        {/* Dev-only template tools — invisible in production */}
+        <DevQuickResave />
         <DevTemplateSaver />
+        <DevTemplateManager />
 
         {/* Undo/Redo buttons */}
         <div className="flex items-center gap-1">

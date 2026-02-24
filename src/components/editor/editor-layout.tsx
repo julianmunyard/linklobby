@@ -12,7 +12,7 @@ import { EditorPanel } from "./editor-panel"
 import { PreviewPanel } from "./preview-panel"
 import { MobileBottomSheet } from "./mobile-bottom-sheet"
 import { MobileFAB } from "./mobile-fab"
-import { MobileSelectToggle, MobileSelectionBar } from "./mobile-select-mode"
+import { MobileSelectionBar } from "./mobile-select-mode"
 import { MobileQuickSettings } from "./mobile-quick-settings"
 import { MobileCardTypeDrawer } from "./mobile-card-type-drawer"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
@@ -106,10 +106,6 @@ export function EditorLayout() {
           </div>
         )}
 
-        {/* Mobile toolbar with Select toggle */}
-        <div className="bg-background border-b p-2 flex items-center justify-end gap-2">
-          <MobileSelectToggle />
-        </div>
 
         {/* Quick access settings bar */}
         <MobileQuickSettings

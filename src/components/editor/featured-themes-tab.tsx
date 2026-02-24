@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
+import { useActiveTemplate } from '@/components/editor/dev-template-saver'
 import { Loader2 } from 'lucide-react'
 import {
   AlertDialog,
@@ -43,6 +44,66 @@ const FEATURED_IDS = [
   'chaotic-zine-simple-new',
   'artifact-brutal',
 ]
+
+// Video preview paths keyed by template ID
+const PREVIEW_VIDEOS: Record<string, string> = {
+  'phone-home-burple': '/templates/previews/phone-home-burple.mp4',
+  'mac-os-my-mac': '/templates/previews/mac-os-my-mac.mp4',
+  'instagram-reels-cards': '/templates/previews/instagram-reels-cards.mp4',
+  'system-settings-quite-beskoke': '/templates/previews/system-settings-quite-beskoke.mp4',
+  'blinkies-blink-once': '/templates/previews/blinkies-blink-once.mp4',
+  'vcr-menu-home-video': '/templates/previews/vcr-menu-home-video.mp4',
+  'ipod-classic-your-ipod': '/templates/previews/ipod-classic-your-ipod.mp4',
+  'macintosh-84-macintosh': '/templates/previews/macintosh-84-macintosh.mp4',
+  'word-art-just-word-art': '/templates/previews/word-art-just-word-art.mp4',
+  'chaotic-zine-simple-new': '/templates/previews/chaotic-zine-simple-new.mp4',
+  'artifact-brutal': '/templates/previews/artifact-brutal.mp4',
+}
+
+// ---------------------------------------------------------------------------
+// LazyVideo — only loads/plays when visible in viewport
+// ---------------------------------------------------------------------------
+
+function LazyVideo({ src, poster, className }: { src: string; poster: string; className?: string }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const video = ref.current
+        if (!video) return
+        if (entry.isIntersecting) {
+          video.play().catch(() => {})
+        } else {
+          video.pause()
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={containerRef} className="absolute inset-0">
+      <video
+        ref={ref}
+        src={src}
+        poster={poster}
+        muted
+        loop
+        playsInline
+        preload="none"
+        className={className}
+      />
+    </div>
+  )
+}
 
 // ---------------------------------------------------------------------------
 // FeaturedThemesTab
@@ -110,6 +171,7 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
       useProfileStore.setState({ hasChanges: true })
 
       toast.success(`Template "${data.templateName}" applied!`)
+      useActiveTemplate.getState().setActiveTemplate(template.id)
       onTemplateApplied?.()
     } catch (err) {
       console.error('[FeaturedThemesTab] apply error:', err)
@@ -177,15 +239,23 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.12 }}
             >
-              {/* Thumbnail */}
+              {/* Preview video / thumbnail */}
               <div className="relative w-full aspect-[9/16] bg-muted">
-                <Image
-                  src={template.thumbnailPath}
-                  alt={template.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 50vw, 150px"
-                />
+                {PREVIEW_VIDEOS[template.id] ? (
+                  <LazyVideo
+                    src={PREVIEW_VIDEOS[template.id]}
+                    poster={template.thumbnailPath}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={template.thumbnailPath}
+                    alt={template.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 150px"
+                  />
+                )}
                 {/* Loading overlay */}
                 {applyingId === template.id && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
@@ -215,7 +285,7 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
                       onNavigateToTheme(template.themeId)
                     }
                   }}
-                  className="text-[10px] text-accent hover:underline text-left mt-1 w-fit"
+                  className="text-[10px] text-white hover:underline text-left mt-1 w-fit"
                 >
                   Explore theme
                 </span>

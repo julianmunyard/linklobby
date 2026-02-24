@@ -49,6 +49,8 @@ import { artifactBrutal } from './data/artifact/brutal'
 
 import { phoneHomeBurple } from './data/phone-home/burple'
 
+import { systemSettingsThreeSACrowd } from './data/system-settings/three-s-a-crowd'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
   phoneHomeMclovinsIphone,
   chaoticZineOG,
@@ -73,6 +75,7 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   chaoticZineSimpleNew,
   artifactBrutal,
   phoneHomeBurple,
+  systemSettingsThreeSACrowd,
 ]
 
 /**

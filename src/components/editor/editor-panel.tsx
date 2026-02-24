@@ -143,31 +143,31 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
       ) : (
         // Show tabs when no card selected
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex h-full flex-col">
-          <div className="border-b px-4 py-2">
-            <TabsList className="w-full">
-              <TabsTrigger value="featured" className="flex-1 gap-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="hidden sm:inline">Featured</span>
+          <div className="border-b px-2 py-2 overflow-x-auto scrollbar-none touch-pan-x">
+            <TabsList className="w-max min-w-full">
+              <TabsTrigger value="featured" className="gap-1.5 px-2.5">
+                <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Featured</span>
               </TabsTrigger>
-              <TabsTrigger value="links" className="flex-1 gap-2">
-                <Link2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Links</span>
+              <TabsTrigger value="links" className="gap-1.5 px-2.5">
+                <Link2 className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Links</span>
               </TabsTrigger>
-              <TabsTrigger value="design" className="flex-1 gap-2">
-                <Palette className="h-4 w-4" />
-                <span className="hidden sm:inline">Design</span>
+              <TabsTrigger value="design" className="gap-1.5 px-2.5">
+                <Palette className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Design</span>
               </TabsTrigger>
-              <TabsTrigger value="schedule" className="flex-1 gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Schedule</span>
+              <TabsTrigger value="schedule" className="gap-1.5 px-2.5">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Schedule</span>
               </TabsTrigger>
-              <TabsTrigger value="insights" className="flex-1 gap-2">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Insights</span>
+              <TabsTrigger value="insights" className="gap-1.5 px-2.5">
+                <BarChart3 className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Insights</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex-1 gap-2">
-                <Settings className="h-4 w-4" />
-                <span className="hidden sm:inline">Settings</span>
+              <TabsTrigger value="settings" className="gap-1.5 px-2.5">
+                <Settings className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs whitespace-nowrap">Settings</span>
               </TabsTrigger>
             </TabsList>
           </div>

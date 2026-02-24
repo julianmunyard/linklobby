@@ -15,27 +15,67 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { name, description, energyLabel, template } = body as {
+    const { name, description, energyLabel, template, overwriteId } = body as {
       name: string
       description: string
       energyLabel: string
       template: Record<string, unknown>
+      overwriteId?: string // If provided, overwrite this existing template instead of creating new
     }
 
     if (!name || !template) {
       return NextResponse.json({ error: 'name and template required' }, { status: 400 })
     }
 
-    // Generate slug from name: "Dark Minimal" → "dark-minimal"
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     const themeId = template.themeId as string
-    const templateId = `${themeId}-${slug}`
 
-    // Variable name from slug: "dark-minimal" → "darkMinimal"
-    const varName = slug.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    // Prefix with themeId camelCase
-    const themePrefix = themeId.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
-    const exportName = `${themePrefix}${varName.charAt(0).toUpperCase()}${varName.slice(1)}`
+    // If overwriting, resolve existing template's slug and export name from disk
+    let slug: string
+    let templateId: string
+    let exportName: string
+
+    if (overwriteId) {
+      // Find existing template file to get its export name
+      templateId = overwriteId
+      const dataDir = path.join(process.cwd(), 'src', 'lib', 'templates', 'data')
+      let foundExport: string | null = null
+
+      const themeDirs = fs.readdirSync(dataDir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .map(d => d.name)
+
+      for (const dir of themeDirs) {
+        const themePath = path.join(dataDir, dir)
+        const files = fs.readdirSync(themePath).filter(f => f.endsWith('.ts'))
+        for (const file of files) {
+          const content = fs.readFileSync(path.join(themePath, file), 'utf-8')
+          if (content.includes(`"id": "${overwriteId}"`) || content.includes(`"id":"${overwriteId}"`)) {
+            const m = content.match(/export const (\w+)/)
+            if (m) foundExport = m[1]
+            break
+          }
+        }
+        if (foundExport) break
+      }
+
+      // Derive slug from the templateId
+      slug = templateId.replace(`${themeId}-`, '')
+      exportName = foundExport || (() => {
+        const varName = slug.replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase())
+        const themePrefix = themeId.replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase())
+        return `${themePrefix}${varName.charAt(0).toUpperCase()}${varName.slice(1)}`
+      })()
+    } else {
+      // Generate slug from name: "Dark Minimal" → "dark-minimal"
+      slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      templateId = `${themeId}-${slug}`
+
+      // Variable name from slug: "dark-minimal" → "darkMinimal"
+      const varName = slug.replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase())
+      // Prefix with themeId camelCase
+      const themePrefix = themeId.replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase())
+      exportName = `${themePrefix}${varName.charAt(0).toUpperCase()}${varName.slice(1)}`
+    }
 
     // Build the final template object
     const finalTemplate = {

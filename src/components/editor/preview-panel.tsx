@@ -346,7 +346,7 @@ export function PreviewPanel() {
               ref={iframeRef}
               src="/preview"
               className="w-full h-full border-0"
-              style={{ pointerEvents: 'auto', touchAction: 'pan-y' }}
+              style={{ pointerEvents: 'auto', touchAction: 'pan-x pan-y' }}
               title="Page preview"
             />
           </div>

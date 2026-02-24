@@ -278,6 +278,7 @@ function PhoneHomeCardControls({
   const phoneLayout = currentContent.phoneHomeLayout as PhoneHomeLayout | undefined
   const isInDock = phoneHomeDock.includes(card.id)
   const canAddToDock = phoneHomeDock.length < 4
+  const isMusicCard = card.card_type === 'music'
   const defaultSize = getDefaultPhoneHomeSize(card.card_type, currentContent)
   const defaultLayout = { page: 0, row: 0, col: 0, ...defaultSize }
 
@@ -285,8 +286,8 @@ function PhoneHomeCardControls({
     <div className="space-y-4 border rounded-lg p-3 bg-muted/30">
       <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Phone Home</Label>
 
-      {/* App Icon Upload — uses square card type to get 1:1 crop */}
-      <div className="space-y-2">
+      {/* App Icon Upload — uses square card type to get 1:1 crop, hidden for music cards */}
+      {!isMusicCard && <div className="space-y-2">
         <Label className="text-sm">App Icon</Label>
         <ImageUpload
           value={currentContent.appIconUrl as string | undefined}
@@ -359,9 +360,10 @@ function PhoneHomeCardControls({
           </Button>
         )}
         <p className="text-xs text-muted-foreground">Upload your own or pick a preset icon</p>
-      </div>
+      </div>}
 
-      {/* Pin to Dock */}
+      {/* Pin to Dock — hidden for music cards */}
+      {!isMusicCard && (
       <div className="flex items-center justify-between">
         <div>
           <Label className="text-sm">Pin to Dock</Label>
@@ -376,7 +378,7 @@ function PhoneHomeCardControls({
           }}
         />
       </div>
-
+      )}
 
       {/* Page Selector */}
       {!isInDock && (
@@ -405,8 +407,8 @@ function PhoneHomeCardControls({
         </div>
       )}
 
-      {/* Widget Size (for gallery/music, or audio when widget mode is on) */}
-      {!isInDock && (['gallery', 'music'].includes(card.card_type) || (card.card_type === 'audio' && !!currentContent.phoneHomeWidgetMode)) && (
+      {/* Widget Size (for gallery, or audio when widget mode is on — music auto-sets via platform detection) */}
+      {!isInDock && (card.card_type === 'gallery' || (card.card_type === 'audio' && !!currentContent.phoneHomeWidgetMode)) && (
         <div className="space-y-2">
           <Label className="text-sm">Widget Size</Label>
           <ToggleGroup
@@ -520,6 +522,7 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
   const isMacCard = !!macWindowStyle
   const isPhoneHome = themeId === 'phone-home'
   const isPhoneHomeWidget = isPhoneHome && (card.card_type === 'gallery' || card.card_type === 'audio')
+  const isMusicCard = card.card_type === 'music'
 
   // Handle card type change
   function handleTypeChange(newType: CardType) {
@@ -930,8 +933,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             )}
 
-            {/* Text Alignment - hidden for Mac cards and phone-home gallery/audio */}
-            {!isMacCard && !isPhoneHomeWidget && <div className="space-y-2">
+            {/* Text Alignment - hidden for Mac cards, phone-home gallery/audio, and music cards */}
+            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
               <Label>Text Align</Label>
               <ToggleGroup
                 type="single"
@@ -954,8 +957,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </ToggleGroup>
             </div>}
 
-            {/* Vertical Alignment - hidden for Mac cards and phone-home gallery/audio */}
-            {!isMacCard && !isPhoneHomeWidget && <div className="space-y-2">
+            {/* Vertical Alignment - hidden for Mac cards, phone-home gallery/audio, and music cards */}
+            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
               <Label>Vertical Align</Label>
               <ToggleGroup
                 type="single"
@@ -978,8 +981,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </ToggleGroup>
             </div>}
 
-            {/* Transparent Background - hidden for Mac cards and phone-home gallery/audio */}
-            {!isMacCard && !isPhoneHomeWidget && <div className="space-y-2">
+            {/* Transparent Background - hidden for Mac cards, phone-home gallery/audio, and music cards */}
+            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Switch
@@ -1009,8 +1012,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               </div>
             </div>}
 
-            {/* Title - hidden for notepad, map, calculator Mac cards */}
-            {(!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link' || macWindowStyle === 'presave' || macWindowStyle === 'gallery') && (
+            {/* Title - hidden for notepad, map, calculator Mac cards and music cards */}
+            {!isMusicCard && (!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link' || macWindowStyle === 'presave' || macWindowStyle === 'gallery') && (
             <>
             {/* Title */}
             <FormField

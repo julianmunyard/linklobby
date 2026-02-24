@@ -156,20 +156,22 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
     setDragDistance(0)
   }
 
-  // Dynamic min-height: at least viewport, grows to contain all cards
-  const dynamicMinHeight = useMemo(() => {
-    if (referenceHeight === 0) return '100vh'
+  // Dynamic height: just tall enough to contain all cards, no extra space
+  const dynamicHeight = useMemo(() => {
+    if (referenceHeight === 0) return undefined
     let maxBottom = 0
     visibleCards.forEach(card => {
       const layouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
       const pos = layouts[themeId]
       if (pos) {
         const pixelY = (pos.y / 100) * referenceHeight
-        maxBottom = Math.max(maxBottom, pixelY + referenceHeight * 0.5)
+        // Estimate card height from scatter height percentage
+        const cardHeight = (pos.height / 100) * referenceHeight
+        maxBottom = Math.max(maxBottom, pixelY + cardHeight)
       }
     })
-    // Use CSS max() so canvas is always at least viewport height
-    return maxBottom > 0 ? `max(100vh, ${maxBottom}px)` : '100vh'
+    // Add small padding at bottom
+    return maxBottom > 0 ? `${maxBottom + 24}px` : undefined
   }, [visibleCards, themeId, referenceHeight])
 
   // Empty state
@@ -185,7 +187,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
     <div
       ref={containerRef}
       className="relative w-full select-none"
-      style={{ minHeight: dynamicMinHeight, WebkitUserSelect: 'none' } as React.CSSProperties}
+      style={{ height: dynamicHeight, WebkitUserSelect: 'none' } as React.CSSProperties}
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
       onPointerLeave={handleDragEnd}
@@ -195,7 +197,7 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
         // On mobile this equals containerWidth; on desktop it's capped + centered.
         const CARD_RENDER_WIDTH = positioningWidth
 
-        return visibleCards.map((card) => {
+        return visibleCards.map((card, cardIndex) => {
         // Get scatter position for this theme
         const scatterLayouts = (card.content.scatterLayouts as Record<string, ScatterPosition>) || {}
         const scatterPos = scatterLayouts[themeId]
@@ -278,22 +280,49 @@ export function StaticScatterCanvas({ cards, themeId, visitorDrag = false }: Sta
             )
           }
 
-          // No scatter position — stacked fallback (still bypass CardRenderer)
-          return (
-            <div key={card.id} data-card-id={card.id} className="w-full mb-4" style={{ maxWidth: CARD_RENDER_WIDTH, marginLeft: 'auto', marginRight: 'auto' }}>
-              {audioInner}
-            </div>
-          )
+          // No scatter position — use default fallback
+          if (!scatterPos) {
+            const fallbackPos: ScatterPosition = { x: 5, y: cardIndex * 20, width: 90, height: 15, zIndex: cardIndex }
+            const fallbackScale = fallbackPos.width / 100
+            const fallbackX = centerOffset + (fallbackPos.x / 100) * positioningWidth
+            const fallbackY = (fallbackPos.y / 100) * referenceHeight
+            return (
+              <div
+                key={card.id}
+                data-card-id={card.id}
+                className="absolute"
+                style={{
+                  width: CARD_RENDER_WIDTH,
+                  transform: `translate(${fallbackX}px, ${fallbackY}px) scale(${fallbackScale})`,
+                  transformOrigin: 'top left',
+                  zIndex: fallbackPos.zIndex,
+                }}
+              >
+                {audioInner}
+              </div>
+            )
+          }
         }
 
-        // Fall back to stacked vertical layout if no scatter position
+        // No scatter position — use default fallback so card still renders
         if (!scatterPos) {
+          const fallbackPos: ScatterPosition = { x: 5, y: cardIndex * 20, width: 90, height: 15, zIndex: cardIndex }
+          const isFitContent = FIT_CONTENT_TYPES.has(card.card_type)
+          const fallbackScale = fallbackPos.width / 100
+          const fallbackX = centerOffset + (fallbackPos.x / 100) * positioningWidth
+          const fallbackY = (fallbackPos.y / 100) * referenceHeight
           return (
             <div
               key={card.id}
               data-card-id={card.id}
-              className="w-full mb-4"
-              style={{ maxWidth: CARD_RENDER_WIDTH, marginLeft: 'auto', marginRight: 'auto' }}
+              className="absolute"
+              style={{
+                width: isFitContent ? 'fit-content' : CARD_RENDER_WIDTH,
+                maxWidth: isFitContent ? CARD_RENDER_WIDTH : undefined,
+                transform: `translate(${fallbackX}px, ${fallbackY}px) scale(${fallbackScale})`,
+                transformOrigin: 'top left',
+                zIndex: fallbackPos.zIndex,
+              }}
             >
               <CardRenderer card={card} themeId={themeId} />
             </div>
