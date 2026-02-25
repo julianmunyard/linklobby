@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 5 of 7 - In progress (plans 01, 02, 03, 04, 05 complete)
-Status: **Phase 12.6 Plans 01 + 02 + 03 + 04 + 05 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA**
-Last activity: 2026-02-25 - Completed 12.6-05-PLAN.md (TOTP 2FA with backup codes + middleware MFA enforcement)
+Plan: 6 of 7 - In progress (plans 01, 02, 03, 04, 05, 06 complete)
+Status: **Phase 12.6 Plans 01-06 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent**
+Last activity: 2026-02-25 - Completed 12.6-06-PLAN.md (session management UI + cookie consent banner wired to public pages)
 
 Progress: [████████████████████████████░░░░] ~83%
 
@@ -24,6 +24,13 @@ Building security hardening and completing auth flows:
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
 - ✓ Plan 04: Account management (change password/email) + email verification + publish gate
 - ✓ Plan 05: TOTP 2FA with backup codes, MFA challenge page, middleware AAL2 enforcement
+- ✓ Plan 06: Session management UI (sign out other devices/everywhere) + cookie consent banner wired to public pages
+
+**Key decisions (Plan 06):**
+- browser confirm() dialogs for sign-out confirmation — simple and dependency-free for destructive actions
+- Pass themeColors explicitly to CookieConsentBanner from public page — more reliable than relying on CSS vars at mount time
+- Cookie consent banner conditional uses already-extracted pixel ID variables — no additional DB queries
+- PixelLoader already gated pixels behind consent-granted event (verified, no changes needed)
 
 **Key decisions (Plan 02):**
 - Rate limiting via Upstash Redis sliding window — @upstash/ratelimit + @upstash/redis
