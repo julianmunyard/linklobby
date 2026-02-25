@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 3 of 7 - In progress (plans 01 and 03 complete)
-Status: **Phase 12.6 Plans 01 + 03 Complete - Security headers/CSRF/sanitization + Google OAuth + Password Reset**
-Last activity: 2026-02-25 - Completed 12.6-01-PLAN.md (security headers, CSRF, input sanitization)
+Plan: 4 of 7 - In progress (plans 01, 03, 04 complete)
+Status: **Phase 12.6 Plans 01 + 03 + 04 Complete - Security + OAuth/Password Reset + Account Management/Email Verification**
+Last activity: 2026-02-25 - Completed 12.6-04-PLAN.md (change password/email forms, email verification, publish gate)
 
 Progress: [████████████████████████████░░░░] ~83%
 
@@ -21,6 +21,7 @@ Progress: [███████████████████████
 Building security hardening and completing auth flows:
 - ✓ Plan 01: Security headers, CSRF validation, input sanitization
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
+- ✓ Plan 04: Account management (change password/email) + email verification + publish gate
 
 **Key decisions (Plan 01):**
 - CSRF via Origin/Host header comparison — stateless, no token storage, correct for same-site Next.js app
@@ -34,6 +35,14 @@ Building security hardening and completing auth flows:
 - Forgot password redirectTo includes type=recovery so auth callback can distinguish recovery from normal OAuth
 - Auth callback: type=recovery always routes to /reset-password (overrides next param)
 - Reset password success state with 2s delay redirect to /login for UX confirmation
+
+**Key decisions (Plan 04):**
+- Re-authenticate with signInWithPassword before password/email changes — defense against session hijacking
+- Auth callback: email_change -> /settings?email_updated=true (recovery already handled by Plan 03)
+- SQL migration must run BEFORE enabling "Confirm email" in Supabase Dashboard — backfills email_confirmed_at for existing users
+- Publish gate: two-layer enforcement — API route (checkPublishEligibility, 403) + DB trigger (RAISE EXCEPTION)
+- /api/page PATCH handler added as canonical endpoint for publish toggle; future publish UI should use it
+- Settings page structure: Profile section / Account section (password+email) / Billing section
 
 ### IN PROGRESS (PAUSED): Phase 12.5 - Billing & Subscriptions
 
