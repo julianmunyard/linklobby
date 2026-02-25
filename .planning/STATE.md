@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
 Plan: 7 of 7 - COMPLETE (all plans 01-07 done)
 Status: **Phase 12.6 COMPLETE - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent + Storage Quota/MIME Validation**
-Last activity: 2026-02-25 - Completed 12.6-07-PLAN.md (MIME validation, storage quota, orphaned file cleanup, settings usage bar)
+Last activity: 2026-02-25 - Completed quick task 076: Fix CSP headers for Superpowered audio and preview iframe
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -1385,5 +1385,11 @@ Executed Phase 7 Theme System (7 plans across 5 waves):
 - `4271b00` - feat(06-15): add select toggle to mobile toolbar
 - `4e20ace` - feat(06-15): add checkbox overlay to preview cards
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 076 | Fix CSP headers for Superpowered audio and preview iframe | 2026-02-25 | 097291f | [076-fix-csp-headers-superpowered-audio-and-previ](./quick/076-fix-csp-headers-superpowered-audio-and-previ/) |
+
 ---
-*Updated: 2026-01-27 - Mobile checkbox selection mode complete*
+*Updated: 2026-02-25 - Quick task 076 complete*
