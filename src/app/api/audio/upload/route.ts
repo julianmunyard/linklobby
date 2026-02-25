@@ -9,7 +9,21 @@ export const runtime = 'nodejs'
 export const maxDuration = 120 // 2 minutes for large file conversion
 
 const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
+const STORAGE_QUOTA_BYTES = 500 * 1024 * 1024 // 500MB per user
 const AUDIO_BUCKET = 'card-audio'
+
+// Allowed audio MIME types
+const ALLOWED_AUDIO_TYPES = [
+  'audio/mpeg',      // .mp3
+  'audio/wav',       // .wav
+  'audio/x-wav',     // .wav (alternative)
+  'audio/ogg',       // .ogg
+  'audio/mp4',       // .m4a
+  'audio/x-m4a',     // .m4a (alternative)
+  'audio/aac',       // .aac
+  'audio/flac',      // .flac
+  'audio/webm',      // .webm
+]
 
 export async function POST(request: Request) {
   if (!validateCsrfOrigin(request)) {
@@ -46,6 +60,31 @@ export async function POST(request: Request) {
     if (file.size > MAX_AUDIO_SIZE) {
       return NextResponse.json(
         { error: 'Audio file must be less than 100MB' },
+        { status: 413 }
+      )
+    }
+
+    // Validate MIME type — must be a known audio format
+    if (!ALLOWED_AUDIO_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: `Unsupported audio format: ${file.type}. Supported formats: MP3, WAV, OGG, M4A, AAC, FLAC, WebM.` },
+        { status: 415 }
+      )
+    }
+
+    // Check storage quota before reading the file into memory
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('storage_used_bytes')
+      .eq('id', user.id)
+      .single()
+
+    const currentUsage = profile?.storage_used_bytes || 0
+    if (currentUsage + file.size > STORAGE_QUOTA_BYTES) {
+      const usedMB = Math.round(currentUsage / (1024 * 1024))
+      const fileMB = Math.round(file.size / (1024 * 1024))
+      return NextResponse.json(
+        { error: `Storage quota exceeded. You're using ${usedMB}MB of 500MB. This file is ${fileMB}MB.` },
         { status: 413 }
       )
     }
@@ -91,6 +130,12 @@ export async function POST(request: Request) {
         { status: 500 }
       )
     }
+
+    // Increment storage usage by actual stored size (after MP3 conversion)
+    await supabase
+      .from('profiles')
+      .update({ storage_used_bytes: currentUsage + finalBuffer.length })
+      .eq('id', user.id)
 
     // Get public URL
     const { data: urlData } = supabase.storage

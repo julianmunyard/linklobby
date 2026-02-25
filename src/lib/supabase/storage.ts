@@ -10,6 +10,14 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024 // 100MB
 const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB
 
+// Allowed image MIME types for client-side validation
+const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]
+
 export interface UploadResult {
   url: string
   path: string
@@ -24,9 +32,9 @@ export async function uploadCardImage(
     throw new Error("Image must be less than 20MB")
   }
 
-  // Validate file type
-  if (!file.type.startsWith("image/")) {
-    throw new Error("File must be an image")
+  // Validate file type — only allow known safe image formats
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    throw new Error(`Unsupported image format: ${file.type}. Supported formats: JPEG, PNG, WebP, GIF.`)
   }
 
   const supabase = createClient()
@@ -66,6 +74,11 @@ export async function uploadCardImageBlob(
   // Validate blob size
   if (blob.size > MAX_FILE_SIZE) {
     throw new Error("Image must be less than 20MB")
+  }
+
+  // Validate MIME type — only allow known safe image formats
+  if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
+    throw new Error(`Unsupported image format: ${contentType}. Supported formats: JPEG, PNG, WebP, GIF.`)
   }
 
   const supabase = createClient()
@@ -125,6 +138,11 @@ export async function uploadProfileImage(
   // Validate blob size (use same 20MB limit)
   if (blob.size > MAX_FILE_SIZE) {
     throw new Error("Image must be less than 20MB")
+  }
+
+  // Validate MIME type — only allow known safe image formats
+  if (!ALLOWED_IMAGE_TYPES.includes(blob.type)) {
+    throw new Error(`Unsupported image format: ${blob.type}. Supported formats: JPEG, PNG, WebP, GIF.`)
   }
 
   const supabase = createClient()
