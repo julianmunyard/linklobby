@@ -3,12 +3,17 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { validateCsrfOrigin } from "@/lib/csrf"
 
 /**
  * POST - Initiate account deletion
  * Sets deleted_at, schedules deletion for 30 days, disables account
  */
 export async function POST(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 })
+  }
+
   try {
     const supabase = await createClient()
 
@@ -97,7 +102,11 @@ export async function POST(request: Request) {
  * PATCH - Recover account during grace period
  * Clears deletion timestamps, reactivates account
  */
-export async function PATCH() {
+export async function PATCH(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 })
+  }
+
   try {
     const supabase = await createClient()
 

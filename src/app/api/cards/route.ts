@@ -3,6 +3,8 @@
 
 import { NextResponse } from "next/server"
 import { fetchCards, createCard, fetchUserPage } from "@/lib/supabase/cards"
+import { validateCsrfOrigin } from "@/lib/csrf"
+import { sanitizeText } from "@/lib/sanitize"
 
 export async function GET() {
   try {
@@ -23,6 +25,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 })
+  }
+
   try {
     const page = await fetchUserPage()
     if (!page) {
@@ -30,7 +36,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { card_type, title, description, url, content, size, sortKey, is_visible } = body
+    const { card_type, url, content, size, sortKey, is_visible } = body
+    const title = body.title ? sanitizeText(body.title) : null
+    const description = body.description ? sanitizeText(body.description) : null
 
     const card = await createCard({
       page_id: page.id,

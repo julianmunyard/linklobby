@@ -5,8 +5,13 @@ import { createClient } from "@/lib/supabase/server"
 import { fetchUserPage } from "@/lib/supabase/cards"
 import { POSITION_MAP } from "@/types/card"
 import type { HorizontalPosition } from "@/types/card"
+import { validateCsrfOrigin } from "@/lib/csrf"
 
 export async function POST(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: "CSRF validation failed" }, { status: 403 })
+  }
+
   try {
     const page = await fetchUserPage()
     if (!page) {

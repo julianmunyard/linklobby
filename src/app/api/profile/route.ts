@@ -3,6 +3,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { validateCsrfOrigin } from "@/lib/csrf"
+import { sanitizeText } from "@/lib/sanitize"
 
 async function fetchUserProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser()
@@ -47,6 +49,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -56,10 +62,10 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
-  // Map frontend types to database columns
+  // Map frontend types to database columns, sanitizing user-generated text
   const updateData: Record<string, unknown> = {
-    display_name: body.displayName,
-    bio: body.bio,
+    display_name: body.displayName ? sanitizeText(body.displayName) : body.displayName,
+    bio: body.bio ? sanitizeText(body.bio) : body.bio,
     avatar_url: body.avatarUrl,
     avatar_feather: body.avatarFeather,
     show_avatar: body.showAvatar,

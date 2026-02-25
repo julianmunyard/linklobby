@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrfOrigin } from '@/lib/csrf'
 
 export const runtime = 'nodejs'
 
 const AUDIO_BUCKET = 'card-audio'
 
 export async function DELETE(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()

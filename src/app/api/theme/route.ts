@@ -4,6 +4,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import type { ThemeState } from "@/types/theme"
+import { validateCsrfOrigin } from "@/lib/csrf"
 
 /**
  * GET /api/theme
@@ -44,6 +45,10 @@ export async function GET() {
  * Saves theme_settings to the user's page
  */
 export async function POST(request: Request) {
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

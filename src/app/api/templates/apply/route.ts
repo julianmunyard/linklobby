@@ -12,6 +12,7 @@ import { getTemplate } from '@/lib/templates'
 import { generateKeyBetween } from 'fractional-indexing'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { POSITION_MAP, POSITION_REVERSE } from '@/types/card'
+import { validateCsrfOrigin } from '@/lib/csrf'
 
 export const runtime = 'nodejs'
 
@@ -41,6 +42,10 @@ function getContentTypeForExtension(ext: string): string {
 
 export async function POST(request: Request) {
   console.log('[API /templates/apply] POST request received')
+
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
 
   try {
     // --- Step 1: Auth check ---

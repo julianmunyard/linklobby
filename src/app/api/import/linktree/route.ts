@@ -7,11 +7,16 @@ import { fetchUserPage } from '@/lib/supabase/cards'
 import { generateKeyBetween } from 'fractional-indexing'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { POSITION_MAP } from '@/types/card'
+import { validateCsrfOrigin } from '@/lib/csrf'
 
 const BUCKET_NAME = 'card-images'
 
 export async function POST(request: Request) {
   console.log('[API /import/linktree] POST request received')
+
+  if (!validateCsrfOrigin(request)) {
+    return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
+  }
 
   try {
     // Authenticate user
