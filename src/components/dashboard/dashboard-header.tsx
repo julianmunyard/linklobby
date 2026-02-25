@@ -15,12 +15,15 @@ import { useCards } from "@/hooks/use-cards"
 import { useHistory } from "@/hooks/use-history"
 import { cn } from "@/lib/utils"
 import { DevTemplateSaver, DevTemplateManager, DevQuickResave } from "@/components/editor/dev-template-saver"
+import { PlanBadge } from "@/components/billing/plan-badge"
+import type { PlanTier } from "@/lib/stripe/plans"
 
 interface DashboardHeaderProps {
   username: string
+  planTier?: PlanTier
 }
 
-export function DashboardHeader({ username }: DashboardHeaderProps) {
+export function DashboardHeader({ username, planTier }: DashboardHeaderProps) {
   const [copied, setCopied] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const cardHasChanges = usePageStore((state) => state.hasChanges)
@@ -87,6 +90,7 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
       {/* Left side: User info and public URL */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
         <span className="font-medium text-sm truncate">{username}</span>
+        {planTier && <PlanBadge tier={planTier} />}
         <div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0">
           <span className="hidden sm:inline">{publicUrl}</span>
           <Tooltip>
@@ -131,24 +135,26 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
       </div>
 
       {/* Right side: Dev tools, Undo/Redo, Save status and button */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Dev-only template tools — invisible in production */}
-        <DevQuickResave />
-        <DevTemplateSaver />
-        <DevTemplateManager />
+      <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
+        {/* Dev-only template tools — hidden on mobile */}
+        <div className="hidden sm:contents">
+          <DevQuickResave />
+          <DevTemplateSaver />
+          <DevTemplateManager />
+        </div>
 
         {/* Undo/Redo buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                 onClick={handleUndo}
                 disabled={!canUndo}
               >
-                <Undo2 className="h-3.5 w-3.5" />
+                <Undo2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 <span className="sr-only">Undo</span>
               </Button>
             </TooltipTrigger>
@@ -159,11 +165,11 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-6 w-6 sm:h-7 sm:w-7 p-0"
                 onClick={handleRedo}
                 disabled={!canRedo}
               >
-                <Redo2 className="h-3.5 w-3.5" />
+                <Redo2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 <span className="sr-only">Redo</span>
               </Button>
             </TooltipTrigger>
@@ -171,33 +177,34 @@ export function DashboardHeader({ username }: DashboardHeaderProps) {
           </Tooltip>
         </div>
 
-        {/* Visual separator */}
-        <div className="border-r h-4" />
-
-        {/* Unsaved changes indicator */}
+        {/* Unsaved dot — mobile only shows dot, no text */}
         {hasChanges && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full bg-yellow-500",
-                "animate-pulse"
-              )}
-            />
-            <span className="hidden sm:inline">Unsaved changes</span>
-          </div>
+          <span
+            className={cn(
+              "h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-yellow-500 shrink-0",
+              "animate-pulse"
+            )}
+          />
         )}
 
-        {/* Save button */}
+        {/* Unsaved text — desktop only */}
+        {hasChanges && (
+          <span className="hidden sm:inline text-sm text-muted-foreground">
+            Unsaved changes
+          </span>
+        )}
+
+        {/* Save button — icon only on mobile */}
         <Button
           size="sm"
           disabled={!hasChanges || isSaving}
           onClick={handleSave}
-          className="gap-2"
+          className="h-6 w-6 sm:h-8 sm:w-auto p-0 sm:px-3 sm:gap-2"
         >
           {isSaving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
           ) : (
-            <Save className="h-4 w-4" />
+            <Save className="h-3 w-3 sm:h-4 sm:w-4" />
           )}
           <span className="hidden sm:inline">{isSaving ? "Saving..." : "Save"}</span>
         </Button>

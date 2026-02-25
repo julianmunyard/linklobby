@@ -13,12 +13,14 @@ import { usePageStore } from "@/stores/page-store"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { toast } from "sonner"
+import type { PlanTier } from "@/lib/stripe/plans"
 
 interface EditorClientWrapperProps {
   username: string
+  planTier?: PlanTier
 }
 
-export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
+export function EditorClientWrapper({ username, planTier }: EditorClientWrapperProps) {
   const {
     showDialog,
     setShowDialog,
@@ -112,7 +114,7 @@ export function EditorClientWrapper({ username }: EditorClientWrapperProps) {
 
         <div className="flex flex-col h-[calc(100dvh-3.5rem)]">
           {/* Editor header */}
-          <DashboardHeader username={username} />
+          <DashboardHeader username={username} planTier={planTier} />
 
           {/* Split-screen editor */}
           <div className="flex-1 overflow-hidden">

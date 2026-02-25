@@ -16,6 +16,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { PlanBadge } from "@/components/billing/plan-badge"
+import type { PlanTier } from "@/lib/stripe/plans"
 
 const navItems = [
   {
@@ -37,6 +39,7 @@ const navItems = [
 
 interface AppSidebarProps {
   username?: string
+  planTier?: PlanTier
 }
 
 function isActive(pathname: string, searchParams: URLSearchParams, href: string) {
@@ -52,7 +55,7 @@ function isActive(pathname: string, searchParams: URLSearchParams, href: string)
   return pathname === href
 }
 
-export function AppSidebar({ username }: AppSidebarProps) {
+export function AppSidebar({ username, planTier }: AppSidebarProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -94,6 +97,11 @@ export function AppSidebar({ username }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        {planTier && (
+          <div className="px-2 py-1 group-data-[collapsible=icon]:hidden">
+            <PlanBadge tier={planTier} />
+          </div>
+        )}
         {username && (
           <SidebarMenu>
             <SidebarMenuItem>

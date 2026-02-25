@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { EditorClientWrapper } from "@/components/editor/editor-client-wrapper"
+import { getUserPlan } from "@/lib/stripe/subscription"
 
 export default async function EditorPage() {
   const supabase = await createClient()
@@ -23,5 +24,7 @@ export default async function EditorPage() {
     redirect("/signup")
   }
 
-  return <EditorClientWrapper username={profile.username} />
+  const planTier = await getUserPlan(user.id)
+
+  return <EditorClientWrapper username={profile.username} planTier={planTier} />
 }

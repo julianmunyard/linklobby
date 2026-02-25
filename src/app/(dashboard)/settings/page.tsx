@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { UsernameForm } from './username-form'
+import { getUserPlan } from '@/lib/stripe/subscription'
+import { BillingSection } from '@/components/billing/billing-section'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -19,6 +21,20 @@ export default async function SettingsPage() {
     .eq('id', user.id)
     .single()
 
+  // Fetch plan tier and subscription details
+  const tier = await getUserPlan(user.id)
+
+  const { data: subscription } = await supabase
+    .from('subscriptions')
+    .select('current_period_end, cancel_at_period_end, status')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'trialing'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const isTrial = subscription?.status === 'trialing'
+
   return (
     <div className="h-full overflow-auto p-4 sm:p-8">
       <header className="flex items-center justify-between gap-4 mb-6 sm:mb-8">
@@ -28,8 +44,17 @@ export default async function SettingsPage() {
         </Button>
       </header>
 
-      <main className="max-w-md">
+      <main className="max-w-md space-y-10">
         <UsernameForm currentUsername={profile?.username || ''} />
+
+        <div className="border-t pt-8">
+          <BillingSection
+            tier={tier}
+            periodEnd={subscription?.current_period_end ?? null}
+            cancelAtPeriodEnd={subscription?.cancel_at_period_end ?? false}
+            isTrial={isTrial}
+          />
+        </div>
       </main>
     </div>
   )

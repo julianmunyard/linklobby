@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { ThemeApplicator } from "@/components/theme-applicator"
+import { getUserPlan } from "@/lib/stripe/subscription"
 
 // Prevent native pinch-to-zoom on the editor — zoom is handled by our CSS transform gestures
 export const viewport: Viewport = {
@@ -37,10 +38,12 @@ export default async function DashboardLayout({
     username = profile?.username
   }
 
+  const planTier = user ? await getUserPlan(user.id) : undefined
+
   return (
     <ThemeApplicator>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar username={username} />
+        <AppSidebar username={username} planTier={planTier} />
         <SidebarInset>
           <header className="flex h-14 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-2" />
