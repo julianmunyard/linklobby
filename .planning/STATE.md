@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.5 of 18 - Billing & Subscriptions
-Plan: 3 of 4 - Complete
-Status: **Phase 12.5 In Progress - Feature gating complete (ProGate, public page stripping)**
-Last activity: 2026-02-25 - Completed 12.5-03: Feature Gating
+Plan: 4 of 4 - Checkpoint (awaiting human verification)
+Status: **Phase 12.5 Build Verified - Awaiting end-to-end Stripe test verification**
+Last activity: 2026-02-25 - Completed 12.5-04 Task 1: Build Verification
 
-Progress: [████████████████████████████░░░░] ~80%
+Progress: [████████████████████████████░░░░] ~82%
 
 ### IN PROGRESS: Phase 12.5 - Billing & Subscriptions
 
@@ -22,9 +22,9 @@ Building Stripe billing with 3-tier plans (free/pro/artist):
 - ✓ Plan 01: Stripe backend — client singleton, plan config, webhook handler, DB migration, checkout/portal routes
 - ✓ Plan 02: Billing UI — /pricing page, PricingTable, PlanBadge, UpgradeModal, BillingSection in settings, sidebar/header badge integration
 - ✓ Plan 03: Feature gating — ProGate (soft-lock), PlanTierContext, public page card stripping, branding/theme gating
-- Plan 04: Settings billing tab
+- ⏸ Plan 04: Build verified (TypeScript + build clean), awaiting human end-to-end verification
 
-**Current status:** Feature gating live. ProGate soft-locks Pro features in editor with amber badge overlays. Public pages strip email-collection/release cards and scheduling for free users. Designer themes fall back to instagram-reels for free users. "Powered by LinkLobby" hidden for Pro/Artist. **Requires Stripe env vars and DB migration before end-to-end testing.**
+**Current status:** Full Stripe billing system built. TypeScript passes clean. Production build succeeds (38 routes). All billing files verified. Awaiting human verification of end-to-end flow with Stripe test keys. **Requires: Stripe test keys in .env.local, DB migration applied, Stripe CLI listener running, test products created in Stripe Dashboard.**
 
 **Key decisions (Plan 03):**
 - Soft-lock pattern: ProGate children always interactive, badge overlay triggers UpgradeModal — creates desire not frustration
