@@ -1,0 +1,89 @@
+/**
+ * Creates a Stripe Checkout session for subscription upgrade.
+ * Includes 7-day no-card-required trial.
+ * POST /api/billing/checkout { priceId: string }
+ */
+import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
+import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { stripe } from '@/lib/stripe/client'
+
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: NextRequest) {
+  // Authenticate user
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Parse request body
+  let priceId: string
+  try {
+    const body = await request.json()
+    priceId = body.priceId
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
+
+  if (!priceId) {
+    return NextResponse.json({ error: 'priceId is required' }, { status: 400 })
+  }
+
+  // Look up existing Stripe customer via admin client (customers table has no user SELECT policy)
+  const admin = createAdminClient()
+  const { data: customerRecord } = await admin
+    .from('customers')
+    .select('stripe_customer_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+  // Build Checkout session params
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    mode: 'subscription',
+    line_items: [{ price: priceId, quantity: 1 }],
+    subscription_data: {
+      trial_period_days: 7,
+      trial_settings: {
+        end_behavior: {
+          missing_payment_method: 'cancel',
+        },
+      },
+      metadata: {
+        user_id: user.id,
+      },
+    },
+    metadata: {
+      user_id: user.id,
+    },
+    payment_method_collection: 'if_required',
+    success_url: `${appUrl}/dashboard?upgrade=success`,
+    cancel_url: `${appUrl}/dashboard?upgrade=cancelled`,
+  }
+
+  // Use existing customer if found, otherwise pass email for new customer creation
+  if (customerRecord?.stripe_customer_id) {
+    sessionParams.customer = customerRecord.stripe_customer_id
+  } else {
+    sessionParams.customer_email = user.email
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create(sessionParams)
+    return NextResponse.json({ url: session.url })
+  } catch (err) {
+    console.error('[billing/checkout] Failed to create checkout session:', err)
+    return NextResponse.json(
+      { error: 'Failed to create checkout session' },
+      { status: 500 },
+    )
+  }
+}
