@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
 Plan: 7 of 7 - COMPLETE (all plans 01-07 done)
 Status: **Phase 12.6 COMPLETE - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent + Storage Quota/MIME Validation**
-Last activity: 2026-02-25 - Completed quick task 076: Fix CSP headers for Superpowered audio and preview iframe
+Last activity: 2026-02-25 - Completed quick task 077: Fix Google OAuth redirect loop (cookie propagation on NextResponse.redirect)
 
 Progress: [█████████████████████████████░░░] ~85%
 
