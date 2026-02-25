@@ -8,6 +8,7 @@ import { BillingSection } from '@/components/billing/billing-section'
 import { ChangePasswordForm } from '@/components/settings/change-password-form'
 import { ChangeEmailForm } from '@/components/settings/change-email-form'
 import { TwoFactorStatus } from '@/components/auth/two-factor-verify'
+import { SessionManagement } from '@/components/auth/session-list'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -69,7 +70,10 @@ export default async function SettingsPage() {
         <section>
           <div className="border-t pt-8">
             <h2 className="text-lg font-semibold mb-4">Security</h2>
-            <TwoFactorStatus />
+            <div className="space-y-6">
+              <TwoFactorStatus />
+              <SessionManagement />
+            </div>
           </div>
         </section>
 
