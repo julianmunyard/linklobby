@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { UsernameForm } from './username-form'
 import { getUserPlan } from '@/lib/stripe/subscription'
 import { BillingSection } from '@/components/billing/billing-section'
+import { ChangePasswordForm } from '@/components/settings/change-password-form'
+import { ChangeEmailForm } from '@/components/settings/change-email-form'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -45,8 +47,24 @@ export default async function SettingsPage() {
       </header>
 
       <main className="max-w-md space-y-10">
-        <UsernameForm currentUsername={profile?.username || ''} />
+        {/* Profile section */}
+        <section>
+          <h2 className="text-lg font-semibold mb-4">Profile</h2>
+          <UsernameForm currentUsername={profile?.username || ''} />
+        </section>
 
+        {/* Account section */}
+        <section>
+          <div className="border-t pt-8">
+            <h2 className="text-lg font-semibold mb-4">Account</h2>
+            <div className="space-y-6">
+              <ChangePasswordForm userEmail={user.email || ''} />
+              <ChangeEmailForm userEmail={user.email || ''} />
+            </div>
+          </div>
+        </section>
+
+        {/* Billing section */}
         <div className="border-t pt-8">
           <BillingSection
             tier={tier}
