@@ -8,6 +8,8 @@ import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe/client'
+import { PLANS } from '@/lib/stripe/plans'
+import type { PlanTier } from '@/lib/stripe/plans'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +25,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Parse request body
+  // Parse request body — accepts either { priceId } or { tier, period }
   let priceId: string
   try {
     const body = await request.json()
-    priceId = body.priceId
+    if (body.priceId) {
+      priceId = body.priceId
+    } else if (body.tier && body.period) {
+      const plan = PLANS[body.tier as PlanTier]
+      if (!plan) {
+        return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
+      }
+      const resolvedId = body.period === 'annual'
+        ? plan.stripePriceIdAnnual
+        : plan.stripePriceIdMonthly
+      if (!resolvedId) {
+        return NextResponse.json({ error: 'Price ID not configured for this tier' }, { status: 400 })
+      }
+      priceId = resolvedId
+    } else {
+      return NextResponse.json({ error: 'priceId or tier+period is required' }, { status: 400 })
+    }
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
