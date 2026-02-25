@@ -2,18 +2,21 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request)
+  const { supabaseResponse, user, supabase } = await updateSession(request)
   const pathname = request.nextUrl.pathname
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/editor', '/settings']
+  const protectedPaths = ['/editor', '/settings', '/mfa-challenge']
   const isProtectedRoute = protectedPaths.some(path =>
     pathname.startsWith(path)
   )
 
   if (isProtectedRoute && !user) {
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('redirect', pathname)
+    // Don't set redirect param for /mfa-challenge — it's a transient auth step
+    if (pathname !== '/mfa-challenge') {
+      loginUrl.searchParams.set('redirect', pathname)
+    }
     return NextResponse.redirect(loginUrl)
   }
 
@@ -25,6 +28,22 @@ export async function middleware(request: NextRequest) {
 
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL('/editor', request.url))
+  }
+
+  // MFA enforcement — only for authenticated users on protected routes
+  // Skip /mfa-challenge itself to prevent redirect loops
+  if (isProtectedRoute && user && !pathname.startsWith('/mfa-challenge')) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+
+    if (aal && aal.currentLevel === 'aal1' && aal.nextLevel === 'aal2') {
+      // User has TOTP enrolled but hasn't completed MFA this session.
+      // Check for backup code bypass cookie (set by /api/auth/backup-codes/verify).
+      const mfaBypass = request.cookies.get('mfa_backup_verified')?.value
+
+      if (!mfaBypass) {
+        return NextResponse.redirect(new URL('/mfa-challenge', request.url))
+      }
+    }
   }
 
   // NOTE: COOP/COEP headers removed — they blocked all cross-origin iframes

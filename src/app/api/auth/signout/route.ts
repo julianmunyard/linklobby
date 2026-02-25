@@ -13,5 +13,8 @@ export async function POST() {
 
   await supabase.auth.signOut()
 
-  return NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  const response = NextResponse.redirect(new URL('/login', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  // Clear MFA bypass cookie on sign-out
+  response.cookies.delete('mfa_backup_verified')
+  return response
 }
