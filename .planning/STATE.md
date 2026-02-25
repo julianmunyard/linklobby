@@ -10,21 +10,27 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.5 of 18 - Billing & Subscriptions
-Plan: 1 of 4 - Complete
-Status: **Phase 12.5 In Progress - Billing backend (Stripe client, webhooks, DB) complete**
-Last activity: 2026-02-25 - Completed 12.5-01: Stripe billing backend
+Plan: 2 of 4 - Complete
+Status: **Phase 12.5 In Progress - Billing UI complete (pricing page, badges, settings)**
+Last activity: 2026-02-25 - Completed 12.5-02: Billing UI
 
-Progress: [████████████████████████████░░░░] ~78%
+Progress: [████████████████████████████░░░░] ~79%
 
 ### IN PROGRESS: Phase 12.5 - Billing & Subscriptions
 
 Building Stripe billing with 3-tier plans (free/pro/artist):
 - ✓ Plan 01: Stripe backend — client singleton, plan config, webhook handler, DB migration, checkout/portal routes
-- Plan 02: Pricing page UI
+- ✓ Plan 02: Billing UI — /pricing page, PricingTable, PlanBadge, UpgradeModal, BillingSection in settings, sidebar/header badge integration
 - Plan 03: Feature gating (getUserPlan on protected features)
 - Plan 04: Settings billing tab
 
-**Current status:** Billing backend complete. Webhook pipeline syncs Stripe events to local subscriptions table. Checkout route creates sessions with 7-day no-card trial. getUserPlan() reads tier from local DB. **Requires Stripe env vars and DB migration before end-to-end testing.**
+**Current status:** Billing UI complete. /pricing page with 3-tier comparison and checkout flow. PlanBadge in sidebar and editor header. Settings billing section with Customer Portal access. UpgradeModal ready for feature gating. **Requires Stripe env vars and DB migration before end-to-end testing.**
+
+**Key decisions (Plan 02):**
+- Checkout API accepts tier+period (server resolves Stripe price IDs from env vars — not exposed client-side)
+- PlanBadge is not 'use client' — simple Link component usable anywhere
+- DashboardHeader gets planTier from editor page server component → EditorClientWrapper
+- Free users shown Upgrade Plan link; paid users shown Manage Billing (portal) button
 
 ### IN PROGRESS (PAUSED): Phase 12.2 - Theme Templates
 
