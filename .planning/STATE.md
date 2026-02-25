@@ -10,21 +10,29 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 6 of 7 - In progress (plans 01, 02, 03, 04, 05, 06 complete)
-Status: **Phase 12.6 Plans 01-06 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent**
-Last activity: 2026-02-25 - Completed 12.6-06-PLAN.md (session management UI + cookie consent banner wired to public pages)
+Plan: 7 of 7 - COMPLETE (all plans 01-07 done)
+Status: **Phase 12.6 COMPLETE - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent + Storage Quota/MIME Validation**
+Last activity: 2026-02-25 - Completed 12.6-07-PLAN.md (MIME validation, storage quota, orphaned file cleanup, settings usage bar)
 
-Progress: [████████████████████████████░░░░] ~83%
+Progress: [█████████████████████████████░░░] ~85%
 
-### IN PROGRESS: Phase 12.6 - Security Hardening & Auth Completion
+### COMPLETE: Phase 12.6 - Security Hardening & Auth Completion
 
-Building security hardening and completing auth flows:
+Built security hardening and completing auth flows:
 - ✓ Plan 01: Security headers, CSRF validation, input sanitization
 - ✓ Plan 02: Upstash Redis rate limiting on all 16 API routes
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
 - ✓ Plan 04: Account management (change password/email) + email verification + publish gate
 - ✓ Plan 05: TOTP 2FA with backup codes, MFA challenge page, middleware AAL2 enforcement
 - ✓ Plan 06: Session management UI (sign out other devices/everywhere) + cookie consent banner wired to public pages
+- ✓ Plan 07: Server-side MIME validation, 500MB storage quota, orphaned file cleanup, storage usage bar in settings
+
+**Key decisions (Plan 07):**
+- Use finalBuffer.length (post-MP3-conversion size) for storage increment — more accurate than original file.size when re-encoding changes file size
+- Query Storage .list() metadata BEFORE deletion for authoritative file size — never trust client-sent sizes
+- Orphaned file cleanup in card DELETE handler wrapped in try/catch — card already deleted from DB, storage failure must not block 200 response
+- Replaced loose startsWith('image/') check with strict ALLOWED_IMAGE_TYPES allowlist in storage.ts
+- supabase/migrations/20260225_storage_quota.sql must be applied to Supabase before deploying (adds storage_used_bytes to profiles)
 
 **Key decisions (Plan 06):**
 - browser confirm() dialogs for sign-out confirmation — simple and dependency-free for destructive actions
