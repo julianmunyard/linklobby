@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { Separator } from "@/components/ui/separator"
 import { ThemeApplicator } from "@/components/theme-applicator"
 import { getUserPlan } from "@/lib/stripe/subscription"
+import { PlanTierProvider } from "@/contexts/plan-tier-context"
 
 // Prevent native pinch-to-zoom on the editor — zoom is handled by our CSS transform gestures
 export const viewport: Viewport = {
@@ -38,23 +39,25 @@ export default async function DashboardLayout({
     username = profile?.username
   }
 
-  const planTier = user ? await getUserPlan(user.id) : undefined
+  const planTier = user ? await getUserPlan(user.id) : 'free'
 
   return (
     <ThemeApplicator>
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar username={username} planTier={planTier} />
-        <SidebarInset>
-          <header className="flex h-14 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-2" />
-            <Separator orientation="vertical" className="h-6" />
-            {/* Header content will be added by individual pages or Plan 04 */}
-          </header>
-          <main className="flex-1 overflow-hidden">
-            {children}
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
+      <PlanTierProvider planTier={planTier}>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <AppSidebar username={username} planTier={planTier} />
+          <SidebarInset>
+            <header className="flex h-14 items-center gap-2 border-b px-4">
+              <SidebarTrigger className="-ml-2" />
+              <Separator orientation="vertical" className="h-6" />
+              {/* Header content will be added by individual pages or Plan 04 */}
+            </header>
+            <main className="flex-1 overflow-hidden">
+              {children}
+            </main>
+          </SidebarInset>
+        </SidebarProvider>
+      </PlanTierProvider>
     </ThemeApplicator>
   )
 }

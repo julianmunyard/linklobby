@@ -17,6 +17,8 @@ import type { ThemeId, ThemeConfig, ThemeState } from '@/types/theme'
 import type { Card } from '@/types/card'
 import type { Profile } from '@/types/profile'
 import { isScatterTheme } from '@/types/scatter'
+import { ProBadge } from '@/components/billing/pro-gate'
+import { PRO_THEMES } from '@/lib/stripe/plans'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -489,7 +491,12 @@ function CategoryDetailView({
 
                 {/* Name and description */}
                 <div className="px-3 py-2.5">
-                  <h4 className="font-medium text-sm">{theme.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-medium text-sm">{theme.name}</h4>
+                    {PRO_THEMES.includes(theme.id) && (
+                      <ProBadge feature={`${theme.name} theme`} />
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {theme.description}
                   </p>

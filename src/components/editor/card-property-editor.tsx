@@ -40,6 +40,7 @@ import { MacNotepadFields } from "./mac-notepad-fields"
 import { MacWindowFields } from "./mac-window-fields"
 import { CardTypePicker, isConvertibleType } from "./card-type-picker"
 import { WordArtStylePicker } from "./word-art-style-picker"
+import { ProGate } from "@/components/billing/pro-gate"
 import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useProfileStore } from "@/stores/profile-store"
@@ -776,19 +777,23 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
 
             {/* Email collection-specific fields */}
             {card.card_type === "email-collection" && (
-              <EmailCollectionFields
-                content={currentContent as Partial<EmailCollectionCardContent>}
-                onChange={handleContentChange}
-              />
+              <ProGate feature="Email Collection">
+                <EmailCollectionFields
+                  content={currentContent as Partial<EmailCollectionCardContent>}
+                  onChange={handleContentChange}
+                />
+              </ProGate>
             )}
 
             {/* Release-specific fields */}
             {card.card_type === "release" && (
-              <ReleaseCardFields
-                content={currentContent as Partial<ReleaseCardContent>}
-                onChange={handleContentChange}
-                cardId={card.id}
-              />
+              <ProGate feature="Release Mode">
+                <ReleaseCardFields
+                  content={currentContent as Partial<ReleaseCardContent>}
+                  onChange={handleContentChange}
+                  cardId={card.id}
+                />
+              </ProGate>
             )}
 
             {/* Mac-specific fields */}
@@ -815,35 +820,37 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
               />
             )}
             {macWindowStyle === 'presave' && (
-              <>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">&quot;Drops in&quot; Text</label>
-                  <Input
-                    placeholder="Drops in"
-                    value={(currentContent.dropsInText as string) || ''}
-                    onChange={(e) => handleContentChange({ dropsInText: e.target.value || undefined })}
+              <ProGate feature="Release Mode">
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">&quot;Drops in&quot; Text</label>
+                    <Input
+                      placeholder="Drops in"
+                      value={(currentContent.dropsInText as string) || ''}
+                      onChange={(e) => handleContentChange({ dropsInText: e.target.value || undefined })}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Text shown above the countdown timer
+                    </p>
+                  </div>
+                  <ColorPicker
+                    label="Window Background"
+                    color={(currentContent.presaveBgColor as string) || '#ad7676'}
+                    onChange={(color) => handleContentChange({ presaveBgColor: color })}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Text shown above the countdown timer
-                  </p>
-                </div>
-                <ColorPicker
-                  label="Window Background"
-                  color={(currentContent.presaveBgColor as string) || '#ad7676'}
-                  onChange={(color) => handleContentChange({ presaveBgColor: color })}
-                />
-                <ColorPicker
-                  label="Text Color"
-                  color={(currentContent.textColor as string) || '#000000'}
-                  onChange={(color) => handleContentChange({ textColor: color })}
-                />
-                <ReleaseCardFields
-                  content={currentContent as Partial<ReleaseCardContent>}
-                  onChange={handleContentChange}
-                  cardId={card.id}
-                  hideNameFields
-                />
-              </>
+                  <ColorPicker
+                    label="Text Color"
+                    color={(currentContent.textColor as string) || '#000000'}
+                    onChange={(color) => handleContentChange({ textColor: color })}
+                  />
+                  <ReleaseCardFields
+                    content={currentContent as Partial<ReleaseCardContent>}
+                    onChange={handleContentChange}
+                    cardId={card.id}
+                    hideNameFields
+                  />
+                </>
+              </ProGate>
             )}
             {macWindowStyle === 'map' && (
               <div className="rounded-lg bg-muted/50 px-3 py-2">

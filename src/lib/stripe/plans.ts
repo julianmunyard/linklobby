@@ -96,6 +96,21 @@ export const PLANS: Record<PlanTier, Plan> = {
 }
 
 /**
+ * Themes that require Pro or above.
+ * Free users' public pages fall back to 'instagram-reels' when one of these is active.
+ */
+export const PRO_THEMES: string[] = [
+  'vcr-menu',
+  'ipod-classic',
+  'receipt',
+  'macintosh',
+  'word-art',
+  'phone-home',
+  'chaotic-zine',
+  'artifact',
+]
+
+/**
  * Maps a Stripe price ID to a plan tier.
  * Returns 'free' if no match found.
  */

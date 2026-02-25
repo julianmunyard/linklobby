@@ -6,6 +6,7 @@ import { usePageStore } from "@/stores/page-store"
 import { sortCardsBySortKey } from "@/lib/ordering"
 import { getScheduleStatus, isScheduled } from "@/types/card"
 import { ScheduleCardItem } from "./schedule-card-item"
+import { ProGate } from "@/components/billing/pro-gate"
 import type { Card } from "@/types/card"
 
 // Categorize cards by schedule status
@@ -72,6 +73,7 @@ export function ScheduleTab() {
   }
 
   return (
+    <ProGate feature="Link Scheduling">
     <div className="h-full overflow-y-auto">
       <div className="p-4 pb-20 space-y-6">
         {/* Info banner for empty scheduling */}
@@ -141,5 +143,6 @@ export function ScheduleTab() {
         )}
       </div>
     </div>
+    </ProGate>
   )
 }

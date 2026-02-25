@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { ProBadge } from "@/components/billing/pro-gate"
 import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
@@ -22,7 +23,7 @@ import { DEFAULT_RELEASE_CONTENT } from "./release-card-fields"
 import { DEFAULT_AUDIO_CONTENT } from "@/types/audio"
 import { LinktreeImportDialog } from "./linktree-import-dialog"
 
-const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
+const CARD_TYPES: { type: CardType; label: string; singleton?: boolean; pro?: boolean }[] = [
   { type: "link", label: "Link" },
   { type: "mini", label: "Mini Link" },
   { type: "text", label: "Text" },
@@ -34,8 +35,8 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean }[] = [
   { type: "music", label: "Music Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },
-  { type: "email-collection", label: "Email Collection" },
-  { type: "release", label: "Release" },
+  { type: "email-collection", label: "Email Collection", pro: true },
+  { type: "release", label: "Release", pro: true },
   { type: "social-icons", label: "Social Icons" },
 ]
 
@@ -260,17 +261,20 @@ export function CardsTab() {
                   </DropdownMenuItem>
                 ))
               ) : (
-                CARD_TYPES.map(({ type, label, singleton }) => {
+                CARD_TYPES.map(({ type, label, singleton, pro }) => {
                   const alreadyExists = singleton && cards.some(c => c.card_type === type)
                   return (
                     <DropdownMenuItem
                       key={type}
                       onClick={() => handleAddCard(type)}
                       disabled={alreadyExists}
-                      className="min-h-11" // 44px minimum touch target
+                      className="min-h-11 flex items-center justify-between gap-2" // 44px minimum touch target
                     >
-                      {label}
-                      {alreadyExists && " (added)"}
+                      <span>
+                        {label}
+                        {alreadyExists && " (added)"}
+                      </span>
+                      {pro && <ProBadge feature={label} className="ml-auto shrink-0" />}
                     </DropdownMenuItem>
                   )
                 })
