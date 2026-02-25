@@ -10,21 +10,27 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.5 of 18 - Billing & Subscriptions
-Plan: 2 of 4 - Complete
-Status: **Phase 12.5 In Progress - Billing UI complete (pricing page, badges, settings)**
-Last activity: 2026-02-25 - Completed 12.5-02: Billing UI
+Plan: 3 of 4 - Complete
+Status: **Phase 12.5 In Progress - Feature gating complete (ProGate, public page stripping)**
+Last activity: 2026-02-25 - Completed 12.5-03: Feature Gating
 
-Progress: [████████████████████████████░░░░] ~79%
+Progress: [████████████████████████████░░░░] ~80%
 
 ### IN PROGRESS: Phase 12.5 - Billing & Subscriptions
 
 Building Stripe billing with 3-tier plans (free/pro/artist):
 - ✓ Plan 01: Stripe backend — client singleton, plan config, webhook handler, DB migration, checkout/portal routes
 - ✓ Plan 02: Billing UI — /pricing page, PricingTable, PlanBadge, UpgradeModal, BillingSection in settings, sidebar/header badge integration
-- Plan 03: Feature gating (getUserPlan on protected features)
+- ✓ Plan 03: Feature gating — ProGate (soft-lock), PlanTierContext, public page card stripping, branding/theme gating
 - Plan 04: Settings billing tab
 
-**Current status:** Billing UI complete. /pricing page with 3-tier comparison and checkout flow. PlanBadge in sidebar and editor header. Settings billing section with Customer Portal access. UpgradeModal ready for feature gating. **Requires Stripe env vars and DB migration before end-to-end testing.**
+**Current status:** Feature gating live. ProGate soft-locks Pro features in editor with amber badge overlays. Public pages strip email-collection/release cards and scheduling for free users. Designer themes fall back to instagram-reels for free users. "Powered by LinkLobby" hidden for Pro/Artist. **Requires Stripe env vars and DB migration before end-to-end testing.**
+
+**Key decisions (Plan 03):**
+- Soft-lock pattern: ProGate children always interactive, badge overlay triggers UpgradeModal — creates desire not frustration
+- PlanTierProvider at dashboard layout level: single UpgradeModal singleton, no Z-index conflicts
+- PRO_THEMES = all 8 designer themes; free themes = mac-os, instagram-reels, system-settings, blinkies
+- Public theme fallback to 'instagram-reels' (not mac-os) — most polished free theme
 
 **Key decisions (Plan 02):**
 - Checkout API accepts tier+period (server resolves Stripe price IDs from env vars — not exposed client-side)
