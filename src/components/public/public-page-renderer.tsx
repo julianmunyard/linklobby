@@ -29,9 +29,14 @@ const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; 
  * LegalFooter - Footer with privacy policy and terms of service links.
  * "Powered by LinkLobby" only shows for free users (hasProAccess=false).
  */
-function LegalFooter({ username, hasProAccess }: { username: string; hasProAccess?: boolean }) {
+function LegalFooter({ username, hasProAccess, themeDowngraded }: { username: string; hasProAccess?: boolean; themeDowngraded?: boolean }) {
   return (
     <footer className="py-6 text-center text-xs" style={{ opacity: 0.5 }}>
+      {themeDowngraded && (
+        <div className="mb-3 text-theme-text text-[11px]">
+          This page uses a premium theme. Upgrade to Pro to see the full design.
+        </div>
+      )}
       <div className="flex items-center justify-center gap-4 text-theme-text">
         <Link
           href={`/privacy?username=${username}`}
@@ -137,6 +142,7 @@ interface PublicPageRendererProps {
   cards: Card[]
   // Plan gating
   hasProAccess?: boolean
+  themeDowngraded?: boolean
 }
 
 /**
@@ -211,6 +217,7 @@ export function PublicPageRenderer({
   visitorDrag = false,
   cards,
   hasProAccess = false,
+  themeDowngraded = false,
 }: PublicPageRendererProps) {
   // Check if current theme supports scatter mode
   const isScatterLayout = scatterMode && themeId && isScatterTheme(themeId)
@@ -449,7 +456,7 @@ export function PublicPageRenderer({
           />
         </div>
 
-        <LegalFooter username={username} hasProAccess={hasProAccess} />
+        <LegalFooter username={username} hasProAccess={hasProAccess} themeDowngraded={themeDowngraded} />
       </div>
     )
   }
@@ -521,7 +528,7 @@ export function PublicPageRenderer({
           </div>
 
           {/* Legal Footer */}
-          <LegalFooter username={username} hasProAccess={hasProAccess} />
+          <LegalFooter username={username} hasProAccess={hasProAccess} themeDowngraded={themeDowngraded} />
         </div>
       </div>
     )
@@ -568,7 +575,7 @@ export function PublicPageRenderer({
       </div>
 
       {/* Legal Footer - always at bottom */}
-      <LegalFooter username={username} />
+      <LegalFooter username={username} hasProAccess={hasProAccess} themeDowngraded={themeDowngraded} />
     </div>
   )
 }

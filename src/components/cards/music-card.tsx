@@ -155,7 +155,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
   // Show embed directly (no click-to-load)
   // Transparent background so page bg shows through embed gaps
   return (
-    <div className="relative w-full group">
+    <div className="relative w-full group overflow-hidden" style={{ borderRadius: '12px' }}>
       <iframe
         src={iframeUrl}
         width="100%"
@@ -165,7 +165,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
         loading="lazy"
         onError={() => setLoadError(true)}
         title={title || `${platformName} embed`}
-        style={{ background: 'transparent' }}
+        style={{ display: 'block', border: 0 }}
       />
       {/* Drag handle overlay - appears on hover, sits above iframe */}
       <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto z-10">

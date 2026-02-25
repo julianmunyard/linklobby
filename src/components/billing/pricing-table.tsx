@@ -59,16 +59,16 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
   const [loadingTier, setLoadingTier] = useState<PlanTier | null>(null)
 
-  const proMonthly = 1200
-  const proAnnual = 11500
-  const artistMonthly = 2000
-  const artistAnnual = 19200
+  const proMonthly = 699
+  const proAnnual = 6710
+  const artistMonthly = 1000
+  const artistAnnual = 9600
 
   const proDisplay = period === 'monthly'
-    ? '$12/mo'
+    ? '$6.99/mo'
     : `$${(proAnnual / 12 / 100).toFixed(2)}/mo`
   const artistDisplay = period === 'monthly'
-    ? '$20/mo'
+    ? '$10/mo'
     : `$${(artistAnnual / 12 / 100).toFixed(2)}/mo`
 
   async function handleUpgrade(tier: 'pro' | 'artist') {
@@ -111,6 +111,23 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
     }
   }
 
+  const tierRank: Record<PlanTier, number> = { free: 0, pro: 1, artist: 2 }
+  const currentRank = currentTier ? tierRank[currentTier] : -1
+
+  function getCtaLabel(tier: PlanTier): string {
+    if (currentTier === tier) return 'Current Plan'
+    if (currentRank > tierRank[tier]) return tier === 'free' ? 'Free Plan' : 'Included in your plan'
+    if (!currentTier && tier === 'free') return 'Get Started Free'
+    return `Upgrade to ${tier.charAt(0).toUpperCase() + tier.slice(1)}`
+  }
+
+  function isCtaDisabled(tier: PlanTier): boolean {
+    if (currentTier === tier) return true
+    if (currentRank >= tierRank[tier]) return true
+    if (loadingTier === tier) return true
+    return false
+  }
+
   const tiers: Array<{
     tier: PlanTier
     name: string
@@ -118,6 +135,7 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
     annualNote?: string
     description: string
     popular?: boolean
+    isCurrent: boolean
     ctaLabel: string
     ctaDisabled: boolean
     onCta: () => void
@@ -127,10 +145,11 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
       name: 'Free',
       price: '$0/mo',
       description: 'Everything you need to get started.',
-      ctaLabel: currentTier === 'free' ? 'Current Plan' : 'Get Started Free',
-      ctaDisabled: currentTier === 'free',
+      isCurrent: currentTier === 'free',
+      ctaLabel: getCtaLabel('free'),
+      ctaDisabled: isCtaDisabled('free'),
       onCta: () => {
-        if (currentTier !== 'free') {
+        if (!currentTier) {
           window.location.href = '/signup'
         }
       },
@@ -139,25 +158,27 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
       tier: 'pro',
       name: 'Pro',
       price: proDisplay,
-      annualNote: period === 'annual' ? 'billed $115/year' : undefined,
+      annualNote: period === 'annual' ? 'billed $67.10/year' : undefined,
       description: 'Remove branding and unlock pro features.',
-      popular: true,
-      ctaLabel: currentTier === 'pro' ? 'Current Plan' : 'Upgrade to Pro',
-      ctaDisabled: currentTier === 'pro' || loadingTier === 'pro',
+      popular: !currentTier || currentTier === 'free',
+      isCurrent: currentTier === 'pro',
+      ctaLabel: getCtaLabel('pro'),
+      ctaDisabled: isCtaDisabled('pro'),
       onCta: () => {
-        if (currentTier !== 'pro') handleUpgrade('pro')
+        if (currentRank < tierRank['pro']) handleUpgrade('pro')
       },
     },
     {
       tier: 'artist',
       name: 'Artist',
       price: artistDisplay,
-      annualNote: period === 'annual' ? 'billed $192/year' : undefined,
+      annualNote: period === 'annual' ? 'billed $96/year' : undefined,
       description: 'Everything in Pro, plus advanced tools.',
-      ctaLabel: currentTier === 'artist' ? 'Current Plan' : 'Upgrade to Artist',
-      ctaDisabled: currentTier === 'artist' || loadingTier === 'artist',
+      isCurrent: currentTier === 'artist',
+      ctaLabel: getCtaLabel('artist'),
+      ctaDisabled: isCtaDisabled('artist'),
       onCta: () => {
-        if (currentTier !== 'artist') handleUpgrade('artist')
+        if (currentRank < tierRank['artist']) handleUpgrade('artist')
       },
     },
   ]
@@ -196,36 +217,46 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
       </div>
 
       {/* Tier cards — mobile stacked, desktop side-by-side */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
         {tiers.map((t) => (
           <div
             key={t.tier}
             className={cn(
-              'relative rounded-xl border p-6 flex flex-col',
-              t.popular
-                ? 'border-primary bg-primary/5 shadow-lg ring-1 ring-primary'
-                : 'border-border bg-card'
+              'relative rounded-xl border p-4 flex flex-col',
+              t.isCurrent
+                ? 'border-green-500 bg-green-500/5 shadow-lg ring-1 ring-green-500'
+                : t.popular
+                  ? 'border-primary bg-primary/5 shadow-lg ring-1 ring-primary'
+                  : 'border-border bg-card'
             )}
           >
-            {t.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+            {t.isCurrent && (
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="bg-green-500 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                  Your Plan
+                </span>
+              </div>
+            )}
+            {!t.isCurrent && t.popular && (
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span className="bg-primary text-primary-foreground text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                   Most Popular
                 </span>
               </div>
             )}
-            <div className="mb-4">
-              <h3 className="text-lg font-bold">{t.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{t.description}</p>
+            <div className="mb-3 mt-1">
+              <h3 className="text-base font-bold">{t.name}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
             </div>
-            <div className="mb-6">
-              <span className="text-3xl font-bold">{t.price}</span>
+            <div className="mb-4">
+              <span className="text-2xl font-bold">{t.price}</span>
               {t.annualNote && (
-                <p className="text-xs text-muted-foreground mt-1">{t.annualNote}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{t.annualNote}</p>
               )}
             </div>
             <Button
-              className="w-full"
+              className="w-full mt-auto"
+              size="sm"
               variant={t.popular ? 'default' : 'outline'}
               disabled={t.ctaDisabled}
               onClick={t.onCta}
@@ -241,9 +272,9 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="text-left p-4 font-medium text-muted-foreground">Features</th>
+              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground">Features</th>
               {tiers.map((t) => (
-                <th key={t.tier} className="p-4 text-center font-semibold">
+                <th key={t.tier} className="px-2 py-2.5 text-center font-semibold">
                   {t.name}
                 </th>
               ))}
@@ -255,14 +286,14 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
                 key={feature.label}
                 className={cn('border-b last:border-0', i % 2 === 0 ? 'bg-background' : 'bg-muted/20')}
               >
-                <td className="p-4 text-left text-muted-foreground">{feature.label}</td>
-                <td className="p-4 text-center">
+                <td className="px-3 py-2.5 text-left text-muted-foreground">{feature.label}</td>
+                <td className="px-2 py-2.5 text-center">
                   <FeatureCell value={feature.free} />
                 </td>
-                <td className="p-4 text-center">
+                <td className="px-2 py-2.5 text-center">
                   <FeatureCell value={feature.pro} />
                 </td>
-                <td className="p-4 text-center">
+                <td className="px-2 py-2.5 text-center">
                   <FeatureCell value={feature.artist} />
                 </td>
               </tr>

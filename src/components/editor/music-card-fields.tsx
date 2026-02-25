@@ -105,6 +105,35 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         return
       }
 
+      // Generic iframe embed code detection (Spotify, Apple Music, etc.)
+      if (input.includes('<iframe')) {
+        const srcMatch = input.match(/src=["']([^"']+)["']/)
+        if (srcMatch) {
+          const iframeSrc = srcMatch[1]
+          const heightMatch = input.match(/height[:=]["']?\s*(\d+)/)
+          const embedHeight = heightMatch ? parseInt(heightMatch[1], 10) : 352
+
+          // Detect platform from iframe src URL
+          let detectedPlatform: MusicPlatform = 'generic-music'
+          if (iframeSrc.includes('spotify.com')) detectedPlatform = 'spotify'
+          else if (iframeSrc.includes('music.apple.com')) detectedPlatform = 'apple-music'
+          else if (iframeSrc.includes('soundcloud.com')) detectedPlatform = 'soundcloud'
+          else if (iframeSrc.includes('audiomack.com')) detectedPlatform = 'audiomack'
+          else if (iframeSrc.includes('bandcamp.com')) detectedPlatform = 'bandcamp'
+
+          onChange({
+            platform: detectedPlatform,
+            embedUrl: iframeSrc,
+            embedIframeUrl: iframeSrc,
+            embedHeight,
+            thumbnailUrl: undefined,
+            title: undefined,
+            embeddable: true,
+          })
+          return
+        }
+      }
+
       // Detect platform from URL using strict regex matching
       const detected = detectPlatform(input)
 
@@ -120,15 +149,22 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
         // Strict match: fetch metadata via oEmbed (if available)
         const embedInfo = await fetchPlatformEmbed(input, platform as EmbedPlatform)
 
+        // For Bandcamp: check if oEmbed returned a real EmbeddedPlayer URL
+        // If it just returned the original URL back, mark as non-embeddable
+        const isBandcamp = platform === 'bandcamp'
+        const hasRealEmbed = isBandcamp
+          ? embedInfo.embedUrl.includes('bandcamp.com/EmbeddedPlayer')
+          : true
+
         onChange({
           platform,
           embedUrl: input,
-          embedIframeUrl: embedInfo.embedUrl,
+          embedIframeUrl: hasRealEmbed ? embedInfo.embedUrl : undefined,
           embedHeight: undefined, // Clear stale Bandcamp heights
           thumbnailUrl: embedInfo.thumbnailUrl,
           title: embedInfo.title,
-          embeddable: true,
-          phoneHomeWidgetSize: 'wide', // Non-bandcamp always wide
+          embeddable: hasRealEmbed,
+          phoneHomeWidgetSize: isBandcamp ? undefined : 'wide',
         })
         return
       }
@@ -174,7 +210,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           <Input
             id="musicUrl"
             type="text"
-            placeholder="Paste music URL or Bandcamp embed code"
+            placeholder="Paste music URL or embed code"
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             onBlur={handleUrlBlur}
@@ -189,7 +225,7 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Paste a link to a track, album, or playlist. For Bandcamp, you can also paste the embed code from &quot;Share/Embed&quot;.
+          Paste a link or embed code from Spotify, Apple Music, SoundCloud, Bandcamp, or Audiomack.
         </p>
       </div>
 

@@ -67,7 +67,7 @@ export function ChangePasswordForm({ userEmail }: ChangePasswordFormProps) {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Change Password</CardTitle>
         <CardDescription>

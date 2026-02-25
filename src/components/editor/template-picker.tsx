@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
-import { Loader2, LayoutTemplate } from 'lucide-react'
+import { Loader2, LayoutTemplate, Lock } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +25,8 @@ import type { Card } from '@/types/card'
 import type { ThemeState } from '@/types/theme'
 import type { Profile } from '@/types/profile'
 import { cn } from '@/lib/utils'
+import { usePlanTier } from '@/contexts/plan-tier-context'
+import { PRO_THEMES } from '@/lib/stripe/plans'
 
 // ---------------------------------------------------------------------------
 // LazyVideo — only loads/plays when visible in viewport
@@ -76,8 +78,10 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
 // ---------------------------------------------------------------------------
 
 export function TemplatePicker() {
+  const { planTier } = usePlanTier()
   const themeId = useThemeStore((state) => state.themeId)
   const templates = getTemplatesByTheme(themeId)
+  const isProTheme = planTier === 'free' && PRO_THEMES.includes(themeId)
 
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -199,12 +203,20 @@ export function TemplatePicker() {
                   />
                 )
               })()}
-              {/* Loading overlay */}
-              {applyingId === template.id && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              {/* Pro / loading overlay */}
+              {applyingId === template.id ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                 </div>
-              )}
+              ) : isProTheme ? (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <Lock className="w-5 h-5 text-amber-400" />
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Pro</span>
+                    <span className="text-[10px] text-white/70">Tap to preview</span>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             {/* Card info */}

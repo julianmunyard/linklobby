@@ -79,8 +79,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
     const engine = engineRef.current
 
     if (!initPromiseRef.current) {
-      initPromiseRef.current = engine.init().catch((error) => {
-        console.error('Failed to initialize AudioEngine:', error)
+      initPromiseRef.current = engine.init().then(() => {
+        // If init didn't set started (WASM fetch failed), clear the ref so
+        // the next mount can retry.
+        if (!engine.isInitialized()) {
+          initPromiseRef.current = null
+        }
       })
     }
 

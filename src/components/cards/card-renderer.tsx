@@ -17,6 +17,9 @@ import { EmailCollectionCard } from "./email-collection-card"
 import { ReleaseCard } from "./release-card"
 import { ThemedCardWrapper } from "./themed-card-wrapper"
 import { useThemeStore } from "@/stores/theme-store"
+import { usePlanTier } from "@/contexts/plan-tier-context"
+import { PRO_CARD_TYPES } from "@/lib/stripe/plans"
+import { Lock } from "lucide-react"
 import type { Card } from "@/types/card"
 
 interface CardRendererProps {
@@ -29,6 +32,8 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
   // Get theme from store for editor preview, or use themeId prop for public pages
   const storeThemeId = useThemeStore((s) => s.themeId)
   const effectiveThemeId = themeId || storeThemeId
+  const { planTier, openUpgradeModal } = usePlanTier()
+  const isProCard = isPreview && planTier === 'free' && PRO_CARD_TYPES.includes(card.card_type)
 
   // Render card content
   let cardContent: React.ReactNode
@@ -106,8 +111,26 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
 
   // Wrap with themed wrapper
   return (
-    <ThemedCardWrapper cardType={card.card_type} content={card.content} themeIdOverride={themeId}>
-      {cardContent}
-    </ThemedCardWrapper>
+    <div className={isProCard ? 'relative' : undefined}>
+      <ThemedCardWrapper cardType={card.card_type} content={card.content} themeIdOverride={themeId}>
+        {cardContent}
+      </ThemedCardWrapper>
+      {isProCard && (
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center pointer-events-none pb-3">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              openUpgradeModal(card.card_type === 'audio' ? 'Audio Player' : card.card_type === 'release' ? 'Release Card' : 'Email Collection')
+            }}
+            className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm border border-amber-400/30 cursor-pointer hover:bg-black/80 transition-colors"
+          >
+            <Lock className="w-3 h-3 text-amber-400" />
+            <span className="text-[11px] font-medium text-amber-400">Pro</span>
+            <span className="text-[11px] text-white/70">— won&apos;t show on public page</span>
+          </button>
+        </div>
+      )}
+    </div>
   )
 }

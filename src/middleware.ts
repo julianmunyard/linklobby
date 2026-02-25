@@ -2,8 +2,17 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  const { supabaseResponse, user, supabase } = await updateSession(request)
   const pathname = request.nextUrl.pathname
+
+  // Skip middleware entirely for auth callback — the route handler
+  // needs to exchange the OAuth code and set session cookies itself.
+  // Running updateSession here would call getUser() before the code
+  // is exchanged, which interferes with the OAuth flow.
+  if (pathname.startsWith('/auth/')) {
+    return NextResponse.next()
+  }
+
+  const { supabaseResponse, user, supabase } = await updateSession(request)
 
   // Protected routes - redirect to login if not authenticated
   const protectedPaths = ['/editor', '/settings', '/mfa-challenge']

@@ -19,7 +19,8 @@ const cspHeader = `
     https://graph.facebook.com wss://*.supabase.co https://cdn.jsdelivr.net;
   frame-src 'self' https://www.youtube.com https://player.vimeo.com
     https://open.spotify.com https://w.soundcloud.com
-    https://www.tiktok.com;
+    https://www.tiktok.com https://bandcamp.com https://*.bandcamp.com
+    https://embed.music.apple.com https://audiomack.com https://*.audiomack.com;
   media-src 'self' blob: https://*.supabase.co;
   worker-src 'self' blob:;
   object-src 'none';

@@ -138,6 +138,8 @@ export interface LinkCardContent {
   textColor?: string // Override text color
   fuzzyText?: FuzzyTextSettings  // Distress text effect
   blinkieStyle?: string  // Blinky animation style for blinkies theme
+  embedIframeUrl?: string  // Extracted src from pasted embed iframe code
+  embedHeight?: number     // Extracted height from embed iframe
 }
 
 export interface SquareCardContent {

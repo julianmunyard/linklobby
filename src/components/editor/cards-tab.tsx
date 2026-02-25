@@ -31,7 +31,7 @@ const CARD_TYPES: { type: CardType; label: string; singleton?: boolean; pro?: bo
   { type: "hero", label: "Hero Card" },
   { type: "square", label: "Square Card" },
   { type: "video", label: "Video Card" },
-  { type: "audio", label: "Audio Player" },
+  { type: "audio", label: "Audio Player", pro: true },
   { type: "music", label: "Music Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },

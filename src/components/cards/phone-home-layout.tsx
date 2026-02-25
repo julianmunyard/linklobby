@@ -1078,14 +1078,38 @@ export function PhoneHomeLayout({
     el.scrollTo({ left: page * el.offsetWidth, behavior: 'smooth' })
   }, [])
 
-  const handleScroll = useCallback(() => {
-    if (activeDragId) return
+  // Update currentPage only after scroll settles to avoid re-renders mid-swipe
+  // (matches public page behaviour in static-phone-home-layout.tsx)
+  useEffect(() => {
     const el = gridContainerRef.current
     if (!el) return
-    const w = el.offsetWidth
-    if (w === 0) return
-    const page = Math.round(el.scrollLeft / w)
-    setCurrentPage(page)
+
+    let timer: ReturnType<typeof setTimeout> | null = null
+
+    const updatePage = () => {
+      if (activeDragId) return
+      const w = el.offsetWidth
+      if (w === 0) return
+      setCurrentPage(Math.round(el.scrollLeft / w))
+    }
+
+    const onScroll = () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(updatePage, 300)
+    }
+
+    const onScrollEnd = () => {
+      if (timer) clearTimeout(timer)
+      updatePage()
+    }
+
+    el.addEventListener('scroll', onScroll, { passive: true })
+    el.addEventListener('scrollend', onScrollEnd, { passive: true })
+    return () => {
+      if (timer) clearTimeout(timer)
+      el.removeEventListener('scroll', onScroll)
+      el.removeEventListener('scrollend', onScrollEnd)
+    }
   }, [activeDragId])
 
 
@@ -1305,10 +1329,8 @@ export function PhoneHomeLayout({
         scrollSnapType: 'x mandatory',
         WebkitOverflowScrolling: 'touch',
         scrollbarWidth: 'none',
-        overscrollBehavior: 'contain',
-        touchAction: 'pan-x',
+        overscrollBehaviorX: 'contain',
       } as React.CSSProperties}
-      onScroll={handleScroll}
     >
       {pages.map((pageItems, pageIdx) => (
         <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden" style={{ scrollSnapAlign: 'start' }}>

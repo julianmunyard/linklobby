@@ -54,8 +54,8 @@ export const PLANS: Record<PlanTier, Plan> = {
   pro: {
     tier: 'pro',
     name: 'Pro',
-    priceMonthly: 1200, // $12.00
-    priceAnnual: 11500, // $115.00
+    priceMonthly: 699, // $6.99
+    priceAnnual: 6710, // $67.10
     stripePriceIdMonthly: process.env.STRIPE_PRO_MONTHLY_PRICE_ID!,
     stripePriceIdAnnual: process.env.STRIPE_PRO_ANNUAL_PRICE_ID!,
     features: {
@@ -75,8 +75,8 @@ export const PLANS: Record<PlanTier, Plan> = {
   artist: {
     tier: 'artist',
     name: 'Artist',
-    priceMonthly: 2000, // $20.00
-    priceAnnual: 19200, // $192.00
+    priceMonthly: 1000, // $10.00
+    priceAnnual: 9600, // $96.00
     stripePriceIdMonthly: process.env.STRIPE_ARTIST_MONTHLY_PRICE_ID!,
     stripePriceIdAnnual: process.env.STRIPE_ARTIST_ANNUAL_PRICE_ID!,
     features: {
@@ -104,10 +104,18 @@ export const PRO_THEMES: string[] = [
   'ipod-classic',
   'receipt',
   'macintosh',
-  'word-art',
   'phone-home',
-  'chaotic-zine',
   'artifact',
+]
+
+/**
+ * Card types that require Pro or above.
+ * Free users can try them in the editor but they won't render on the public page.
+ */
+export const PRO_CARD_TYPES: string[] = [
+  'audio',
+  'email-collection',
+  'release',
 ]
 
 /**

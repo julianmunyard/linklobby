@@ -49,7 +49,7 @@ export function SessionManagement() {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-base">Sessions</CardTitle>
         <CardDescription>Manage your active sessions across devices</CardDescription>

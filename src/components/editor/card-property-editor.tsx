@@ -480,7 +480,9 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
       // Only update if values are valid-ish
       const title = values.title || null
       const description = values.description || null
-      const url = values.url || null
+      // Don't push iframe embed code as the card URL — onBlur will handle extraction
+      const rawUrl = values.url || null
+      const url = rawUrl && rawUrl.includes('<iframe') ? null : rawUrl
 
       updateCard(card.id, {
         title,
@@ -503,9 +505,25 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
     updateCard(card.id, { content })
   }
 
-  // Handle URL blur - validate and auto-fix
+  // Handle URL blur - validate and auto-fix, or detect embed iframe code
   function handleUrlBlur(e: React.FocusEvent<HTMLInputElement>) {
-    const result = validateAndFixUrl(e.target.value)
+    const value = e.target.value.trim()
+
+    // Detect pasted iframe embed code in the URL field
+    if (value.includes('<iframe') && card.card_type === 'link') {
+      const srcMatch = value.match(/src=["']([^"']+)["']/)
+      if (srcMatch) {
+        const heightMatch = value.match(/height[:=]["']?\s*(\d+)/)
+        const embedHeight = heightMatch ? parseInt(heightMatch[1], 10) : 352
+        handleContentChange({ embedIframeUrl: srcMatch[1], embedHeight })
+        // Clear the URL field since we extracted the embed
+        form.setValue('url', '')
+        setUrlError(null)
+        return
+      }
+    }
+
+    const result = validateAndFixUrl(value)
     if (!result.valid && result.error) {
       setUrlError(result.error)
     } else {
@@ -1072,8 +1090,8 @@ export function CardPropertyEditor({ card, onClose }: CardPropertyEditorProps) {
                   <FormLabel>Link URL</FormLabel>
                   <FormControl>
                     <Input
-                      type="url"
-                      placeholder="https://..."
+                      type="text"
+                      placeholder="https://... or paste embed code"
                       {...field}
                       value={field.value ?? ""}
                       onBlur={handleUrlBlur}

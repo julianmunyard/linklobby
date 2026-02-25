@@ -166,7 +166,22 @@ export function MobileCardTypeDrawer({
 
   const handleUrlBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     if (!card) return
-    const result = validateAndFixUrl(e.target.value)
+    const value = e.target.value.trim()
+
+    // Detect pasted iframe embed code in the URL field (link cards)
+    if (value.includes('<iframe') && card.card_type === 'link') {
+      const srcMatch = value.match(/src=["']([^"']+)["']/)
+      if (srcMatch) {
+        const heightMatch = value.match(/height[:=]["']?\s*(\d+)/)
+        const embedHeight = heightMatch ? parseInt(heightMatch[1], 10) : 352
+        const content = { ...(card.content as Record<string, unknown>), embedIframeUrl: srcMatch[1], embedHeight }
+        updateCard(card.id, { content, url: null })
+        toast.success('Embed detected')
+        return
+      }
+    }
+
+    const result = validateAndFixUrl(value)
     if (!result.valid && result.error) {
       toast.error(result.error)
     } else if (result.url && result.url !== e.target.value) {

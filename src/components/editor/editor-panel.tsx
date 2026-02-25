@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Link2, Palette, Calendar, Settings, BarChart3, Sparkles, ChevronLeft, ArrowLeft } from "lucide-react"
+import { Link2, Palette, Sparkles, ChevronLeft, Lock } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -18,6 +18,8 @@ import { SelectionToolbar } from "./selection-toolbar"
 import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
+import { usePlanTier } from "@/contexts/plan-tier-context"
+import { PRO_THEMES } from "@/lib/stripe/plans"
 
 interface EmptyStateProps {
   icon: React.ReactNode
@@ -46,11 +48,6 @@ const MAIN_TABS = ["featured", "links", "design"]
 const SIDEBAR_TABS = ["schedule", "insights", "settings"] as const
 type SidebarTab = typeof SIDEBAR_TABS[number]
 
-const SIDEBAR_ITEMS: { id: SidebarTab; icon: typeof Calendar; label: string }[] = [
-  { id: "schedule", icon: Calendar, label: "Schedule" },
-  { id: "insights", icon: BarChart3, label: "Insights" },
-  { id: "settings", icon: Settings, label: "Settings" },
-]
 
 // ---------------------------------------------------------------------------
 // Navigation history entry
@@ -73,17 +70,27 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get("tab")
-  const defaultTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "featured"
-  const [activeTab, setActiveTab] = useState(MAIN_TABS.includes(defaultTab) ? defaultTab : "featured")
+  const resolvedTab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : "featured"
+  const [activeTab, setActiveTab] = useState(MAIN_TABS.includes(resolvedTab) ? resolvedTab : "featured")
   const [sidebarTab, setSidebarTab] = useState<SidebarTab | null>(
-    SIDEBAR_TABS.includes(defaultTab as SidebarTab) ? (defaultTab as SidebarTab) : null
+    SIDEBAR_TABS.includes(resolvedTab as SidebarTab) ? (resolvedTab as SidebarTab) : null
   )
+
+  // Sync state with URL param changes (e.g. sidebar nav clicks)
+  useEffect(() => {
+    if (SIDEBAR_TABS.includes(resolvedTab as SidebarTab)) {
+      setSidebarTab(resolvedTab as SidebarTab)
+    } else {
+      setSidebarTab(null)
+      setActiveTab(resolvedTab)
+    }
+  }, [resolvedTab])
 
   // ---------------------------------------------------------------------------
   // Navigation history
   // ---------------------------------------------------------------------------
 
-  const navHistoryRef = useRef<NavEntry[]>([{ tab: defaultTab }])
+  const navHistoryRef = useRef<NavEntry[]>([{ tab: resolvedTab }])
   const navIndexRef = useRef(0)
   const [canGoBack, setCanGoBack] = useState(false)
   const [canGoForward, setCanGoForward] = useState(false)
@@ -214,22 +221,6 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     }
   }
 
-  const handleSidebarTabClick = (tab: SidebarTab) => {
-    if (sidebarTab === tab) {
-      // Toggle off — return to main tabs
-      setSidebarTab(null)
-      pushNav({ tab: activeTab })
-      if (activeTab === "featured") {
-        router.replace("/editor", { scroll: false })
-      } else {
-        router.replace(`/editor?tab=${activeTab}`, { scroll: false })
-      }
-    } else {
-      setSidebarTab(tab)
-      pushNav({ tab })
-      router.replace(`/editor?tab=${tab}`, { scroll: false })
-    }
-  }
 
   const handleNavigateToTheme = (themeId: string) => {
     // Switch theme so TemplatePicker shows that theme's templates
@@ -254,6 +245,8 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
   const cards = usePageStore((state) => state.cards)
   const selectCard = usePageStore((state) => state.selectCard)
   const themeId = useThemeStore((state) => state.themeId)
+  const { planTier, openUpgradeModal } = usePlanTier()
+  const isProThemeGated = planTier === 'free' && PRO_THEMES.includes(themeId)
   const { saveCards } = useCards()
 
   // Check if word-art title is selected (special pseudo-card)
@@ -275,39 +268,11 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     selectCard(null)
   }
 
-  // Sidebar icon strip (shared between desktop vertical and mobile horizontal)
-  const sidebarIcons = (
-    <>
-      {SIDEBAR_ITEMS.map(({ id, icon: Icon, label }) => (
-        <button
-          key={id}
-          onClick={() => handleSidebarTabClick(id)}
-          className={cn(
-            "flex items-center justify-center h-8 w-8 rounded-md transition-colors",
-            "hover:bg-muted",
-            sidebarTab === id && "bg-muted text-foreground"
-          )}
-          aria-label={label}
-          title={label}
-        >
-          <Icon className="h-4 w-4" />
-        </button>
-      ))}
-    </>
-  )
-
   // Sidebar content panel (when a sidebar tab is active)
   const sidebarContent = sidebarTab && (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b px-3 py-2 shrink-0">
-        <button
-          onClick={() => handleSidebarTabClick(sidebarTab)}
-          className="flex items-center justify-center h-7 w-7 rounded-md hover:bg-muted transition-colors"
-          aria-label="Back to tabs"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <span className="text-sm font-medium capitalize">{sidebarTab}</span>
+        <span className="text-sm font-medium capitalize">{sidebarTab === 'settings' ? 'Integrations' : sidebarTab}</span>
       </div>
       <div className="flex-1 overflow-y-auto">
         {sidebarTab === "schedule" && <ScheduleTab />}
@@ -319,6 +284,25 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
 
   return (
     <div className="flex h-full flex-col">
+      {/* Pro theme upgrade banner */}
+      {isProThemeGated && (
+        <div className="shrink-0 border-b border-amber-400/30 bg-amber-400/10 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                This is a Pro theme. Your public page won&apos;t display it until you upgrade.
+              </p>
+            </div>
+            <button
+              onClick={() => openUpgradeModal('Premium Theme')}
+              className="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+            >
+              Upgrade
+            </button>
+          </div>
+        </div>
+      )}
       {isWordArtTitleSelected ? (
         // Show word art title style editor
         <WordArtTitleEditor onClose={() => selectCard(null)} />
@@ -329,14 +313,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
           onClose={handleClose}
         />
       ) : (
-        <div className="flex h-full flex-row">
-          {/* Desktop: vertical icon strip on left */}
-          <div className="hidden md:flex w-10 border-r flex-col items-center py-2 gap-1 shrink-0">
-            {sidebarIcons}
-          </div>
-
-          {/* Main content area */}
-          <div className="flex-1 min-w-0 flex flex-col h-full">
+        <div className="flex h-full flex-col">
             {sidebarTab ? (
               sidebarContent
             ) : (
@@ -367,10 +344,6 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                         <span className="text-xs whitespace-nowrap hidden sm:inline">Design</span>
                       </TabsTrigger>
                     </TabsList>
-                    {/* Mobile: horizontal sidebar icons inline with tabs */}
-                    <div className="flex md:hidden items-center gap-0.5 ml-1 shrink-0">
-                      {sidebarIcons}
-                    </div>
                   </div>
                 </div>
 
@@ -414,7 +387,6 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
 
               </Tabs>
             )}
-          </div>
         </div>
       )}
 

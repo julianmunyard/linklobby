@@ -10,6 +10,7 @@ import { ChangeEmailForm } from '@/components/settings/change-email-form'
 import { TwoFactorStatus } from '@/components/auth/two-factor-verify'
 import { SessionManagement } from '@/components/auth/session-list'
 import { StorageUsageBar } from '@/components/settings/storage-usage-bar'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -49,18 +50,20 @@ export default async function SettingsPage() {
         </Button>
       </header>
 
-      <main className="max-w-md space-y-10">
+      <main className="space-y-10">
         {/* Profile section */}
         <section>
           <h2 className="text-lg font-semibold mb-4">Profile</h2>
-          <UsernameForm currentUsername={profile?.username || ''} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <UsernameForm currentUsername={profile?.username || ''} />
+          </div>
         </section>
 
         {/* Account section */}
         <section>
           <div className="border-t pt-8">
             <h2 className="text-lg font-semibold mb-4">Account</h2>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <ChangePasswordForm userEmail={user.email || ''} />
               <ChangeEmailForm userEmail={user.email || ''} />
             </div>
@@ -71,31 +74,59 @@ export default async function SettingsPage() {
         <section>
           <div className="border-t pt-8">
             <h2 className="text-lg font-semibold mb-4">Security</h2>
-            <div className="space-y-6">
-              <TwoFactorStatus />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle>Two-Factor Authentication</CardTitle>
+                  <CardDescription>
+                    Add an extra layer of security to your account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TwoFactorStatus />
+                </CardContent>
+              </Card>
               <SessionManagement />
             </div>
           </div>
         </section>
 
-        {/* Billing section */}
-        <div className="border-t pt-8">
-          <BillingSection
-            tier={tier}
-            periodEnd={subscription?.current_period_end ?? null}
-            cancelAtPeriodEnd={subscription?.cancel_at_period_end ?? false}
-            isTrial={isTrial}
-          />
-        </div>
-
-        {/* Storage section */}
+        {/* Billing & Storage section */}
         <section>
           <div className="border-t pt-8">
-            <h2 className="text-lg font-semibold mb-4">Storage</h2>
-            <StorageUsageBar
-              usedBytes={profile?.storage_used_bytes || 0}
-              quotaBytes={500 * 1024 * 1024}
-            />
+            <h2 className="text-lg font-semibold mb-4">Billing & Storage</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle>Plan & Billing</CardTitle>
+                  <CardDescription>
+                    Manage your subscription and billing details
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <BillingSection
+                    tier={tier}
+                    periodEnd={subscription?.current_period_end ?? null}
+                    cancelAtPeriodEnd={subscription?.cancel_at_period_end ?? false}
+                    isTrial={isTrial}
+                  />
+                </CardContent>
+              </Card>
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle>Storage</CardTitle>
+                  <CardDescription>
+                    Monitor your file storage usage
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <StorageUsageBar
+                    usedBytes={profile?.storage_used_bytes || 0}
+                    quotaBytes={500 * 1024 * 1024}
+                  />
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </section>
       </main>

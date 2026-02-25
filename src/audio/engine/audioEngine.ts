@@ -39,10 +39,10 @@ class AudioEngine {
       this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
-      // Initialize Superpowered (same as Munyard Mixer thomasAudioEngine.js)
-      // No WASM path — uses CDN default, matching Munyard Mixer exactly
+      // Initialize Superpowered with local WASM
       this.superpowered = await SuperpoweredGlue.Instantiate(
-        'ExampleLicenseKey-WillExpire-OnNextUpdate'
+        'ExampleLicenseKey-WillExpire-OnNextUpdate',
+        '/superpowered/superpowered.wasm'
       )
       this.webaudioManager = new SuperpoweredWebAudio(48000, this.superpowered)
 
@@ -124,8 +124,10 @@ class AudioEngine {
       this.started = true
       console.log('AudioEngine initialized (Superpowered)')
     } catch (error) {
-      console.error('Failed to initialize AudioEngine:', error)
-      throw error
+      // Don't throw — transient fetch failures during dev HMR are expected.
+      // The component will retry init on next mount. Audio simply won't load
+      // until the WASM fetch succeeds.
+      console.warn('AudioEngine init deferred (WASM fetch failed, will retry):', error)
     }
   }
 
@@ -135,6 +137,10 @@ class AudioEngine {
    * context (fire-and-forget). When it completes, retries context.resume() to
    * ensure the AudioContext is actually running after the media channel unlocks.
    */
+  isInitialized(): boolean {
+    return this.started
+  }
+
   private ensureUnlocked(): void {
     if (!this.isIOS || this.audioUnlocked) return
 
@@ -182,7 +188,9 @@ class AudioEngine {
 
   async loadTrack(url: string): Promise<void> {
     if (!this.processorNode) {
-      throw new Error('AudioEngine not initialized')
+      // Engine not ready yet (transient init failure during dev HMR).
+      // Silently bail — play() will retry loadTrack when the engine recovers.
+      return
     }
 
     // Don't reload if same URL — but fire onLoaded so new listeners sync state

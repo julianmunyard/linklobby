@@ -11,7 +11,7 @@ import { migrateToMacintosh, migrateFromMacintosh, migrateToBlinkies, migrateFro
 import { getTemplatesByTheme } from '@/lib/templates'
 import type { TemplateDefinition } from '@/lib/templates'
 import { cn } from '@/lib/utils'
-import { Check, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react'
+import { Check, ChevronRight, ArrowLeft, Loader2, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { ThemeId, ThemeConfig, ThemeState } from '@/types/theme'
 import type { Card } from '@/types/card'
@@ -19,6 +19,7 @@ import type { Profile } from '@/types/profile'
 import { isScatterTheme } from '@/types/scatter'
 import { ProBadge } from '@/components/billing/pro-gate'
 import { PRO_THEMES } from '@/lib/stripe/plans'
+import { usePlanTier } from '@/contexts/plan-tier-context'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -340,6 +341,8 @@ function CategoryDetailView({
   categoryId: CategoryId
   onBack: () => void
 }) {
+  const { planTier } = usePlanTier()
+  const isFree = planTier === 'free'
   const { themeId, paletteId, setTheme, setPalette } = useThemeStore()
   const clearCardColorOverrides = usePageStore(
     (state) => state.clearCardColorOverrides
@@ -487,13 +490,24 @@ function CategoryDetailView({
                 )}
 
                 {/* Mini preview */}
-                <ThemeMiniPreview theme={theme} />
+                <div className="relative">
+                  <ThemeMiniPreview theme={theme} />
+                  {isFree && PRO_THEMES.includes(theme.id) && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                      <div className="flex flex-col items-center gap-1.5">
+                        <Lock className="w-5 h-5 text-amber-400" />
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Pro</span>
+                        <span className="text-[10px] text-white/70">Tap to preview</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Name and description */}
                 <div className="px-3 py-2.5">
                   <div className="flex items-center gap-2">
                     <h4 className="font-medium text-sm">{theme.name}</h4>
-                    {PRO_THEMES.includes(theme.id) && (
+                    {isFree && PRO_THEMES.includes(theme.id) && (
                       <ProBadge feature={`${theme.name} theme`} />
                     )}
                   </div>

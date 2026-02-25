@@ -1,6 +1,6 @@
 /**
  * Creates a Stripe Checkout session for subscription upgrade.
- * Includes 7-day no-card-required trial.
+ * Includes 7-day free trial with card collection upfront.
  * POST /api/billing/checkout { priceId: string }
  */
 import { NextRequest, NextResponse } from 'next/server'
@@ -82,9 +82,9 @@ export async function POST(request: NextRequest) {
     metadata: {
       user_id: user.id,
     },
-    payment_method_collection: 'if_required',
-    success_url: `${appUrl}/dashboard?upgrade=success`,
-    cancel_url: `${appUrl}/dashboard?upgrade=cancelled`,
+    payment_method_collection: 'always',
+    success_url: `${appUrl}/editor?upgrade=success`,
+    cancel_url: `${appUrl}/editor?upgrade=cancelled`,
   }
 
   // Use existing customer if found, otherwise pass email for new customer creation

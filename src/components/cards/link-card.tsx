@@ -19,6 +19,24 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
   // Use mini font size for mini cards, link font size otherwise
   const fontSize = card.card_type === 'mini' ? cardTypeFontSizes.mini : cardTypeFontSizes.link
 
+  // Render embed iframe when embed code was pasted
+  if (content.embedIframeUrl) {
+    return (
+      <div className="w-full overflow-hidden" style={{ borderRadius: '12px' }}>
+        <iframe
+          src={content.embedIframeUrl}
+          width="100%"
+          height={content.embedHeight || 352}
+          frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title={card.title || 'Embed'}
+          style={{ display: 'block', border: 0 }}
+        />
+      </div>
+    )
+  }
+
   const Wrapper = card.url && !isPreview ? "a" : "div"
   const wrapperProps = card.url && !isPreview
     ? { href: card.url, target: "_blank", rel: "noopener noreferrer" }

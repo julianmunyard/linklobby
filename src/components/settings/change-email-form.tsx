@@ -60,7 +60,7 @@ export function ChangeEmailForm({ userEmail }: ChangeEmailFormProps) {
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Change Email</CardTitle>
         <CardDescription>

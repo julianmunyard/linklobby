@@ -17,6 +17,9 @@ import { cn } from "@/lib/utils"
 import { DevTemplateSaver, DevTemplateManager, DevQuickResave } from "@/components/editor/dev-template-saver"
 import { PlanBadge } from "@/components/billing/plan-badge"
 import type { PlanTier } from "@/lib/stripe/plans"
+import { PRO_THEMES } from "@/lib/stripe/plans"
+import { usePlanTier } from "@/contexts/plan-tier-context"
+import { useThemeStore } from "@/stores/theme-store"
 
 interface DashboardHeaderProps {
   username: string
@@ -26,6 +29,9 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ username, planTier }: DashboardHeaderProps) {
   const [copied, setCopied] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const { openUpgradeModal } = usePlanTier()
+  const themeId = useThemeStore((state) => state.themeId)
+  const isProThemeGated = planTier === 'free' && PRO_THEMES.includes(themeId)
   const cardHasChanges = usePageStore((state) => state.hasChanges)
   const profileHasChanges = useProfileStore((state) => state.hasChanges)
   const hasChanges = cardHasChanges || profileHasChanges
@@ -113,23 +119,35 @@ export function DashboardHeader({ username, planTier }: DashboardHeaderProps) {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0"
-                asChild
-              >
-                <a
-                  href={`/${username}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              {isProThemeGated ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  onClick={() => openUpgradeModal('Premium Theme')}
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   <span className="sr-only">Open public page</span>
-                </a>
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  asChild
+                >
+                  <a
+                    href={`/${username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span className="sr-only">Open public page</span>
+                  </a>
+                </Button>
+              )}
             </TooltipTrigger>
-            <TooltipContent>View public page</TooltipContent>
+            <TooltipContent>{isProThemeGated ? 'Upgrade to view public page' : 'View public page'}</TooltipContent>
           </Tooltip>
         </div>
       </div>

@@ -44,9 +44,7 @@ export function BillingSection({ tier, periodEnd, cancelAtPeriodEnd, isTrial }: 
   }
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold">Plan &amp; Billing</h2>
-
+    <div className="space-y-4">
       <div className="rounded-lg border p-4 space-y-3">
         {/* Current plan */}
         <div className="flex items-center justify-between">
@@ -89,6 +87,6 @@ export function BillingSection({ tier, periodEnd, cancelAtPeriodEnd, isTrial }: 
           </Button>
         )}
       </div>
-    </section>
+    </div>
   )
 }

@@ -45,13 +45,9 @@ export function ThemedCardWrapper({ children, cardType, className, content, them
   }
 
   // Music cards: no border, no background — the iframe provides its own chrome.
-  // Keep border-radius + overflow-hidden so iframe corners get clipped cleanly.
   if (cardType === 'music') {
     return (
-      <div
-        className={cn("overflow-hidden", className)}
-        style={{ borderRadius: 'var(--theme-border-radius)' }}
-      >
+      <div className={cn("overflow-hidden", className)}>
         {children}
       </div>
     )

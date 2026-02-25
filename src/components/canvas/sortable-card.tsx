@@ -9,6 +9,9 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { cn } from "@/lib/utils"
 import { getScheduleStatus } from "@/types/card"
 import type { Card } from "@/types/card"
+import { usePlanTier } from "@/contexts/plan-tier-context"
+import { useThemeStore } from "@/stores/theme-store"
+import { PRO_THEMES } from "@/lib/stripe/plans"
 
 // Format date for tooltip display
 function formatTooltipDate(isoString: string): string {
@@ -36,6 +39,12 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
     transition,
     isDragging,
   } = useSortable({ id: card.id })
+
+  const { planTier, openUpgradeModal } = usePlanTier()
+  const themeId = useThemeStore((state) => state.themeId)
+  const showProBadge = planTier === 'free' && (
+    card.card_type === 'audio' || PRO_THEMES.includes(themeId)
+  )
 
   // Get schedule status for indicator
   const content = card.content as Record<string, unknown>
@@ -131,6 +140,20 @@ export function SortableCard({ card, isSelected, onSelect, onDelete, onToggleVis
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
+          )}
+          {/* Pro badge for gated cards/themes */}
+          {showProBadge && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                openUpgradeModal(card.card_type === 'audio' ? 'Audio Player' : 'Premium Theme')
+              }}
+              className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 hover:bg-amber-400/30 transition-colors cursor-pointer"
+              title="Upgrade to Pro"
+            >
+              Pro
+            </button>
           )}
         </div>
         <p className="text-sm text-muted-foreground capitalize">

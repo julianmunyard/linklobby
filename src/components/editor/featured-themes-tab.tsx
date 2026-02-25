@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
 import { useActiveTemplate } from '@/components/editor/dev-template-saver'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Lock } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +26,8 @@ import type { Card } from '@/types/card'
 import type { ThemeState, ThemeId } from '@/types/theme'
 import type { Profile } from '@/types/profile'
 import { cn } from '@/lib/utils'
+import { usePlanTier } from '@/contexts/plan-tier-context'
+import { PRO_THEMES } from '@/lib/stripe/plans'
 
 // ---------------------------------------------------------------------------
 // Curated featured template IDs
@@ -117,6 +119,7 @@ interface FeaturedThemesTabProps {
 }
 
 export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: FeaturedThemesTabProps) {
+  const { planTier } = usePlanTier()
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
   const [pendingTemplate, setPendingTemplate] = useState<TemplateDefinition | null>(null)
@@ -258,12 +261,20 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
                     sizes="(max-width: 768px) 50vw, 150px"
                   />
                 )}
-                {/* Loading overlay */}
-                {applyingId === template.id && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+                {/* Pro / loading overlay */}
+                {applyingId === template.id ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
                     <Loader2 className="w-8 h-8 text-white animate-spin" />
                   </div>
-                )}
+                ) : planTier === 'free' && PRO_THEMES.includes(template.themeId) ? (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                    <div className="flex flex-col items-center gap-1.5">
+                      <Lock className="w-5 h-5 text-amber-400" />
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Pro</span>
+                      <span className="text-[10px] text-white/70">Tap to preview</span>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               {/* Card info */}
