@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 4 of 7 - In progress (plans 01, 02, 03, 04 complete)
-Status: **Phase 12.6 Plans 01 + 02 + 03 + 04 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management/Email Verification**
-Last activity: 2026-02-25 - Completed 12.6-02-PLAN.md (Upstash rate limiting on all API routes)
+Plan: 5 of 7 - In progress (plans 01, 02, 03, 04, 05 complete)
+Status: **Phase 12.6 Plans 01 + 02 + 03 + 04 + 05 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA**
+Last activity: 2026-02-25 - Completed 12.6-05-PLAN.md (TOTP 2FA with backup codes + middleware MFA enforcement)
 
 Progress: [████████████████████████████░░░░] ~83%
 
@@ -23,6 +23,7 @@ Building security hardening and completing auth flows:
 - ✓ Plan 02: Upstash Redis rate limiting on all 16 API routes
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
 - ✓ Plan 04: Account management (change password/email) + email verification + publish gate
+- ✓ Plan 05: TOTP 2FA with backup codes, MFA challenge page, middleware AAL2 enforcement
 
 **Key decisions (Plan 02):**
 - Rate limiting via Upstash Redis sliding window — @upstash/ratelimit + @upstash/redis
@@ -44,6 +45,14 @@ Building security hardening and completing auth flows:
 - Forgot password redirectTo includes type=recovery so auth callback can distinguish recovery from normal OAuth
 - Auth callback: type=recovery always routes to /reset-password (overrides next param)
 - Reset password success state with 2s delay redirect to /login for UX confirmation
+
+**Key decisions (Plan 05):**
+- bcryptjs (pure JS) for backup code hashing — no node-gyp on Vercel
+- httpOnly cookie mfa_backup_verified for backup code bypass — Supabase cannot upgrade AAL via backup codes
+- loginRatelimit (5/15min) on backup code verify endpoint — brute-force sensitive
+- middleware gets supabase client from updateSession (not a second createServerClient) for MFA AAL check
+- /mfa-challenge in protectedPaths (requires auth) but excluded from MFA redirect (prevent loop)
+- mfa_backup_codes table: RLS enabled, no public policies — service role only via admin client
 
 **Key decisions (Plan 04):**
 - Re-authenticate with signInWithPassword before password/email changes — defense against session hijacking
