@@ -16,6 +16,11 @@ export async function GET(request: Request) {
       if (type === 'recovery') {
         return NextResponse.redirect(`${origin}/reset-password`)
       }
+      // Email change verification — redirect to settings with success param
+      if (type === 'email_change') {
+        return NextResponse.redirect(`${origin}/settings?email_updated=true`)
+      }
+      // Default: redirect to next (covers type=signup and OAuth)
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
