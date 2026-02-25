@@ -9,14 +9,24 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 12.2 of 18 - Theme Templates
-Plan: 3 of 4 - Complete
-Status: **Phase 12.2 In Progress - Template apply API route complete**
-Last activity: 2026-02-24 - Completed quick task 075: Featured themes apply on click + mobile preview dismiss
+Phase: 12.5 of 18 - Billing & Subscriptions
+Plan: 1 of 4 - Complete
+Status: **Phase 12.5 In Progress - Billing backend (Stripe client, webhooks, DB) complete**
+Last activity: 2026-02-25 - Completed 12.5-01: Stripe billing backend
 
-Progress: [████████████████████████████░░░░] ~77%
+Progress: [████████████████████████████░░░░] ~78%
 
-### IN PROGRESS: Phase 12.2 - Theme Templates
+### IN PROGRESS: Phase 12.5 - Billing & Subscriptions
+
+Building Stripe billing with 3-tier plans (free/pro/artist):
+- ✓ Plan 01: Stripe backend — client singleton, plan config, webhook handler, DB migration, checkout/portal routes
+- Plan 02: Pricing page UI
+- Plan 03: Feature gating (getUserPlan on protected features)
+- Plan 04: Settings billing tab
+
+**Current status:** Billing backend complete. Webhook pipeline syncs Stripe events to local subscriptions table. Checkout route creates sessions with 7-day no-card trial. getUserPlan() reads tier from local DB. **Requires Stripe env vars and DB migration before end-to-end testing.**
+
+### IN PROGRESS (PAUSED): Phase 12.2 - Theme Templates
 
 Building a template library that lets artists apply pre-built page layouts:
 - ✓ Plan 01: Template type system, registry, and first instagram-reels placeholder template
@@ -132,7 +142,7 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 11 | Analytics & Pixels & Legal | Complete ✓ |
 | 12 | Audio System | In Progress (Plan 1/5 complete) |
 | 12.2 | Theme Templates | In Progress (Plan 1/4 complete) |
-| 12.5 | Billing & Subscriptions | - |
+| 12.5 | Billing & Subscriptions | In Progress (Plan 1/4 complete) |
 | 12.6 | Security Hardening & Auth | - |
 | 12.7 | Production Readiness | - |
 | 12.8 | Theme System Overhaul | - |
@@ -144,6 +154,38 @@ Dropdown functionality may be revisited in a future version with a simpler appro
 | 14 | Custom Domains | - |
 | 15 | Advanced Analytics | - |
 | 16 | Accessibility | - |
+
+## Phase 12.5 Progress (IN PROGRESS)
+
+| Plan | Name | Status |
+|------|------|--------|
+| 01 | Stripe Billing Backend | Complete ✓ |
+| 02 | Pricing Page UI | - |
+| 03 | Feature Gating | - |
+| 04 | Settings Billing Tab | - |
+
+**Summaries:**
+- Plan 01: .planning/phases/12.5-billing-subscriptions/12.5-01-SUMMARY.md
+
+**Plan 01 commits (2026-02-25):**
+- `508e367` - feat(12.5-01): Stripe client, plan definitions, subscription helper, admin Supabase client
+- `7333279` - feat(12.5-01): billing DB migration and API routes (webhook, checkout, portal)
+
+**Key deliverables:**
+- stripe@20.3.1 installed; Stripe singleton in src/lib/stripe/client.ts (API v2026-01-28.clover)
+- 3-tier PLANS config (free/pro/artist) with PlanFeatures type and getPlanTierByPriceId() in src/lib/stripe/plans.ts
+- getUserPlan(), isPro(), isArtist() reading from local subscriptions table in src/lib/stripe/subscription.ts
+- createAdminClient() service role client in src/lib/supabase/admin.ts
+- POST /api/webhooks/stripe — signature verification, idempotency, syncSubscription to local DB
+- POST /api/billing/checkout — Checkout session with 7-day no-card trial
+- POST /api/billing/portal — Customer Portal session
+- supabase/migrations/20260225_billing_tables.sql — customers, subscriptions, webhook_events tables with RLS
+
+**Accumulated decisions:**
+- Stripe SDK v20 uses API 2026-01-28.clover (not 2025-03-31.basil as planned)
+- current_period_start/end is on SubscriptionItem (not Subscription) in SDK v20
+- Invoice subscription reference: invoice.parent.subscription_details.subscription (not invoice.subscription)
+- customers table has no user SELECT RLS — admin client required for checkout/portal customer lookups
 
 ## Phase 12.2 Progress (IN PROGRESS)
 
