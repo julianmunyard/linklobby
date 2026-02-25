@@ -28,22 +28,20 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 4.4: Profile Editor *(name, photo, social icons)* ✓
 - [x] Phase 4.5: Editor Polish *(mobile responsive, error handling, image optimization)* ✓
 - [x] Phase 5: Media Cards ✓
-- [ ] Phase 6: Advanced Cards *(Dropdown + Game Card)*
-- [ ] Phase 6.1: Dropdown Card Fix *(collapse, drag, reorder)*
-- [ ] Phase 7: Theme System *(core differentiator)*
+- [x] Phase 6: Advanced Cards *(Game Card shipped, Dropdown Card dropped)* ✓
+- [x] Phase 7: Theme System *(core differentiator)* ✓
 - [x] Phase 8: Public Page *(includes page states, SEO, draft sharing)* ✓
-- [ ] Phase 9: Platform Integrations
-- [ ] Phase 9.5: Onboarding *(first-time UX, templates)*
+- [x] Phase 9: Platform Integrations *(Spotify, Apple Music, SoundCloud, YouTube, TikTok, etc.)* ✓
 
 ### Growth Milestone (v1.1)
 - [x] Phase 10: Fan Tools *(email, QR, release mode)* ✓
 - [x] Phase 11: Analytics & Pixels *(tracking pixels, cookie consent, legal compliance)* ✓
-- [ ] Phase 12: Audio System
-- [ ] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)*
-- [ ] Phase 12.2: Theme Templates *(pre-built starter pages per theme — cards, colors, titles, layout all ready to edit)*
+- [x] Phase 12: Audio System ✓
+- [x] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)* ✓
+- [x] Phase 12.2: Theme Templates *(pre-built starter pages per theme)* ✓
 - [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
 - [ ] Phase 12.6: Security Hardening & Auth Completion *(OAuth, rate limiting, 2FA, security headers, cookie consent)*
-- [ ] Phase 12.7: Production Readiness *(Sentry, transactional emails, CI/CD, staging, logging, performance)*
+- [ ] Phase 12.7: Production Readiness & Onboarding *(Sentry, transactional emails, CI/CD, onboarding, templates, guided setup)*
 - [ ] Phase 12.8: Theme System Overhaul *(cleanup, unification, new themes, UI polish)*
 
 ### Pro Milestone (v1.2)
@@ -340,21 +338,7 @@ Plans:
 
 ---
 
-#### Phase 9.5: Onboarding
-**Goal:** New users have a smooth first experience and understand the product quickly
-**Competitive context:** Good onboarding reduces churn and support load
-
-**Success Criteria:**
-1. **Welcome flow** - brief intro after first login
-2. **Template gallery** - start from pre-made templates (not just blank)
-3. **Template categories** - "Musician", "DJ", "Producer", "Band" etc.
-4. **Guided setup** - optional walkthrough of key features
-5. **Sample content** - templates include placeholder content to customize
-6. **Quick wins** - guide user to publish something fast
-7. **Empty state coaching** - helpful prompts when canvas is empty
-8. **Feature discovery** - subtle hints for advanced features
-
-**Plans:** 2 plans
+#### ~~Phase 9.5: Onboarding~~ *(merged into Phase 12.7)*
 
 ---
 
@@ -524,7 +508,13 @@ Plans:
 9. **Receipts/invoices** - email receipts, downloadable invoices
 10. Webhook handling for subscription events
 
-**Plans:** 3-4 plans
+**Plans:** 4 plans
+
+Plans:
+- [ ] 12.5-01-PLAN.md — Stripe infrastructure, DB schema, webhook handler, checkout & portal API routes
+- [ ] 12.5-02-PLAN.md — Pricing page, billing settings, plan badge, upgrade modal
+- [ ] 12.5-03-PLAN.md — ProGate editor badges, public page feature stripping, branding & theme gating
+- [ ] 12.5-04-PLAN.md — Build verification and human verification checkpoint
 
 ---
 
@@ -566,9 +556,9 @@ Plans:
 
 ---
 
-#### Phase 12.7: Production Readiness & Operational Foundation
-**Goal:** Everything operational that a production app needs beyond features — monitoring, email, CI/CD, performance, SEO, support
-**Competitive context:** The difference between a side project and a real product
+#### Phase 12.7: Production Readiness, Operations & Onboarding
+**Goal:** Everything operational that a production app needs beyond features — monitoring, email, CI/CD, performance, SEO, support — plus first-time user onboarding
+**Competitive context:** The difference between a side project and a real product. Good onboarding reduces churn.
 
 **Error Tracking & Monitoring:**
 1. **Sentry integration** — `@sentry/nextjs` for client + server error capture
@@ -600,27 +590,36 @@ Plans:
 19. **Bundle analysis** — run `@next/bundle-analyzer` to identify oversized deps
 20. **Dynamic imports audit** — verify heavy components (games, audio, color picker) are lazy loaded
 21. **Image audit** — verify all user images use next/image, no raw `<img>` tags
+22. **Analytics event batching** — buffer tracking events client-side, send in batches (every 3-5s or on page unload) instead of one API call per event. Reduces database write load by 80-90% at scale.
+23. **Analytics table partitioning** — partition analytics tables by month so queries only scan recent data. Enables efficient archival of old months.
 
 **SEO Enhancements:**
-22. **JSON-LD structured data** — Person/MusicGroup + WebPage schemas on public pages
-23. **Canonical URLs** — explicit canonical tag on each public page
-24. **Meta descriptions** — auto-generate from user bio/card titles
+24. **JSON-LD structured data** — Person/MusicGroup + WebPage schemas on public pages
+25. **Canonical URLs** — explicit canonical tag on each public page
+26. **Meta descriptions** — auto-generate from user bio/card titles
 
 **Database Operations:**
-25. **Backup strategy** — document/verify Supabase plan includes daily backups + PITR
-26. **Migration deployment docs** — document process for running migrations on production
-27. **Index audit** — verify indexes on user_id, page_id, username, analytics created_at
+27. **Backup strategy** — document/verify Supabase plan includes daily backups + PITR
+28. **Migration deployment docs** — document process for running migrations on production
+29. **Index audit** — verify indexes on user_id, page_id, username, analytics created_at
 
 **Contact & Support:**
-28. **Contact page** (`/contact`) — support email, FAQ link, bug report link
-29. **Footer links** — contact, terms, privacy on public-facing pages
-30. **In-app help icon** — "?" in editor linking to support
+30. **Contact page** (`/contact`) — support email, FAQ link, bug report link
+31. **Footer links** — contact, terms, privacy on public-facing pages
+32. **In-app help icon** — "?" in editor linking to support
 
 **Resilience:**
-31. **Offline indicator** — detect lost connection in editor, show reconnection banner
-32. **Graceful degradation** — if Sentry/Resend are unreachable, app still works
+33. **Offline indicator** — detect lost connection in editor, show reconnection banner
+34. **Graceful degradation** — if Sentry/Resend are unreachable, app still works
 
-**Plans:** 5-6 plans
+**Onboarding (merged from Phase 9.5):**
+35. **Welcome flow** — brief intro after first login
+36. **Template gallery** — start from pre-made templates (not just blank)
+37. **Guided setup** — optional walkthrough of key features
+38. **Empty state coaching** — helpful prompts when canvas is empty
+39. **Quick wins** — guide user to publish something fast
+
+**Plans:** 6-7 plans
 
 ---
 
