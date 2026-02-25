@@ -9,14 +9,25 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 12.5 of 18 - Billing & Subscriptions
-Plan: 4 of 4 - Checkpoint (awaiting human verification)
-Status: **Phase 12.5 Build Verified - Awaiting end-to-end Stripe test verification**
-Last activity: 2026-02-25 - Completed 12.5-04 Task 1: Build Verification
+Phase: 12.6 of 18 - Security Hardening & Auth Completion
+Plan: 3 of 7 - In progress
+Status: **Phase 12.6 Plan 03 Complete - Google OAuth + Password Reset flows built**
+Last activity: 2026-02-25 - Completed 12.6-03-PLAN.md (Google OAuth + forgot/reset password)
 
-Progress: [████████████████████████████░░░░] ~82%
+Progress: [████████████████████████████░░░░] ~83%
 
-### IN PROGRESS: Phase 12.5 - Billing & Subscriptions
+### IN PROGRESS: Phase 12.6 - Security Hardening & Auth Completion
+
+Building security hardening and completing auth flows:
+- ✓ Plan 03: Google OAuth + forgot/reset password flows
+
+**Key decisions (Plan 03):**
+- GoogleOAuthButton standalone 'use client' component — reusable on both login and signup
+- Forgot password redirectTo includes type=recovery so auth callback can distinguish recovery from normal OAuth
+- Auth callback: type=recovery always routes to /reset-password (overrides next param)
+- Reset password success state with 2s delay redirect to /login for UX confirmation
+
+### IN PROGRESS (PAUSED): Phase 12.5 - Billing & Subscriptions
 
 Building Stripe billing with 3-tier plans (free/pro/artist):
 - ✓ Plan 01: Stripe backend — client singleton, plan config, webhook handler, DB migration, checkout/portal routes
