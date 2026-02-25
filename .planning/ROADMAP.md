@@ -40,7 +40,7 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)* ✓
 - [x] Phase 12.2: Theme Templates *(pre-built starter pages per theme)* ✓
 - [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
-- [ ] Phase 12.6: Security Hardening & Auth Completion *(OAuth, rate limiting, 2FA, security headers, cookie consent)*
+- [x] Phase 12.6: Security Hardening & Auth Completion *(OAuth, rate limiting, 2FA, security headers, cookie consent)* ✓
 - [ ] Phase 12.7: Production Readiness & Onboarding *(Sentry, transactional emails, CI/CD, onboarding, templates, guided setup)*
 - [ ] Phase 12.8: Theme System Overhaul *(cleanup, unification, new themes, UI polish)*
 
@@ -552,7 +552,16 @@ Plans:
 19. **Storage quota per user** — 500MB for free tier, tracked in profiles table
 20. **Orphaned file cleanup** — delete storage files when associated card is deleted
 
-**Plans:** 5-6 plans
+**Plans:** 7 plans ✓
+
+Plans:
+- [x] 12.6-01-PLAN.md — Security headers (CSP, HSTS, etc.), CSRF origin validation, DOMPurify input sanitization
+- [x] 12.6-02-PLAN.md — Upstash Redis rate limiting on all API routes with fail-open behavior
+- [x] 12.6-03-PLAN.md — Google OAuth, forgot password, reset password flows
+- [x] 12.6-04-PLAN.md — Change password/email in settings, email verification, publish gate
+- [x] 12.6-05-PLAN.md — TOTP 2FA with backup codes, MFA challenge page, middleware enforcement
+- [x] 12.6-06-PLAN.md — Session management, cookie consent on public pages
+- [x] 12.6-07-PLAN.md — MIME validation, 500MB storage quota tracking, orphaned file cleanup
 
 ---
 
