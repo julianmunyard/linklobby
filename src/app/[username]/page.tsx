@@ -7,8 +7,9 @@ import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOver
 import { StaticGlitchOverlay } from "@/components/glitch/static-glitch-overlay"
 import { ClickTracker } from "@/components/public/click-tracker"
 import { PixelLoader } from "@/components/pixels/pixel-loader"
+import { CookieConsentBanner } from "@/components/legal/cookie-consent-banner"
 import { getUserPlan, isPro } from "@/lib/stripe/subscription"
-import { PRO_THEMES } from "@/lib/stripe/plans"
+import { PRO_THEMES, PRO_CARD_TYPES } from "@/lib/stripe/plans"
 
 interface PublicPageProps {
   params: Promise<{
@@ -47,11 +48,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const cards = hasProAccess
     ? data.cards
     : data.cards
-        .filter((card) => {
-          if (card.card_type === 'email-collection') return false
-          if (card.card_type === 'release') return false
-          return true
-        })
+        .filter((card) => !PRO_CARD_TYPES.includes(card.card_type))
         .map((card) => ({
           ...card,
           schedule_start: null,
@@ -62,9 +59,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const themeSettings = page.theme_settings
   const rawThemeId = themeSettings?.themeId ?? 'mac-os'
   // Free users fall back to 'instagram-reels' when a Pro-only theme is active
-  const themeId = (!hasProAccess && PRO_THEMES.includes(rawThemeId))
-    ? 'instagram-reels'
-    : rawThemeId
+  const themeDowngraded = !hasProAccess && PRO_THEMES.includes(rawThemeId)
+  const themeId = themeDowngraded ? 'instagram-reels' : rawThemeId
   const fuzzyEnabled = themeSettings?.fonts?.fuzzyEnabled ?? false
   const fuzzyIntensity = themeSettings?.fonts?.fuzzyIntensity ?? 0.19
   const fuzzySpeed = themeSettings?.fonts?.fuzzySpeed ?? 12
@@ -198,6 +194,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         visitorDrag={visitorDrag}
         cards={cards}
         hasProAccess={hasProAccess}
+        themeDowngraded={themeDowngraded}
       />
 
       {/* Analytics click tracking (client component) */}
@@ -213,6 +210,18 @@ export default async function PublicPage({ params }: PublicPageProps) {
         pageId={page.id}
         cards={cards.map(card => ({ id: card.id }))}
       />
+
+      {/* Cookie consent banner — only shown when artist has pixels enabled */}
+      {(facebookPixelId || gaMeasurementId) && (
+        <CookieConsentBanner
+          themeColors={themeColors ? {
+            background: themeColors.background,
+            text: themeColors.text,
+            accent: themeColors.accent,
+            border: themeColors.border,
+          } : undefined}
+        />
+      )}
 
       {/* Glitch overlay (if enabled) */}
       <StaticGlitchOverlay background={background} />

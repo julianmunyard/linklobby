@@ -167,11 +167,8 @@ export function CookieConsentBanner({ themeColors }: CookieConsentBannerProps) {
       }}
       buttonWrapperClasses="cookie-consent-button-wrapper"
     >
-      <div style={{ fontSize: '14px', lineHeight: '1.5', marginBottom: '0.5rem' }}>
+      <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
         We use cookies to help analyze page traffic. You can accept or reject all cookies.
-      </div>
-      <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '0.25rem' }}>
-        Cookie Preferences (coming soon)
       </div>
     </CookieConsent>
   )
