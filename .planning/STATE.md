@@ -10,16 +10,24 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 3 of 7 - In progress
-Status: **Phase 12.6 Plan 03 Complete - Google OAuth + Password Reset flows built**
-Last activity: 2026-02-25 - Completed 12.6-03-PLAN.md (Google OAuth + forgot/reset password)
+Plan: 3 of 7 - In progress (plans 01 and 03 complete)
+Status: **Phase 12.6 Plans 01 + 03 Complete - Security headers/CSRF/sanitization + Google OAuth + Password Reset**
+Last activity: 2026-02-25 - Completed 12.6-01-PLAN.md (security headers, CSRF, input sanitization)
 
 Progress: [████████████████████████████░░░░] ~83%
 
 ### IN PROGRESS: Phase 12.6 - Security Hardening & Auth Completion
 
 Building security hardening and completing auth flows:
+- ✓ Plan 01: Security headers, CSRF validation, input sanitization
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
+
+**Key decisions (Plan 01):**
+- CSRF via Origin/Host header comparison — stateless, no token storage, correct for same-site Next.js app
+- Public endpoints excluded from CSRF: /api/emails, /api/analytics/track, /api/pixels/facebook-capi
+- sanitizeText strips all HTML (ALLOWED_TAGS=[], ALLOWED_ATTR=[]) — plain text only
+- worker-src 'self' blob: in CSP for Superpowered AudioWorklet
+- validateCsrfOrigin + sanitizeText helpers in src/lib/csrf/ and src/lib/sanitize/
 
 **Key decisions (Plan 03):**
 - GoogleOAuthButton standalone 'use client' component — reusable on both login and signup
