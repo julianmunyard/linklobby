@@ -40,6 +40,8 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.91.0",
     "@superpoweredsdk/web": "^2.7.6",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "@use-gesture/react": "^10.3.1",
     "axios": "^1.13.2",
     "browser-image-compression": "^2.0.2",
