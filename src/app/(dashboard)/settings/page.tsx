@@ -9,6 +9,7 @@ import { ChangePasswordForm } from '@/components/settings/change-password-form'
 import { ChangeEmailForm } from '@/components/settings/change-email-form'
 import { TwoFactorStatus } from '@/components/auth/two-factor-verify'
 import { SessionManagement } from '@/components/auth/session-list'
+import { StorageUsageBar } from '@/components/settings/storage-usage-bar'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -21,7 +22,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username')
+    .select('username, storage_used_bytes')
     .eq('id', user.id)
     .single()
 
@@ -86,6 +87,17 @@ export default async function SettingsPage() {
             isTrial={isTrial}
           />
         </div>
+
+        {/* Storage section */}
+        <section>
+          <div className="border-t pt-8">
+            <h2 className="text-lg font-semibold mb-4">Storage</h2>
+            <StorageUsageBar
+              usedBytes={profile?.storage_used_bytes || 0}
+              quotaBytes={500 * 1024 * 1024}
+            />
+          </div>
+        </section>
       </main>
     </div>
   )

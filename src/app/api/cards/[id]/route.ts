@@ -115,6 +115,49 @@ export async function DELETE(
 
     const { id } = await params
     await deleteCard(id)
+
+    // Clean up associated storage files — wrap in try/catch so a storage failure
+    // does not affect the already-successful card deletion response.
+    try {
+      // Delete audio files stored at card-audio/{cardId}/
+      const { data: audioFiles } = await supabase.storage
+        .from('card-audio')
+        .list(id)
+
+      if (audioFiles?.length) {
+        const audioFilePaths = audioFiles.map((f) => `${id}/${f.name}`)
+        await supabase.storage.from('card-audio').remove(audioFilePaths)
+
+        // Decrement storage_used_bytes by actual audio bytes removed
+        const audioBytes = audioFiles.reduce((sum, f) => sum + (f.metadata?.size || 0), 0)
+        if (audioBytes > 0) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('storage_used_bytes')
+            .eq('id', user.id)
+            .single()
+          const newUsage = Math.max(0, (profileData?.storage_used_bytes || 0) - audioBytes)
+          await supabase
+            .from('profiles')
+            .update({ storage_used_bytes: newUsage })
+            .eq('id', user.id)
+        }
+      }
+
+      // Delete image files stored at card-images/{cardId}/
+      const { data: imageFiles } = await supabase.storage
+        .from('card-images')
+        .list(id)
+
+      if (imageFiles?.length) {
+        const imageFilePaths = imageFiles.map((f) => `${id}/${f.name}`)
+        await supabase.storage.from('card-images').remove(imageFilePaths)
+      }
+    } catch (storageErr) {
+      // Log but do not fail — card is already deleted from DB
+      console.error('Storage cleanup error after card deletion:', storageErr)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error deleting card:", error)

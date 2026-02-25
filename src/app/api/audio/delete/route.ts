@@ -32,6 +32,24 @@ export async function DELETE(request: Request) {
       )
     }
 
+    // Derive directory and filename from storagePath (e.g. "{cardId}/{trackId}.mp3")
+    const parts = storagePath.split('/')
+    const fileName = parts.pop() || ''
+    const directoryPath = parts.join('/')
+
+    // BEFORE deleting: query Supabase Storage metadata to get the file size.
+    // This is the authoritative size — we do not trust any client-sent value.
+    let fileSize = 0
+    if (directoryPath && fileName) {
+      const { data: fileList } = await supabase.storage
+        .from(AUDIO_BUCKET)
+        .list(directoryPath, { limit: 100 })
+
+      const fileInfo = fileList?.find((f) => f.name === fileName)
+      fileSize = fileInfo?.metadata?.size || 0
+    }
+
+    // Delete the file from storage
     const { error: deleteError } = await supabase.storage
       .from(AUDIO_BUCKET)
       .remove([storagePath])
@@ -42,6 +60,23 @@ export async function DELETE(request: Request) {
         { error: deleteError.message || 'Failed to delete audio' },
         { status: 500 }
       )
+    }
+
+    // Decrement storage_used_bytes by actual file size (never go below 0)
+    if (fileSize > 0) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('storage_used_bytes')
+        .eq('id', user.id)
+        .single()
+
+      if (profile) {
+        const newUsage = Math.max(0, (profile.storage_used_bytes || 0) - fileSize)
+        await supabase
+          .from('profiles')
+          .update({ storage_used_bytes: newUsage })
+          .eq('id', user.id)
+      }
     }
 
     return NextResponse.json({ success: true })
