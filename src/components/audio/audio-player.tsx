@@ -151,9 +151,8 @@ export function AudioPlayer({
     setIsMarqueeNeeded(text.scrollWidth > container.clientWidth)
   }, [currentTrackIndex])
 
-  if (tracks.length === 0 && !isEditing) {
-    return null
-  }
+  // Always render the player — even with no tracks, show the placeholder UI
+  // so the card appears on public pages before tracks are uploaded
 
   // Handle track switching
   const handleTrackSelect = (index: number) => {

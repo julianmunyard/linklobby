@@ -104,6 +104,7 @@ interface StaticReceiptLayoutProps {
   receiptStickers?: ReceiptSticker[]
   receiptFloatAnimation?: boolean
   receiptPaperTexture?: boolean
+  hasProAccess?: boolean
 }
 
 /**
@@ -124,7 +125,8 @@ export function StaticReceiptLayout({
   receiptPrice = 'PRICELESS',
   receiptStickers = [],
   receiptFloatAnimation = true,
-  receiptPaperTexture = false
+  receiptPaperTexture = false,
+  hasProAccess = false,
 }: StaticReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
@@ -613,9 +615,11 @@ export function StaticReceiptLayout({
             Terms of Service
           </Link>
         </div>
-        <div className="mt-2">
-          Powered by LinkLobby
-        </div>
+        {!hasProAccess && (
+          <div className="mt-2">
+            Powered by LinkLobby
+          </div>
+        )}
       </footer>
     </div>
   )

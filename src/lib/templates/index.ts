@@ -3,8 +3,6 @@
 
 import type { TemplateDefinition } from './types'
 import type { ThemeId } from '@/types/theme'
-import { phoneHomeMclovinsIphone } from './data/phone-home/mclovins-iphone'
-
 import { chaoticZineOG } from './data/chaotic-zine/o-g'
 
 import { instagramReelsCards } from './data/instagram-reels/cards'
@@ -51,8 +49,15 @@ import { phoneHomeBurple } from './data/phone-home/burple'
 
 import { systemSettingsThreeSACrowd } from './data/system-settings/three-s-a-crowd'
 
+import { systemSettingsItS1970 } from './data/system-settings/it-s-1970'
+
+import { macOsWhiteLight } from './data/mac-os/white-light'
+
+import { phoneHomeCheckers } from './data/phone-home/checkers'
+
+import { phoneHomeQuiteYellowActually } from './data/phone-home/quite-yellow-actually'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
-  phoneHomeMclovinsIphone,
   chaoticZineOG,
   instagramReelsCards,
   instagramReelsYellowBrown,
@@ -76,6 +81,10 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   artifactBrutal,
   phoneHomeBurple,
   systemSettingsThreeSACrowd,
+  systemSettingsItS1970,
+  macOsWhiteLight,
+  phoneHomeCheckers,
+  phoneHomeQuiteYellowActually,
 ]
 
 /**

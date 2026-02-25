@@ -72,17 +72,21 @@ export function StaticFlowGrid({ cards, socialIconsJson, socialIconSize, socialI
           : ""
 
         // Social-icons card: render static version with actual data
-        if (card.card_type === 'social-icons' && socialIconsJson) {
-          return (
-            <div key={card.id} data-card-id={card.id} className="w-full">
-              <StaticSocialIconsInline
-                socialIconsJson={socialIconsJson}
-                socialIconSize={socialIconSize}
-                socialIconColor={socialIconColor}
-                headerTextColor={headerTextColor}
-              />
-            </div>
-          )
+        if (card.card_type === 'social-icons') {
+          if (socialIconsJson && socialIconsJson !== '[]') {
+            return (
+              <div key={card.id} data-card-id={card.id} className="w-full">
+                <StaticSocialIconsInline
+                  socialIconsJson={socialIconsJson}
+                  socialIconSize={socialIconSize}
+                  socialIconColor={socialIconColor}
+                  headerTextColor={headerTextColor}
+                />
+              </div>
+            )
+          }
+          // No icon data — skip card (header will show icons instead)
+          return null
         }
 
         // Audio cards: render AudioPlayer directly with correct themeVariant

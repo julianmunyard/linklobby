@@ -103,6 +103,7 @@ interface StaticArtifactLayoutProps {
   artifactHeroVideoUrl?: string
   artifactHeroPositionX?: number
   artifactHeroPositionY?: number
+  hasProAccess?: boolean
 }
 
 export function StaticArtifactLayout({
@@ -131,6 +132,7 @@ export function StaticArtifactLayout({
   artifactHeroVideoUrl,
   artifactHeroPositionX = 50,
   artifactHeroPositionY = 50,
+  hasProAccess = false,
 }: StaticArtifactLayoutProps) {
   const [audioOpen, setAudioOpen] = useState(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
@@ -615,9 +617,11 @@ export function StaticArtifactLayout({
             Terms of Service
           </Link>
         </div>
-        <div style={{ marginTop: '0.5rem' }}>
-          Powered by LinkLobby
-        </div>
+        {!hasProAccess && (
+          <div style={{ marginTop: '0.5rem' }}>
+            Powered by LinkLobby
+          </div>
+        )}
       </footer>
     </div>
   )

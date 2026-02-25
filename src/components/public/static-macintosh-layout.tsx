@@ -92,6 +92,7 @@ interface StaticMacintoshLayoutProps {
   frameZoom?: number
   framePosX?: number
   framePosY?: number
+  hasProAccess?: boolean
 }
 
 export function StaticMacintoshLayout({
@@ -108,6 +109,7 @@ export function StaticMacintoshLayout({
   frameZoom = 1,
   framePosX = 0,
   framePosY = 0,
+  hasProAccess = false,
 }: StaticMacintoshLayoutProps) {
   const socialIcons: SocialIcon[] = socialIconsJson
     ? JSON.parse(socialIconsJson)
@@ -287,9 +289,11 @@ export function StaticMacintoshLayout({
             Terms of Service
           </Link>
         </div>
-        <div className="mt-2" style={{ color: '#000' }}>
-          Powered by LinkLobby
-        </div>
+        {!hasProAccess && (
+          <div className="mt-2" style={{ color: '#000' }}>
+            Powered by LinkLobby
+          </div>
+        )}
       </footer>
       {/* Extra padding so last card scrolls clear of frame bottom border */}
       {hasFrame && frameInsets && (

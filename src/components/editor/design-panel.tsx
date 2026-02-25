@@ -170,10 +170,10 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Horizontal scrollable tabs - native overflow for touch swipe support */}
-      <div className="overflow-x-auto -mx-4 px-4 scrollbar-none">
-        <div className="flex gap-2 pb-2 w-max">
+    <div>
+      {/* Horizontal scrollable tabs - sticky so always accessible */}
+      <div className="sticky top-0 z-10 bg-background -mx-4 px-4 pt-0 pb-3 overflow-x-auto scrollbar-none">
+        <div className="flex gap-2 w-max">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
@@ -192,7 +192,7 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
       </div>
 
       {/* Tab content */}
-      <div className="space-y-4">
+      <div className="space-y-4 mt-1">
         {activeTab === 'presets' && <ThemePresets />}
 
         {activeTab === 'colors' && <ColorCustomizer />}

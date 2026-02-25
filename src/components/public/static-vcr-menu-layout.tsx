@@ -20,6 +20,7 @@ interface StaticVcrMenuLayoutProps {
   bodySize?: number
   centerContent?: boolean
   socialIcons?: SocialIcon[]
+  hasProAccess?: boolean
 }
 
 /**
@@ -33,7 +34,8 @@ export function StaticVcrMenuLayout({
   headingSize = 1.8,
   bodySize = 1.5,
   centerContent = false,
-  socialIcons = []
+  socialIcons = [],
+  hasProAccess = false,
 }: StaticVcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
@@ -357,9 +359,11 @@ export function StaticVcrMenuLayout({
               Terms of Service
             </Link>
           </div>
-          <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
-            Powered by LinkLobby
-          </div>
+          {!hasProAccess && (
+            <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
+              Powered by LinkLobby
+            </div>
+          )}
         </footer>
       </div>
     </div>

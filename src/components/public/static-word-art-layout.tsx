@@ -25,6 +25,7 @@ interface StaticWordArtLayoutProps {
   wordArtTitleStyle?: string
   centerCards?: boolean
   showSocialIcons?: boolean
+  hasProAccess?: boolean
 }
 
 /** Renders a word art styled text with optional shadow layer */
@@ -106,6 +107,7 @@ export function StaticWordArtLayout({
   wordArtTitleStyle = 'style-eleven',
   centerCards,
   showSocialIcons = true,
+  hasProAccess = false,
 }: StaticWordArtLayoutProps) {
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
@@ -344,9 +346,11 @@ export function StaticWordArtLayout({
             Terms of Service
           </Link>
         </div>
-        <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
-          Powered by LinkLobby
-        </div>
+        {!hasProAccess && (
+          <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
+            Powered by LinkLobby
+          </div>
+        )}
       </footer>
     </div>
   )

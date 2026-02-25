@@ -272,6 +272,11 @@ export async function POST(request: Request) {
     // Templates store dock entries as sortKey references (not card IDs)
     // because card IDs change on every apply. Map them back to real IDs.
     const themeResponse = { ...template.theme }
+
+    // Ensure topBarColor is set — older templates may not have it saved
+    if (themeResponse.background && !themeResponse.background.topBarColor && themeResponse.colors?.background) {
+      themeResponse.background = { ...themeResponse.background, topBarColor: themeResponse.colors.background }
+    }
     if (Array.isArray(themeResponse.phoneHomeDock) && themeResponse.phoneHomeDock.length > 0) {
       // Build map: template sortKey → new card ID
       const sortKeyToNewId = new Map<string, string>()

@@ -26,9 +26,10 @@ const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; 
 }
 
 /**
- * LegalFooter - Footer with privacy policy and terms of service links
+ * LegalFooter - Footer with privacy policy and terms of service links.
+ * "Powered by LinkLobby" only shows for free users (hasProAccess=false).
  */
-function LegalFooter({ username }: { username: string }) {
+function LegalFooter({ username, hasProAccess }: { username: string; hasProAccess?: boolean }) {
   return (
     <footer className="py-6 text-center text-xs" style={{ opacity: 0.5 }}>
       <div className="flex items-center justify-center gap-4 text-theme-text">
@@ -46,9 +47,11 @@ function LegalFooter({ username }: { username: string }) {
           Terms of Service
         </Link>
       </div>
-      <div className="mt-2 text-theme-text">
-        Powered by LinkLobby
-      </div>
+      {!hasProAccess && (
+        <div className="mt-2 text-theme-text">
+          Powered by LinkLobby
+        </div>
+      )}
     </footer>
   )
 }
@@ -132,6 +135,8 @@ interface PublicPageRendererProps {
   visitorDrag?: boolean
   // Cards
   cards: Card[]
+  // Plan gating
+  hasProAccess?: boolean
 }
 
 /**
@@ -205,6 +210,7 @@ export function PublicPageRenderer({
   scatterMode = false,
   visitorDrag = false,
   cards,
+  hasProAccess = false,
 }: PublicPageRendererProps) {
   // Check if current theme supports scatter mode
   const isScatterLayout = scatterMode && themeId && isScatterTheme(themeId)
@@ -239,6 +245,7 @@ export function PublicPageRenderer({
         bodySize={bodySize}
         centerContent={vcrCenterContent}
         socialIcons={socialIcons}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -263,6 +270,7 @@ export function PublicPageRenderer({
         socialIcons={socialIcons}
         ipodStickers={ipodStickers}
         ipodTexture={ipodTexture}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -288,6 +296,7 @@ export function PublicPageRenderer({
         receiptStickers={receiptStickers}
         receiptFloatAnimation={receiptFloatAnimation}
         receiptPaperTexture={receiptPaperTexture}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -313,6 +322,7 @@ export function PublicPageRenderer({
         frameZoom={background?.frameZoom ?? 1}
         framePosX={background?.framePositionX ?? 0}
         framePosY={background?.framePositionY ?? 0}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -336,6 +346,7 @@ export function PublicPageRenderer({
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
         zineShowDoodles={zineShowDoodles}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -370,6 +381,7 @@ export function PublicPageRenderer({
         artifactHeroVideoUrl={artifactHeroVideoUrl}
         artifactHeroPositionX={artifactHeroPositionX}
         artifactHeroPositionY={artifactHeroPositionY}
+        hasProAccess={hasProAccess}
       />
     )
   }
@@ -390,13 +402,16 @@ export function PublicPageRenderer({
         wordArtTitleStyle={wordArtTitleStyle}
         centerCards={centerCards}
         showSocialIcons={showSocialIcons}
+        hasProAccess={hasProAccess}
       />
     )
   }
 
-  // If there's a social-icons card, render icons at card position (not in header)
+  // If there's a social-icons card AND actual icon data, render at card position (not header).
+  // If the card exists but there's no icon data, fall back to header rendering.
   const hasSocialIconsCard = cards.some(c => c.card_type === 'social-icons')
-  const showSocialIconsInHeader = showSocialIcons && !hasSocialIconsCard
+  const hasSocialIconData = !!socialIconsJson && socialIconsJson !== '[]'
+  const showSocialIconsInHeader = showSocialIcons && !(hasSocialIconsCard && hasSocialIconData)
 
   // Scatter mode: viewport-locked layout with footer pinned at bottom (takes priority over frame)
   if (isScatterLayout) {
@@ -434,7 +449,7 @@ export function PublicPageRenderer({
           />
         </div>
 
-        <LegalFooter username={username} />
+        <LegalFooter username={username} hasProAccess={hasProAccess} />
       </div>
     )
   }
@@ -506,7 +521,7 @@ export function PublicPageRenderer({
           </div>
 
           {/* Legal Footer */}
-          <LegalFooter username={username} />
+          <LegalFooter username={username} hasProAccess={hasProAccess} />
         </div>
       </div>
     )

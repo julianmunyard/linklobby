@@ -5,6 +5,17 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
   "themeId": "system-settings",
   "cards": [
     {
+      "card_type": "social-icons",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {},
+      "size": "big",
+      "position": "left",
+      "sortKey": "Zz",
+      "is_visible": true
+    },
+    {
       "card_type": "video",
       "title": null,
       "description": null,
@@ -19,7 +30,7 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "a3",
+      "sortKey": "a0",
       "is_visible": true
     },
     {
@@ -33,7 +44,7 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
       },
       "size": "small",
       "position": "center",
-      "sortKey": "a4",
+      "sortKey": "a1",
       "is_visible": true
     },
     {
@@ -47,7 +58,7 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
       },
       "size": "small",
       "position": "center",
-      "sortKey": "a5",
+      "sortKey": "a2",
       "is_visible": true
     }
   ],
@@ -77,7 +88,8 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
     },
     "background": {
       "type": "solid",
-      "value": "#000000"
+      "value": "#000000",
+      "topBarColor": "#000000"
     },
     "cardTypeFontSizes": {
       "hero": 1,
@@ -140,7 +152,38 @@ export const systemSettingsThreeSACrowd: TemplateDefinition = {
     "profileLayout": "classic",
     "headerTextColor": "#dedec7",
     "socialIconColor": "#dedec7",
-    "socialIcons": []
+    "socialIcons": [
+      {
+        "id": "ee27ffea-486d-49f9-b88a-f38a29c0d061",
+        "platform": "bandcamp",
+        "url": "",
+        "sortKey": "a0"
+      },
+      {
+        "id": "b15ed8e9-d61f-4a85-8f16-f838d616a9cc",
+        "platform": "instagram",
+        "url": "",
+        "sortKey": "a1"
+      },
+      {
+        "id": "947b6b97-bde0-4a0f-bea4-70567ff1b394",
+        "platform": "youtube",
+        "url": "",
+        "sortKey": "a2"
+      },
+      {
+        "id": "c00012ac-dafd-4767-a6ff-a76cd0f46533",
+        "platform": "applemusic",
+        "url": "",
+        "sortKey": "a3"
+      },
+      {
+        "id": "d025a913-83d1-43ee-aaa8-adc46bd2847f",
+        "platform": "spotify",
+        "url": "",
+        "sortKey": "a4"
+      }
+    ]
   },
   "mediaAssets": [],
   "id": "system-settings-three-s-a-crowd",

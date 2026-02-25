@@ -168,6 +168,7 @@ interface StaticChaoticZineLayoutProps {
   zineBadgeText?: string
   zineTitleSize?: number
   zineShowDoodles?: boolean
+  hasProAccess?: boolean
 }
 
 export function StaticChaoticZineLayout({
@@ -184,6 +185,7 @@ export function StaticChaoticZineLayout({
   zineBadgeText = 'NEW!',
   zineTitleSize = 1.0,
   zineShowDoodles = true,
+  hasProAccess = false,
 }: StaticChaoticZineLayoutProps) {
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
   const [isMounted, setIsMounted] = useState(false)
@@ -588,9 +590,11 @@ export function StaticChaoticZineLayout({
             Terms of Service
           </Link>
         </div>
-        <div className="mt-2">
-          Powered by LinkLobby
-        </div>
+        {!hasProAccess && (
+          <div className="mt-2">
+            Powered by LinkLobby
+          </div>
+        )}
       </footer>
     </div>
   )

@@ -143,7 +143,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "center",
-      "sortKey": "a6",
+      "sortKey": "a5",
       "is_visible": true
     },
     {
@@ -166,7 +166,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "center",
-      "sortKey": "a7",
+      "sortKey": "a6",
       "is_visible": true
     },
     {
@@ -198,7 +198,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "a9",
+      "sortKey": "a7",
       "is_visible": false
     },
     {
@@ -216,7 +216,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aA",
+      "sortKey": "a8",
       "is_visible": false
     },
     {
@@ -234,7 +234,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aB",
+      "sortKey": "a9",
       "is_visible": false
     },
     {
@@ -248,7 +248,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aC",
+      "sortKey": "aA",
       "is_visible": false
     },
     {
@@ -261,7 +261,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aE",
+      "sortKey": "aB",
       "is_visible": false
     },
     {
@@ -303,7 +303,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aF",
+      "sortKey": "aC",
       "is_visible": true
     },
     {
@@ -325,7 +325,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aH",
+      "sortKey": "aD",
       "is_visible": true
     },
     {
@@ -345,7 +345,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aH",
+      "sortKey": "aE",
       "is_visible": false
     },
     {
@@ -367,7 +367,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aI",
+      "sortKey": "aF",
       "is_visible": true
     },
     {
@@ -394,7 +394,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aJ",
+      "sortKey": "aG",
       "is_visible": true
     },
     {
@@ -433,7 +433,7 @@ export const phoneHomeBurple: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aK",
+      "sortKey": "aH",
       "is_visible": true
     }
   ],

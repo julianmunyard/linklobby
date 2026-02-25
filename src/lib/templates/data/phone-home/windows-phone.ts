@@ -5,257 +5,74 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
   "themeId": "phone-home",
   "cards": [
     {
-      "card_type": "hero",
+      "card_type": "link",
       "title": "LISTEN",
       "description": null,
       "url": null,
       "content": {
-        "iconName": "Music",
         "textAlign": "center",
-        "appIconUrl": "/icons/8bit/my-computer.png",
-        "showButton": false,
-        "wordArtStyle": "style-four",
+        "appIconUrl": "/icons/8bit/winamp.png",
+        "wordArtStyle": "style-five",
+        "verticalAlign": "middle",
+        "phoneHomeLayout": {
+          "col": 0,
+          "row": 5,
+          "page": 0,
+          "width": 1,
+          "height": 1
+        },
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "a0",
+      "is_visible": true
+    },
+    {
+      "card_type": "square",
+      "title": "WATCH",
+      "description": null,
+      "url": null,
+      "content": {
+        "textAlign": "center",
+        "appIconUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/b435e43e-bf3c-4954-ab7e-7154997764fb/d845b11e-3879-4337-b055-6417500c09cc.png",
+        "verticalAlign": "middle",
+        "phoneHomeLayout": {
+          "col": 3,
+          "row": 0,
+          "page": 0,
+          "width": 1,
+          "height": 1
+        },
         "transparentBackground": false
       },
       "size": "small",
-      "position": "center",
+      "position": "left",
       "sortKey": "a1",
       "is_visible": true
     },
     {
-      "card_type": "hero",
-      "title": "VIDEOS",
+      "card_type": "square",
+      "title": "MORE",
       "description": null,
       "url": null,
       "content": {
-        "iconName": "MapPin",
         "textAlign": "center",
-        "appIconUrl": "/icons/8bit/folder.png",
-        "showButton": false,
-        "wordArtStyle": "style-seven",
+        "appIconUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/c2be249f-face-4178-bdb9-ed6e8df4a0b9/d18a560d-5f80-4cfa-9a8e-4047f103448e.png",
+        "verticalAlign": "middle",
+        "phoneHomeLayout": {
+          "col": 1,
+          "row": 0,
+          "page": 0,
+          "width": 1,
+          "height": 1
+        },
         "transparentBackground": false
       },
       "size": "small",
-      "position": "center",
+      "position": "left",
       "sortKey": "a2",
       "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "TOUR DATES",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/sound.png",
-        "wordArtStyle": "style-twentyone",
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a6",
-      "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "MERCH",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/calculator.png",
-        "wordArtStyle": "style-fourteen",
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a7",
-      "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "YOUTUBE",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/internet-explorer.png",
-        "wordArtStyle": "style-three",
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a8",
-      "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "INSTAGRAM",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/my-documents.png",
-        "wordArtStyle": "style-seventeen",
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a8V",
-      "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "WEBISTE",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/notepad.png",
-        "wordArtStyle": "style-one",
-        "phoneHomeLayout": {
-          "col": 2,
-          "row": 1,
-          "page": 0,
-          "width": 1,
-          "height": 1
-        },
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a8l",
-      "is_visible": true
-    },
-    {
-      "card_type": "link",
-      "title": "DEMOS",
-      "description": null,
-      "url": null,
-      "content": {
-        "iconName": "MapPin",
-        "appIconUrl": "/icons/8bit/media-player.png",
-        "wordArtStyle": "style-one",
-        "phoneHomeLayout": {
-          "col": 2,
-          "row": 1,
-          "page": 0,
-          "width": 1,
-          "height": 1
-        },
-        "transparentBackground": false
-      },
-      "size": "big",
-      "position": "center",
-      "sortKey": "a8t",
-      "is_visible": true
-    },
-    {
-      "card_type": "music",
-      "title": null,
-      "description": null,
-      "url": null,
-      "content": {
-        "title": "2008 Toyota Corolla",
-        "embedUrl": "https://open.spotify.com/track/06ATooCLq2lm8tgFGE7scT?si=21e73184858148d7",
-        "platform": "spotify",
-        "embeddable": true,
-        "thumbnailUrl": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02092cecf16e143d56e7c2080e",
-        "embedIframeUrl": "https://open.spotify.com/embed/track/06ATooCLq2lm8tgFGE7scT?si=21e73184858148d7&theme=0",
-        "phoneHomeLayout": {
-          "col": 0,
-          "row": 2,
-          "page": 0,
-          "width": 4,
-          "height": 2
-        }
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "a9",
-      "is_visible": true
-    },
-    {
-      "card_type": "hero",
-      "title": null,
-      "description": null,
-      "url": null,
-      "content": {
-        "macLinks": [
-          {
-            "url": "https://open.spotify.com/album/",
-            "title": "LISTEN"
-          },
-          {
-            "url": "https://bandsintown.com/",
-            "title": "VIDEOS"
-          },
-          {
-            "url": "https://bandsintown.com/",
-            "title": "TOUR DATES"
-          },
-          {
-            "url": "https://bandsintown.com/",
-            "title": "MERCH"
-          }
-        ],
-        "notepadStyle": "buttons",
-        "macWindowStyle": "notepad"
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "a9",
-      "is_visible": false
-    },
-    {
-      "card_type": "hero",
-      "title": "LINK OR VIDEO",
-      "description": null,
-      "url": null,
-      "content": {
-        "macMode": "link",
-        "macTextAlign": "left",
-        "macTextColor": "#000000",
-        "macWindowStyle": "small-window",
-        "macCheckerColor": "#cfffcc",
-        "macWindowBgColor": "#afb3ee"
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "a9V",
-      "is_visible": false
-    },
-    {
-      "card_type": "hero",
-      "title": "LINK OR VIDEO",
-      "description": null,
-      "url": null,
-      "content": {
-        "macMode": "link",
-        "macTextAlign": "left",
-        "macTextColor": "#000",
-        "macWindowStyle": "small-window",
-        "macCheckerColor": "#cfffcc",
-        "macWindowBgColor": "#afb3ee"
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "a9l",
-      "is_visible": false
-    },
-    {
-      "card_type": "hero",
-      "title": null,
-      "description": null,
-      "url": null,
-      "content": {
-        "calcMessage": "custom message ",
-        "macWindowStyle": "calculator"
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "aA",
-      "is_visible": false
     },
     {
       "card_type": "gallery",
@@ -265,16 +82,16 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
       "content": {
         "images": [
           {
-            "id": "b04ce209-69a5-45fc-88cf-6fa1fa213579",
+            "id": "e92c6bef-bc5a-48be-85be-52be637888a4",
             "alt": "_ (22)",
-            "url": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/8d1a998c-e541-4893-9ef1-3a95989595ce/e5807174-45a5-40aa-a774-66810313f03b.jpeg",
-            "storagePath": "8d1a998c-e541-4893-9ef1-3a95989595ce/e5807174-45a5-40aa-a774-66810313f03b.jpeg"
+            "url": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/dd2cae07-d38a-4a6d-b043-0f8a36407c2a/e01ee20c-a2ba-4f73-8ebf-d5f08ed09f73.jpg",
+            "storagePath": "dd2cae07-d38a-4a6d-b043-0f8a36407c2a/e01ee20c-a2ba-4f73-8ebf-d5f08ed09f73.jpg"
           }
         ],
         "galleryStyle": "carousel",
         "phoneHomeLayout": {
           "col": 0,
-          "row": 4,
+          "row": 1,
           "page": 0,
           "width": 4,
           "height": 2
@@ -282,39 +99,25 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aA",
+      "sortKey": "a3",
       "is_visible": true
     },
     {
-      "card_type": "hero",
-      "title": null,
-      "description": null,
-      "url": null,
-      "content": {
-        "macWindowStyle": "map"
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "aB",
-      "is_visible": false
-    },
-    {
       "card_type": "audio",
-      "title": null,
+      "title": "PLAYER",
       "description": null,
       "url": null,
       "content": {
         "tracks": [
           {
-            "id": "8b5b2ab8-827c-4f60-90ec-9fa80fb70587",
+            "id": "f8bc85ad-22b8-43d5-9aef-c330698751e8",
             "title": "LEASE by Takeshi Abo but slightly bitcrushed for nostalgia",
             "artist": "",
-            "audioUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-audio/05750469-143e-4f39-a705-3484f0beb973/8b5b2ab8-827c-4f60-90ec-9fa80fb70587.mp3",
+            "audioUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-audio/cead228f-f7b6-429e-a2f3-76fc273e66c1/f8bc85ad-22b8-43d5-9aef-c330698751e8.mp3",
             "duration": 103.340417
           }
         ],
         "looping": false,
-        "autoplay": false,
         "reverbConfig": {
           "mix": 0.3,
           "damp": 0.5,
@@ -325,56 +128,78 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
         },
         "showWaveform": true,
         "blinkieColors": {
-          "text": "#d8dec8",
-          "buttons": "#b89048",
-          "innerBox": "#8a9868",
-          "outerBox": "#252818",
-          "playerBox": "#607040"
+          "text": "#ccc0e0",
+          "buttons": "#a84888",
+          "innerBox": "#6a4898",
+          "outerBox": "#1a1530",
+          "playerBox": "#483570"
         },
-        "phoneHomeLayout": {
-          "col": 0,
-          "row": 2,
-          "page": 1,
-          "width": 1,
-          "height": 1
-        },
-        "blinkieBoxBackgrounds": {
-          "cardBgUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/05750469-143e-4f39-a705-3484f0beb973/4d81001b-9434-4c40-903e-600dec991142.jpg",
-          "cardOuterDim": 56,
-          "cardBgStoragePath": "05750469-143e-4f39-a705-3484f0beb973/4d81001b-9434-4c40-903e-600dec991142.jpg"
-        }
-      },
-      "size": "big",
-      "position": "left",
-      "sortKey": "aB",
-      "is_visible": true
-    },
-    {
-      "card_type": "gallery",
-      "title": null,
-      "description": null,
-      "url": null,
-      "content": {
-        "images": [
-          {
-            "id": "b58a2115-9fbf-463d-b998-07c584ca0f6f",
-            "alt": "2000s vibes background",
-            "url": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/7b27a17f-031e-4bcf-917d-d8fa8d935d8c/75e35c23-4da0-4fd9-b772-8fa9774a1c82.jpeg",
-            "storagePath": "7b27a17f-031e-4bcf-917d-d8fa8d935d8c/75e35c23-4da0-4fd9-b772-8fa9774a1c82.jpeg"
-          }
-        ],
-        "galleryStyle": "carousel",
         "phoneHomeLayout": {
           "col": 0,
           "row": 0,
           "page": 1,
           "width": 4,
-          "height": 2
-        }
+          "height": 1
+        },
+        "phoneHomeWidgetMode": true,
+        "blinkieBoxBackgrounds": {
+          "cardBgUrl": "/card-backgrounds/green-orbits.gif"
+        },
+        "transparentBackground": false
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aC",
+      "sortKey": "a4",
+      "is_visible": true
+    },
+    {
+      "card_type": "link",
+      "title": "SHOWS",
+      "description": null,
+      "url": null,
+      "content": {
+        "textAlign": "center",
+        "appIconUrl": "/icons/mac/font-suitcase.png",
+        "verticalAlign": "middle",
+        "phoneHomeLayout": {
+          "col": 2,
+          "row": 0,
+          "page": 0,
+          "width": 1,
+          "height": 1
+        },
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "a5",
+      "is_visible": true
+    },
+    {
+      "card_type": "music",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {
+        "title": "Take Da Charge",
+        "embedUrl": "https://open.spotify.com/track/2XOKoaCWziW0W14DPeY7XS?si=b551f5abeb964d19",
+        "platform": "spotify",
+        "appIconUrl": "/icons/8bit/8bit46.png",
+        "embeddable": true,
+        "thumbnailUrl": "https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02393fb413d09de1443185da1e",
+        "embedIframeUrl": "https://open.spotify.com/embed/track/2XOKoaCWziW0W14DPeY7XS?si=b551f5abeb964d19&theme=0",
+        "phoneHomeLayout": {
+          "col": 0,
+          "row": 3,
+          "page": 0,
+          "width": 4,
+          "height": 2
+        },
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "a6",
       "is_visible": true
     },
     {
@@ -383,30 +208,217 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
       "description": null,
       "url": null,
       "content": {
-        "albumArtUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/9b437c15-d956-4b88-9b2e-3c1681fec566/85a9c56a-9544-41db-b943-26d16c0610cb.jpg",
-        "showCountdown": true,
-        "macWindowStyle": "presave",
-        "presaveBgColor": "#F2FFA4",
-        "preSaveButtonText": "Pre-save",
-        "afterCountdownText": "OUT NOW",
-        "albumArtStoragePath": "9b437c15-d956-4b88-9b2e-3c1681fec566/85a9c56a-9544-41db-b943-26d16c0610cb.jpg",
-        "afterCountdownAction": "custom"
+        "calcMessage": "idiot",
+        "macWindowStyle": "calculator",
+        "scatterLayouts": {
+          "mac-os": {
+            "x": 40,
+            "y": 30.000000000000007,
+            "width": 60,
+            "height": 40,
+            "zIndex": 5
+          },
+          "word-art": {
+            "x": 40,
+            "y": 30.000000000000007,
+            "width": 60,
+            "height": 40,
+            "zIndex": 5
+          },
+          "macintosh": {
+            "x": 40,
+            "y": 30.000000000000007,
+            "width": 60,
+            "height": 40,
+            "zIndex": 5
+          },
+          "instagram-reels": {
+            "x": 40,
+            "y": 30.000000000000007,
+            "width": 60,
+            "height": 40,
+            "zIndex": 5
+          },
+          "system-settings": {
+            "x": 40,
+            "y": 30.000000000000007,
+            "width": 60,
+            "height": 40,
+            "zIndex": 5
+          }
+        },
+        "transparentBackground": false
       },
       "size": "big",
       "position": "left",
-      "sortKey": "aD",
+      "sortKey": "a7",
       "is_visible": false
+    },
+    {
+      "card_type": "hero",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {
+        "macWindowStyle": "map",
+        "scatterLayouts": {
+          "mac-os": {
+            "x": 0,
+            "y": 60,
+            "width": 60,
+            "height": 40,
+            "zIndex": 6
+          },
+          "word-art": {
+            "x": 0,
+            "y": 60,
+            "width": 60,
+            "height": 40,
+            "zIndex": 6
+          },
+          "macintosh": {
+            "x": 0,
+            "y": 60,
+            "width": 60,
+            "height": 40,
+            "zIndex": 6
+          },
+          "instagram-reels": {
+            "x": 0,
+            "y": 60,
+            "width": 60,
+            "height": 40,
+            "zIndex": 6
+          },
+          "system-settings": {
+            "x": 0,
+            "y": 60,
+            "width": 60,
+            "height": 40,
+            "zIndex": 6
+          }
+        },
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "a8",
+      "is_visible": false
+    },
+    {
+      "card_type": "hero",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {
+        "macMode": "video",
+        "macVideoUrl": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-videos/01ec9b3e-c7fc-4722-87fd-3c388421b680/1a4185d0-4427-44fd-88ae-d0832e9860f3.mp4",
+        "macTextAlign": "center",
+        "macTextColor": "#ffffff",
+        "macWindowStyle": "small-window",
+        "macCheckerColor": "#8f5685",
+        "macWindowBgColor": "#6895a1",
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "a9",
+      "is_visible": false
+    },
+    {
+      "card_type": "hero",
+      "title": "BAkANI",
+      "description": null,
+      "url": null,
+      "content": {
+        "macMode": "link",
+        "macTextAlign": "center",
+        "macTextColor": "#000",
+        "macWindowStyle": "small-window",
+        "macCheckerColor": "#8f5685",
+        "macWindowBgColor": "#6895a1",
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "aA",
+      "is_visible": false
+    },
+    {
+      "card_type": "hero",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {
+        "macLinks": [
+          {
+            "url": "",
+            "title": "LISTEN"
+          },
+          {
+            "url": "",
+            "title": "WATCH"
+          },
+          {
+            "url": "",
+            "title": "MORE"
+          },
+          {
+            "url": "",
+            "title": "PLAYER"
+          }
+        ],
+        "notepadStyle": "buttons",
+        "macWindowStyle": "notepad",
+        "transparentBackground": false
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "aB",
+      "is_visible": false
+    },
+    {
+      "card_type": "social-icons",
+      "title": null,
+      "description": null,
+      "url": null,
+      "content": {
+        "socialAppIcons": {
+          "instagram": {
+            "appIconUrl": "/icons/mac/classic-mac.png"
+          },
+          "applemusic": {
+            "appIconUrl": "/icons/mac/happy-mac.png"
+          }
+        },
+        "socialIconLayouts": {
+          "instagram": {
+            "col": 0,
+            "row": 0,
+            "page": 0
+          },
+          "applemusic": {
+            "col": 1,
+            "row": 0,
+            "page": 0
+          }
+        }
+      },
+      "size": "big",
+      "position": "left",
+      "sortKey": "aC",
+      "is_visible": true
     }
   ],
   "theme": {
     "themeId": "phone-home",
-    "paletteId": "phone-dark",
+    "paletteId": null,
     "colors": {
       "link": "oklch(0.62 0.22 250)",
       "text": "oklch(1 0 0)",
       "accent": "oklch(0.62 0.22 250)",
       "border": "oklch(0.40 0 0 / 0.3)",
-      "cardBg": "oklch(0.25 0 0 / 0.6)",
+      "cardBg": "#4e761c",
       "background": "oklch(0.13 0 0)"
     },
     "fonts": {
@@ -423,36 +435,57 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
     },
     "background": {
       "type": "image",
-      "value": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/36eb6d57-7a64-458a-aafa-16e076ead485/backgrounds/1771591832843.jpeg",
-      "dimOverlay": false,
-      "topBarColor": "#3d61a8",
-      "dimIntensity": 25
+      "value": "https://blvmwpxltwittctoatfd.supabase.co/storage/v1/object/public/card-images/36eb6d57-7a64-458a-aafa-16e076ead485/backgrounds/1771462057818.jpeg",
+      "dimOverlay": true,
+      "topBarColor": "#4b8442",
+      "dimIntensity": 10
     },
     "cardTypeFontSizes": {
-      "hero": 0.8,
-      "square": 1,
-      "horizontal": 1,
-      "link": 1.2,
+      "hero": 0.6,
+      "square": 1.4,
+      "horizontal": 0.9,
+      "link": 0.9,
       "mini": 1,
-      "text": 1,
+      "text": 1.3,
       "gallery": 1,
-      "video": 1
+      "video": 1.8
     },
     "centerCards": false,
-    "vcrCenterContent": false,
-    "receiptPrice": "PRICELESS",
-    "receiptStickers": [],
+    "vcrCenterContent": true,
+    "receiptPrice": "A GAJILLON ",
+    "receiptStickers": [
+      {
+        "x": 4.765215498697749,
+        "y": 1.4389843466185646,
+        "id": "price-tag-2-1770970704453",
+        "src": "/images/stickers/price-tag-2.jpeg",
+        "scale": 1.0261351575739197,
+        "rotation": 13.740950510664732,
+        "behindText": false
+      }
+    ],
     "receiptFloatAnimation": true,
-    "receiptPaperTexture": false,
-    "ipodStickers": [],
-    "ipodTexture": "/images/ipod-texture-scratched.jpeg",
+    "receiptPaperTexture": true,
+    "ipodStickers": [
+      {
+        "x": 48.73754500089153,
+        "y": 91.25863511095115,
+        "id": "price-tag-1-1770680564846",
+        "src": "/images/stickers/price-tag-1.jpeg",
+        "scale": 0.9,
+        "rotation": 3,
+        "behindText": true
+      }
+    ],
+    "ipodTexture": "/images/ipod-texture-rusty.jpeg",
     "ipodFont": "system",
-    "macPattern": "/images/mac-patterns/pattern-1.png",
-    "macPatternColor": "#7e350d",
-    "wordArtTitleStyle": "style-three",
+    "macPattern": "",
+    "macPatternColor": "#a37710",
+    "wordArtTitleStyle": "style-four",
     "phoneHomeDock": [],
     "phoneHomeShowDock": true,
-    "phoneHomeVariant": "default",
+    "phoneHomeDockTranslucent": true,
+    "phoneHomeVariant": "8-bit",
     "zineBadgeText": "NEW!",
     "zineTitleSize": 1,
     "zineShowDoodles": true,
@@ -474,7 +507,7 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
     "visitorDrag": false
   },
   "profile": {
-    "displayName": "YOUR NAME",
+    "displayName": null,
     "bio": null,
     "avatarUrl": null,
     "avatarFeather": 0,
@@ -486,32 +519,13 @@ export const phoneHomeWindowsPhone: TemplateDefinition = {
     "logoUrl": null,
     "logoScale": 100,
     "profileLayout": "classic",
-    "headerTextColor": "#ffffff",
-    "socialIconColor": "#ffffff",
-    "socialIcons": [
-      {
-        "id": "86ec3c07-a25a-4aaf-b063-98ae75cf1fa8",
-        "url": "",
-        "sortKey": "a1",
-        "platform": "instagram"
-      },
-      {
-        "id": "144c3a93-9040-471f-86d9-cacda54921ff",
-        "url": "",
-        "sortKey": "a2",
-        "platform": "spotify"
-      },
-      {
-        "id": "8d4ad2df-d302-4e46-a9f6-a4f19633c261",
-        "url": "",
-        "sortKey": "a3",
-        "platform": "tiktok"
-      }
-    ]
+    "headerTextColor": "oklch(0 0 0)",
+    "socialIconColor": "oklch(0 0 0)",
+    "socialIcons": []
   },
   "mediaAssets": [],
   "id": "phone-home-windows-phone",
-  "name": "WINDOWS PHONE",
-  "description": "WINDOWS PHONE template",
+  "name": "MCLOVINS IPHONE",
+  "description": "WINDOWS PHONE",
   "thumbnailPath": "/templates/phone-home-windows-phone/thumbnail.jpg"
 } as const satisfies TemplateDefinition

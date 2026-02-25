@@ -35,8 +35,8 @@ export function MobileBottomSheet({
       modal={false}
     >
       <DrawerContent className="h-[85dvh] max-h-[85dvh] flex flex-col">
-        <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
-          <DrawerTitle>{title}</DrawerTitle>
+        <div className="flex items-center justify-between border-b px-4 py-2.5 shrink-0">
+          <DrawerTitle className="text-sm font-semibold">{title}</DrawerTitle>
           <DrawerClose asChild>
             <Button
               variant="ghost"
@@ -47,7 +47,7 @@ export function MobileBottomSheet({
               <X className="h-4 w-4" />
             </Button>
           </DrawerClose>
-        </DrawerHeader>
+        </div>
 
         {/* Scrollable content area */}
         <div className={cn(

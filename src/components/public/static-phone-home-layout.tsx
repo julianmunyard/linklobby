@@ -646,8 +646,11 @@ function autoLayoutCards(
 
     // Social-icons card: expand into one 1x1 entry per social icon
     if (card.card_type === 'social-icons' && socialIcons.length > 0) {
+      const socialIconLayouts = content.socialIconLayouts as Record<string, { page: number; row: number; col: number }> | undefined
       for (const si of socialIcons) {
-        itemsToPlace.push({ card, w: 1, h: 1, socialIcon: si })
+        const siLayout = socialIconLayouts?.[si.platform]
+        const siExplicit = siLayout ? { page: siLayout.page, row: siLayout.row, col: siLayout.col, width: 1 as const, height: 1 as const } : undefined
+        itemsToPlace.push({ card, w: 1, h: 1, explicit: siExplicit, socialIcon: si })
       }
       continue
     }
@@ -898,11 +901,10 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className={isFullWidth ? 'w-full' : ''}
+                        className="w-full h-full overflow-hidden"
                         style={{
                           gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
-                          aspectRatio: isFullWidth ? `${layout.width} / ${layout.height}` : '1 / 1',
                         }}
                       >
                         <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
@@ -915,7 +917,7 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full"
+                        className="w-full h-full overflow-hidden"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -934,7 +936,7 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full"
+                        className="w-full h-full overflow-hidden"
                         style={{
                           gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,

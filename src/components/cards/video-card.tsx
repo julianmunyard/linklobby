@@ -56,10 +56,10 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
   if (!isVideoContent(card.content)) {
     // Fallback for cards with invalid content
     return (
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
-        <div className="text-center text-muted-foreground">
-          <Video className="h-12 w-12 mx-auto mb-2" />
-          <p>Add video URL or upload video</p>
+      <div className="relative w-full aspect-video overflow-hidden bg-muted flex items-center justify-center">
+        <div className="text-center text-muted-foreground p-3">
+          <Video className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-1.5" />
+          <p className="text-xs sm:text-sm leading-tight">Add video URL or upload video</p>
         </div>
       </div>
     )
@@ -108,10 +108,10 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
 
   // Placeholder when no video configured
   return (
-    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
-      <div className="text-center text-muted-foreground">
-        <Video className="h-12 w-12 mx-auto mb-2" />
-        <p>Add video URL or upload video</p>
+    <div className="relative w-full aspect-video overflow-hidden bg-muted flex items-center justify-center">
+      <div className="text-center text-muted-foreground p-3">
+        <Video className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-1.5" />
+        <p className="text-xs sm:text-sm leading-tight">Add video URL or upload video</p>
       </div>
     </div>
   )
@@ -319,7 +319,7 @@ function VideoCardEmbed({
           <VerticalEmbedContainer>
             <iframe
               src={getEmbedUrl()}
-              className="w-full h-full rounded-xl"
+              className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title={title || 'Video'}
@@ -336,7 +336,7 @@ function VideoCardEmbed({
         <VerticalEmbedContainer>
           <button
             onClick={handlePlay}
-            className="relative w-full h-full overflow-hidden bg-muted group cursor-pointer block rounded-xl"
+            className="relative w-full h-full overflow-hidden bg-muted group cursor-pointer block"
             aria-label={`Play ${title || 'video'}`}
           >
             {/* Thumbnail image or generic placeholder */}

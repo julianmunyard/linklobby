@@ -29,6 +29,7 @@ interface StaticIpodClassicLayoutProps {
   socialIcons?: SocialIcon[]
   ipodStickers?: ReceiptSticker[]
   ipodTexture?: string
+  hasProAccess?: boolean
 }
 
 /**
@@ -47,7 +48,8 @@ export function StaticIpodClassicLayout({
   logoScale = 100,
   socialIcons = [],
   ipodStickers = [],
-  ipodTexture = '/images/metal-texture.jpeg'
+  ipodTexture = '/images/metal-texture.jpeg',
+  hasProAccess = false,
 }: StaticIpodClassicLayoutProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [currentScreen, setCurrentScreen] = useState<'main' | 'socials' | 'release' | 'nowplaying'>('main')
@@ -949,8 +951,12 @@ export function StaticIpodClassicLayout({
           >
             Terms of Service
           </Link>
-          <span>•</span>
-          <span>Powered by LinkLobby</span>
+          {!hasProAccess && (
+            <>
+              <span>•</span>
+              <span>Powered by LinkLobby</span>
+            </>
+          )}
         </div>
       </footer>
     </div>

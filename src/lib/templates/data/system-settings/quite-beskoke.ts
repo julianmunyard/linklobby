@@ -40,20 +40,6 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
       },
       "size": "big",
       "position": "center",
-      "sortKey": "a1V",
-      "is_visible": true
-    },
-    {
-      "card_type": "square",
-      "title": "LINK",
-      "description": null,
-      "url": "https://bandsintown.com/",
-      "content": {
-        "iconName": "MapPin",
-        "transparentBackground": true
-      },
-      "size": "small",
-      "position": "center",
       "sortKey": "a2",
       "is_visible": true
     },
@@ -69,6 +55,20 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
       "size": "small",
       "position": "center",
       "sortKey": "a3",
+      "is_visible": true
+    },
+    {
+      "card_type": "square",
+      "title": "LINK",
+      "description": null,
+      "url": "https://bandsintown.com/",
+      "content": {
+        "iconName": "MapPin",
+        "transparentBackground": true
+      },
+      "size": "small",
+      "position": "center",
+      "sortKey": "a4",
       "is_visible": true
     },
     {
@@ -102,6 +102,20 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
       },
       "size": "big",
       "position": "left",
+      "sortKey": "a5",
+      "is_visible": true
+    },
+    {
+      "card_type": "text",
+      "title": "LINK",
+      "description": null,
+      "url": "https://bandsintown.com/",
+      "content": {
+        "iconName": "MapPin",
+        "transparentBackground": true
+      },
+      "size": "small",
+      "position": "center",
       "sortKey": "a6",
       "is_visible": true
     },
@@ -118,49 +132,34 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
       "position": "center",
       "sortKey": "a7",
       "is_visible": true
-    },
-    {
-      "card_type": "text",
-      "title": "LINK",
-      "description": null,
-      "url": "https://bandsintown.com/",
-      "content": {
-        "iconName": "MapPin",
-        "transparentBackground": true
-      },
-      "size": "small",
-      "position": "center",
-      "sortKey": "a8",
-      "is_visible": true
     }
   ],
   "theme": {
     "themeId": "system-settings",
-    "paletteId": null,
+    "paletteId": "poolsuite-pink",
     "colors": {
-      "link": "#dedec7",
-      "text": "#dedec7",
-      "accent": "#122d81",
-      "border": "#dedec7",
-      "cardBg": "#122d81",
-      "background": "#000000",
-      "titleBarLine": "#dedec7"
+      "background": "oklch(0.89 0.04 10)",
+      "cardBg": "oklch(0.95 0.02 70)",
+      "text": "oklch(0 0 0)",
+      "accent": "oklch(1 0 0)",
+      "border": "oklch(0.20 0 0)",
+      "link": "oklch(0.35 0.12 250)"
     },
     "fonts": {
+      "heading": "var(--font-ishmeria)",
       "body": "var(--font-dm-sans)",
-      "heading": "var(--font-led-dot-matrix)",
-      "bodySize": 1,
       "headingSize": 1,
+      "bodySize": 1,
       "headingWeight": "normal"
     },
     "style": {
       "borderRadius": 6,
-      "blurIntensity": 0,
-      "shadowEnabled": false
+      "shadowEnabled": false,
+      "blurIntensity": 0
     },
     "background": {
       "type": "solid",
-      "value": "#000000"
+      "value": "oklch(0.89 0.04 10)"
     },
     "cardTypeFontSizes": {
       "hero": 1,
@@ -172,7 +171,7 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
       "gallery": 1,
       "video": 1
     },
-    "centerCards": false,
+    "centerCards": true,
     "vcrCenterContent": false,
     "receiptPrice": "PRICELESS",
     "receiptStickers": [],
@@ -186,6 +185,7 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
     "wordArtTitleStyle": "style-eleven",
     "phoneHomeDock": [],
     "phoneHomeShowDock": true,
+    "phoneHomeDockTranslucent": true,
     "phoneHomeVariant": "default",
     "zineBadgeText": "NEW!",
     "zineTitleSize": 1,
@@ -220,38 +220,38 @@ export const systemSettingsQuiteBeskoke: TemplateDefinition = {
     "logoUrl": null,
     "logoScale": 100,
     "profileLayout": "classic",
-    "headerTextColor": "#dedec7",
-    "socialIconColor": "#dedec7",
+    "headerTextColor": "oklch(0 0 0)",
+    "socialIconColor": "oklch(0 0 0)",
     "socialIcons": [
       {
         "id": "1757f885-bebc-4bd3-9962-177d8aa6c3ba",
-        "platform": "instagram",
         "url": "",
-        "sortKey": "a0"
+        "sortKey": "a0",
+        "platform": "instagram"
       },
       {
         "id": "7b5b63b1-4169-4075-b2b3-cdbc0472802a",
-        "platform": "bandcamp",
         "url": "",
-        "sortKey": "a1"
+        "sortKey": "a1",
+        "platform": "bandcamp"
       },
       {
         "id": "5c8e9f53-b73b-404e-98dc-49ca133d6d2b",
-        "platform": "spotify",
         "url": "",
-        "sortKey": "a2"
+        "sortKey": "a2",
+        "platform": "spotify"
       },
       {
         "id": "83fc5d2f-2d05-4e01-8106-d255fa70c886",
-        "platform": "applemusic",
         "url": "",
-        "sortKey": "a3"
+        "sortKey": "a3",
+        "platform": "applemusic"
       }
     ]
   },
   "mediaAssets": [],
   "id": "system-settings-quite-beskoke",
-  "name": "QUITE BESKOKE",
+  "name": "QUITE BESPOKE",
   "description": "QUITE BESKOKE template",
   "thumbnailPath": "/templates/system-settings-quite-beskoke/thumbnail.jpg"
 } as const satisfies TemplateDefinition

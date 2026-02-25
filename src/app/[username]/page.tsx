@@ -7,6 +7,8 @@ import { StaticBackground, StaticDimOverlay, StaticNoiseOverlay, StaticFrameOver
 import { StaticGlitchOverlay } from "@/components/glitch/static-glitch-overlay"
 import { ClickTracker } from "@/components/public/click-tracker"
 import { PixelLoader } from "@/components/pixels/pixel-loader"
+import { getUserPlan, isPro } from "@/lib/stripe/subscription"
+import { PRO_THEMES } from "@/lib/stripe/plans"
 
 interface PublicPageProps {
   params: Promise<{
@@ -35,11 +37,34 @@ export default async function PublicPage({ params }: PublicPageProps) {
     notFound()
   }
 
-  const { profile, page, cards } = data
+  const { profile, page } = data
+
+  // Determine plan access for public page feature gating
+  const planTier = await getUserPlan(page.user_id)
+  const hasProAccess = isPro(planTier)
+
+  // Strip Pro-only cards for free users and remove scheduling
+  const cards = hasProAccess
+    ? data.cards
+    : data.cards
+        .filter((card) => {
+          if (card.card_type === 'email-collection') return false
+          if (card.card_type === 'release') return false
+          return true
+        })
+        .map((card) => ({
+          ...card,
+          schedule_start: null,
+          schedule_end: null,
+        }))
 
   // Extract theme settings and fuzzy text configuration
   const themeSettings = page.theme_settings
-  const themeId = themeSettings?.themeId ?? 'mac-os'
+  const rawThemeId = themeSettings?.themeId ?? 'mac-os'
+  // Free users fall back to 'instagram-reels' when a Pro-only theme is active
+  const themeId = (!hasProAccess && PRO_THEMES.includes(rawThemeId))
+    ? 'instagram-reels'
+    : rawThemeId
   const fuzzyEnabled = themeSettings?.fonts?.fuzzyEnabled ?? false
   const fuzzyIntensity = themeSettings?.fonts?.fuzzyIntensity ?? 0.19
   const fuzzySpeed = themeSettings?.fonts?.fuzzySpeed ?? 12
@@ -172,6 +197,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         scatterMode={scatterMode}
         visitorDrag={visitorDrag}
         cards={cards}
+        hasProAccess={hasProAccess}
       />
 
       {/* Analytics click tracking (client component) */}
