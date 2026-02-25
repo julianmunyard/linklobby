@@ -6,6 +6,8 @@ import { NextResponse } from "next/server"
 import { updateCard, upsertCard, deleteCard, fetchUserPage } from "@/lib/supabase/cards"
 import { validateCsrfOrigin } from "@/lib/csrf"
 import { sanitizeText } from "@/lib/sanitize"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
+import { createClient } from "@/lib/supabase/server"
 
 export async function PUT(
   request: Request,
@@ -16,6 +18,15 @@ export async function PUT(
   }
 
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -48,6 +59,15 @@ export async function PATCH(
   }
 
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -79,6 +99,15 @@ export async function DELETE(
   }
 
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

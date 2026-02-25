@@ -6,6 +6,7 @@ import { fetchUserPage } from "@/lib/supabase/cards"
 import { POSITION_MAP } from "@/types/card"
 import type { HorizontalPosition } from "@/types/card"
 import { validateCsrfOrigin } from "@/lib/csrf"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
 
 export async function POST(request: Request) {
   if (!validateCsrfOrigin(request)) {
@@ -13,6 +14,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -22,8 +32,6 @@ export async function POST(request: Request) {
     if (!Array.isArray(cards) || cards.length === 0) {
       return NextResponse.json({ error: "No cards provided" }, { status: 400 })
     }
-
-    const supabase = await createClient()
 
     // Map cards to database format and upsert all at once
     const dbCards = cards.map((card: Record<string, unknown>) => ({

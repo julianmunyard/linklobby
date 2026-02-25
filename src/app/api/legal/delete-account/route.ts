@@ -4,6 +4,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { validateCsrfOrigin } from "@/lib/csrf"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
 
 /**
  * POST - Initiate account deletion
@@ -22,6 +23,9 @@ export async function POST(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
 
     // Parse request body
     const body = await request.json()
@@ -115,6 +119,9 @@ export async function PATCH(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
 
     // Check if account is actually scheduled for deletion
     const { data: profile, error: profileError } = await supabase

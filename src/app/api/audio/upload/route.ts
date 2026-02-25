@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { convertToMp3 } from '@/lib/audio/convert-to-mp3'
 import { validateCsrfOrigin } from '@/lib/csrf'
+import { audioUploadRatelimit, checkRateLimit } from '@/lib/ratelimit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120 // 2 minutes for large file conversion
@@ -23,6 +24,10 @@ export async function POST(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Rate limit: 5 uploads per hour per user (audio is an expensive storage operation)
+    const rl = await checkRateLimit(audioUploadRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
 
     // Parse FormData
     const formData = await request.formData()

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createVisitorHash } from '@/lib/analytics/visitor-hash'
+import { analyticsRatelimit, checkRateLimit, getClientIp } from '@/lib/ratelimit'
 
 /**
  * Analytics Tracking API
@@ -19,15 +20,19 @@ import { createVisitorHash } from '@/lib/analytics/visitor-hash'
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP — this is a public endpoint
+    const ip = getClientIp(request)
+    const rl = await checkRateLimit(analyticsRatelimit, ip)
+    if (!rl.allowed) return rl.response!
+
     const body = await request.json()
     const { type } = body
 
     const supabase = await createClient()
 
     // Extract visitor information for hashing
-    const ip = request.headers.get('x-forwarded-for') || null
     const userAgent = request.headers.get('user-agent') || null
-    const visitorHash = createVisitorHash(ip, userAgent)
+    const visitorHash = createVisitorHash(ip !== '127.0.0.1' ? ip : null, userAgent)
 
     // Handle different event types
     if (type === 'page_view') {

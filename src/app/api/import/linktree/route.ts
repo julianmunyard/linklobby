@@ -8,6 +8,7 @@ import { generateKeyBetween } from 'fractional-indexing'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { POSITION_MAP } from '@/types/card'
 import { validateCsrfOrigin } from '@/lib/csrf'
+import { generalApiRatelimit, checkRateLimit } from '@/lib/ratelimit'
 
 const BUCKET_NAME = 'card-images'
 
@@ -21,6 +22,15 @@ export async function POST(request: Request) {
   try {
     // Authenticate user
     console.log('[API /import/linktree] Authenticating user...')
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     console.log('[API /import/linktree] User page:', page ? page.id : 'null')
     if (!page) {
@@ -67,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     // Create cards in database using batch insert (single query)
-    const supabase = await createClient()
+    // (supabase client already created above for auth check)
 
     // Upload images to Supabase storage and prepare card records
     const cardRecords = await Promise.all(

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrfOrigin } from '@/lib/csrf'
+import { generalApiRatelimit, checkRateLimit } from '@/lib/ratelimit'
 
 export const runtime = 'nodejs'
 
@@ -18,6 +19,9 @@ export async function DELETE(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
 
     const { storagePath } = await request.json()
 

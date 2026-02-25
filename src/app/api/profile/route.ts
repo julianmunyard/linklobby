@@ -5,10 +5,11 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { validateCsrfOrigin } from "@/lib/csrf"
 import { sanitizeText } from "@/lib/sanitize"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
 
 async function fetchUserProfile(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { profile: null, error: 'Unauthorized' }
+  if (!user) return { profile: null, user: null, error: 'Unauthorized' }
 
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -16,16 +17,23 @@ async function fetchUserProfile(supabase: Awaited<ReturnType<typeof createClient
     .eq('id', user.id)
     .single()
 
-  if (error) return { profile: null, error: error.message }
-  return { profile, error: null }
+  if (error) return { profile: null, user, error: error.message }
+  return { profile, user, error: null }
 }
 
 export async function GET() {
   const supabase = await createClient()
-  const { profile, error } = await fetchUserProfile(supabase)
+  const { profile, user, error } = await fetchUserProfile(supabase)
+
+  if (!user || error === 'Unauthorized') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const rl = await checkRateLimit(generalApiRatelimit, user.id)
+  if (!rl.allowed) return rl.response!
 
   if (error) {
-    return NextResponse.json({ error }, { status: error === 'Unauthorized' ? 401 : 500 })
+    return NextResponse.json({ error }, { status: 500 })
   }
 
   // Map database columns to frontend types
@@ -59,6 +67,9 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const rl = await checkRateLimit(generalApiRatelimit, user.id)
+  if (!rl.allowed) return rl.response!
 
   const body = await request.json()
 

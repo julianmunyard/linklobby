@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import type { ThemeState } from "@/types/theme"
 import { validateCsrfOrigin } from "@/lib/csrf"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
 
 /**
  * GET /api/theme
@@ -17,6 +18,9 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const rl = await checkRateLimit(generalApiRatelimit, user.id)
+  if (!rl.allowed) return rl.response!
 
   // Get user's page with theme settings
   const { data: page, error } = await supabase
@@ -55,6 +59,9 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const rl = await checkRateLimit(generalApiRatelimit, user.id)
+  if (!rl.allowed) return rl.response!
 
   const body = await request.json()
   const themeSettings: ThemeState = body.theme

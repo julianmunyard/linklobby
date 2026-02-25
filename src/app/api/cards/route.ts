@@ -5,9 +5,20 @@ import { NextResponse } from "next/server"
 import { fetchCards, createCard, fetchUserPage } from "@/lib/supabase/cards"
 import { validateCsrfOrigin } from "@/lib/csrf"
 import { sanitizeText } from "@/lib/sanitize"
+import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
+import { createClient } from "@/lib/supabase/server"
 
 export async function GET() {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -30,6 +41,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
     const page = await fetchUserPage()
     if (!page) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

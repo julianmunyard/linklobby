@@ -13,6 +13,7 @@ import { generateKeyBetween } from 'fractional-indexing'
 import type { Card, CardType, CardSize, HorizontalPosition } from '@/types/card'
 import { POSITION_MAP, POSITION_REVERSE } from '@/types/card'
 import { validateCsrfOrigin } from '@/lib/csrf'
+import { generalApiRatelimit, checkRateLimit } from '@/lib/ratelimit'
 
 export const runtime = 'nodejs'
 
@@ -60,6 +61,9 @@ export async function POST(request: Request) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
 
     // --- Step 2: Parse request body ---
     const body = await request.json()

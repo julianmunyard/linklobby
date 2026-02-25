@@ -3,6 +3,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { emailCollectionRatelimit, checkRateLimit, getClientIp } from '@/lib/ratelimit'
 
 // Validation schema
 const emailSubmissionSchema = z.object({
@@ -14,6 +15,11 @@ const emailSubmissionSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // Rate limit by IP — this is a public endpoint
+    const ip = getClientIp(request)
+    const rl = await checkRateLimit(emailCollectionRatelimit, ip)
+    if (!rl.allowed) return rl.response!
+
     const body = await request.json()
 
     // Validate input
