@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 4 of 7 - In progress (plans 01, 03, 04 complete)
-Status: **Phase 12.6 Plans 01 + 03 + 04 Complete - Security + OAuth/Password Reset + Account Management/Email Verification**
-Last activity: 2026-02-25 - Completed 12.6-04-PLAN.md (change password/email forms, email verification, publish gate)
+Plan: 4 of 7 - In progress (plans 01, 02, 03, 04 complete)
+Status: **Phase 12.6 Plans 01 + 02 + 03 + 04 Complete - Security + Rate Limiting + OAuth/Password Reset + Account Management/Email Verification**
+Last activity: 2026-02-25 - Completed 12.6-02-PLAN.md (Upstash rate limiting on all API routes)
 
 Progress: [████████████████████████████░░░░] ~83%
 
@@ -20,8 +20,17 @@ Progress: [███████████████████████
 
 Building security hardening and completing auth flows:
 - ✓ Plan 01: Security headers, CSRF validation, input sanitization
+- ✓ Plan 02: Upstash Redis rate limiting on all 16 API routes
 - ✓ Plan 03: Google OAuth + forgot/reset password flows
 - ✓ Plan 04: Account management (change password/email) + email verification + publish gate
+
+**Key decisions (Plan 02):**
+- Rate limiting via Upstash Redis sliding window — @upstash/ratelimit + @upstash/redis
+- Fail-open pattern: Redis.fromEnv() only called when env var exists; checkRateLimit allows all when limiter is null or Redis times out (reason === 'timeout')
+- Authenticated routes keyed by user.id (generalApiRatelimit 60/min, audioUploadRatelimit 5/hr)
+- Public routes keyed by client IP (emailCollectionRatelimit 10/min, analyticsRatelimit 30/min)
+- UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN required in production; app works without them (rate limiting disabled)
+- Plan 05 backup code routes should use loginRatelimit (brute force sensitive)
 
 **Key decisions (Plan 01):**
 - CSRF via Origin/Host header comparison — stateless, no token storage, correct for same-site Next.js app
