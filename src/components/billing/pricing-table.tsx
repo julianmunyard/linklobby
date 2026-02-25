@@ -117,8 +117,8 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
   function getCtaLabel(tier: PlanTier): string {
     if (currentTier === tier) return 'Current Plan'
     if (currentRank > tierRank[tier]) return tier === 'free' ? 'Free Plan' : 'Included in your plan'
-    if (!currentTier && tier === 'free') return 'Get Started Free'
-    return `Upgrade to ${tier.charAt(0).toUpperCase() + tier.slice(1)}`
+    if (!currentTier && tier === 'free') return 'Get Started'
+    return 'Upgrade'
   }
 
   function isCtaDisabled(tier: PlanTier): boolean {
@@ -217,12 +217,12 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
       </div>
 
       {/* Tier cards — mobile stacked, desktop side-by-side */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 overflow-hidden">
         {tiers.map((t) => (
           <div
             key={t.tier}
             className={cn(
-              'relative rounded-xl border p-4 flex flex-col',
+              'relative rounded-xl border p-4 flex flex-col min-w-0',
               t.isCurrent
                 ? 'border-green-500 bg-green-500/5 shadow-lg ring-1 ring-green-500'
                 : t.popular
@@ -255,7 +255,7 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
               )}
             </div>
             <Button
-              className="w-full mt-auto"
+              className="w-full mt-auto text-xs sm:text-sm"
               size="sm"
               variant={t.popular ? 'default' : 'outline'}
               disabled={t.ctaDisabled}
