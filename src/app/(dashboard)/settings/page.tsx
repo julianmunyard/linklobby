@@ -7,6 +7,7 @@ import { getUserPlan } from '@/lib/stripe/subscription'
 import { BillingSection } from '@/components/billing/billing-section'
 import { ChangePasswordForm } from '@/components/settings/change-password-form'
 import { ChangeEmailForm } from '@/components/settings/change-email-form'
+import { TwoFactorStatus } from '@/components/auth/two-factor-verify'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -61,6 +62,14 @@ export default async function SettingsPage() {
               <ChangePasswordForm userEmail={user.email || ''} />
               <ChangeEmailForm userEmail={user.email || ''} />
             </div>
+          </div>
+        </section>
+
+        {/* Security section */}
+        <section>
+          <div className="border-t pt-8">
+            <h2 className="text-lg font-semibold mb-4">Security</h2>
+            <TwoFactorStatus />
           </div>
         </section>
 
