@@ -312,6 +312,21 @@ export function PreviewPanel() {
     return () => window.removeEventListener("message", handleMessage)
   }, [reorderCards, reorderMultipleCards, selectCard, addCard, saveCards, updateCard, updateReceiptSticker, updateIpodSticker])
 
+  // Listen for scroll-preview-bottom events (dispatched after adding a card)
+  useEffect(() => {
+    const handler = () => {
+      const iframe = iframeRef.current
+      if (iframe?.contentWindow) {
+        // Small delay to let the state update propagate first
+        setTimeout(() => {
+          iframe.contentWindow!.postMessage({ type: 'SCROLL_TO_BOTTOM' }, window.location.origin)
+        }, 100)
+      }
+    }
+    window.addEventListener('scroll-preview-bottom', handler)
+    return () => window.removeEventListener('scroll-preview-bottom', handler)
+  }, [])
+
   // Prevent native zoom on the parent page (Safari gesture events)
   useEffect(() => {
     if (!isMobileLayout) return

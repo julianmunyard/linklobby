@@ -128,6 +128,15 @@ function PreviewContent() {
         return
       }
 
+      // Scroll to bottom — used after adding a new card
+      if (event.data?.type === "SCROLL_TO_BOTTOM") {
+        // Delay to allow React to render the new card first
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+        })
+        return
+      }
+
       // Handle tap forwarded from parent (iframe has pointer-events: none on mobile)
       if (event.data?.type === "TAP") {
         const { x, y } = event.data.payload

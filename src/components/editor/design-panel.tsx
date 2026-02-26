@@ -397,7 +397,7 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
           variant="outline"
           size="sm"
           className="w-full"
-          onClick={() => addCard('text')}
+          onClick={() => { addCard('text'); window.dispatchEvent(new Event('scroll-preview-bottom')) }}
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Text Block

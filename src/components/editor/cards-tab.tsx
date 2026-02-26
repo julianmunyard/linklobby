@@ -178,6 +178,8 @@ export function CardsTab() {
       // Add to store with DB-generated id
       usePageStore.getState().setCards([...cards, newCard])
       usePageStore.getState().selectCard(newCard.id)
+      // Scroll preview to the new card at the bottom
+      window.dispatchEvent(new Event('scroll-preview-bottom'))
     } catch (err) {
       // Error already tracked in hook
       console.error("Failed to add card:", err)

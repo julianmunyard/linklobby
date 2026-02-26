@@ -68,6 +68,17 @@ export function InlineEditable({
     [multiline]
   )
 
+  // Scroll the caret into view as the user types (keeps cursor visible when text grows)
+  const handleInput = useCallback(() => {
+    const sel = window.getSelection()
+    if (!sel || sel.rangeCount === 0) return
+    const range = sel.getRangeAt(0)
+    const rect = range.getBoundingClientRect()
+    if (rect.bottom > window.innerHeight - 20) {
+      window.scrollBy({ top: rect.bottom - window.innerHeight + 40, behavior: 'smooth' })
+    }
+  }, [])
+
   return (
     <span
       ref={ref}
@@ -78,6 +89,7 @@ export function InlineEditable({
       onFocus={handleFocus}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
+      onInput={handleInput}
     />
   )
 }
