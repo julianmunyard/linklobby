@@ -50,13 +50,11 @@ export function EditorLayout() {
     }
   }, [])
 
-  // On mobile, always show type drawer when a card is selected
-  // Drawer shows quick settings for any card type, "Full Editor" button for deep editing
+  // On mobile, open the full card editor sheet when a card is selected
   useEffect(() => {
     if (isMobileLayout && selectedCardId) {
-      setTypeDrawerOpen(true)
-      // Close bottom sheet so user sees the quick drawer first
-      setMobileSheetOpen(false)
+      setMobileSheetOpen(true)
+      setTypeDrawerOpen(false)
       setInitialDesignTab(null)
     }
   }, [isMobileLayout, selectedCardId])
@@ -194,6 +192,10 @@ export function EditorLayout() {
             onTabConsumed={() => setInitialTab(null)}
             onDesignTabConsumed={() => setInitialDesignTab(null)}
             onTemplateApplied={handleTemplateApplied}
+            onSettingChanged={() => {
+              setMobileSheetOpen(false)
+              usePageStore.getState().selectCard(null)
+            }}
           />
         </MobileBottomSheet>
       </div>

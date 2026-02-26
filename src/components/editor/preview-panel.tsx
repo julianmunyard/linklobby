@@ -8,6 +8,7 @@ import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
+import type { Profile } from "@/types/profile"
 
 const MOBILE_WIDTH = 375
 const MOBILE_HEIGHT = 667
@@ -36,6 +37,8 @@ export function PreviewPanel() {
   const updateReceiptSticker = useThemeStore((state) => state.updateReceiptSticker)
   const updateIpodSticker = useThemeStore((state) => state.updateIpodSticker)
   const { saveCards } = useCards()
+  // Suppress deselect while an inline edit session is active in the iframe
+  const isInlineEditActiveRef = useRef(false)
 
   // Direct DOM update for phone frame transform — bypasses React for smooth gestures
   const updateFrameTransform = useCallback(() => {
@@ -74,7 +77,9 @@ export function PreviewPanel() {
   }, [updateMobileScale])
 
   // Deselect card and save any pending changes
+  // Suppressed during inline edit sessions to prevent committing blur side-effects
   const handleDeselect = async () => {
+    if (isInlineEditActiveRef.current) return
     const currentHasChanges = usePageStore.getState().hasChanges
     if (currentHasChanges) {
       await saveCards()
@@ -191,11 +196,49 @@ export function PreviewPanel() {
           updateIpodSticker(event.data.payload.id, { x: event.data.payload.x, y: event.data.payload.y })
           break
         case "OPEN_DESIGN_TAB": {
-          // Artifact header click → open style tab in editor
+          // Header/background click → open specified tab in editor
           const openStyleEvent = new CustomEvent('open-design-tab', { detail: { tab: event.data.payload?.tab || 'style' } })
           window.dispatchEvent(openStyleEvent)
           break
         }
+        case "UPDATE_PROFILE": {
+          // Inline edit committed a profile field — sync to profile store
+          const { field, value } = event.data.payload as { field: keyof Profile; value: string }
+          if (field === 'displayName') {
+            useProfileStore.getState().setDisplayName(value || null)
+          } else if (field === 'bio') {
+            useProfileStore.getState().setBio(value || null)
+          }
+          break
+        }
+        case "UPDATE_CARD": {
+          // Inline edit committed a card field — sync to page store
+          const { cardId, ...fields } = event.data.payload as { cardId: string; [key: string]: unknown }
+          updateCard(cardId, { content: fields })
+          break
+        }
+        case "DELETE_CARD": {
+          // Floating toolbar requested card deletion
+          const { cardId: deleteCardId } = event.data.payload as { cardId: string }
+          usePageStore.getState().removeCard(deleteCardId)
+          saveCards()
+          break
+        }
+        case "DUPLICATE_CARD": {
+          // Floating toolbar requested card duplication
+          const { cardId: duplicateCardId } = event.data.payload as { cardId: string }
+          usePageStore.getState().duplicateCard(duplicateCardId)
+          saveCards()
+          break
+        }
+        case "INLINE_EDIT_ACTIVE":
+          // Suppress deselect while user is typing in an inline editor
+          isInlineEditActiveRef.current = true
+          break
+        case "INLINE_EDIT_DONE":
+          // Re-enable deselect after inline edit session completes
+          isInlineEditActiveRef.current = false
+          break
         case "ADD_AUDIO_CARD": {
           // Artifact CD click with no audio card → add one and select it
           addCard('audio')
