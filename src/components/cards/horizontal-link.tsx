@@ -8,6 +8,7 @@ import { ChevronRight, Link2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card, HorizontalLinkContent } from "@/types/card"
+import { renderWithLineBreaks } from "@/lib/render-utils"
 
 interface HorizontalLinkProps {
   card: Card
@@ -90,7 +91,7 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
             className={cn("break-words line-clamp-2", !textColor && "text-theme-text/70")}
             style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
           >
-            {card.description}
+            {renderWithLineBreaks(card.description)}
           </p>
         )}
       </div>

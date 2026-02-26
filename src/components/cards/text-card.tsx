@@ -4,6 +4,7 @@
 import type { Card, LinkCardContent } from "@/types/card"
 import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
+import { renderWithLineBreaks } from "@/lib/render-utils"
 
 interface TextCardProps {
   card: Card
@@ -35,14 +36,14 @@ export function TextCard({ card, isPreview = false }: TextCardProps) {
         className={cn("font-medium break-words w-full", !textColor && "text-theme-text")}
         style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
       >
-        {card.title || "Text"}
+        {renderWithLineBreaks(card.title || "Text")}
       </p>
       {card.description && (
         <p
           className={cn("break-words w-full", !textColor && "text-theme-text/70")}
           style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
         >
-          {card.description}
+          {renderWithLineBreaks(card.description)}
         </p>
       )}
     </Wrapper>

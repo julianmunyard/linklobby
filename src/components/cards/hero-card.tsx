@@ -8,6 +8,7 @@ import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card, HeroCardContent } from "@/types/card"
+import { renderWithLineBreaks } from "@/lib/render-utils"
 
 interface HeroCardProps {
   card: Card
@@ -69,7 +70,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
             className="font-bold mb-1 drop-shadow-sm break-words w-full line-clamp-4"
             style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1.5 * fontSize}rem` }}
           >
-            {card.title}
+            {renderWithLineBreaks(card.title)}
           </h2>
         )}
         {card.description && (
@@ -77,7 +78,7 @@ export function HeroCard({ card, isPreview = false }: HeroCardProps) {
             className="opacity-90 mb-4 break-words w-full line-clamp-3 drop-shadow-sm"
             style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem` }}
           >
-            {card.description}
+            {renderWithLineBreaks(card.description)}
           </p>
         )}
         {card.url && showButton && (

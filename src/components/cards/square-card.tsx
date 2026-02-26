@@ -8,6 +8,7 @@ import { ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card, SquareCardContent } from "@/types/card"
+import { renderWithLineBreaks } from "@/lib/render-utils"
 
 interface SquareCardProps {
   card: Card
@@ -89,7 +90,7 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
               )}
               style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${0.875 * fontSize}rem` }}
             >
-              {card.title}
+              {renderWithLineBreaks(card.title || "")}
             </h3>
           </div>
         </>
