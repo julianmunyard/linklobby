@@ -25,14 +25,9 @@ import { LinktreeImportDialog } from "./linktree-import-dialog"
 
 const CARD_TYPES: { type: CardType; label: string; singleton?: boolean; pro?: boolean }[] = [
   { type: "link", label: "Link" },
-  { type: "mini", label: "Mini Link" },
-  { type: "text", label: "Text" },
-  { type: "horizontal", label: "Horizontal Link" },
-  { type: "hero", label: "Hero Card" },
-  { type: "square", label: "Square Card" },
-  { type: "video", label: "Video Card" },
-  { type: "audio", label: "Audio Player", pro: true },
   { type: "music", label: "Music Card" },
+  { type: "audio", label: "Audio Player", pro: true },
+  { type: "video", label: "Video Card" },
   { type: "gallery", label: "Photo Gallery" },
   { type: "game", label: "Game" },
   { type: "email-collection", label: "Email Collection", pro: true },
@@ -226,7 +221,7 @@ export function CardsTab() {
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline" className="h-11">
                 <Plus className="h-4 w-4 mr-1" />
-                Add Card
+                {(themeId === 'mac-os' || themeId === 'phone-home') ? 'Add' : 'Add Link'}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="touch-pan-y">

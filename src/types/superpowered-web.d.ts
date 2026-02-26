@@ -3,6 +3,7 @@
 
 declare module '@superpoweredsdk/web' {
   export class SuperpoweredGlue {
+    static wasmCDNUrl: string
     static Instantiate(licenseKey: string, wasmPath?: string): Promise<any>
   }
 
