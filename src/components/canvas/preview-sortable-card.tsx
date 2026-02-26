@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVertical, Pencil, Calendar, Clock } from "lucide-react"
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { CardRenderer } from "@/components/cards/card-renderer"
 import { MobileSelectCheckbox } from "@/components/editor/mobile-select-mode"
 import { Badge } from "@/components/ui/badge"
+import { FloatingCardToolbar } from "@/components/preview/floating-card-toolbar"
 import { getScheduleStatus, type ScheduleStatus, type ReleaseCardContent } from "@/types/card"
 import type { Card } from "@/types/card"
 
@@ -69,6 +70,7 @@ interface PreviewSortableCardProps {
   isSelected?: boolean
   isDimmed?: boolean
   onClick?: (e: React.MouseEvent) => void
+  isEditable?: boolean
 }
 
 // Card types that need full interactivity (touch/mouse events pass through)
@@ -93,9 +95,17 @@ function initTouchTracking() {
  * Shows a white border highlight when selected.
  * Includes data-selectable-id for box selection integration.
  */
-export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: PreviewSortableCardProps) {
+export function PreviewSortableCard({ card, isSelected, isDimmed, onClick, isEditable = false }: PreviewSortableCardProps) {
   // Ensure document-level touch tracking is active
   initTouchTracking()
+
+  // Show floating toolbar only on desktop (>768px) in editor iframe
+  const [showToolbar, setShowToolbar] = useState(false)
+  useEffect(() => {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768
+    const isInIframe = typeof window !== 'undefined' && window.parent !== window
+    setShowToolbar(isDesktop && isInIframe)
+  }, [])
 
   // Check if release card should be hidden (countdown ended + hide action)
   if (shouldHideReleaseCard(card)) {
@@ -195,7 +205,7 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
         <div className="relative group/interactive">
           {/* Mobile select checkbox overlay */}
           <MobileSelectCheckbox cardId={card.id} />
-          <CardRenderer card={card} isPreview />
+          <CardRenderer card={card} isPreview isEditable={isEditable} />
           {/* Transparent click overlay for selection - only shows when NOT selected */}
           {/* Skip for gallery cards so Stack can receive pointer events */}
           {!isSelected && card.card_type !== 'gallery' && (
@@ -239,8 +249,33 @@ export function PreviewSortableCard({ card, isSelected, isDimmed, onClick }: Pre
           {/* Mobile select checkbox overlay */}
           <MobileSelectCheckbox cardId={card.id} />
           <div className="pointer-events-auto [&_a]:pointer-events-none">
-            <CardRenderer card={card} isPreview />
+            <CardRenderer card={card} isPreview isEditable={isEditable} />
           </div>
+        </div>
+      )}
+
+      {/* Floating quick-action toolbar - desktop editor only, appears above selected card */}
+      {showToolbar && isSelected && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-50">
+          <FloatingCardToolbar
+            cardId={card.id}
+            onDelete={() => {
+              if (window.parent !== window) {
+                window.parent.postMessage(
+                  { type: "DELETE_CARD", payload: { cardId: card.id } },
+                  window.location.origin
+                )
+              }
+            }}
+            onDuplicate={() => {
+              if (window.parent !== window) {
+                window.parent.postMessage(
+                  { type: "DUPLICATE_CARD", payload: { cardId: card.id } },
+                  window.location.origin
+                )
+              }
+            }}
+          />
         </div>
       )}
 
