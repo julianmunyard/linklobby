@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 6 of 11 - IN PROGRESS
-Status: **Phase 12.71 active — Plans 01, 02, 03, 04, and 05 complete**
-Last activity: 2026-02-26 - Completed 12.71-05: inline title and bio editing in preview iframe
+Plan: 8 of 11 - IN PROGRESS
+Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, and 07 complete**
+Last activity: 2026-02-26 - Completed 12.71-07: floating card toolbar with Delete/Duplicate actions
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -24,6 +24,12 @@ Building direct-manipulation editor UX (click-to-navigate, inline editing, float
 - ✓ Plan 03: renderWithLineBreaks utility — newlines render as visible line breaks across all card types
 - ✓ Plan 04: compressImageForUpload on all profile upload paths + gallery unmount guard
 - ✓ Plan 05: Inline title and bio editing in preview iframe (InlineEditable wired into ProfileHeader)
+- ✓ Plan 07: Canva-style floating quick-action toolbar (Delete/Duplicate) above selected cards in preview
+
+**Key decisions (Plan 07):**
+- Toolbar integrated into PreviewSortableCard (not preview/page.tsx) — isSelected already available per card there
+- Plain HTML buttons only — shadcn/Radix requires providers absent in preview iframe
+- showToolbar state initialized false, set via useEffect — avoids SSR hydration mismatch (window.innerWidth client-only)
 
 **Key decisions (Plan 02):**
 - Content types (what it is) vs display variants (how it looks) separation — visual variants removed from Add dropdown but kept in CardTypePicker
