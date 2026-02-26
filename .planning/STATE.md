@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 9 of 11 - IN PROGRESS
-Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, and 08 complete**
-Last activity: 2026-02-26 - Completed 12.71-06: inline text card editing in preview iframe
+Plan: 9 of 11 - COMPLETE
+Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, 08, and 09 complete**
+Last activity: 2026-02-26 - Completed 12.71-09: font picker embedded in Title Edit section
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -27,6 +27,11 @@ Building direct-manipulation editor UX (click-to-navigate, inline editing, float
 - ✓ Plan 06: Inline text card editing — click text card in preview to type directly, commits via UPDATE_CARD postMessage
 - ✓ Plan 07: Canva-style floating quick-action toolbar (Delete/Duplicate) above selected cards in preview
 - ✓ Plan 08: Featured theme navigate-first flow + Create Your Own blank canvas option
+- ✓ Plan 09: FontPicker embedded in Title Edit section as collapsible "Fonts" subsection
+
+**Key decisions (Plan 09):**
+- FontPicker left in Design tab as well — both reference same theme store, stay in sync
+- defaultOpen=false for Fonts section — keeps panel compact by default
 
 **Key decisions (Plan 06):**
 - isEditable=false default on TextCard — public page callers need zero changes
