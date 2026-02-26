@@ -242,6 +242,13 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     router.replace('/editor?tab=links', { scroll: false })
   }
 
+  const handleNavigateToDesign = () => {
+    setSidebarTab(null)
+    setActiveTab('design')
+    pushNav({ tab: 'design' })
+    router.replace('/editor?tab=design', { scroll: false })
+  }
+
   // Clear pendingDesignSubTab after DesignTab consumes it
   useEffect(() => {
     if (activeTab === 'design' && pendingDesignSubTab) {
@@ -336,7 +343,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                     <TabsList className="w-full">
                       <TabsTrigger value="featured" className="gap-1 px-1 sm:px-2.5 flex-1 min-w-0">
                         <Sparkles className="h-3.5 w-3.5 shrink-0" />
-                        <span className="text-xs whitespace-nowrap hidden sm:inline">Featured</span>
+                        <span className="text-xs whitespace-nowrap hidden sm:inline">Featured Themes</span>
                       </TabsTrigger>
                       <TabsTrigger value="links" className="gap-1 px-1 sm:px-2.5 flex-1 min-w-0">
                         <Link2 className="h-3.5 w-3.5 shrink-0" />
@@ -394,7 +401,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                         "data-[state=inactive]:hidden"
                       )}
                     >
-                      <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onNavigateToLinks={handleNavigateToLinks} />
+                      <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onNavigateToLinks={handleNavigateToLinks} onNavigateToDesign={handleNavigateToDesign} />
                     </TabsContent>
 
                     <TabsContent
