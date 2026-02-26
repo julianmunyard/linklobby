@@ -783,6 +783,30 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               />
             </>)}
 
+            {/* Border & Fill - text cards only */}
+            {card.card_type === 'text' && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={!!currentContent.showBorder}
+                    onCheckedChange={(checked) => handleContentChange({ showBorder: checked })}
+                  />
+                  <Label className="cursor-pointer" onClick={() => handleContentChange({ showBorder: !currentContent.showBorder })}>
+                    Border
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={!!currentContent.showFill}
+                    onCheckedChange={(checked) => handleContentChange({ showFill: checked })}
+                  />
+                  <Label className="cursor-pointer" onClick={() => handleContentChange({ showFill: !currentContent.showFill })}>
+                    Card Fill
+                  </Label>
+                </div>
+              </div>
+            )}
+
             {/* Transparent Background - hidden for Mac cards, phone-home gallery/audio, and music cards */}
             {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
               <div className="flex items-center justify-between">

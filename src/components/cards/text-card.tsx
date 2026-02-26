@@ -15,10 +15,13 @@ interface TextCardProps {
 }
 
 export function TextCard({ card, isPreview = false, isEditable = false }: TextCardProps) {
-  const content = card.content as LinkCardContent & { textAlign?: string; verticalAlign?: string }
+  const content = card.content as LinkCardContent & { textAlign?: string; verticalAlign?: string; showBorder?: boolean; showFill?: boolean }
   const textAlign = content.textAlign || "center"
   const textColor = content.textColor
+  const showBorder = !!content.showBorder
+  const showFill = !!content.showFill
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.text)
+  const shadowEnabled = useThemeStore((state) => state.style.shadowEnabled)
 
   const handleTitleCommit = useCallback((text: string) => {
     if (window.parent !== window) {
@@ -51,15 +54,22 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
     ? { href: card.url, target: "_blank", rel: "noopener noreferrer" }
     : {}
 
+  const hasCardStyle = showBorder || showFill
+
   return (
     <Wrapper
       {...wrapperProps}
       className={cn(
-        "w-full flex flex-col gap-1 py-2 transition-colors hover:opacity-80",
+        "w-full flex flex-col gap-1 transition-colors hover:opacity-80",
+        hasCardStyle ? "px-4 py-3" : "py-2",
+        hasCardStyle && showBorder && "border border-theme-border",
+        hasCardStyle && showFill && "bg-theme-card-bg",
+        hasCardStyle && shadowEnabled && "shadow-theme-card",
         textAlign === "left" && "text-left items-start",
         textAlign === "center" && "text-center items-center",
         textAlign === "right" && "text-right items-end"
       )}
+      style={hasCardStyle ? { borderRadius: 'var(--theme-border-radius)' } : undefined}
     >
       <p
         className={cn("font-medium break-words w-full", !textColor && "text-theme-text")}
@@ -71,7 +81,7 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
             value={card.title || ''}
             onCommit={handleTitleCommit}
             multiline={true}
-            placeholder="Tap to edit"
+            placeholder="Tap to type"
             onEditStart={handleEditStart}
             onEditEnd={handleEditEnd}
             className="outline-none min-w-[1ch] inline-block w-full"
