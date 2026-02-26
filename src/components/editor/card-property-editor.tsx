@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { Switch } from "@/components/ui/switch"
 import { ImageUpload } from "@/components/cards/image-upload"
@@ -193,6 +194,9 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
   const removeCard = usePageStore((state) => state.removeCard)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
   const themeId = useThemeStore((s) => s.themeId)
+  const themeTextColor = useThemeStore((s) => s.colors.text)
+  const cardTypeFontSizes = useThemeStore((s) => s.cardTypeFontSizes)
+  const setCardTypeFontSize = useThemeStore((s) => s.setCardTypeFontSize)
   const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
   const addToDock = useThemeStore((s) => s.addToDock)
   const removeFromDock = useThemeStore((s) => s.removeFromDock)
@@ -756,6 +760,28 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>}
+
+            {/* Font Size & Text Color - for link, mini, text cards (hidden for blinkies theme) */}
+            {(card.card_type === 'link' || card.card_type === 'mini' || card.card_type === 'text') && !(themeId === 'blinkies' && card.card_type !== 'text') && (<>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <Label>{card.card_type === 'text' ? 'Font Size (all text cards)' : 'Font Size (all link cards)'}</Label>
+                  <span className="text-muted-foreground">{Math.round((cardTypeFontSizes[card.card_type === 'text' ? 'text' : 'link']) * 100)}%</span>
+                </div>
+                <Slider
+                  value={[cardTypeFontSizes[card.card_type === 'text' ? 'text' : 'link']]}
+                  onValueChange={(v) => setCardTypeFontSize(card.card_type === 'text' ? 'text' : 'link', v[0])}
+                  min={0.5}
+                  max={2}
+                  step={0.1}
+                />
+              </div>
+              <ColorPicker
+                label="Text Color"
+                color={(currentContent.textColor as string) || themeTextColor}
+                onChange={(color) => handleContentChange({ textColor: color })}
+              />
+            </>)}
 
             {/* Transparent Background - hidden for Mac cards, phone-home gallery/audio, and music cards */}
             {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
