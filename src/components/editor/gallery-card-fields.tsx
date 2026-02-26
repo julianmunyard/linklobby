@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -137,6 +137,9 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
   const [imageToCrop, setImageToCrop] = useState<GalleryImage | null>(null)
   // File input ref for hidden input
   const fileInputRef = useRef<HTMLInputElement>(null)
+  // Mounted guard — prevents setState on unmounted component during async uploads
+  const isMountedRef = useRef(true)
+  useEffect(() => () => { isMountedRef.current = false }, [])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -165,13 +168,16 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
     const files = e.target.files
     if (!files || files.length === 0) return
 
+    // Reset input synchronously at the start so the same file can be re-selected
+    // without waiting for async upload work to complete (prevents duplicate upload bug)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+
     // Calculate how many we can add (max 10 total)
     const remainingSlots = 10 - images.length
     const filesToUpload = Array.from(files).slice(0, remainingSlots)
 
     if (filesToUpload.length === 0) {
       setError('Gallery is full (max 10 images)')
-      e.target.value = ''
       return
     }
 
@@ -185,9 +191,11 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
       for (const file of filesToUpload) {
         // Compress before upload
         const compressed = await compressImageForUpload(file)
+        if (!isMountedRef.current) return
 
         // Upload to Supabase
         const result = await uploadCardImage(compressed as File, cardId)
+        if (!isMountedRef.current) return
 
         // Create new image entry
         newImages.push({
@@ -198,14 +206,14 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
         })
       }
 
+      if (!isMountedRef.current) return
       // Add all to images array
       onChange({ images: [...images, ...newImages] })
     } catch (err) {
+      if (!isMountedRef.current) return
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
-      setIsUploading(false)
-      // Reset input
-      e.target.value = ''
+      if (isMountedRef.current) setIsUploading(false)
     }
   }, [images, onChange, cardId])
 
