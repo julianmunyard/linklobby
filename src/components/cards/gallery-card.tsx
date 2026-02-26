@@ -60,7 +60,7 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
   // No images yet - show empty state
   if (!content.images || content.images.length === 0) {
     return (
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center">
+      <div className="relative w-full aspect-video overflow-hidden bg-muted flex items-center justify-center">
         <div className="text-center text-muted-foreground">
           <ImageIcon className="h-12 w-12 mx-auto mb-2" />
           <p>Add images to gallery</p>

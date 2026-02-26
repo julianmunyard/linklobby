@@ -48,7 +48,7 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
   return (
     <div className={cn('relative', className)}>
       {/* Carousel viewport */}
-      <div className="overflow-hidden rounded-xl" ref={emblaRef}>
+      <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex touch-pan-y touch-pinch-zoom">
           {images.map((image) => (
             <div key={image.id} className="flex-[0_0_100%] min-w-0">
