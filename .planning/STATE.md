@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 8 of 11 - IN PROGRESS
-Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, and 07 complete**
-Last activity: 2026-02-26 - Completed 12.71-07: floating card toolbar with Delete/Duplicate actions
+Plan: 8 of 11 - COMPLETE
+Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 07, and 08 complete**
+Last activity: 2026-02-26 - Completed 12.71-08: featured theme navigate-first flow + Create Your Own blank canvas
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -25,6 +25,12 @@ Building direct-manipulation editor UX (click-to-navigate, inline editing, float
 - ✓ Plan 04: compressImageForUpload on all profile upload paths + gallery unmount guard
 - ✓ Plan 05: Inline title and bio editing in preview iframe (InlineEditable wired into ProfileHeader)
 - ✓ Plan 07: Canva-style floating quick-action toolbar (Delete/Duplicate) above selected cards in preview
+- ✓ Plan 08: Featured theme navigate-first flow + Create Your Own blank canvas option
+
+**Key decisions (Plan 08):**
+- Removed entire applyTemplate+confirm-dialog flow from FeaturedThemesTab — template picker handles apply step
+- Create Your Own navigates to Links tab (not Design) so user can immediately start adding content
+- onNavigateToLinks callback pattern: EditorPanel passes tab-switch function as prop to child tabs
 
 **Key decisions (Plan 07):**
 - Toolbar integrated into PreviewSortableCard (not preview/page.tsx) — isSelected already available per card there
