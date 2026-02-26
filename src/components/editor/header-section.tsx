@@ -23,6 +23,7 @@ import { SocialIconsEditor } from "./social-icons-editor"
 import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
 import { uploadProfileImage, type ProfileImageType } from "@/lib/supabase/storage"
+import { compressImageForUpload } from "@/lib/image-compression"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -239,7 +240,9 @@ export function HeaderSection() {
         return
       }
 
-      const result = await uploadProfileImage(croppedBlob, user.id, imageType)
+      const file = new File([croppedBlob], 'profile-image.jpg', { type: croppedBlob.type || 'image/jpeg' })
+      const compressedBlob = await compressImageForUpload(file)
+      const result = await uploadProfileImage(compressedBlob, user.id, imageType)
 
       if (imageType === "avatar") {
         setAvatarUrl(result.url)
@@ -269,7 +272,7 @@ export function HeaderSection() {
               )}
             />
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Header
+              Title Edit
             </h2>
           </button>
         </CollapsibleTrigger>

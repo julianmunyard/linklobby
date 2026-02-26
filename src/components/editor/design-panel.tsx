@@ -22,7 +22,9 @@ import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { useProfileStore } from '@/stores/profile-store'
 import { useThemeStore } from '@/stores/theme-store'
+import { usePageStore } from '@/stores/page-store'
 import { uploadProfileImage, type ProfileImageType } from '@/lib/supabase/storage'
+import { compressImageForUpload } from '@/lib/image-compression'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import type { TitleSize, ProfileLayout } from '@/types/profile'
@@ -35,7 +37,7 @@ const TABS = [
   { id: 'background', label: 'Background' },
   { id: 'style', label: 'Style' },
   { id: 'templates', label: 'Templates' },
-  { id: 'header', label: 'Header' },
+  { id: 'header', label: 'Title Edit' },
 ] as const
 
 type TabId = typeof TABS[number]['id']
@@ -154,7 +156,9 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
         setUploadError('Not authenticated')
         return
       }
-      const result = await uploadProfileImage(croppedBlob, user.id, imageType)
+      const file = new File([croppedBlob], 'profile-image.jpg', { type: croppedBlob.type || 'image/jpeg' })
+      const compressedBlob = await compressImageForUpload(file)
+      const result = await uploadProfileImage(compressedBlob, user.id, imageType)
       if (imageType === 'avatar') {
         setAvatarUrl(result.url)
       } else {
@@ -168,6 +172,8 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
       setSelectedImage(null)
     }
   }
+
+  const addCard = usePageStore((state) => state.addCard)
 
   return (
     <div>
@@ -381,6 +387,21 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
             {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
           </div>
         )}
+      </div>
+
+      {/* Text Blocks */}
+      <div className="mt-4 pt-4 border-t space-y-2">
+        <p className="text-sm font-medium">Text Blocks</p>
+        <p className="text-xs text-muted-foreground">Add standalone text to your page</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => addCard('text')}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Text Block
+        </Button>
       </div>
 
       {/* Image Crop Dialog */}
