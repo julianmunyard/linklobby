@@ -1,21 +1,45 @@
 // src/components/cards/text-card.tsx
 "use client"
 
+import { useCallback } from "react"
 import type { Card, LinkCardContent } from "@/types/card"
 import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import { renderWithLineBreaks } from "@/lib/render-utils"
+import { InlineEditable } from "@/components/preview/inline-editable"
 
 interface TextCardProps {
   card: Card
   isPreview?: boolean
+  isEditable?: boolean
 }
 
-export function TextCard({ card, isPreview = false }: TextCardProps) {
+export function TextCard({ card, isPreview = false, isEditable = false }: TextCardProps) {
   const content = card.content as LinkCardContent & { textAlign?: string; verticalAlign?: string }
   const textAlign = content.textAlign || "center"
   const textColor = content.textColor
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.text)
+
+  const handleTitleCommit = useCallback((text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId: card.id, title: text } },
+        window.location.origin
+      )
+    }
+  }, [card.id])
+
+  const handleEditStart = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
 
   const Wrapper = card.url && !isPreview ? "a" : "div"
   const wrapperProps = card.url && !isPreview
@@ -35,8 +59,21 @@ export function TextCard({ card, isPreview = false }: TextCardProps) {
       <p
         className={cn("font-medium break-words w-full", !textColor && "text-theme-text")}
         style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
+        onClick={isEditable ? (e) => e.stopPropagation() : undefined}
       >
-        {renderWithLineBreaks(card.title || "Text")}
+        {isEditable ? (
+          <InlineEditable
+            value={card.title || ''}
+            onCommit={handleTitleCommit}
+            multiline={true}
+            placeholder="Type something..."
+            onEditStart={handleEditStart}
+            onEditEnd={handleEditEnd}
+            className="outline-none min-w-[1ch] inline-block w-full"
+          />
+        ) : (
+          renderWithLineBreaks(card.title || "Text")
+        )}
       </p>
       {card.description && (
         <p

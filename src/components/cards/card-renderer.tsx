@@ -25,10 +25,11 @@ import type { Card } from "@/types/card"
 interface CardRendererProps {
   card: Card
   isPreview?: boolean
+  isEditable?: boolean
   themeId?: string  // Pass through for public pages where Zustand store isn't available
 }
 
-export function CardRenderer({ card, isPreview = false, themeId }: CardRendererProps) {
+export function CardRenderer({ card, isPreview = false, isEditable = false, themeId }: CardRendererProps) {
   // Get theme from store for editor preview, or use themeId prop for public pages
   const storeThemeId = useThemeStore((s) => s.themeId)
   const effectiveThemeId = themeId || storeThemeId
@@ -53,7 +54,7 @@ export function CardRenderer({ card, isPreview = false, themeId }: CardRendererP
       return <SocialIconsCard card={card} isPreview={isPreview} />
     case "text":
       // Text cards are plain text without any card wrapper
-      return <TextCard card={card} isPreview={isPreview} />
+      return <TextCard card={card} isPreview={isPreview} isEditable={isEditable} />
     case "link":
     case "mini": {
       // Blinkies theme: link/mini cards ARE the blinky badge — no ThemedCardWrapper

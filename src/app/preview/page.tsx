@@ -585,6 +585,7 @@ function PreviewContent() {
                     }
                   }}
                   onCardClick={handleCardClick}
+                  isEditable={true}
                 />
               )}
             </div>
@@ -683,6 +684,7 @@ function PreviewContent() {
                 }
               }}
               onCardClick={handleCardClick}
+              isEditable={true}
             />
           )}
         </div>

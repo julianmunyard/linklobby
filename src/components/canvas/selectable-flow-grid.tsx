@@ -30,6 +30,7 @@ interface SelectableFlowGridProps {
   onReorder: (activeId: string, overId: string) => void
   onReorderMultiple?: (cardIds: string[], targetIndex: number) => void
   onCardClick?: (cardId: string) => void
+  isEditable?: boolean
 }
 
 /**
@@ -39,7 +40,7 @@ interface SelectableFlowGridProps {
  * - Multi-drag: drag one selected card to move all selected
  * - Click empty space to clear selection
  */
-export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorderMultiple, onCardClick }: SelectableFlowGridProps) {
+export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorderMultiple, onCardClick, isEditable = false }: SelectableFlowGridProps) {
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [draggedCardIds, setDraggedCardIds] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
@@ -195,6 +196,7 @@ export function SelectableFlowGrid({ cards, selectedCardId, onReorder, onReorder
               isSelected={card.id === selectedCardId || multiSelect.isSelected(card.id)}
               isDimmed={activeCard !== null && activeCard.id !== card.id}
               onClick={(e) => handleCardClick(card.id, e)}
+              isEditable={isEditable}
             />
           ))}
         </div>

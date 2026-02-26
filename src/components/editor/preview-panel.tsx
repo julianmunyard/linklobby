@@ -9,6 +9,7 @@ import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 import { useIsMobileLayout } from "@/hooks/use-media-query"
 import type { Profile } from "@/types/profile"
+import type { Card } from "@/types/card"
 
 const MOBILE_WIDTH = 375
 const MOBILE_HEIGHT = 667
@@ -213,8 +214,25 @@ export function PreviewPanel() {
         }
         case "UPDATE_CARD": {
           // Inline edit committed a card field — sync to page store
-          const { cardId, ...fields } = event.data.payload as { cardId: string; [key: string]: unknown }
-          updateCard(cardId, { content: fields })
+          // Top-level card fields (title, description) are applied directly;
+          // all other fields are merged into content.
+          const { cardId, title, description, ...contentFields } = event.data.payload as {
+            cardId: string
+            title?: string
+            description?: string
+            [key: string]: unknown
+          }
+          const topLevelUpdates: Partial<Card> = {}
+          if (title !== undefined) topLevelUpdates.title = title
+          if (description !== undefined) topLevelUpdates.description = description
+          const hasContentFields = Object.keys(contentFields).length > 0
+          if (hasContentFields) {
+            // Merge content fields into existing content
+            const existingCard = usePageStore.getState().cards.find((c) => c.id === cardId)
+            const existingContent = existingCard?.content ?? {}
+            topLevelUpdates.content = { ...(existingContent as object), ...contentFields }
+          }
+          updateCard(cardId, topLevelUpdates)
           break
         }
         case "DELETE_CARD": {
