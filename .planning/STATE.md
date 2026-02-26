@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 8 of 11 - COMPLETE
-Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 07, and 08 complete**
-Last activity: 2026-02-26 - Completed 12.71-08: featured theme navigate-first flow + Create Your Own blank canvas
+Plan: 9 of 11 - IN PROGRESS
+Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, and 08 complete**
+Last activity: 2026-02-26 - Completed 12.71-06: inline text card editing in preview iframe
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -24,8 +24,15 @@ Building direct-manipulation editor UX (click-to-navigate, inline editing, float
 - ✓ Plan 03: renderWithLineBreaks utility — newlines render as visible line breaks across all card types
 - ✓ Plan 04: compressImageForUpload on all profile upload paths + gallery unmount guard
 - ✓ Plan 05: Inline title and bio editing in preview iframe (InlineEditable wired into ProfileHeader)
+- ✓ Plan 06: Inline text card editing — click text card in preview to type directly, commits via UPDATE_CARD postMessage
 - ✓ Plan 07: Canva-style floating quick-action toolbar (Delete/Duplicate) above selected cards in preview
 - ✓ Plan 08: Featured theme navigate-first flow + Create Your Own blank canvas option
+
+**Key decisions (Plan 06):**
+- isEditable=false default on TextCard — public page callers need zero changes
+- UPDATE_CARD handler bug fixed: title/description are top-level Card fields, not content fields; handler now splits and applies correctly with content merge for other fields
+- Thread isEditable from preview/page.tsx through SelectableFlowGrid → PreviewSortableCard → CardRenderer rather than detecting iframe context inside TextCard
+- stopPropagation on `<p>` onClick wrapper prevents SELECT_CARD from firing when user clicks to edit text
 
 **Key decisions (Plan 08):**
 - Removed entire applyTemplate+confirm-dialog flow from FeaturedThemesTab — template picker handles apply step
