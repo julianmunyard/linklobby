@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/collapsible"
 import { useProfileStore } from "@/stores/profile-store"
 import { useThemeStore } from "@/stores/theme-store"
+import { FontPicker } from "./font-picker"
 import { SocialIconsEditor } from "./social-icons-editor"
 import { SocialIconPicker } from "./social-icon-picker"
 import { ImageCropDialog } from "@/components/shared/image-crop-dialog"
@@ -557,6 +558,11 @@ export function HeaderSection() {
           </div>
         )}
           </CollapsibleSection>
+
+      {/* Fonts */}
+      <CollapsibleSection title="Fonts" defaultOpen={false}>
+        <FontPicker />
+      </CollapsibleSection>
         </CollapsibleContent>
       </Collapsible>
 
