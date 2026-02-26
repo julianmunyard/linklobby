@@ -51,13 +51,13 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
       <div className="overflow-hidden rounded-xl" ref={emblaRef}>
         <div className="flex touch-pan-y touch-pinch-zoom">
           {images.map((image) => (
-            <div key={image.id} className="flex-[0_0_100%] min-w-0 px-2">
+            <div key={image.id} className="flex-[0_0_100%] min-w-0">
               <div className="relative aspect-square">
                 <Image
                   src={image.url}
                   alt={image.alt}
                   fill
-                  className="object-cover rounded-lg"
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, 600px"
                 />
               </div>

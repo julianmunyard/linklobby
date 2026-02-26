@@ -3,7 +3,7 @@
 
 import { useRef, useState } from "react"
 import Image from "next/image"
-import { Loader2, Upload, X } from "lucide-react"
+import { Crop, Loader2, Upload, X } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -165,8 +165,8 @@ export function ImageUpload({
             // Small thumbnail preview with click-to-crop
             <div
               className={cn(
-                "relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0",
-                !disabled && !isUploading && "cursor-pointer hover:opacity-80 transition-opacity"
+                "relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 group",
+                !disabled && !isUploading && "cursor-pointer"
               )}
               onClick={handleThumbnailClick}
               role="button"
@@ -185,6 +185,12 @@ export function ImageUpload({
                 className="object-cover"
                 sizes="64px"
               />
+              {/* Crop icon overlay — visible on hover */}
+              {!disabled && !isUploading && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Crop className="h-4 w-4 text-white" />
+                </div>
+              )}
             </div>
           ) : (
             // Small upload placeholder
