@@ -4,6 +4,7 @@ import { User } from "lucide-react"
 import { useCallback } from "react"
 import { useProfileStore } from "@/stores/profile-store"
 import { cn } from "@/lib/utils"
+import { InlineEditable } from "@/components/preview/inline-editable"
 
 /**
  * Returns true when rendered inside the editor iframe (not standalone/public page).
@@ -38,6 +39,31 @@ export function ProfileHeader() {
   const handleHeaderClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     postOpenHeaderTab()
+  }, [])
+
+  /**
+   * Commits an inline edit by posting UPDATE_PROFILE to the parent editor.
+   * Only fires when inside the editor iframe.
+   */
+  const handleInlineCommit = useCallback((field: string, value: string) => {
+    if (typeof window === "undefined") return
+    if (window.parent === window) return
+    window.parent.postMessage(
+      { type: "UPDATE_PROFILE", payload: { field, value } },
+      window.location.origin
+    )
+  }, [])
+
+  const handleInlineEditStart = useCallback(() => {
+    if (typeof window === "undefined") return
+    if (window.parent === window) return
+    window.parent.postMessage({ type: "INLINE_EDIT_ACTIVE" }, window.location.origin)
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (typeof window === "undefined") return
+    if (window.parent === window) return
+    window.parent.postMessage({ type: "INLINE_EDIT_DONE" }, window.location.origin)
   }, [])
 
   const displayName = useProfileStore((state) => state.displayName)
@@ -79,8 +105,34 @@ export function ProfileHeader() {
 
   // Render title text
   const renderTitle = () => {
-    if (!showTitle || !displayName) return null
-
+    if (!showTitle) return null
+    // In editor iframe: use InlineEditable for direct manipulation
+    if (isInEditor) {
+      return (
+        <h1
+          className={cn(
+            "font-bold text-center break-words w-full max-w-xs text-theme-text",
+            titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
+          )}
+          style={{
+            fontFamily: 'var(--font-theme-heading)',
+            ...(headerTextColor && { color: headerTextColor })
+          }}
+        >
+          <InlineEditable
+            value={displayName || ""}
+            onCommit={(text) => handleInlineCommit("displayName", text)}
+            multiline={false}
+            placeholder="Your Name"
+            onEditStart={handleInlineEditStart}
+            onEditEnd={handleInlineEditEnd}
+            className="focus:outline-none focus:ring-1 focus:ring-blue-400/50 rounded px-0.5"
+          />
+        </h1>
+      )
+    }
+    // Public page: static text
+    if (!displayName) return null
     return (
       <h1
         className={cn(
@@ -99,8 +151,30 @@ export function ProfileHeader() {
 
   // Render bio
   const renderBio = () => {
+    // In editor iframe: always render InlineEditable (even if bio is empty — show placeholder)
+    if (isInEditor) {
+      return (
+        <p
+          className="text-sm text-theme-text/70 text-center max-w-xs"
+          style={{
+            fontFamily: 'var(--font-theme-body)',
+            ...(headerTextColor && { color: headerTextColor, opacity: 0.7 })
+          }}
+        >
+          <InlineEditable
+            value={bio || ""}
+            onCommit={(text) => handleInlineCommit("bio", text)}
+            multiline={true}
+            placeholder="Add a bio..."
+            onEditStart={handleInlineEditStart}
+            onEditEnd={handleInlineEditEnd}
+            className="focus:outline-none focus:ring-1 focus:ring-blue-400/50 rounded px-0.5"
+          />
+        </p>
+      )
+    }
+    // Public page: static text, hidden when empty
     if (!bio) return null
-
     return (
       <p
         className="text-sm text-theme-text/70 text-center max-w-xs"
@@ -168,13 +242,19 @@ export function ProfileHeader() {
         {/* Logo */}
         {renderLogo()}
 
-        {/* Title — click navigates to Header tab */}
-        <div className={editorHoverClass} onClick={handleHeaderClick}>
+        {/* Title — inline editable in editor, click-to-navigate fallback */}
+        <div
+          className={editorHoverClass}
+          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+        >
           {renderTitle()}
         </div>
 
-        {/* Bio — click navigates to Header tab */}
-        <div className={editorHoverClass} onClick={handleHeaderClick}>
+        {/* Bio — inline editable in editor, click-to-navigate fallback */}
+        <div
+          className={editorHoverClass}
+          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+        >
           {renderBio()}
         </div>
       </div>
@@ -212,12 +292,18 @@ export function ProfileHeader() {
       {/* Logo, Title, Bio below banner */}
       <div className="flex flex-col items-center gap-2 px-4 pt-3 pb-2">
         {renderLogo()}
-        {/* Title — click navigates to Header tab */}
-        <div className={editorHoverClass} onClick={handleHeaderClick}>
+        {/* Title — inline editable in editor, click-to-navigate fallback */}
+        <div
+          className={editorHoverClass}
+          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+        >
           {renderTitle()}
         </div>
-        {/* Bio — click navigates to Header tab */}
-        <div className={editorHoverClass} onClick={handleHeaderClick}>
+        {/* Bio — inline editable in editor, click-to-navigate fallback */}
+        <div
+          className={editorHoverClass}
+          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+        >
           {renderBio()}
         </div>
       </div>
