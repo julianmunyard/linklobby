@@ -25,6 +25,7 @@ export interface PublicPageData {
     bio: string | null
     avatar_url: string | null
     avatar_feather: number
+    avatar_size: number
     show_avatar: boolean
     show_title: boolean
     title_size: 'small' | 'large'

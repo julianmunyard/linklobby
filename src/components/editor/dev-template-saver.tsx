@@ -93,6 +93,7 @@ function buildTemplatePayload() {
       bio: profileSnapshot.bio,
       avatarUrl: profileSnapshot.avatarUrl,
       avatarFeather: profileSnapshot.avatarFeather,
+      avatarSize: profileSnapshot.avatarSize,
       showAvatar: profileSnapshot.showAvatar,
       showTitle: profileSnapshot.showTitle,
       titleSize: profileSnapshot.titleSize,

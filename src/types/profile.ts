@@ -231,6 +231,7 @@ export interface Profile {
   bio: string | null
   avatarUrl: string | null
   avatarFeather: number  // 0-100, edge feathering amount (0 = no feather, 100 = max feather)
+  avatarSize: number  // 60-160px, avatar diameter for classic layout (default 80)
   showAvatar: boolean
   showTitle: boolean
   titleSize: TitleSize

@@ -75,6 +75,7 @@ export function ProfileHeader() {
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const avatarFeather = useProfileStore((state) => state.avatarFeather)
+  const avatarSize = useProfileStore((state) => state.avatarSize)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -214,11 +215,11 @@ export function ProfileHeader() {
         {showAvatar && (
           <div
             className={cn(
-              "relative w-20 h-20",
-              // Only show bg-muted when no feather (for placeholder/fallback circle)
+              "relative",
               avatarFeather === 0 && "bg-muted rounded-full overflow-hidden",
               editorHoverClass
             )}
+            style={{ width: avatarSize, height: avatarSize }}
             onClick={handleHeaderClick}
           >
             {avatarUrl ? (

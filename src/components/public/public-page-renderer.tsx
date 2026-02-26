@@ -68,6 +68,7 @@ interface PublicPageRendererProps {
   bio: string | null
   avatarUrl: string | null
   avatarFeather: number
+  avatarSize: number
   showAvatar: boolean
   showTitle: boolean
   titleSize: "small" | "large"
@@ -160,6 +161,7 @@ export function PublicPageRenderer({
   bio,
   avatarUrl,
   avatarFeather,
+  avatarSize,
   showAvatar,
   showTitle,
   titleSize,
@@ -430,6 +432,7 @@ export function PublicPageRenderer({
             bio={bio}
             avatarUrl={avatarUrl}
             avatarFeather={avatarFeather}
+            avatarSize={avatarSize}
             showAvatar={showAvatar}
             showTitle={showTitle}
             titleSize={titleSize}
@@ -498,6 +501,7 @@ export function PublicPageRenderer({
             bio={bio}
             avatarUrl={avatarUrl}
             avatarFeather={avatarFeather}
+            avatarSize={avatarSize}
             showAvatar={showAvatar}
             showTitle={showTitle}
             titleSize={titleSize}
@@ -544,6 +548,7 @@ export function PublicPageRenderer({
           bio={bio}
           avatarUrl={avatarUrl}
           avatarFeather={avatarFeather}
+          avatarSize={avatarSize}
           showAvatar={showAvatar}
           showTitle={showTitle}
           titleSize={titleSize}

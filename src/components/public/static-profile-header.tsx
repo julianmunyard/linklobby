@@ -49,6 +49,7 @@ interface StaticProfileHeaderProps {
   bio: string | null
   avatarUrl: string | null
   avatarFeather: number
+  avatarSize: number
   showAvatar: boolean
   showTitle: boolean
   titleSize: "small" | "large"
@@ -83,6 +84,7 @@ export function StaticProfileHeader({
   bio,
   avatarUrl,
   avatarFeather,
+  avatarSize = 80,
   showAvatar,
   showTitle,
   titleSize,
@@ -238,17 +240,17 @@ export function StaticProfileHeader({
         {showAvatar && (
           <div
             className={cn(
-              "relative w-20 h-20",
-              // Only show bg-muted when no feather (for placeholder/fallback circle)
+              "relative",
               avatarFeather === 0 && "bg-muted rounded-full overflow-hidden"
             )}
+            style={{ width: avatarSize, height: avatarSize }}
           >
             {avatarUrl ? (
               <Image
                 src={avatarUrl}
                 alt=""
-                width={80}
-                height={80}
+                width={avatarSize}
+                height={avatarSize}
                 className={cn(
                   "w-full h-full object-cover",
                   avatarFeather === 0 && "rounded-full"

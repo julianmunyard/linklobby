@@ -139,6 +139,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
         bio={profile.bio}
         avatarUrl={profile.avatar_url}
         avatarFeather={profile.avatar_feather}
+        avatarSize={profile.avatar_size}
         showAvatar={profile.show_avatar}
         showTitle={profile.show_title}
         titleSize={profile.title_size}

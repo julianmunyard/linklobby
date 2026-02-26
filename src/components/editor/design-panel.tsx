@@ -79,6 +79,7 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const avatarFeather = useProfileStore((state) => state.avatarFeather)
+  const avatarSize = useProfileStore((state) => state.avatarSize)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -94,6 +95,7 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const setBio = useProfileStore((state) => state.setBio)
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
   const setAvatarFeather = useProfileStore((state) => state.setAvatarFeather)
+  const setAvatarSize = useProfileStore((state) => state.setAvatarSize)
   const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
   const setShowTitle = useProfileStore((state) => state.setShowTitle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
@@ -247,13 +249,24 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
                 <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarFileSelect} className="hidden" />
               </div>
               {showAvatar && avatarUrl && (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Edge Feather</span>
-                    <span>{avatarFeather}%</span>
+                <>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Edge Feather</span>
+                      <span>{avatarFeather}%</span>
+                    </div>
+                    <Slider value={[avatarFeather]} onValueChange={(v) => setAvatarFeather(v[0])} min={0} max={100} step={5} />
                   </div>
-                  <Slider value={[avatarFeather]} onValueChange={(v) => setAvatarFeather(v[0])} min={0} max={100} step={5} />
-                </div>
+                  {profileLayout === 'classic' && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Size</span>
+                        <span>{avatarSize}px</span>
+                      </div>
+                      <Slider value={[avatarSize]} onValueChange={(v) => setAvatarSize(v[0])} min={60} max={160} step={4} />
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

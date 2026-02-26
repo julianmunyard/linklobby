@@ -78,6 +78,7 @@ export function HeaderSection() {
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const avatarFeather = useProfileStore((state) => state.avatarFeather)
+  const avatarSize = useProfileStore((state) => state.avatarSize)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -94,6 +95,7 @@ export function HeaderSection() {
   const setBio = useProfileStore((state) => state.setBio)
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
   const setAvatarFeather = useProfileStore((state) => state.setAvatarFeather)
+  const setAvatarSize = useProfileStore((state) => state.setAvatarSize)
   const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
   const setShowTitle = useProfileStore((state) => state.setShowTitle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
@@ -342,20 +344,38 @@ export function HeaderSection() {
         )}
 
         {showAvatar && avatarUrl && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs text-muted-foreground">Edge Feather</Label>
-              <span className="text-xs text-muted-foreground">{avatarFeather}%</span>
+          <>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-muted-foreground">Edge Feather</Label>
+                <span className="text-xs text-muted-foreground">{avatarFeather}%</span>
+              </div>
+              <Slider
+                value={[avatarFeather]}
+                onValueChange={(value) => setAvatarFeather(value[0])}
+                min={0}
+                max={100}
+                step={5}
+                className="w-full"
+              />
             </div>
-            <Slider
-              value={[avatarFeather]}
-              onValueChange={(value) => setAvatarFeather(value[0])}
-              min={0}
-              max={100}
-              step={5}
-              className="w-full"
-            />
-          </div>
+            {profileLayout === 'classic' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Size</Label>
+                  <span className="text-xs text-muted-foreground">{avatarSize}px</span>
+                </div>
+                <Slider
+                  value={[avatarSize]}
+                  onValueChange={(value) => setAvatarSize(value[0])}
+                  min={60}
+                  max={160}
+                  step={4}
+                  className="w-full"
+                />
+              </div>
+            )}
+          </>
         )}
       </CollapsibleSection>
 
