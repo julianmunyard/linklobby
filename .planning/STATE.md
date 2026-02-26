@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 9 of 11 - COMPLETE
-Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, 08, and 09 complete**
-Last activity: 2026-02-26 - Completed 12.71-09: font picker embedded in Title Edit section
+Plan: 10 of 11 - COMPLETE
+Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, 08, 09, and 10 complete**
+Last activity: 2026-02-26 - Completed 12.71-10: gallery carousel edge-to-edge and crop icon overlay
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -28,6 +28,12 @@ Building direct-manipulation editor UX (click-to-navigate, inline editing, float
 - ✓ Plan 07: Canva-style floating quick-action toolbar (Delete/Duplicate) above selected cards in preview
 - ✓ Plan 08: Featured theme navigate-first flow + Create Your Own blank canvas option
 - ✓ Plan 09: FontPicker embedded in Title Edit section as collapsible "Fonts" subsection
+- ✓ Plan 10: Gallery carousel edge-to-edge photos + Crop icon hover overlay on image-upload thumbnail
+
+**Key decisions (Plan 10):**
+- Removed px-2 from Embla carousel slides — direct cause of side gaps
+- Removed per-image rounded-lg; viewport rounded-xl handles clipping
+- Crop icon overlay uses group/group-hover pattern for clear affordance
 
 **Key decisions (Plan 09):**
 - FontPicker left in Design tab as well — both reference same theme store, stay in sync
