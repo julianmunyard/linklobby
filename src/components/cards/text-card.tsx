@@ -31,9 +31,14 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
 
   const handleEditStart = useCallback(() => {
     if (window.parent !== window) {
+      // Select the card so settings panel opens alongside inline editing
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId: card.id } },
+        window.location.origin
+      )
       window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
     }
-  }, [])
+  }, [card.id])
 
   const handleEditEnd = useCallback(() => {
     if (window.parent !== window) {
@@ -66,7 +71,7 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
             value={card.title || ''}
             onCommit={handleTitleCommit}
             multiline={true}
-            placeholder="Type something..."
+            placeholder="Tap to edit"
             onEditStart={handleEditStart}
             onEditEnd={handleEditEnd}
             className="outline-none min-w-[1ch] inline-block w-full"
