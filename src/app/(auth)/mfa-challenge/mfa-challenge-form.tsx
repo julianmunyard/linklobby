@@ -95,7 +95,7 @@ export function MfaChallengeForm() {
   const isTotp = mode === 'totp'
 
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-xl border-white/10">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Two-factor authentication</CardTitle>
         <CardDescription>

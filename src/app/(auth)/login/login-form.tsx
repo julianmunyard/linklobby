@@ -50,7 +50,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-xl border-white/10">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>Log in to your LinkLobby account</CardDescription>
@@ -64,7 +64,7 @@ export function LoginForm() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">or</span>
+              <span className="bg-transparent px-2 text-muted-foreground">or</span>
             </div>
           </div>
 

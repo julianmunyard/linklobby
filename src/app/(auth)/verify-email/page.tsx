@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function VerifyEmailPage() {
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-xl border-white/10">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Check your email</CardTitle>
         <CardDescription>

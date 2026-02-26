@@ -72,7 +72,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card>
+    <Card className="bg-card/80 backdrop-blur-xl border-white/10">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create your page</CardTitle>
         <CardDescription>Claim your linklobby.com/username</CardDescription>
@@ -86,7 +86,7 @@ export function SignupForm() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">or</span>
+              <span className="bg-transparent px-2 text-muted-foreground">or</span>
             </div>
           </div>
 
