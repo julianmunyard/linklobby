@@ -64,9 +64,10 @@ interface EditorPanelProps {
   onTabConsumed?: () => void
   onDesignTabConsumed?: () => void
   onTemplateApplied?: () => void
+  onSettingChanged?: () => void
 }
 
-export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTabConsumed, onDesignTabConsumed, onTemplateApplied }: EditorPanelProps = {}) {
+export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTabConsumed, onDesignTabConsumed, onTemplateApplied, onSettingChanged }: EditorPanelProps = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get("tab")
@@ -233,6 +234,13 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     router.replace('/editor?tab=design', { scroll: false })
   }
 
+  const handleNavigateToLinks = () => {
+    setSidebarTab(null)
+    setActiveTab('links')
+    pushNav({ tab: 'links' })
+    router.replace('/editor?tab=links', { scroll: false })
+  }
+
   // Clear pendingDesignSubTab after DesignTab consumes it
   useEffect(() => {
     if (activeTab === 'design' && pendingDesignSubTab) {
@@ -311,6 +319,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
         <CardPropertyEditor
           card={selectedCard}
           onClose={handleClose}
+          onSettingChanged={onSettingChanged}
         />
       ) : (
         <div className="flex h-full flex-col">
@@ -361,7 +370,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                       "data-[state=inactive]:hidden"
                     )}
                   >
-                    <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onTemplateApplied={onTemplateApplied} />
+                    <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onNavigateToLinks={handleNavigateToLinks} />
                   </TabsContent>
 
                   <TabsContent

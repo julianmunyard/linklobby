@@ -4,8 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
-import { useActiveTemplate } from '@/components/editor/dev-template-saver'
-import { Loader2, Lock } from 'lucide-react'
+import { Lock, Plus } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,12 +18,8 @@ import {
 import { getTemplate } from '@/lib/templates'
 import { getTheme } from '@/lib/themes'
 import { usePageStore } from '@/stores/page-store'
-import { useThemeStore } from '@/stores/theme-store'
-import { useProfileStore } from '@/stores/profile-store'
 import type { TemplateDefinition } from '@/lib/templates'
-import type { Card } from '@/types/card'
-import type { ThemeState, ThemeId } from '@/types/theme'
-import type { Profile } from '@/types/profile'
+import type { ThemeId } from '@/types/theme'
 import { cn } from '@/lib/utils'
 import { usePlanTier } from '@/contexts/plan-tier-context'
 import { PRO_THEMES } from '@/lib/stripe/plans'
@@ -115,14 +110,13 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
 
 interface FeaturedThemesTabProps {
   onNavigateToTheme: (themeId: string) => void
+  onNavigateToLinks?: () => void
   onTemplateApplied?: () => void
 }
 
-export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: FeaturedThemesTabProps) {
+export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: FeaturedThemesTabProps) {
   const { planTier } = usePlanTier()
-  const [applyingId, setApplyingId] = useState<string | null>(null)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [pendingTemplate, setPendingTemplate] = useState<TemplateDefinition | null>(null)
+  const [showCreateOwnConfirm, setShowCreateOwnConfirm] = useState(false)
 
   const featuredTemplates = useMemo(() => {
     return FEATURED_IDS
@@ -139,83 +133,30 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
   }, [])
 
   // ---------------------------------------------------------------------------
-  // Apply flow (same pattern as TemplatePicker)
-  // ---------------------------------------------------------------------------
-
-  async function applyTemplate(template: TemplateDefinition, mode: 'replace' | 'add') {
-    setApplyingId(template.id)
-    setShowConfirm(false)
-
-    try {
-      const res = await fetch('/api/templates/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId: template.id, mode }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err?.error || `HTTP ${res.status}`)
-      }
-
-      const data = await res.json() as {
-        cards: Card[]
-        theme: ThemeState
-        profile: Partial<Profile>
-        templateName: string
-      }
-
-      // Hydrate stores
-      usePageStore.getState().setCards(data.cards)
-      useThemeStore.getState().loadFromDatabase(data.theme)
-      useProfileStore.getState().initializeProfile(data.profile)
-
-      // CRITICAL: loadFromDatabase and initializeProfile both set hasChanges: false,
-      // but applying a template IS a new change that must be persisted via autosave.
-      useThemeStore.setState({ hasChanges: true })
-      useProfileStore.setState({ hasChanges: true })
-
-      toast.success(`Template "${data.templateName}" applied!`)
-      useActiveTemplate.getState().setActiveTemplate(template.id)
-      onTemplateApplied?.()
-    } catch (err) {
-      console.error('[FeaturedThemesTab] apply error:', err)
-      toast.error('Failed to apply template. Please try again.')
-    } finally {
-      setApplyingId(null)
-      setPendingTemplate(null)
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // Card click handler
+  // Card click handler — navigates to template picker for that theme
   // ---------------------------------------------------------------------------
 
   function handleCardClick(template: TemplateDefinition) {
-    if (applyingId) return // Disable while applying
+    onNavigateToTheme(template.themeId)
+  }
 
+  // ---------------------------------------------------------------------------
+  // Create Your Own flow
+  // ---------------------------------------------------------------------------
+
+  function handleCreateYourOwn() {
     const existingCardCount = usePageStore.getState().cards.length
-
     if (existingCardCount > 0) {
-      setPendingTemplate(template)
-      setShowConfirm(true)
+      setShowCreateOwnConfirm(true)
     } else {
-      applyTemplate(template, 'replace')
+      doCreateYourOwn()
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Confirmation dialog actions
-  // ---------------------------------------------------------------------------
-
-  function handleConfirmReplace() {
-    if (!pendingTemplate) return
-    applyTemplate(pendingTemplate, 'replace')
-  }
-
-  function handleConfirmAdd() {
-    if (!pendingTemplate) return
-    applyTemplate(pendingTemplate, 'add')
+  function doCreateYourOwn() {
+    usePageStore.getState().setCards([])
+    toast.success('Blank canvas ready — start adding your links!')
+    onNavigateToLinks?.()
   }
 
   return (
@@ -235,11 +176,9 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
             <motion.button
               key={template.id}
               onClick={() => handleCardClick(template)}
-              disabled={!!applyingId}
               className={cn(
                 'flex flex-col rounded-lg border-2 border-border bg-card text-left overflow-hidden',
-                'transition-colors hover:border-accent',
-                applyingId && applyingId !== template.id && 'opacity-50 pointer-events-none'
+                'transition-colors hover:border-accent'
               )}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.12 }}
@@ -261,12 +200,8 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
                     sizes="(max-width: 768px) 50vw, 150px"
                   />
                 )}
-                {/* Pro / loading overlay */}
-                {applyingId === template.id ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
-                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                  </div>
-                ) : planTier === 'free' && PRO_THEMES.includes(template.themeId) ? (
+                {/* Pro overlay */}
+                {planTier === 'free' && PRO_THEMES.includes(template.themeId) ? (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
                     <div className="flex flex-col items-center gap-1.5">
                       <Lock className="w-5 h-5 text-amber-400" />
@@ -305,29 +240,40 @@ export function FeaturedThemesTab({ onNavigateToTheme, onTemplateApplied }: Feat
               </div>
             </motion.button>
           ))}
+
+          {/* Create Your Own card */}
+          <motion.button
+            onClick={handleCreateYourOwn}
+            className={cn(
+              'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card',
+              'transition-colors hover:border-accent hover:bg-muted/30 min-h-[180px] gap-3 p-4'
+            )}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.12 }}
+          >
+            <div className="rounded-full bg-muted p-3">
+              <Plus className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <span className="text-xs font-medium text-muted-foreground text-center leading-tight">
+              Create Your Own
+            </span>
+          </motion.button>
         </div>
       </div>
 
-      {/* Confirmation dialog */}
-      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+      {/* Create Your Own confirmation dialog */}
+      <AlertDialog open={showCreateOwnConfirm} onOpenChange={setShowCreateOwnConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Apply Template?</AlertDialogTitle>
+            <AlertDialogTitle>Start with a blank canvas?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have {usePageStore.getState().cards.length} existing card
-              {usePageStore.getState().cards.length === 1 ? '' : 's'}. What would you like to do?
+              This will clear your existing cards. Continue?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+          <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="outline"
-              onClick={handleConfirmAdd}
-            >
-              Add to my page
-            </AlertDialogAction>
-            <AlertDialogAction onClick={handleConfirmReplace}>
-              Replace my page
+            <AlertDialogAction onClick={() => { setShowCreateOwnConfirm(false); doCreateYourOwn() }}>
+              Clear and start fresh
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
