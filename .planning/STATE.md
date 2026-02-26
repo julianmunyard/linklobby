@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 1 of 11 - IN PROGRESS
-Status: **Phase 12.71 active — Plan 01 complete (click-to-navigate foundation + InlineEditable)**
-Last activity: 2026-02-26 - Completed 12.71-01: click-to-navigate infrastructure and InlineEditable component
+Plan: 3 of 11 - IN PROGRESS
+Status: **Phase 12.71 active — Plans 01 and 03 complete**
+Last activity: 2026-02-26 - Completed 12.71-03: renderWithLineBreaks utility applied to all card types
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -20,6 +20,13 @@ Progress: [███████████████████████
 
 Building direct-manipulation editor UX (click-to-navigate, inline editing, floating toolbars):
 - ✓ Plan 01: Click-to-navigate infrastructure + InlineEditable component
+- ✓ Plan 03: renderWithLineBreaks utility — newlines render as visible line breaks across all card types
+
+**Key decisions (Plan 03):**
+- Use .tsx extension for render-utils (contains JSX Fragment + br)
+- Fragment wrapper (not span) to avoid extra DOM elements affecting CSS
+- square-card uses card.title || "" — TypeScript requires string not string|null even though showTitle guard ensures truthiness
+- renderWithLineBreaks applies to description fields on link/horizontal-link (description is the multiline field), title+description on text/hero, title only on square (no description field)
 
 **Key decisions (Plan 01):**
 - isInlineEditActiveRef (not useState) for deselect gate — avoids stale closures in async handleDeselect
