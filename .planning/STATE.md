@@ -9,12 +9,23 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 
 ## Current Position
 
-Phase: 12.6 of 18 - Security Hardening & Auth Completion
-Plan: 7 of 7 - COMPLETE (all plans 01-07 done)
-Status: **Phase 12.6 COMPLETE - Security + Rate Limiting + OAuth/Password Reset + Account Management + TOTP 2FA + Session Management + Cookie Consent + Storage Quota/MIME Validation**
-Last activity: 2026-02-26 - Completed quick task 078: ReactBits Squares animated background on auth pages with glassmorphism cards
+Phase: 12.71 of 18 - Editor UX Overhaul
+Plan: 1 of 11 - IN PROGRESS
+Status: **Phase 12.71 active — Plan 01 complete (click-to-navigate foundation + InlineEditable)**
+Last activity: 2026-02-26 - Completed 12.71-01: click-to-navigate infrastructure and InlineEditable component
 
 Progress: [█████████████████████████████░░░] ~85%
+
+### IN PROGRESS: Phase 12.71 - Editor UX Overhaul
+
+Building direct-manipulation editor UX (click-to-navigate, inline editing, floating toolbars):
+- ✓ Plan 01: Click-to-navigate infrastructure + InlineEditable component
+
+**Key decisions (Plan 01):**
+- isInlineEditActiveRef (not useState) for deselect gate — avoids stale closures in async handleDeselect
+- Profile updates use field-specific setters (setDisplayName/setBio) not a generic field-patch
+- Hover affordances gated on useIsInEditorIframe() — public pages show no editing indicators
+- Background click uses e.target === e.currentTarget guard so cards don't trigger style tab
 
 ### COMPLETE: Phase 12.6 - Security Hardening & Auth Completion
 
@@ -1394,4 +1405,11 @@ Executed Phase 7 Theme System (7 plans across 5 waves):
 | 078 | ReactBits Squares background + glassmorphism auth cards | 2026-02-26 | 790122a | [078-reactbits-squares-background-login-page](./quick/078-reactbits-squares-background-login-page/) |
 
 ---
-*Updated: 2026-02-26 - Quick task 078 complete*
+
+## Accumulated Context
+
+### Roadmap Evolution
+- Phase 12.71 inserted after Phase 12.7: Editor UX Overhaul (URGENT) — transform editor from panel-driven to canvas-driven direct manipulation. Canva-style floating toolbars, inline editing, simplified add card flow. Primarily Mac OS, Instagram Reels, Poolsuite themes.
+
+---
+*Updated: 2026-02-26 - Phase 12.71 inserted (Editor UX Overhaul)*
