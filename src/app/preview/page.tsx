@@ -94,14 +94,21 @@ function PreviewContent() {
     }
   }, [])
 
-  // Deselect when clicking empty space in preview
-  const handleBackgroundClick = useCallback(() => {
+  // Deselect when clicking empty space in preview (background only, not cards)
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    // Only fire when clicking directly on the background element, not on cards/content
+    if (e.target !== e.currentTarget) return
     // Clear multi-select
     clearSelection()
-    // Also deselect in editor
     if (window.parent !== window) {
+      // Deselect card in editor
       window.parent.postMessage(
         { type: "SELECT_CARD", payload: { cardId: null } },
+        window.location.origin
+      )
+      // Navigate editor to Design > Style tab
+      window.parent.postMessage(
+        { type: "OPEN_DESIGN_TAB", payload: { tab: "style" } },
         window.location.origin
       )
     }

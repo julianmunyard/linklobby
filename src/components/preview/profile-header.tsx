@@ -1,8 +1,31 @@
 "use client"
 
 import { User } from "lucide-react"
+import { useCallback } from "react"
 import { useProfileStore } from "@/stores/profile-store"
 import { cn } from "@/lib/utils"
+
+/**
+ * Returns true when rendered inside the editor iframe (not standalone/public page).
+ * Used to show click-to-edit affordances only in the editor context.
+ */
+function useIsInEditorIframe(): boolean {
+  if (typeof window === "undefined") return false
+  return window.parent !== window
+}
+
+/**
+ * Posts OPEN_DESIGN_TAB with tab: 'header' to the parent editor.
+ * Only fires when inside the editor iframe.
+ */
+function postOpenHeaderTab() {
+  if (typeof window === "undefined") return
+  if (window.parent === window) return
+  window.parent.postMessage(
+    { type: "OPEN_DESIGN_TAB", payload: { tab: "header" } },
+    window.location.origin
+  )
+}
 
 /**
  * Profile header component for the preview iframe.
@@ -11,6 +34,12 @@ import { cn } from "@/lib/utils"
  * Supports Classic (centered circle) and Hero (banner) layouts.
  */
 export function ProfileHeader() {
+  const isInEditor = useIsInEditorIframe()
+  const handleHeaderClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    postOpenHeaderTab()
+  }, [])
+
   const displayName = useProfileStore((state) => state.displayName)
   const bio = useProfileStore((state) => state.bio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
@@ -92,6 +121,11 @@ export function ProfileHeader() {
     ? `radial-gradient(circle, black ${Math.max(0, 70 - avatarFeather * 0.7)}%, transparent ${Math.min(100, 70 + avatarFeather * 0.3)}%)`
     : undefined
 
+  // Hover affordance classes — only shown in editor iframe
+  const editorHoverClass = isInEditor
+    ? "cursor-pointer hover:ring-2 hover:ring-blue-400/30 rounded transition-all"
+    : ""
+
   // Classic layout: centered circle avatar, title below, social icons row
   if (profileLayout === "classic") {
     return (
@@ -103,8 +137,10 @@ export function ProfileHeader() {
             className={cn(
               "relative w-20 h-20",
               // Only show bg-muted when no feather (for placeholder/fallback circle)
-              avatarFeather === 0 && "bg-muted rounded-full overflow-hidden"
+              avatarFeather === 0 && "bg-muted rounded-full overflow-hidden",
+              editorHoverClass
             )}
+            onClick={handleHeaderClick}
           >
             {avatarUrl ? (
               /* Use img instead of Image to avoid Next.js optimization issues with transparent PNGs */
@@ -132,11 +168,15 @@ export function ProfileHeader() {
         {/* Logo */}
         {renderLogo()}
 
-        {/* Title */}
-        {renderTitle()}
+        {/* Title — click navigates to Header tab */}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderTitle()}
+        </div>
 
-        {/* Bio */}
-        {renderBio()}
+        {/* Bio — click navigates to Header tab */}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderBio()}
+        </div>
       </div>
     )
   }
@@ -146,7 +186,13 @@ export function ProfileHeader() {
     <div className="transition-opacity duration-200">
       {/* Avatar - larger, banner-style (only if showAvatar is true) */}
       {showAvatar && (
-        <div className="relative w-full aspect-[3/1] bg-muted overflow-hidden">
+        <div
+          className={cn(
+            "relative w-full aspect-[3/1] bg-muted overflow-hidden",
+            editorHoverClass
+          )}
+          onClick={handleHeaderClick}
+        >
           {avatarUrl ? (
             /* Use img instead of Image to avoid Next.js optimization issues with transparent PNGs */
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -166,8 +212,14 @@ export function ProfileHeader() {
       {/* Logo, Title, Bio below banner */}
       <div className="flex flex-col items-center gap-2 px-4 pt-3 pb-2">
         {renderLogo()}
-        {renderTitle()}
-        {renderBio()}
+        {/* Title — click navigates to Header tab */}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderTitle()}
+        </div>
+        {/* Bio — click navigates to Header tab */}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderBio()}
+        </div>
       </div>
     </div>
   )
