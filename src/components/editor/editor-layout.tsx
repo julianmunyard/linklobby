@@ -64,6 +64,8 @@ export function EditorLayout() {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail
       const tab = detail?.tab || 'style'
+      // Deselect any selected card so the design tab is visible
+      usePageStore.getState().selectCard(null)
       setInitialDesignTab(tab)
       if (isMobileLayout) {
         setMobileSheetOpen(true)

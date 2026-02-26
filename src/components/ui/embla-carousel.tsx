@@ -87,7 +87,7 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
       )}
 
       {/* Dot indicators */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-1.5 py-2 absolute bottom-0 left-0 right-0 z-10">
         {images.map((_, idx) => (
           <button
             key={idx}
