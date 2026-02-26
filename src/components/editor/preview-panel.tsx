@@ -235,6 +235,26 @@ export function PreviewPanel() {
           updateCard(cardId, topLevelUpdates)
           break
         }
+        case "UPDATE_GALLERY_IMAGE": {
+          // Gallery carousel image zoom/position update
+          const { cardId: galleryCardId, imageId, ...imageUpdates } = event.data.payload as {
+            cardId: string
+            imageId: string
+            zoom?: number
+            positionX?: number
+            positionY?: number
+          }
+          const galleryCard = usePageStore.getState().cards.find(c => c.id === galleryCardId)
+          if (galleryCard) {
+            const galleryContent = galleryCard.content as Record<string, unknown>
+            const galleryImages = (galleryContent.images || []) as Array<Record<string, unknown>>
+            const updatedImages = galleryImages.map(img =>
+              img.id === imageId ? { ...img, ...imageUpdates } : img
+            )
+            updateCard(galleryCardId, { content: { ...galleryContent, images: updatedImages } })
+          }
+          break
+        }
         case "DELETE_CARD": {
           // Floating toolbar requested card deletion
           const { cardId: deleteCardId } = event.data.payload as { cardId: string }

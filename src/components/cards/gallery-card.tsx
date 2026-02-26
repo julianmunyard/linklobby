@@ -90,10 +90,15 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
     )
   }
 
-  // Carousel style
+  // Carousel style — editable in preview (inside editor iframe)
+  const isInEditor = typeof window !== 'undefined' && window.parent !== window
   return (
     <div className="w-full overflow-hidden">
-      <EmblaCarouselGallery images={content.images} />
+      <EmblaCarouselGallery
+        images={content.images}
+        editable={isPreview && isInEditor}
+        cardId={card.id}
+      />
     </div>
   )
 }

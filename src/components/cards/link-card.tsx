@@ -57,14 +57,14 @@ export function LinkCard({ card, isPreview = false }: LinkCardProps) {
       )}
     >
       <p
-        className={cn("font-medium break-words w-full line-clamp-2", !textColor && "text-theme-text")}
+        className={cn("font-medium break-words w-full", !textColor && "text-theme-text")}
         style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
       >
         {card.title || "Untitled Link"}
       </p>
       {card.description && (
         <p
-          className={cn("break-words w-full line-clamp-3", !textColor && "text-theme-text/70")}
+          className={cn("break-words w-full", !textColor && "text-theme-text/70")}
           style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
         >
           {renderWithLineBreaks(card.description)}

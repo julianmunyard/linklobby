@@ -81,14 +81,14 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
         )}
       >
         <h3
-          className={cn("font-medium break-words line-clamp-2", !textColor && "text-theme-text")}
+          className={cn("font-medium break-words ", !textColor && "text-theme-text")}
           style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
         >
           {card.title || "Untitled Link"}
         </h3>
         {card.description && (
           <p
-            className={cn("break-words line-clamp-2", !textColor && "text-theme-text/70")}
+            className={cn("break-words ", !textColor && "text-theme-text/70")}
             style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
           >
             {renderWithLineBreaks(card.description)}
