@@ -70,13 +70,17 @@ export function InlineEditable({
 
   // Scroll the caret into view as the user types (keeps cursor visible when text grows)
   const handleInput = useCallback(() => {
+    // Create a temporary marker at the caret position and scroll to it
     const sel = window.getSelection()
     if (!sel || sel.rangeCount === 0) return
     const range = sel.getRangeAt(0)
-    const rect = range.getBoundingClientRect()
-    if (rect.bottom > window.innerHeight - 20) {
-      window.scrollBy({ top: rect.bottom - window.innerHeight + 40, behavior: 'smooth' })
-    }
+    const marker = document.createElement('span')
+    range.insertNode(marker)
+    marker.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    // Remove the marker without disturbing the caret
+    marker.parentNode?.removeChild(marker)
+    // Restore selection (insertNode can shift it)
+    sel.collapseToEnd()
   }, [])
 
   return (

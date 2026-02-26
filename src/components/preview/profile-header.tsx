@@ -58,6 +58,11 @@ export function ProfileHeader() {
     if (typeof window === "undefined") return
     if (window.parent === window) return
     window.parent.postMessage({ type: "INLINE_EDIT_ACTIVE" }, window.location.origin)
+    // Also open Title Edit settings so user can adjust header options while editing
+    window.parent.postMessage(
+      { type: "OPEN_DESIGN_TAB", payload: { tab: "header" } },
+      window.location.origin
+    )
   }, [])
 
   const handleInlineEditEnd = useCallback(() => {

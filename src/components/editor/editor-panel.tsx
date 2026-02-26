@@ -314,19 +314,12 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
       {isWordArtTitleSelected ? (
         // Show word art title style editor
         <WordArtTitleEditor onClose={() => selectCard(null)} />
-      ) : selectedCard ? (
-        // Show property editor when card is selected
-        <CardPropertyEditor
-          card={selectedCard}
-          onClose={handleClose}
-          onSettingChanged={onSettingChanged}
-        />
       ) : (
         <div className="flex h-full flex-col">
             {sidebarTab ? (
               sidebarContent
             ) : (
-              <Tabs value={activeTab} onValueChange={handleTabChange} className="flex h-full flex-col">
+              <Tabs value={activeTab} onValueChange={(tab) => { handleTabChange(tab); selectCard(null) }} className="flex h-full flex-col">
                 <div className="border-b px-2 py-2 shrink-0 overflow-x-auto scrollbar-none touch-pan-x">
                   <div className="flex items-center gap-1">
                     {/* Back button — only on desktop, mobile uses swipe */}
@@ -356,43 +349,53 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                   </div>
                 </div>
 
-                {/* Swipeable content area */}
-                <div
-                  ref={contentRef}
-                  className="flex-1 overflow-hidden"
-                  onTouchStart={handleTouchStart}
-                  onTouchEnd={handleTouchEnd}
-                >
-                  <TabsContent
-                    value="featured"
-                    className={cn(
-                      "h-full overflow-hidden",
-                      "data-[state=inactive]:hidden"
-                    )}
+                {/* Card editor OR tab content */}
+                {selectedCard ? (
+                  <div className="flex-1 overflow-hidden">
+                    <CardPropertyEditor
+                      card={selectedCard}
+                      onClose={handleClose}
+                      onSettingChanged={onSettingChanged}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    ref={contentRef}
+                    className="flex-1 overflow-hidden"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
                   >
-                    <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onNavigateToLinks={handleNavigateToLinks} />
-                  </TabsContent>
+                    <TabsContent
+                      value="featured"
+                      className={cn(
+                        "h-full overflow-hidden",
+                        "data-[state=inactive]:hidden"
+                      )}
+                    >
+                      <FeaturedThemesTab onNavigateToTheme={handleNavigateToTheme} onNavigateToLinks={handleNavigateToLinks} />
+                    </TabsContent>
 
-                  <TabsContent
-                    value="links"
-                    className={cn(
-                      "h-full overflow-hidden",
-                      "data-[state=inactive]:hidden"
-                    )}
-                  >
-                    <CardsTab />
-                  </TabsContent>
+                    <TabsContent
+                      value="links"
+                      className={cn(
+                        "h-full overflow-hidden",
+                        "data-[state=inactive]:hidden"
+                      )}
+                    >
+                      <CardsTab />
+                    </TabsContent>
 
-                  <TabsContent
-                    value="design"
-                    className={cn(
-                      "h-full overflow-hidden",
-                      "data-[state=inactive]:hidden"
-                    )}
-                  >
-                    <DesignTab initialSubTab={pendingDesignSubTab || initialDesignTab} />
-                  </TabsContent>
-                </div>
+                    <TabsContent
+                      value="design"
+                      className={cn(
+                        "h-full overflow-hidden",
+                        "data-[state=inactive]:hidden"
+                      )}
+                    >
+                      <DesignTab initialSubTab={pendingDesignSubTab || initialDesignTab} />
+                    </TabsContent>
+                  </div>
+                )}
 
               </Tabs>
             )}
