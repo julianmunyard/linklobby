@@ -1390,6 +1390,8 @@ Executed Phase 7 Theme System (7 plans across 5 waves):
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 076 | Fix CSP headers for Superpowered audio and preview iframe | 2026-02-25 | 097291f | [076-fix-csp-headers-superpowered-audio-and-previ](./quick/076-fix-csp-headers-superpowered-audio-and-previ/) |
+| 077 | Fix Google OAuth redirect loop (cookie propagation) | 2026-02-25 | eb4bed5 | [077-fix-google-oauth-redirect-loop](./quick/077-fix-google-oauth-redirect-loop/) |
+| 078 | ReactBits Squares background + glassmorphism auth cards | 2026-02-26 | 790122a | [078-reactbits-squares-background-login-page](./quick/078-reactbits-squares-background-login-page/) |
 
 ---
-*Updated: 2026-02-25 - Quick task 076 complete*
+*Updated: 2026-02-26 - Quick task 078 complete*
