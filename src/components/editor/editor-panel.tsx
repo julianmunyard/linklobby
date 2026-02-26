@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { CardsTab } from "./cards-tab"
 import { DesignTab } from "./design-tab"
+import { DESIGN_SUB_TABS, FIXED_FONT_THEMES } from "./design-panel"
 import { ScheduleTab } from "./schedule-tab"
 import { InsightsTab } from "./insights-tab"
 import { SettingsTab } from "./settings-tab"
@@ -351,12 +352,33 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
 
                 {/* Card editor OR tab content */}
                 {selectedCard ? (
-                  <div className="flex-1 overflow-hidden">
-                    <CardPropertyEditor
-                      card={selectedCard}
-                      onClose={handleClose}
-                      onSettingChanged={onSettingChanged}
-                    />
+                  <div className="flex-1 overflow-hidden flex flex-col">
+                    {/* Design sub-tabs — visible when on Design tab so user can quickly navigate */}
+                    {activeTab === 'design' && (
+                      <div className="shrink-0 border-b px-4 py-2 overflow-x-auto scrollbar-none">
+                        <div className="flex gap-2 w-max">
+                          {DESIGN_SUB_TABS.filter(tab => !(tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId as any))).map((tab) => (
+                            <button
+                              key={tab.id}
+                              onClick={() => {
+                                selectCard(null)
+                                setPendingDesignSubTab(tab.id)
+                              }}
+                              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors bg-muted text-muted-foreground hover:bg-muted/80"
+                            >
+                              {tab.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex-1 overflow-hidden">
+                      <CardPropertyEditor
+                        card={selectedCard}
+                        onClose={handleClose}
+                        onSettingChanged={onSettingChanged}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div

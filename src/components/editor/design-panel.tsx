@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils'
 import type { TitleSize, ProfileLayout } from '@/types/profile'
 import type { ThemeId } from '@/types/theme'
 
-const TABS = [
+export const DESIGN_SUB_TABS = [
   { id: 'presets', label: 'Presets' },
   { id: 'colors', label: 'Colors' },
   { id: 'fonts', label: 'Fonts' },
@@ -40,10 +40,12 @@ const TABS = [
   { id: 'header', label: 'Title Edit' },
 ] as const
 
+const TABS = DESIGN_SUB_TABS
+
 type TabId = typeof TABS[number]['id']
 
 // Themes with fixed fonts where the Fonts tab should be hidden
-const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
+export const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
 
 interface DesignPanelProps {
   initialSubTab?: string | null
