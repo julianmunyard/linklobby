@@ -1,10 +1,11 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function ExchangePage() {
+function ExchangeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -41,5 +42,17 @@ export default function ExchangePage() {
     <div className="flex h-screen items-center justify-center">
       <p className="text-muted-foreground">Signing you in...</p>
     </div>
+  )
+}
+
+export default function ExchangePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-muted-foreground">Signing you in...</p>
+      </div>
+    }>
+      <ExchangeContent />
+    </Suspense>
   )
 }
