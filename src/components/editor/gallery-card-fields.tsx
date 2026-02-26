@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { useThemeStore } from '@/stores/theme-store'
 import { generateId } from '@/lib/utils'
-import { Circle, Rows3, X, Loader2, Plus, Crop, GripVertical } from 'lucide-react'
+import { Circle, Rows3, X, Loader2, Plus, Crop, GripVertical, RotateCcw } from 'lucide-react'
 import { uploadCardImage } from '@/lib/supabase/storage'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -62,6 +62,66 @@ function SortableImage({
   onUpdate: (updates: Partial<GalleryImage>) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: image.id })
+  const previewRef = useRef<HTMLDivElement>(null)
+  const isDraggingImage = useRef(false)
+  const dragStartRef = useRef<{ x: number; y: number; posX: number; posY: number } | null>(null)
+  const [, forceUpdate] = useState(0)
+
+  const zoom = image.zoom ?? 1
+  const posX = image.positionX ?? 50
+  const posY = image.positionY ?? 50
+
+  const handleImageDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (zoom <= 1) return
+    e.preventDefault()
+    e.stopPropagation()
+    isDraggingImage.current = true
+    forceUpdate(n => n + 1)
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    dragStartRef.current = { x: clientX, y: clientY, posX, posY }
+
+    const handleDocMove = (moveEvent: MouseEvent | TouchEvent) => {
+      if (!isDraggingImage.current || !dragStartRef.current || !previewRef.current) return
+      moveEvent.preventDefault()
+
+      const moveX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX
+      const moveY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY
+      const rect = previewRef.current.getBoundingClientRect()
+
+      const currentZoom = image.zoom ?? 1
+      const maxOffset = currentZoom > 1 ? ((currentZoom - 1) / currentZoom) * 50 : 0
+
+      const deltaX = ((moveX - dragStartRef.current.x) / rect.width) * 100
+      const deltaY = ((moveY - dragStartRef.current.y) / rect.height) * 100
+
+      let newPosX = dragStartRef.current.posX - deltaX
+      let newPosY = dragStartRef.current.posY - deltaY
+
+      if (maxOffset > 0) {
+        newPosX = Math.max(50 - maxOffset, Math.min(50 + maxOffset, newPosX))
+        newPosY = Math.max(50 - maxOffset, Math.min(50 + maxOffset, newPosY))
+      }
+
+      onUpdate({ positionX: newPosX, positionY: newPosY })
+    }
+
+    const handleDocEnd = () => {
+      isDraggingImage.current = false
+      dragStartRef.current = null
+      forceUpdate(n => n + 1)
+      document.removeEventListener('mousemove', handleDocMove)
+      document.removeEventListener('mouseup', handleDocEnd)
+      document.removeEventListener('touchmove', handleDocMove)
+      document.removeEventListener('touchend', handleDocEnd)
+    }
+
+    document.addEventListener('mousemove', handleDocMove)
+    document.addEventListener('mouseup', handleDocEnd)
+    document.addEventListener('touchmove', handleDocMove, { passive: false })
+    document.addEventListener('touchend', handleDocEnd)
+  }, [zoom, posX, posY, image.zoom, onUpdate])
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -70,61 +130,114 @@ function SortableImage({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-start gap-3 p-2 bg-muted/50 rounded-lg relative group">
-      {/* Drag handle and thumbnail */}
-      <div className="flex items-center gap-2">
-        {/* Drag handle */}
-        <div {...attributes} {...listeners} className="cursor-move text-muted-foreground hover:text-foreground">
-          <GripVertical className="h-4 w-4" />
-        </div>
+    <div ref={setNodeRef} style={style} className="p-2 bg-muted/50 rounded-lg relative group space-y-2">
+      <div className="flex items-start gap-3">
+        {/* Drag handle and thumbnail */}
+        <div className="flex items-center gap-2">
+          <div {...attributes} {...listeners} className="cursor-move text-muted-foreground hover:text-foreground">
+            <GripVertical className="h-4 w-4" />
+          </div>
 
-        {/* Thumbnail with crop button */}
-        <div className="w-12 h-12 relative flex-shrink-0 rounded overflow-hidden">
-          <Image src={image.url} alt={image.alt} fill className="object-cover" />
-
-          {/* Crop button overlay */}
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onCrop()
-            }}
-            className="absolute inset-0 bg-black/70 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Crop image"
+          {/* Draggable preview thumbnail */}
+          <div
+            ref={previewRef}
+            className="w-12 h-12 relative flex-shrink-0 rounded overflow-hidden"
+            style={{ cursor: zoom > 1 ? (isDraggingImage.current ? 'grabbing' : 'grab') : 'default' }}
+            onMouseDown={handleImageDragStart}
+            onTouchStart={handleImageDragStart}
           >
-            <Crop className="h-4 w-4 text-white" />
-          </button>
+            <Image
+              src={image.url}
+              alt={image.alt}
+              fill
+              className="object-cover pointer-events-none"
+              style={{
+                transform: zoom > 1 ? `scale(${zoom})` : undefined,
+                objectPosition: `${posX}% ${posY}%`,
+              }}
+            />
+
+            {/* Crop button overlay — only when not zoomed (zoom uses drag instead) */}
+            {zoom <= 1 && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onCrop()
+                }}
+                className="absolute inset-0 bg-black/70 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Crop image"
+              >
+                <Crop className="h-4 w-4 text-white" />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Caption and Link inputs */}
+        <div className="flex-1 space-y-2">
+          <Input
+            placeholder="Caption (optional)"
+            value={image.caption || ''}
+            onChange={(e) => onUpdate({ caption: e.target.value })}
+            className="text-sm"
+          />
+          <Input
+            placeholder="Link URL (optional)"
+            value={image.link || ''}
+            onChange={(e) => onUpdate({ link: e.target.value })}
+            className="text-sm"
+          />
+        </div>
+
+        {/* Remove button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Remove image"
+        >
+          <X className="h-3 w-3" />
+        </button>
       </div>
 
-      {/* Caption and Link inputs */}
-      <div className="flex-1 space-y-2">
-        <Input
-          placeholder="Caption (optional)"
-          value={image.caption || ''}
-          onChange={(e) => onUpdate({ caption: e.target.value })}
-          className="text-sm"
+      {/* Zoom slider */}
+      <div className="flex items-center gap-2 pl-8">
+        <Label className="text-xs text-muted-foreground shrink-0">Zoom</Label>
+        <Slider
+          value={[zoom]}
+          onValueChange={([v]) => {
+            const updates: Partial<GalleryImage> = { zoom: v }
+            // Reset position when zooming back to 1
+            if (v <= 1) {
+              updates.positionX = 50
+              updates.positionY = 50
+            }
+            onUpdate(updates)
+          }}
+          min={1}
+          max={3}
+          step={0.1}
+          className="flex-1"
         />
-        <Input
-          placeholder="Link URL (optional)"
-          value={image.link || ''}
-          onChange={(e) => onUpdate({ link: e.target.value })}
-          className="text-sm"
-        />
+        <span className="text-xs text-muted-foreground w-8 text-right">{zoom.toFixed(1)}x</span>
+        {zoom > 1 && (
+          <button
+            type="button"
+            onClick={() => onUpdate({ zoom: 1, positionX: 50, positionY: 50 })}
+            className="text-muted-foreground hover:text-foreground"
+            aria-label="Reset zoom"
+          >
+            <RotateCcw className="h-3 w-3" />
+          </button>
+        )}
       </div>
-
-      {/* Remove button - top right */}
-      <button
-        onClick={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          onRemove()
-        }}
-        className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        aria-label="Remove image"
-      >
-        <X className="h-3 w-3" />
-      </button>
+      {zoom > 1 && (
+        <p className="text-[10px] text-muted-foreground pl-8">Drag thumbnail to reposition</p>
+      )}
     </div>
   )
 }

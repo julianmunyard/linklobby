@@ -176,6 +176,9 @@ export interface GalleryImage {
   storagePath: string  // For deletion
   caption?: string     // Optional label displayed below image
   link?: string        // Optional URL - makes image clickable
+  zoom?: number        // Default: 1, range: 1–3
+  positionX?: number   // Default: 50 (center), range: 0–100
+  positionY?: number   // Default: 50 (center), range: 0–100
 }
 
 export interface GalleryCardContent {

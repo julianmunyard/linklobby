@@ -17,7 +17,6 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'center' })
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
-  const [selectedIndex, setSelectedIndex] = useState(0)
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
@@ -26,7 +25,6 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
     if (!emblaApi) return
     setCanScrollPrev(emblaApi.canScrollPrev())
     setCanScrollNext(emblaApi.canScrollNext())
-    setSelectedIndex(emblaApi.selectedScrollSnap())
   }, [emblaApi])
 
   useEffect(() => {
@@ -50,23 +48,32 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
       {/* Carousel viewport */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex touch-pan-y touch-pinch-zoom">
-          {images.map((image) => (
-            <div key={image.id} className="flex-[0_0_100%] min-w-0">
-              <div className="relative aspect-square">
-                <Image
-                  src={image.url}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 600px"
-                />
+          {images.map((image) => {
+            const zoom = image.zoom ?? 1
+            const posX = image.positionX ?? 50
+            const posY = image.positionY ?? 50
+            return (
+              <div key={image.id} className="flex-[0_0_100%] min-w-0">
+                <div className="relative aspect-square overflow-hidden">
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    fill
+                    className="object-cover"
+                    style={{
+                      transform: zoom > 1 ? `scale(${zoom})` : undefined,
+                      objectPosition: `${posX}% ${posY}%`,
+                    }}
+                    sizes="(max-width: 768px) 100vw, 600px"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
-      {/* Navigation buttons (outside viewport to avoid drag conflicts) */}
+      {/* Navigation buttons */}
       {canScrollPrev && (
         <button
           onClick={scrollPrev}
@@ -85,21 +92,6 @@ export function EmblaCarouselGallery({ images, className }: EmblaCarouselGallery
           <ChevronRight className="h-5 w-5" />
         </button>
       )}
-
-      {/* Dot indicators */}
-      <div className="flex justify-center gap-1.5 py-2 absolute bottom-0 left-0 right-0 z-10">
-        {images.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => emblaApi?.scrollTo(idx)}
-            className={cn(
-              'w-2 h-2 rounded-full transition-colors',
-              idx === selectedIndex ? 'bg-primary' : 'bg-primary/30'
-            )}
-            aria-label={`Go to image ${idx + 1}`}
-          />
-        ))}
-      </div>
     </div>
   )
 }
