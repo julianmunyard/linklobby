@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 12.71 of 18 - Editor UX Overhaul
-Plan: 3 of 11 - IN PROGRESS
-Status: **Phase 12.71 active — Plans 01 and 03 complete**
-Last activity: 2026-02-26 - Completed 12.71-03: renderWithLineBreaks utility applied to all card types
+Plan: 4 of 11 - IN PROGRESS
+Status: **Phase 12.71 active — Plans 01, 03, and 04 complete**
+Last activity: 2026-02-26 - Completed 12.71-04: image compression on all profile upload paths + gallery unmount guard
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -21,6 +21,12 @@ Progress: [███████████████████████
 Building direct-manipulation editor UX (click-to-navigate, inline editing, floating toolbars):
 - ✓ Plan 01: Click-to-navigate infrastructure + InlineEditable component
 - ✓ Plan 03: renderWithLineBreaks utility — newlines render as visible line breaks across all card types
+- ✓ Plan 04: compressImageForUpload on all profile upload paths + gallery unmount guard
+
+**Key decisions (Plan 04):**
+- Wrap croppedBlob in new File([blob], name, { type }) before compressImageForUpload — function takes File not Blob
+- isMountedRef (not useState) for mounted guard — stable ref, no deps array issues in useCallback
+- Move fileInputRef.current.value = '' to synchronous start of handleFileSelect — e.target stale after async work
 
 **Key decisions (Plan 03):**
 - Use .tsx extension for render-utils (contains JSX Fragment + br)
