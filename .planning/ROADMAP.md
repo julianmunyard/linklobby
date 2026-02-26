@@ -39,9 +39,10 @@ LinkLobby delivers a component-based page builder for artists in phases. This ro
 - [x] Phase 12: Audio System ✓
 - [x] Phase 12.1: Scatter Mode *(freeform card positioning for select themes)* ✓
 - [x] Phase 12.2: Theme Templates *(pre-built starter pages per theme)* ✓
-- [ ] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)*
+- [x] Phase 12.5: Billing & Subscriptions *(Stripe, plan management)* ✓
 - [x] Phase 12.6: Security Hardening & Auth Completion *(OAuth, rate limiting, 2FA, security headers, cookie consent)* ✓
 - [ ] Phase 12.7: Production Readiness & Onboarding *(Sentry, transactional emails, CI/CD, onboarding, templates, guided setup)*
+- [ ] Phase 12.71: Editor UX Overhaul *(direct manipulation editing, Canva-style interactions, simplified card flow)* (INSERTED)
 - [ ] Phase 12.8: Theme System Overhaul *(cleanup, unification, new themes, UI polish)*
 
 ### Pro Milestone (v1.2)
@@ -629,6 +630,64 @@ Plans:
 39. **Quick wins** — guide user to publish something fast
 
 **Plans:** 6-7 plans
+
+---
+
+#### Phase 12.71: Editor UX Overhaul (INSERTED)
+**Goal:** Transform the editor from panel-driven to canvas-driven — click things to edit them directly, simplify card creation, reduce indirection. Primarily affects Mac OS, Instagram Reels, and Poolsuite themes.
+**Competitive context:** Canva-level direct manipulation is the UX bar. Current tab-hunting flow loses artists who expect to click and edit.
+**Depends on:** Phase 12.7
+
+**Direct Manipulation (click-to-edit):**
+1. **Click header in preview → jump to header editing section** in editor panel
+2. **Inline title editing** — click title text in preview, type directly there (contentEditable)
+3. **Inline bio editing** — click bio text in preview, type directly there
+4. **Inline text card editing** — tap text card in preview, type directly there
+5. **Click preview background → open Design tab** (clicking "nothing" = style the page)
+6. **Canva-style floating toolbar** — when card is tapped/selected, floating bar appears near the card with quick actions (delete, duplicate, crop, etc.)
+
+**Simplified Card Creation:**
+7. **Rename "Add Card" → "Add Link"** — reflects what users are actually doing
+8. **Remove card type variants from dropdown** — remove Hero Card, Square Card, Horizontal Link, Mini Link, Text from add menu. These are visual variants chosen in the card editor, not content types
+9. **Dropdown shows content types only** — Link, Music, Audio, Video, Photo Gallery, Game, Email Collection, Release, Social Icons
+10. **Add "Text" section to Design tab** — standalone text blocks with font/color controls, separate from card flow
+11. **"Create Your Own" in Featured tab** — blank canvas option with plus button alongside templates
+
+**Template Flow:**
+12. **Featured theme click → show theme templates first** — instead of immediately applying, show template gallery for that theme so users can pick a specific look
+
+**Photo & Gallery Fixes:**
+13. **Large photo compression** — auto-compress large uploads (iPhone cameras etc.), fix duplicate photo bug
+14. **Gallery silent failure fix** — clicking away during image upload shouldn't kill the upload
+15. **Carousel photos fill frame** — edge-to-edge, no side gaps
+16. **In-preview photo crop** — replace pencil icon with crop icon, drag/pinch to zoom and position photo directly on the card, snap to center when crop area is small
+
+**Text & Content Polish:**
+17. **Text card line break support** — pressing Enter creates real line breaks that render on public page
+18. **Description multiline formatting** — Enter in description creates properly rendered line breaks
+19. **Rename "Header" section** — use "Title Edit" or similar artist-friendly label
+20. **Add font picker to header section** — font controls directly in header editing, not separate Fonts tab
+
+**Layout:**
+21. **Freeform structured mode** — toggle in scatter mode that keeps cards centred and non-overlapping but allows resizing (grid-snap without chaos)
+
+**Plans:** 11 plans
+
+**Note:** Item 21 (Freeform structured mode) deferred per research recommendation — most open-ended technically, requires separate investigation.
+
+Plans:
+- [ ] 12.71-01-PLAN.md — Click-to-edit navigation + InlineEditable component + postMessage handlers
+- [ ] 12.71-02-PLAN.md — Simplify card creation dropdown + rename labels + Text section in Design
+- [ ] 12.71-03-PLAN.md — Text line breaks and multiline description rendering
+- [ ] 12.71-04-PLAN.md — Profile image compression + gallery upload silent failure fix
+- [ ] 12.71-05-PLAN.md — Inline title and bio editing in preview
+- [ ] 12.71-06-PLAN.md — Inline text card editing in preview
+- [ ] 12.71-07-PLAN.md — Canva-style floating card toolbar (Delete/Duplicate)
+- [ ] 12.71-08-PLAN.md — Featured tab template-first flow + Create Your Own
+- [ ] 12.71-09-PLAN.md — Font picker in Title Edit section
+- [ ] 12.71-10-PLAN.md — Gallery edge-to-edge photos + in-preview photo crop
+- [ ] 12.71-11-PLAN.md — Build verification + human verification checkpoint
+
 
 ---
 
