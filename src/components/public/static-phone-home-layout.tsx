@@ -66,11 +66,12 @@ interface StaticPhoneHomeLayoutProps {
   phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'
   socialIconsJson?: string | null
   socialIconColor?: string | null
+  statusBarColor?: string | null
 }
 
 // 4-column grid, rows of icons per page
 const GRID_COLS = 4
-const MAX_ROWS_PER_PAGE = 6
+const MAX_ROWS_PER_PAGE = 8
 
 // ---------------------------------------------------------------------------
 // Fallback icon colors + emoji per card type
@@ -111,7 +112,9 @@ function PhoneHomeStatusBar() {
   }, [])
 
   return (
-    <div className="flex items-center justify-between px-6 pt-[max(env(safe-area-inset-top),12px)] pb-1 text-[13px] font-semibold text-theme-text">
+    <div
+      className="flex items-center justify-between px-6 pt-[max(env(safe-area-inset-top),12px)] pb-1 text-[13px] font-semibold text-theme-text"
+    >
       <span className="w-16 text-left">{time}</span>
 
       <div className="w-16 flex items-center justify-end gap-1">
@@ -503,16 +506,17 @@ function MusicWidget({
     : (SQUARE_EMBED_HEIGHTS[platform] || 352)
 
   return (
-    <div className="w-full h-full rounded-[16px] overflow-hidden">
+    <div className="w-full overflow-hidden" style={{ height: embedHeight, borderRadius: 12 }}>
       <iframe
         src={iframeUrl}
         width="100%"
-        height={isSlim ? embedHeight : '100%'}
+        height={embedHeight}
         frameBorder="0"
+        allowFullScreen
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title={card.title || 'Music embed'}
-        style={{ background: 'transparent', borderRadius: '16px', border: 0 }}
+        style={{ borderRadius: 12, border: 0 }}
       />
     </div>
   )
@@ -541,7 +545,7 @@ function PhoneHomeDock({
   if (isWin95) {
     return (
       <div
-        className={cn("mb-0 pb-[max(env(safe-area-inset-bottom),0px)] px-3 py-[6px] flex items-center", dockCards.length >= 4 ? "justify-center gap-[3px]" : "justify-evenly")}
+        className={cn("mb-[max(env(safe-area-inset-bottom),0px)] px-3 py-[6px] flex items-center", dockCards.length >= 4 ? "justify-center gap-[3px]" : "justify-evenly")}
         style={{
           background: 'var(--theme-card-bg, #c0c0c0)',
           boxShadow: 'inset 0 1px 0 #dfdfdf, inset 0 -1px 0 #808080, inset 0 2px 0 #ffffff, inset 0 -2px 0 #404040',
@@ -566,7 +570,7 @@ function PhoneHomeDock({
   if (is8Bit) {
     return (
       <div
-        className="mb-0 pb-[max(env(safe-area-inset-bottom),0px)] px-5 py-2.5 flex items-center justify-center gap-5"
+        className="mb-[max(env(safe-area-inset-bottom),0px)] px-5 py-2.5 flex items-center justify-center gap-5"
         style={{
           backgroundColor: 'var(--theme-card-bg, rgba(30,30,30,0.85))',
         }}
@@ -750,6 +754,7 @@ export function StaticPhoneHomeLayout({
   phoneHomeVariant = 'default',
   socialIconsJson,
   socialIconColor,
+  statusBarColor,
 }: StaticPhoneHomeLayoutProps) {
   const is8Bit = phoneHomeVariant === '8-bit'
   const isWin95 = phoneHomeVariant === 'windows-95'
@@ -862,7 +867,7 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden"
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden flex flex-col items-center"
             style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid container */}
@@ -870,7 +875,7 @@ export function StaticPhoneHomeLayout({
                 className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)`,
+                  gridAutoRows: '76px',
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
@@ -933,6 +938,27 @@ export function StaticPhoneHomeLayout({
                   if (card.card_type === 'audio' && isAudioContent(card.content)) {
                     const ac = card.content as unknown as AudioCardContent
                     const isTransparent = ac.transparentBackground ?? false
+                    const isCdPlayer = ac.playerStyle === 'cd-player'
+
+                    const audioPlayerEl = (
+                      <AudioPlayer
+                        tracks={ac.tracks || []}
+                        albumArtUrl={ac.albumArtUrl}
+                        showWaveform={ac.showWaveform ?? true}
+                        looping={ac.looping ?? false}
+                        autoplay={false}
+                        transparentBackground={isTransparent}
+                        reverbConfig={ac.reverbConfig}
+                        playerColors={ac.playerColors}
+                        blinkieColors={ac.blinkieColors}
+                        blinkieCardHasBgImage={!!(ac.blinkieBoxBackgrounds?.cardBgUrl) && !isTransparent}
+                        cardId={card.id}
+                        pageId={card.page_id}
+                        themeVariant="blinkies"
+                        playerStyle={ac.playerStyle}
+                      />
+                    )
+
                     return (
                       <div
                         key={card.id}
@@ -942,38 +968,26 @@ export function StaticPhoneHomeLayout({
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
                         }}
                       >
-                        <SystemSettingsCard
-                          cardType="audio"
-                          transparentBackground={isTransparent}
-                          titleBarStyle="system-settings"
-                          blinkieBg
-                          blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
-                          blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
-                          blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
-                          blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
-                          blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
-                          blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
-                          blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
-                          blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
-                          blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
-                          blinkieTextColor={ac.blinkieColors?.text}
-                        >
-                          <AudioPlayer
-                            tracks={ac.tracks || []}
-                            albumArtUrl={ac.albumArtUrl}
-                            showWaveform={ac.showWaveform ?? true}
-                            looping={ac.looping ?? false}
-                            autoplay={false}
+                        {isCdPlayer ? audioPlayerEl : (
+                          <SystemSettingsCard
+                            cardType="audio"
                             transparentBackground={isTransparent}
-                            reverbConfig={ac.reverbConfig}
-                            playerColors={ac.playerColors}
-                            blinkieColors={ac.blinkieColors}
-                            blinkieCardHasBgImage={!!(ac.blinkieBoxBackgrounds?.cardBgUrl) && !isTransparent}
-                            cardId={card.id}
-                            pageId={card.page_id}
-                            themeVariant="blinkies"
-                          />
-                        </SystemSettingsCard>
+                            titleBarStyle="system-settings"
+                            blinkieBg
+                            blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
+                            blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
+                            blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
+                            blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
+                            blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
+                            blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
+                            blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
+                            blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
+                            blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
+                            blinkieTextColor={ac.blinkieColors?.text}
+                          >
+                            {audioPlayerEl}
+                          </SystemSettingsCard>
+                        )}
                       </div>
                     )
                   }
@@ -1003,7 +1017,11 @@ export function StaticPhoneHomeLayout({
       )}
 
       {/* Dock */}
-      {phoneHomeShowDock && <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />}
+      {phoneHomeShowDock && (
+        <div>
+          <PhoneHomeDock dockCards={dockCards} onTap={handleTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />
+        </div>
+      )}
 
     </div>
   )

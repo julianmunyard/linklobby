@@ -30,6 +30,7 @@ import {
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
 import { Globe, Mail, Music } from 'lucide-react'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import type { ComponentType } from 'react'
 import type { SocialPlatform, SocialIcon } from '@/types/profile'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
@@ -47,7 +48,8 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
 
 // 4-column grid constants
 const GRID_COLS = 4
-const MAX_ROWS_PER_PAGE = 6
+const MAX_ROWS_PER_PAGE = 8
+const DESIGN_WIDTH = 470 // 430px grid + 40px padding (px-5 each side)
 
 // Fallback icons
 const FALLBACK_ICONS: Record<string, { emoji: string; bg: string; icon?: string }> = {
@@ -73,7 +75,9 @@ const FALLBACK_ICONS: Record<string, { emoji: string; bg: string; icon?: string 
 
 function StatusBar() {
   return (
-    <div className="flex items-center justify-between px-6 pt-3 pb-1 text-[13px] font-semibold text-theme-text">
+    <div
+      className="flex items-center justify-between px-6 pt-3 pb-1 text-[13px] font-semibold text-theme-text"
+    >
       <span className="w-16 text-left">9:41</span>
       <div className="w-16 flex items-center justify-end gap-1">
         <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" opacity={0.9}>
@@ -132,6 +136,10 @@ function AppIcon({
   size = 'normal',
   is8Bit = false,
   isWin95 = false,
+  isEditable = false,
+  onInlineCommit,
+  onInlineEditStart,
+  onInlineEditEnd,
 }: {
   card: Card
   isSelected?: boolean
@@ -139,6 +147,10 @@ function AppIcon({
   size?: 'normal' | 'dock'
   is8Bit?: boolean
   isWin95?: boolean
+  isEditable?: boolean
+  onInlineCommit?: (cardId: string, text: string) => void
+  onInlineEditStart?: (cardId: string) => void
+  onInlineEditEnd?: () => void
 }) {
   const content = card.content as Record<string, unknown>
   const appIconUrl = content.appIconUrl as string | undefined
@@ -197,7 +209,19 @@ function AppIcon({
           className="text-[11px] leading-tight text-center truncate max-w-[70px] text-theme-text"
           style={isWin95 ? undefined : { textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
         >
-          {label}
+          {isEditable ? (
+            <InlineEditable
+              value={card.title || ''}
+              onCommit={(text) => onInlineCommit?.(card.id, text)}
+              multiline={false}
+              placeholder="Name"
+              onEditStart={() => onInlineEditStart?.(card.id)}
+              onEditEnd={onInlineEditEnd}
+              className="outline-none min-w-[3ch] inline-block max-w-[70px]"
+            />
+          ) : (
+            label
+          )}
         </span>
       )}
     </button>
@@ -431,17 +455,19 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
 
   return (
     <div
-      className={cn('w-full h-full rounded-[16px] relative overflow-hidden', onClick && 'cursor-pointer')}
+      className={cn('w-full relative overflow-hidden', onClick && 'cursor-pointer')}
+      style={{ height: embedHeight, borderRadius: 12 }}
     >
       <iframe
         src={iframeUrl}
         width="100%"
-        height={isSlim ? embedHeight : '100%'}
+        height={embedHeight}
         frameBorder="0"
+        allowFullScreen
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title={card.title || 'Music embed'}
-        style={{ background: 'transparent', borderRadius: '16px', border: 0, pointerEvents: onClick ? 'none' : undefined }}
+        style={{ borderRadius: 12, border: 0, pointerEvents: onClick ? 'none' : undefined }}
       />
       {onClick && (
         <div className="absolute inset-0 z-10" onClick={() => onClick(card.id)} />
@@ -736,6 +762,7 @@ interface PhoneHomeLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   onMoveCards?: (moves: Array<{ cardId: string; content: Record<string, unknown> }>) => void
   selectedCardId?: string | null
@@ -745,11 +772,46 @@ export function PhoneHomeLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   onMoveCards,
   selectedCardId,
 }: PhoneHomeLayoutProps) {
   const [currentPage, setCurrentPage] = useState(0)
+  const [phoneScale, setPhoneScale] = useState(1)
+
+  // Scale grid proportionally on small screens
+  useEffect(() => {
+    const update = () => setPhoneScale(Math.min(1, window.innerWidth / DESIGN_WIDTH))
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
 
   const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
   const phoneHomeShowDock = useThemeStore((s) => s.phoneHomeShowDock)
@@ -837,9 +899,11 @@ export function PhoneHomeLayout({
             edgeTimerRef.current = null
             if (nearLeft && currentPageRef.current > 0) {
               const newPage = currentPageRef.current - 1
+              setCurrentPage(newPage)
               gridContainerRef.current?.scrollTo({ left: newPage * (gridContainerRef.current?.offsetWidth || 375), behavior: 'smooth' })
             } else if (nearRight && currentPageRef.current < pageCountRef.current) {
               const newPage = currentPageRef.current + 1
+              setCurrentPage(newPage)
               gridContainerRef.current?.scrollTo({ left: newPage * (gridContainerRef.current?.offsetWidth || 375), behavior: 'smooth' })
             }
           }, 400)
@@ -1213,34 +1277,38 @@ export function PhoneHomeLayout({
     if (card.card_type === 'audio' && isAudioContent(card.content)) {
       const ac = card.content as unknown as AudioCardContent
       const isTransparent = ac.transparentBackground ?? false
+      const isCdPlayer = ac.playerStyle === 'cd-player'
       const fullWidthStyle: React.CSSProperties = {
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
       }
+      const audioCardEl = <AudioCard card={card} isPreview />
       const inner = (
         <div
           className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer', width: '100%' }}
           onClick={() => handleIconTap(card.id)}
         >
-          <SystemSettingsCard
-            cardType="audio"
-            transparentBackground={isTransparent}
-            titleBarStyle="system-settings"
-            blinkieBg
-            blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
-            blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
-            blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
-            blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
-            blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
-            blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
-            blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
-            blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
-            blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
-            blinkieTextColor={ac.blinkieColors?.text}
-          >
-            <AudioCard card={card} isPreview />
-          </SystemSettingsCard>
+          {isCdPlayer ? audioCardEl : (
+            <SystemSettingsCard
+              cardType="audio"
+              transparentBackground={isTransparent}
+              titleBarStyle="system-settings"
+              blinkieBg
+              blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
+              blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
+              blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
+              blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
+              blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
+              blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
+              blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
+              blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
+              blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
+              blinkieTextColor={ac.blinkieColors?.text}
+            >
+              {audioCardEl}
+            </SystemSettingsCard>
+          )}
         </div>
       )
       if (isPreview) {
@@ -1256,7 +1324,7 @@ export function PhoneHomeLayout({
     // Default 1x1 icon
     const inner = (
       <div className="flex items-center justify-center w-full h-full">
-        <AppIcon card={card} onTap={handleIconTap} isSelected={selectedCardId === card.id} is8Bit={is8Bit} isWin95={isWin95} />
+        <AppIcon card={card} onTap={handleIconTap} isSelected={selectedCardId === card.id} is8Bit={is8Bit} isWin95={isWin95} isEditable={isEditable} onInlineCommit={handleInlineCommit} onInlineEditStart={handleInlineEditStart} onInlineEditEnd={handleInlineEditEnd} />
       </div>
     )
     if (isPreview) {
@@ -1333,7 +1401,7 @@ export function PhoneHomeLayout({
       } as React.CSSProperties}
     >
       {pages.map((pageItems, pageIdx) => (
-        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden" style={{ scrollSnapAlign: 'start' }}>
+        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start', zoom: phoneScale !== 1 ? phoneScale : undefined } as React.CSSProperties}>
             <div className="relative">
               <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
@@ -1444,7 +1512,9 @@ export function PhoneHomeLayout({
 
       {/* Dock */}
       {phoneHomeShowDock && (
-        <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />
+        <div style={phoneScale !== 1 ? { zoom: phoneScale } as React.CSSProperties : undefined}>
+          <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />
+        </div>
       )}
 
     </div>
