@@ -9,6 +9,7 @@ import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 // usePageStore not used directly — layout updates are sent via postMessage to parent editor
 import { AudioCard } from '@/components/cards/audio-card'
+import { AudioPlayer } from '@/components/audio/audio-player'
 import { SystemSettingsCard } from '@/components/cards/system-settings-card'
 import { cn } from '@/lib/utils'
 import {
@@ -700,10 +701,9 @@ function autoLayoutCards(
       if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     }
 
-    // Audio cards always render full-width; editor player (with SystemSettingsCard
-    // wrapper, title bar, reverb controls) needs 5 rows to fit without overflow.
+    // Audio cards always render full-width and need 3 rows for full player
     if (card.card_type === 'audio') {
-      w = 4; h = 5
+      w = 4; h = 3
     }
 
     itemsToPlace.push({ card, w, h, explicit })
@@ -1293,7 +1293,7 @@ export function PhoneHomeLayout({
       return <div key={card.id} style={musicGridStyle}>{inner}</div>
     }
 
-    // Audio cards — always render inline, full width
+    // Audio cards — render AudioPlayer directly (same as public static-phone-home-layout)
     if (card.card_type === 'audio' && isAudioContent(card.content)) {
       const ac = card.content as unknown as AudioCardContent
       const isTransparent = ac.transparentBackground ?? false
@@ -1302,14 +1302,33 @@ export function PhoneHomeLayout({
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
       }
-      const audioCardEl = <AudioCard card={card} isPreview />
+
+      const audioPlayerEl = (
+        <AudioPlayer
+          tracks={ac.tracks || []}
+          albumArtUrl={ac.albumArtUrl}
+          showWaveform={ac.showWaveform ?? true}
+          looping={ac.looping ?? false}
+          autoplay={ac.autoplay ?? false}
+          transparentBackground={isTransparent}
+          reverbConfig={ac.reverbConfig}
+          playerColors={ac.playerColors}
+          blinkieColors={ac.blinkieColors}
+          blinkieCardHasBgImage={!!(ac.blinkieBoxBackgrounds?.cardBgUrl) && !isTransparent}
+          cardId={card.id}
+          pageId={card.page_id}
+          themeVariant="blinkies"
+          playerStyle={ac.playerStyle}
+        />
+      )
+
       const inner = (
         <div
-          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
-          style={{ cursor: 'pointer', width: '100%' }}
+          className={cn('w-full h-full overflow-hidden', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          style={{ cursor: 'pointer' }}
           onClick={() => handleIconTap(card.id)}
         >
-          {isCdPlayer ? audioCardEl : (
+          {isCdPlayer ? audioPlayerEl : (
             <SystemSettingsCard
               cardType="audio"
               transparentBackground={isTransparent}
@@ -1326,7 +1345,7 @@ export function PhoneHomeLayout({
               blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
               blinkieTextColor={ac.blinkieColors?.text}
             >
-              {audioCardEl}
+              {audioPlayerEl}
             </SystemSettingsCard>
           )}
         </div>
