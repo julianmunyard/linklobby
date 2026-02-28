@@ -50,7 +50,6 @@ const PLATFORM_ICONS: Record<SocialPlatform, IconComponent> = {
 // 4-column grid constants
 const GRID_COLS = 4
 const MAX_ROWS_PER_PAGE = 8
-const DESIGN_WIDTH = 470 // 430px grid + 40px padding (px-5 each side)
 
 // Fallback icons
 const FALLBACK_ICONS: Record<string, { emoji: string; bg: string; icon?: string }> = {
@@ -785,15 +784,6 @@ export function PhoneHomeLayout({
   selectedCardId,
 }: PhoneHomeLayoutProps) {
   const [currentPage, setCurrentPage] = useState(0)
-  const [phoneScale, setPhoneScale] = useState(1)
-
-  // Scale grid proportionally on small screens
-  useEffect(() => {
-    const update = () => setPhoneScale(Math.min(1, window.innerWidth / DESIGN_WIDTH))
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
 
   const handleInlineCommit = useCallback((cardId: string, text: string) => {
     if (window.parent !== window) {
@@ -1442,7 +1432,7 @@ export function PhoneHomeLayout({
       } as React.CSSProperties}
     >
       {pages.map((pageItems, pageIdx) => (
-        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start', zoom: phoneScale !== 1 ? phoneScale : undefined } as React.CSSProperties}>
+        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start' } as React.CSSProperties}>
             <div className="relative">
               <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '76px' }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
@@ -1553,9 +1543,7 @@ export function PhoneHomeLayout({
 
       {/* Dock */}
       {phoneHomeShowDock && (
-        <div style={phoneScale !== 1 ? { zoom: phoneScale } as React.CSSProperties : undefined}>
-          <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />
-        </div>
+        <Dock dockCards={dockCards} selectedCardId={selectedCardId} onCardClick={handleIconTap} is8Bit={is8Bit} isWin95={isWin95} translucent={phoneHomeDockTranslucent} />
       )}
 
     </div>
