@@ -392,6 +392,57 @@ function PhotoWidget({
 }
 
 // ---------------------------------------------------------------------------
+// ScaleToFit — scales content down via CSS zoom to fit within its container
+// ---------------------------------------------------------------------------
+
+function ScaleToFit({ children }: { children: React.ReactNode }) {
+  const outerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const [zoom, setZoom] = useState(1)
+
+  useEffect(() => {
+    const outer = outerRef.current
+    const inner = innerRef.current
+    if (!outer || !inner) return
+
+    const update = () => {
+      const cellH = outer.clientHeight
+      // Measure natural height with zoom reset
+      const prevZoom = inner.style.zoom
+      inner.style.zoom = '1'
+      const contentH = inner.scrollHeight
+      inner.style.zoom = prevZoom
+      if (contentH > cellH && contentH > 0) {
+        setZoom(cellH / contentH)
+      } else {
+        setZoom(1)
+      }
+    }
+
+    const ro = new ResizeObserver(update)
+    ro.observe(outer)
+    // Small delay to let children render their full height
+    const timer = setTimeout(update, 100)
+    return () => { ro.disconnect(); clearTimeout(timer) }
+  }, [])
+
+  return (
+    <div ref={outerRef} className="w-full h-full overflow-hidden">
+      <div
+        ref={innerRef}
+        style={{
+          zoom,
+          transformOrigin: 'top center',
+          width: zoom < 1 ? `${100 / zoom}%` : '100%',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Music Widget — renders real platform iframe embeds (Spotify, Apple Music, etc.)
 // ---------------------------------------------------------------------------
 
@@ -984,33 +1035,34 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full"
+                        className="w-full h-full"
                         style={{
                           gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
-                          height: 'fit-content',
                         }}
                       >
-                        {isCdPlayer ? audioPlayerEl : (
-                          <SystemSettingsCard
-                            cardType="audio"
-                            transparentBackground={isTransparent}
-                            titleBarStyle="system-settings"
-                            blinkieBg
-                            blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
-                            blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
-                            blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
-                            blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
-                            blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
-                            blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
-                            blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
-                            blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
-                            blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
-                            blinkieTextColor={ac.blinkieColors?.text}
-                          >
-                            {audioPlayerEl}
-                          </SystemSettingsCard>
-                        )}
+                        <ScaleToFit>
+                          {isCdPlayer ? audioPlayerEl : (
+                            <SystemSettingsCard
+                              cardType="audio"
+                              transparentBackground={isTransparent}
+                              titleBarStyle="system-settings"
+                              blinkieBg
+                              blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
+                              blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
+                              blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
+                              blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
+                              blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
+                              blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
+                              blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
+                              blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
+                              blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
+                              blinkieTextColor={ac.blinkieColors?.text}
+                            >
+                              {audioPlayerEl}
+                            </SystemSettingsCard>
+                          )}
+                        </ScaleToFit>
                       </div>
                     )
                   }
