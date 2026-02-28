@@ -1277,7 +1277,7 @@ export function PhoneHomeLayout({
       }
       const inner = (
         <div
-          className={cn('w-full h-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
           style={{ cursor: 'pointer' }}
         >
           <MusicWidget card={card} layout={layout} onClick={handleIconTap} />
