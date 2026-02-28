@@ -37,20 +37,26 @@ export function EditorClientWrapper({ username, planTier }: EditorClientWrapperP
   useEffect(() => {
     async function loadProfile() {
       const response = await fetch('/api/profile')
-      if (response.ok) {
-        const data = await response.json()
-        useProfileStore.getState().initializeProfile(data)
+      if (!response.ok) {
+        console.error('[Editor] Profile load failed:', response.status, await response.text().catch(() => ''))
+        toast.error(`Profile load failed (${response.status})`)
+        return
       }
+      const data = await response.json()
+      useProfileStore.getState().initializeProfile(data)
     }
 
     async function loadTheme() {
       const response = await fetch('/api/theme')
-      if (response.ok) {
-        const data = await response.json()
-        // Only load from DB if theme exists, otherwise keep localStorage
-        if (data.theme) {
-          useThemeStore.getState().loadFromDatabase(data.theme)
-        }
+      if (!response.ok) {
+        console.error('[Editor] Theme load failed:', response.status, await response.text().catch(() => ''))
+        toast.error(`Theme load failed (${response.status})`)
+        return
+      }
+      const data = await response.json()
+      // Only load from DB if theme exists, otherwise keep localStorage
+      if (data.theme) {
+        useThemeStore.getState().loadFromDatabase(data.theme)
       }
     }
 

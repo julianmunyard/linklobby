@@ -46,8 +46,9 @@ async function performSave(saveCards: () => Promise<void>) {
     }
     return true
   } catch (error) {
-    console.error("Auto-save error:", error)
-    toast.error("Auto-save failed")
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error("Auto-save error:", msg, error)
+    toast.error(`Save failed: ${msg}`)
     return false
   }
 }

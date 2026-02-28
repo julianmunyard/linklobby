@@ -1,6 +1,7 @@
 export function validateCsrfOrigin(request: Request): boolean {
   const origin = request.headers.get('origin')
-  const host = request.headers.get('host')
+  // Vercel may use x-forwarded-host instead of host
+  const host = request.headers.get('host') || request.headers.get('x-forwarded-host')
 
   if (!origin || !host) return false
 
