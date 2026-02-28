@@ -1301,6 +1301,8 @@ export function PhoneHomeLayout({
       const fullWidthStyle: React.CSSProperties = {
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
+        // Let content determine actual height instead of being constrained by 76px row tracks
+        height: 'fit-content',
       }
 
       const audioPlayerEl = (
@@ -1324,7 +1326,7 @@ export function PhoneHomeLayout({
 
       const inner = (
         <div
-          className={cn('w-full h-full overflow-hidden', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer' }}
           onClick={() => handleIconTap(card.id)}
         >
