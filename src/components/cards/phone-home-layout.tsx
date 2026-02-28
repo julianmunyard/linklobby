@@ -1300,11 +1300,12 @@ export function PhoneHomeLayout({
       const fullWidthStyle: React.CSSProperties = {
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
+        overflow: 'hidden',
       }
       const audioCardEl = <AudioCard card={card} isPreview />
       const inner = (
         <div
-          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          className={cn('w-full h-full overflow-hidden', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer', width: '100%' }}
           onClick={() => handleIconTap(card.id)}
         >
