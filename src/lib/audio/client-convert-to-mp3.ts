@@ -41,13 +41,24 @@ function isMp3(file: File): boolean {
 }
 
 async function getDuration(mp3Blob: Blob): Promise<number> {
-  const arrayBuffer = await mp3Blob.arrayBuffer()
-  const audioCtx = new AudioContext()
   try {
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
-    return audioBuffer.duration
-  } finally {
-    await audioCtx.close()
+    const arrayBuffer = await mp3Blob.arrayBuffer()
+    const audioCtx = new AudioContext()
+    try {
+      // Race decodeAudioData against a 10s timeout — it can hang on some files/browsers
+      const audioBuffer = await Promise.race([
+        audioCtx.decodeAudioData(arrayBuffer),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('decodeAudioData timeout')), 10000)
+        ),
+      ])
+      return audioBuffer.duration
+    } finally {
+      await audioCtx.close().catch(() => {})
+    }
+  } catch (err) {
+    console.warn('[AudioConvert] getDuration failed, falling back to 0:', err)
+    return 0
   }
 }
 
@@ -82,9 +93,10 @@ export async function convertToMp3Client(
   const inputName = `input.${ext}`
   const outputName = 'output.mp3'
 
-  ffmpeg.on('progress', ({ progress }) => {
+  const progressHandler = ({ progress }: { progress: number }) => {
     onProgress?.('converting', Math.min(progress, 0.99))
-  })
+  }
+  ffmpeg.on('progress', progressHandler)
 
   try {
     await ffmpeg.writeFile(inputName, await fetchFile(file))
@@ -108,7 +120,7 @@ export async function convertToMp3Client(
     const duration = await getDuration(mp3Blob)
     return { blob: mp3Blob, duration }
   } finally {
-    // Clean up virtual FS
+    ffmpeg.off('progress', progressHandler)
     await ffmpeg.deleteFile(inputName).catch(() => {})
     await ffmpeg.deleteFile(outputName).catch(() => {})
   }
