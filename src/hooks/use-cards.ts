@@ -86,7 +86,7 @@ export function useCards() {
     loadCards()
   }, [setCards, markSaved])
 
-  // Save all cards to database with retry logic
+  // Save all cards to database via bulk upsert
   const saveCards = useCallback(async () => {
     try {
       setError(null)
@@ -94,13 +94,14 @@ export function useCards() {
       // Snapshot cards reference before save — used to detect concurrent changes
       const cardsSnapshot = usePageStore.getState().cards
 
-      // For each card, upsert in database with retry (handles both new and existing cards)
-      const promises = cardsSnapshot.map((card) =>
-        saveWithRetry(() =>
-          fetch(`/api/cards/${card.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+      // Bulk upsert all cards in a single request
+      await saveWithRetry(async () => {
+        const response = await fetch('/api/cards/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cards: cardsSnapshot.map((card) => ({
+              id: card.id,
               card_type: card.card_type,
               title: card.title,
               description: card.description,
@@ -110,30 +111,24 @@ export function useCards() {
               position: card.position,
               sortKey: card.sortKey,
               is_visible: card.is_visible,
-            }),
-          }).then(async response => {
-            if (!response.ok) {
-              const body = await response.text().catch(() => '')
-              // Try to extract JSON error message
-              let errorMsg = `${response.status}`
-              try {
-                const json = JSON.parse(body)
-                if (json.error) errorMsg = json.error
-              } catch {
-                if (body.length < 200) errorMsg = body || errorMsg
-              }
-              throw new Error(`Card save failed (${response.status}): ${errorMsg}`)
-            }
-            return response
-          })
-        )
-      )
+            })),
+          }),
+        })
 
-      await Promise.all(promises)
+        if (!response.ok) {
+          const body = await response.text().catch(() => '')
+          let errorMsg = `${response.status}`
+          try {
+            const json = JSON.parse(body)
+            if (json.error) errorMsg = json.error
+          } catch {
+            if (body.length < 200) errorMsg = body || errorMsg
+          }
+          throw new Error(`Card save failed (${response.status}): ${errorMsg}`)
+        }
+      })
 
       // Only mark as saved if no new changes came in during the async save.
-      // If cards changed (e.g. scatter position update during save), hasChanges
-      // stays true so auto-save will re-trigger and capture the new state.
       if (usePageStore.getState().cards === cardsSnapshot) {
         markSaved()
       }
