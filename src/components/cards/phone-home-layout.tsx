@@ -1432,9 +1432,9 @@ export function PhoneHomeLayout({
       } as React.CSSProperties}
     >
       {pages.map((pageItems, pageIdx) => (
-        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start' } as React.CSSProperties}>
-            <div className="relative">
-              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '76px' }}>
+        <div key={pageIdx} className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start' } as React.CSSProperties}>
+            <div className="relative h-full w-full">
+              <div className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)` }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
                   renderGridItem(card, layout, socialIcon, pageIdx),
                 )}
@@ -1447,10 +1447,10 @@ export function PhoneHomeLayout({
                   style={{ zIndex: 10 }}
                 >
                   <div
-                    className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto pointer-events-auto"
+                    className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto pointer-events-auto"
                     style={{
                       gridTemplateColumns: 'repeat(4, 1fr)',
-                      gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)`,
+                      gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)`,
                     }}
                   >
                     {(() => {
@@ -1479,10 +1479,10 @@ export function PhoneHomeLayout({
         {isPreview && activeDragId && (
           <div key="dnd-new-page" className="min-w-full shrink-0 px-5 pt-3 pb-20" style={{ scrollSnapAlign: 'start' }}>
             <div className="relative">
-              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '76px' }}>
+              <div className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)` }}>
               </div>
               <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
-                <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto pointer-events-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+                <div className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto pointer-events-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)` }}>
                   {Array.from({ length: MAX_ROWS_PER_PAGE * GRID_COLS }).map((_, i) => {
                     const r = Math.floor(i / GRID_COLS)
                     const c = i % GRID_COLS

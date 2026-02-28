@@ -792,6 +792,7 @@ export function StaticPhoneHomeLayout({
     if (currentPage >= pageCount) setCurrentPage(Math.max(0, pageCount - 1))
   }, [currentPage, pageCount])
 
+
   // Handle card taps
   const handleTap = useCallback(
     (card: Card) => {
@@ -873,15 +874,15 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-8 flex flex-col items-center overflow-hidden"
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
             style={{ scrollSnapAlign: 'start' }}
           >
-              {/* Grid container */}
+              {/* Grid container — h-full + 1fr rows sizes to fit between status bar and dock */}
               <div
-                className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
+                className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridAutoRows: '76px',
+                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)`,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
