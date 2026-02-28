@@ -871,18 +871,37 @@ export function StaticPhoneHomeLayout({
         } as React.CSSProperties}
 
       >
-        {pages.map((pageItems, pageIdx) => (
+        {pages.map((pageItems, pageIdx) => {
+          // Build per-row sizing: 'auto' for rows with fixed-height content
+          // (audio players, music embeds, galleries), 'minmax(0,76px)' for icon rows
+          const autoRows = new Set<number>()
+          for (const { card, layout } of pageItems) {
+            if (
+              card.card_type === 'audio' ||
+              (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) ||
+              (card.card_type === 'gallery' && (layout.width > 1 || layout.height > 1))
+            ) {
+              for (let r = layout.row; r < layout.row + layout.height; r++) {
+                autoRows.add(r)
+              }
+            }
+          }
+          const rowDefs = Array.from({ length: MAX_ROWS_PER_PAGE }, (_, i) =>
+            autoRows.has(i) ? 'auto' : 'minmax(0,76px)'
+          ).join(' ')
+
+          return (
           <div
             key={pageIdx}
             className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
             style={{ scrollSnapAlign: 'start' }}
           >
-              {/* Grid container — h-full + 1fr rows sizes to fit between status bar and dock */}
+              {/* Grid — auto rows for fixed-height content, minmax for icons */}
               <div
                 className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
+                  gridTemplateRows: rowDefs,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
@@ -1027,7 +1046,8 @@ export function StaticPhoneHomeLayout({
                 })}
               </div>
             </div>
-          ))}
+          )
+        })}
       </div>
 
       {/* Pagination dots */}
