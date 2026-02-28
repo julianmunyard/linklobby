@@ -6,9 +6,11 @@ html, body {
   overscroll-behavior: none;
 }
 
-/* Prevent iOS long-press "Save Image" / "Copy" callout on images and links.
-   This fires when users try to drag icons in the phone-home editor. */
-img, a, [draggable="true"] {
+/* Prevent iOS long-press "Save Image" / "Copy" callout globally.
+   Covers <img>, CSS background-image divs, and draggable elements.
+   Without this, dragging icons in the phone-home editor triggers
+   the iOS "Save Image" context menu on the wallpaper behind them. */
+* {
   -webkit-touch-callout: none;
 }
 
