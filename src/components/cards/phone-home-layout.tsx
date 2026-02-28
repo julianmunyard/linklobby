@@ -700,9 +700,10 @@ function autoLayoutCards(
       if (variant === '8-bit') { w = 4; h = 2 } else { w = 4; h = 2 }
     }
 
-    // Audio cards always render full-width and need 3 rows for full player
+    // Audio cards always render full-width; editor player (with SystemSettingsCard
+    // wrapper, title bar, reverb controls) needs 5 rows to fit without overflow.
     if (card.card_type === 'audio') {
-      w = 4; h = 3
+      w = 4; h = 5
     }
 
     itemsToPlace.push({ card, w, h, explicit })
@@ -1300,12 +1301,11 @@ export function PhoneHomeLayout({
       const fullWidthStyle: React.CSSProperties = {
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
-        overflow: 'hidden',
       }
       const audioCardEl = <AudioCard card={card} isPreview />
       const inner = (
         <div
-          className={cn('w-full h-full overflow-hidden', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer', width: '100%' }}
           onClick={() => handleIconTap(card.id)}
         >
