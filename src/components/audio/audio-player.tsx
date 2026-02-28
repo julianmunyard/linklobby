@@ -191,7 +191,10 @@ export function AudioPlayer({
   }
 
   // Handle play with analytics tracking
-  const handlePlay = () => {
+  const handlePlay = (e?: React.MouseEvent | React.TouchEvent) => {
+    // Stop propagation to prevent parent handlers (e.g. WindowWrapper onClick)
+    // from consuming the event on mobile
+    if (e) e.stopPropagation()
     // Track audio play on public pages only (not in editor)
     if (!isEditing && !player.isPlaying && pageId) {
       trackAudioPlay({
@@ -532,6 +535,11 @@ export function AudioPlayer({
         <div className="flex items-stretch gap-1.5">
           <button
             onClick={handlePlay}
+            onTouchEnd={(e) => {
+              if (!player.isLoaded && !player.isLoading) return
+              e.preventDefault()
+              handlePlay(e)
+            }}
             disabled={!player.isLoaded && !player.isLoading}
             className="uppercase tracking-wider cursor-pointer hover:opacity-80 flex-shrink-0"
             style={{
@@ -541,7 +549,7 @@ export function AudioPlayer({
             <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
               <div className="flex items-center h-full" style={{ background: macBg, clipPath: macPixelClip, padding: '0 12px' }}>
                 <span className="text-[11px] font-bold whitespace-nowrap">
-                  {player.isPlaying ? 'PAUSE' : 'PLAY'}
+                  {player.isLoading ? 'LOADING...' : player.isPlaying ? 'PAUSE' : 'PLAY'}
                 </span>
               </div>
             </div>
@@ -1469,6 +1477,11 @@ export function AudioPlayer({
         <div className="flex items-stretch gap-1.5">
           <button
             onClick={handlePlay}
+            onTouchEnd={(e) => {
+              if (!player.isLoaded && !player.isLoading) return
+              e.preventDefault()
+              handlePlay(e)
+            }}
             disabled={!player.isLoaded && !player.isLoading}
             className="uppercase tracking-wider cursor-pointer hover:opacity-80 flex-shrink-0"
             style={{
@@ -1478,7 +1491,7 @@ export function AudioPlayer({
             <div style={{ background: ipodBorder, clipPath: ipodPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
               <div className="flex items-center h-full" style={{ background: ipodBg, clipPath: ipodPixelClip, padding: '0 12px' }}>
                 <span className="text-[11px] font-bold whitespace-nowrap">
-                  {player.isPlaying ? 'PAUSE' : 'PLAY'}
+                  {player.isLoading ? 'LOADING...' : player.isPlaying ? 'PAUSE' : 'PLAY'}
                 </span>
               </div>
             </div>

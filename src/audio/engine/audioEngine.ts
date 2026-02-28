@@ -77,9 +77,18 @@ class AudioEngine {
           // the stop and correctly overrides it.
           if (this.pendingPlayAfterLoad) {
             this.pendingPlayAfterLoad = false
-            // Already playing from loadAsset — just sync engine state
             this.isPlayingFlag = true
             console.log('AudioEngine: auto-play after pending load')
+            // Re-resume context — the original gesture may have expired during download.
+            // Also re-send play command and schedule verification to ensure audio starts.
+            if (this.processorNode.context.state !== 'running') {
+              this.processorNode.context.resume()
+            }
+            this.processorNode.sendMessageToAudioScope({
+              type: 'command',
+              data: { command: 'play' }
+            })
+            this.schedulePlaybackVerification()
           } else if (!this.isPlayingFlag) {
             // Nobody requested play — silence the processor
             this.processorNode.sendMessageToAudioScope({

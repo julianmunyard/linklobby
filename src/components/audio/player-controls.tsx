@@ -34,7 +34,14 @@ export function PlayerControls({
 
   return (
     <button
-      onClick={onTogglePlay}
+      onClick={(e) => { e.stopPropagation(); onTogglePlay() }}
+      onTouchEnd={(e) => {
+        // Fire immediately on touch — onClick can be unreliable on mobile
+        if (!isLoaded && !isLoading) return
+        e.preventDefault()
+        e.stopPropagation()
+        onTogglePlay()
+      }}
       disabled={!isLoaded && !isLoading}
       className={`flex items-center justify-center transition-all relative z-10 ${isCompact ? 'h-8 w-8 rounded-none' : 'h-11 w-11 rounded-full'} ${className}`}
       style={{
