@@ -426,14 +426,19 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
   const customHeight = content.embedHeight as number | undefined
   const isBandcamp = platform === 'bandcamp'
 
-  // Bandcamp: fill the grid cell, no scaling
+  // Bandcamp: use exact native height from URL params
   if (isBandcamp) {
+    const url = iframeUrl
+    let bcHeight = 470
+    if (url.includes('/size=small')) bcHeight = 42
+    else if (url.includes('/artwork=small') && url.includes('/tracklist=false')) bcHeight = 120
+    else if (url.includes('/minimal=true')) bcHeight = 350
     return (
-      <div className={cn('w-full h-full relative', onClick && 'cursor-pointer')}>
+      <div className={cn('w-full relative', onClick && 'cursor-pointer')}>
         <iframe
           src={iframeUrl}
           width="100%"
-          height="100%"
+          height={bcHeight}
           frameBorder="0"
           seamless
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -676,15 +681,16 @@ function autoLayoutCards(
     // Music cards: always derive size from platform, ignore explicit layout
     if (card.card_type === 'music') {
       if ((content.platform as string) === 'bandcamp') {
-        const embedH = content.embedHeight as number | undefined
         w = 4
-        if (embedH && embedH > 200) {
-          h = Math.max(4, Math.ceil((embedH + 20) / 96))
-        } else if (embedH && embedH <= 50) {
-          h = 1
-        } else {
-          h = 2
-        }
+        // Detect height from URL params (reliable), fall back to embedHeight
+        const iframeUrl = (content.embedIframeUrl || content.embedUrl || '') as string
+        let bcPx = 470
+        if (iframeUrl.includes('/size=small')) bcPx = 42
+        else if (iframeUrl.includes('/artwork=small') && iframeUrl.includes('/tracklist=false')) bcPx = 120
+        else if (iframeUrl.includes('/minimal=true')) bcPx = 350
+        const embedH = content.embedHeight as number | undefined
+        if (embedH) bcPx = embedH // override with explicit if available
+        h = bcPx <= 76 ? 1 : Math.ceil((bcPx + 20) / 96)
       } else {
         w = 4; h = 2
       }
@@ -1252,8 +1258,21 @@ export function PhoneHomeLayout({
 
     // Music widgets
     if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
+      // For Bandcamp, ensure row span fits the native embed height
+      const mc = card.content as Record<string, unknown>
+      const mUrl = (mc.embedIframeUrl || mc.embedUrl || '') as string
+      let rowSpan: number = layout.height
+      if ((mc.platform as string) === 'bandcamp' && mUrl) {
+        let bcPx = 470
+        if (mUrl.includes('/size=small')) bcPx = 42
+        else if (mUrl.includes('/artwork=small') && mUrl.includes('/tracklist=false')) bcPx = 120
+        else if (mUrl.includes('/minimal=true')) bcPx = 350
+        const needed = bcPx <= 76 ? 1 : Math.ceil((bcPx + 20) / 96)
+        rowSpan = Math.max(layout.height, needed)
+      }
       const musicGridStyle: React.CSSProperties = {
         ...gridStyle,
+        gridRow: `${layout.row + 1} / span ${rowSpan}`,
       }
       const inner = (
         <div
@@ -1401,7 +1420,7 @@ export function PhoneHomeLayout({
       } as React.CSSProperties}
     >
       {pages.map((pageItems, pageIdx) => (
-        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-20 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start', zoom: phoneScale !== 1 ? phoneScale : undefined } as React.CSSProperties}>
+        <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start', zoom: phoneScale !== 1 ? phoneScale : undefined } as React.CSSProperties}>
             <div className="relative">
               <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>

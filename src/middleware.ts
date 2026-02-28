@@ -64,7 +64,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files, API routes, and audio assets
-    '/((?!_next/static|_next/image|api/|favicon.ico|superpowered/|processors/|SP-es6\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|wasm)$).*)',
+    // Match all paths except static files and audio assets
+    // API routes ARE included so the middleware can refresh auth tokens
+    '/((?!_next/static|_next/image|favicon.ico|superpowered/|processors/|SP-es6\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|wasm)$).*)',
   ],
 }
