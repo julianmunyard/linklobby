@@ -873,7 +873,7 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col items-center"
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-8 flex flex-col items-center"
             style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid container */}
