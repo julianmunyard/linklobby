@@ -876,15 +876,16 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className={`w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 ${hasDock ? 'pb-4' : 'pb-12'} flex flex-col items-center overflow-hidden`}
+            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-12 flex flex-col items-center overflow-hidden"
             style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid — matches editor: h-full + minmax rows flex to fit available height */}
+              {/* When dock is present, treat it as one less row so spacing stays consistent */}
               <div
                 className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
+                  gridTemplateRows: `repeat(${hasDock ? MAX_ROWS_PER_PAGE - 1 : MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
