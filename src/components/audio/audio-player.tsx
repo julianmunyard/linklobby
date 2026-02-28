@@ -162,8 +162,16 @@ export function AudioPlayer({
   const varispeedTrackRef = useRef<HTMLDivElement>(null)
   const speedTouch = useSpeedSliderTouch(varispeedTrackRef, player.setSpeed)
 
+  // Show loading state in track title when track is loading
+  const displayTitle = player.isLoading && !player.isLoaded
+    ? 'Loading...'
+    : currentTrack.title
+  const displayArtist = player.isLoading && !player.isLoaded
+    ? ''
+    : currentTrack.artist
+
   // Re-check marquee on track change and after refs attach (e.g. iPod now-playing screen appears)
-  const marqueeTitle = `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
+  const marqueeTitle = `${displayTitle}${displayArtist ? ` — ${displayArtist}` : ''}`
   useEffect(() => {
     // Small delay to let refs attach after conditional render
     const timer = setTimeout(() => {
@@ -262,10 +270,10 @@ export function AudioPlayer({
         {currentTrack && (
           <div className="px-3 py-2 uppercase tracking-wider" style={{ borderBottom: vcrBorder }}>
             <div className="text-sm font-bold truncate">
-              TR.{String(currentTrackIndex + 1).padStart(2, '0')} {currentTrack.title}
+              TR.{String(currentTrackIndex + 1).padStart(2, '0')} {displayTitle}
             </div>
             <div className="text-xs opacity-50 truncate">
-              {currentTrack.artist && `${currentTrack.artist} · `}
+              {displayArtist && `${displayArtist} · `}
               {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
             </div>
           </div>
@@ -392,10 +400,10 @@ export function AudioPlayer({
           {currentTrack && (
             <div className="px-3 py-2 uppercase tracking-wider" style={{ borderBottom: clBorder }}>
               <div className="text-sm font-bold truncate">
-                {currentTrack.title}
+                {displayTitle}
               </div>
               <div className="text-xs opacity-50 truncate">
-                {currentTrack.artist && `${currentTrack.artist} · `}
+                {displayArtist && `${displayArtist} · `}
                 {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
               </div>
             </div>
@@ -523,7 +531,7 @@ export function AudioPlayer({
 
     // Build marquee text for track title
     const trackTitle = currentTrack
-      ? `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
+      ? `${displayTitle}${displayArtist ? ` — ${displayArtist}` : ''}`
       : ''
 
     return (
@@ -1190,9 +1198,9 @@ export function AudioPlayer({
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 mb-2">
             {currentTrack && (
               <div className="text-sm font-bold" style={{ color: psColor }}>
-                {currentTrack.title}
-                {currentTrack.artist && (
-                  <span className="font-normal opacity-50"> — {currentTrack.artist}</span>
+                {displayTitle}
+                {displayArtist && (
+                  <span className="font-normal opacity-50"> — {displayArtist}</span>
                 )}
               </div>
             )}
@@ -1465,7 +1473,7 @@ export function AudioPlayer({
 
     // Build marquee text for track title
     const trackTitle = currentTrack
-      ? `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
+      ? `${displayTitle}${displayArtist ? ` — ${displayArtist}` : ''}`
       : ''
 
     return (
@@ -1772,21 +1780,21 @@ export function AudioPlayer({
               className={cn("font-semibold truncate", isReceipt ? "text-sm" : "text-base")}
               style={{ color: effectiveForegroundColor || 'inherit' }}
             >
-              {currentTrack.title}
+              {displayTitle}
             </h3>
             {!isReceipt && (
               <p
                 className="text-sm truncate"
                 style={{ color: effectiveForegroundColor || 'inherit', opacity: 0.7 }}
               >
-                {currentTrack.artist}
+                {displayArtist}
               </p>
             )}
             <p
               className="text-xs font-mono"
               style={{ color: effectiveForegroundColor || 'inherit', opacity: 0.5 }}
             >
-              {currentTrack.artist && isReceipt ? `${currentTrack.artist} · ` : ''}
+              {displayArtist && isReceipt ? `${displayArtist} · ` : ''}
               {Math.floor(currentTrack.duration / 60)}:{String(Math.floor(currentTrack.duration % 60)).padStart(2, '0')}
             </p>
           </div>

@@ -86,8 +86,11 @@ class AudioCardProcessor extends SuperpoweredWebAudio.AudioWorkletProcessor {
     if (!SuperpoweredLoaded || SuperpoweredLoaded.url !== this.trackUrl) return;
 
     // Load decoded audio into player (same as SuperpoweredTrack.loadAudio)
+    // Third arg = true (synchronous) — buffer is already decoded by downloadAndDecode,
+    // openMemory just needs to parse headers. With false (async), durationMs=0 and
+    // processStereo returns silence because the player hasn't finished loading yet.
     const pointer = this.Superpowered.arrayBufferToWASM(SuperpoweredLoaded.buffer);
-    this.player.openMemory(pointer, false, false);
+    this.player.openMemory(pointer, false, true);
     this.regionPointer = pointer;
     SuperpoweredLoaded.buffer = null;
 
