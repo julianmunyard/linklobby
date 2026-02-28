@@ -224,6 +224,13 @@ export type TitleSize = 'small' | 'large'
 export type ProfileLayout = 'classic' | 'hero'
 
 /**
+ * Avatar shape options
+ * - circle: Rounded avatar (default)
+ * - square: Square avatar with small border radius
+ */
+export type AvatarShape = 'circle' | 'square'
+
+/**
  * Complete profile interface for header customization
  */
 export interface Profile {
@@ -232,8 +239,10 @@ export interface Profile {
   avatarUrl: string | null
   avatarFeather: number  // 0-100, edge feathering amount (0 = no feather, 100 = max feather)
   avatarSize: number  // 60-160px, avatar diameter for classic layout (default 80)
+  avatarShape: AvatarShape  // circle or square (default circle)
   showAvatar: boolean
   showTitle: boolean
+  showBio: boolean
   titleSize: TitleSize
   showLogo: boolean
   logoUrl: string | null
@@ -243,4 +252,6 @@ export interface Profile {
   socialIcons: SocialIcon[]
   headerTextColor: string | null  // Custom color for title, bio, icons (null = use theme text color)
   socialIconColor: string | null  // Custom color for social icons (null = use text color)
+  titleFont: string | null  // Custom font for display name (null = use theme heading font)
+  bioFont: string | null  // Custom font for bio (null = use theme body font)
 }

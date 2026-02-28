@@ -45,10 +45,10 @@ export default async function PricingPage() {
     <div className="max-w-6xl mx-auto px-4 py-16">
       {/* Hero */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-white">
           Simple, transparent pricing
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-xl text-neutral-400 max-w-2xl mx-auto">
           Start free. Upgrade when you&apos;re ready. No hidden fees.
         </p>
       </div>
@@ -58,12 +58,12 @@ export default async function PricingPage() {
 
       {/* FAQ */}
       <div className="mt-24 max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-center mb-8">Frequently asked questions</h2>
-        <div className="divide-y">
+        <h2 className="text-2xl font-bold text-center mb-8 text-white">Frequently asked questions</h2>
+        <div className="divide-y divide-white/10">
           {FAQ_ITEMS.map((item) => (
             <div key={item.question} className="py-6">
-              <h3 className="font-semibold mb-2">{item.question}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{item.answer}</p>
+              <h3 className="font-semibold mb-2 text-white">{item.question}</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">{item.answer}</p>
             </div>
           ))}
         </div>

@@ -44,7 +44,7 @@ export default async function DashboardLayout({
   return (
     <ThemeApplicator>
       <PlanTierProvider planTier={planTier}>
-        <SidebarProvider defaultOpen={defaultOpen}>
+        <SidebarProvider defaultOpen={defaultOpen} className="!min-h-0 h-dvh overflow-hidden">
           <AppSidebar username={username} planTier={planTier} />
           <SidebarInset>
             <header className="flex h-14 items-center gap-2 border-b px-4">

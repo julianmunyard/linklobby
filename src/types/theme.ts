@@ -38,6 +38,11 @@ export interface BackgroundConfig {
   imageZoom?: number      // Default: 1.0, range: 1.0 to 3.0
   imagePositionX?: number // Default: 50 (center), range: 0-100
   imagePositionY?: number // Default: 50 (center), range: 0-100
+  // Desktop image settings (separate image for wide viewports)
+  desktopValue?: string           // URL for desktop background image
+  desktopImageZoom?: number       // Default: 1.0, range: 1.0 to 3.0
+  desktopImagePositionX?: number  // Default: 50 (center), range: 0-100
+  desktopImagePositionY?: number  // Default: 50 (center), range: 0-100
   // Video zoom/position settings
   videoZoom?: number      // Default: 1.0, range: 1.0 to 2.0
   videoPositionX?: number // Default: 50 (center), range: 0-100
@@ -105,6 +110,7 @@ export interface ReceiptSticker {
   y: number                // Position as percentage (0-100)
   rotation: number         // Rotation in degrees (-45 to 45)
   scale: number            // Scale multiplier (0.5 to 1.5)
+  opacity?: number         // Opacity (0 to 1, default 0.9)
   behindText?: boolean     // If true, sticker renders behind receipt text
 }
 
@@ -146,6 +152,7 @@ export interface ThemeState {
   style: StyleConfig
   background: BackgroundConfig
   cardTypeFontSizes: CardTypeFontSizes
+  fontFamilyScales?: Record<string, number>  // Per-font-family size scales (keyed by CSS variable, e.g. 'var(--font-inter)': 1.2)
   socialIconSize?: number  // Icon size in pixels (16-48), default 24
   vcrCenterContent?: boolean  // VCR theme: center content vertically
   receiptPrice?: string  // Receipt theme: custom price text
@@ -162,6 +169,7 @@ export interface ThemeState {
   phoneHomeDock?: string[]     // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock?: boolean  // Phone Home theme: show dock bar (default true)
   phoneHomeDockTranslucent?: boolean  // Phone Home theme: translucent dock (modern variant, default true)
+  phoneHomeDockColor?: string  // Phone Home theme: dock & status bar color
   phoneHomeVariant?: 'default' | '8-bit' | 'windows-95'  // Phone Home theme: visual variant
   zineBadgeText?: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize?: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)

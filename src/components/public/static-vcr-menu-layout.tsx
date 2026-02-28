@@ -20,6 +20,10 @@ interface StaticVcrMenuLayoutProps {
   bodySize?: number
   centerContent?: boolean
   socialIcons?: SocialIcon[]
+  showLogo?: boolean
+  logoUrl?: string | null
+  logoScale?: number
+  showTitle?: boolean
   hasProAccess?: boolean
 }
 
@@ -35,6 +39,10 @@ export function StaticVcrMenuLayout({
   bodySize = 1.5,
   centerContent = false,
   socialIcons = [],
+  showLogo = false,
+  logoUrl,
+  logoScale = 100,
+  showTitle: showTitleProp = true,
   hasProAccess = false,
 }: StaticVcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
@@ -130,7 +138,7 @@ export function StaticVcrMenuLayout({
       className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto"
       style={{
         fontFamily: 'var(--font-pixter-granular)',
-        backgroundColor: 'var(--theme-background)',
+        backgroundColor: 'transparent',
       }}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
@@ -144,21 +152,35 @@ export function StaticVcrMenuLayout({
           centerContent && "min-h-full justify-center"
         )}
       >
+        {/* Logo above title */}
+        {showLogo && logoUrl && (
+          <div className="mb-4">
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="max-w-[200px] h-auto object-contain mx-auto"
+              style={{ transform: `scale(${(logoScale || 100) / 100})`, transformOrigin: 'center' }}
+            />
+          </div>
+        )}
+
         {/* Title with dashes - responsive */}
-        <div
-          className="text-center mb-6 tracking-wider w-full px-2"
-          style={{
-            color: 'var(--theme-text)',
-            fontSize: `clamp(1.4rem, 5vw, ${titleFontSize})`,
-            letterSpacing: '0.1em'
-          }}
-        >
-          <span className="hidden sm:inline select-none">---------- </span>
-          <span className="sm:hidden select-none">--- </span>
-          <span>{displayTitle}</span>
-          <span className="sm:hidden select-none"> ---</span>
-          <span className="hidden sm:inline select-none"> ----------</span>
-        </div>
+        {showTitleProp && (
+          <div
+            className="text-center mb-6 tracking-wider w-full px-2"
+            style={{
+              color: 'var(--theme-text)',
+              fontSize: `clamp(1.4rem, 5vw, ${titleFontSize})`,
+              letterSpacing: '0.1em'
+            }}
+          >
+            <span className="hidden sm:inline select-none">---------- </span>
+            <span className="sm:hidden select-none">--- </span>
+            <span>{displayTitle}</span>
+            <span className="sm:hidden select-none"> ---</span>
+            <span className="hidden sm:inline select-none"> ----------</span>
+          </div>
+        )}
 
         {/* Social icons below title */}
         {socialIcons.length > 0 && (
@@ -342,30 +364,33 @@ export function StaticVcrMenuLayout({
           })}
         </div>
 
-        {/* Legal Footer */}
-        <footer className="mt-12 pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
-          <div className="flex items-center justify-center gap-4" style={{ color: 'var(--theme-text)' }}>
-            <Link
-              href={`/privacy?username=${username}`}
-              className="hover:opacity-80 transition-opacity"
-            >
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link
-              href="/terms"
-              className="hover:opacity-80 transition-opacity"
-            >
-              Terms of Service
-            </Link>
-          </div>
-          {!hasProAccess && (
-            <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
-              Powered by LinkLobby
-            </div>
-          )}
-        </footer>
+        {/* Spacer for fixed footer */}
+        <div className="h-16" />
       </div>
+
+      {/* Legal Footer - pinned to bottom */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 py-3 text-center text-xs" style={{ opacity: 0.5, fontFamily: 'var(--font-pixter-granular)' }}>
+        <div className="flex items-center justify-center gap-4" style={{ color: 'var(--theme-text)' }}>
+          <Link
+            href={`/privacy?username=${username}`}
+            className="hover:opacity-80 transition-opacity"
+          >
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link
+            href="/terms"
+            className="hover:opacity-80 transition-opacity"
+          >
+            Terms of Service
+          </Link>
+        </div>
+        {!hasProAccess && (
+          <div className="mt-1" style={{ color: 'var(--theme-text)' }}>
+            Powered by LinkLobby
+          </div>
+        )}
+      </footer>
     </div>
   )
 }

@@ -22,6 +22,7 @@ interface HeroCardFieldsProps {
 }
 
 export function HeroCardFields({ content, onChange }: HeroCardFieldsProps) {
+  const showTitle = content.showTitle !== false   // Default to true
   const showButton = content.showButton !== false  // Default to true
   const fontSize = useThemeStore((state) => state.cardTypeFontSizes.hero)
   const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
@@ -40,6 +41,15 @@ export function HeroCardFields({ content, onChange }: HeroCardFieldsProps) {
           min={0.5}
           max={2}
           step={0.1}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="showTitle">Show Title</Label>
+        <Switch
+          id="showTitle"
+          checked={showTitle}
+          onCheckedChange={(checked) => onChange({ showTitle: checked })}
         />
       </div>
 

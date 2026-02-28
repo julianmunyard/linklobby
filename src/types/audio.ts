@@ -7,6 +7,8 @@ export interface AudioTrack {
   audioUrl: string        // Supabase Storage public URL (MP3)
   storagePath: string     // For deletion
   waveformData?: number[] // Pre-computed waveform peaks (128 data points)
+  albumArtUrl?: string           // Per-track album art (overrides card-level)
+  albumArtStoragePath?: string   // For deletion
 }
 
 export interface ReverbConfig {
@@ -15,7 +17,7 @@ export interface ReverbConfig {
   damp: number         // High frequency damping (0-1), default 0.5
   roomSize: number     // Reverb decay time (0-1), default 0.5
   predelayMs: number   // Pre-delay in ms (0-200), default 20
-  enabled: boolean     // Whether reverb is active, default false
+  enabled: boolean     // Always true (reverb is always active)
 }
 
 export interface PlayerColors {
@@ -43,6 +45,7 @@ export interface AudioCardContent {
     playerBox?: string   // Player container + inner boxes (progress, varispeed, reverb) background
     buttons?: string     // Transport buttons and varispeed bar fill
   }
+  playerStyle?: 'default' | 'cd-player'  // Player layout variant (phone-home theme)
   blinkieBoxBackgrounds?: {
     cardOuter?: string  // System 7 window chrome (outermost frame)
     cardOuterDim?: number // 0–100 intensity (100 = full, 0 = hidden)
@@ -61,7 +64,7 @@ export const DEFAULT_REVERB_CONFIG: ReverbConfig = {
   damp: 0.5,
   roomSize: 0.5,
   predelayMs: 20,
-  enabled: false
+  enabled: true
 }
 
 export const DEFAULT_AUDIO_CONTENT: AudioCardContent = {

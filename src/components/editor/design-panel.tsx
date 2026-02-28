@@ -16,8 +16,11 @@ import { FontPicker } from './font-picker'
 import { StyleControls } from './style-controls'
 import { BackgroundControls } from './background-controls'
 import { TemplatePicker } from './template-picker'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CURATED_FONTS } from '@/app/fonts'
 import { SocialIconsEditor } from './social-icons-editor'
 import { SocialIconPicker } from './social-icon-picker'
+import { WordArtStylePicker } from './word-art-style-picker'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { useProfileStore } from '@/stores/profile-store'
@@ -45,7 +48,10 @@ const TABS = DESIGN_SUB_TABS
 type TabId = typeof TABS[number]['id']
 
 // Themes with fixed fonts where the Fonts tab should be hidden
-export const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
+export const FIXED_FONT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home', 'word-art', 'macintosh', 'blinkies', 'chaotic-zine', 'artifact']
+
+// Themes that support per-header title/bio font overrides
+const TITLE_FONT_THEMES: ThemeId[] = ['blinkies', 'mac-os', 'system-settings', 'instagram-reels']
 
 interface DesignPanelProps {
   initialSubTab?: string | null
@@ -70,6 +76,15 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
       if (tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId)) {
         return false
       }
+      if (tab.id === 'header' && themeId === 'phone-home') {
+        return false
+      }
+      if (tab.id === 'style' && (themeId === 'macintosh' || themeId === 'blinkies' || themeId === 'chaotic-zine')) {
+        return false
+      }
+      if (tab.id === 'colors' && themeId === 'macintosh') {
+        return false
+      }
       return true
     })
   }, [themeId])
@@ -89,6 +104,9 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const showSocialIcons = useProfileStore((state) => state.showSocialIcons)
   const headerTextColor = useProfileStore((state) => state.headerTextColor)
+  const showBio = useProfileStore((state) => state.showBio)
+  const titleFont = useProfileStore((state) => state.titleFont)
+  const bioFont = useProfileStore((state) => state.bioFont)
 
   // Profile store actions
   const setDisplayName = useProfileStore((state) => state.setDisplayName)
@@ -105,6 +123,9 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
   const setHeaderTextColor = useProfileStore((state) => state.setHeaderTextColor)
+  const setShowBio = useProfileStore((state) => state.setShowBio)
+  const setTitleFont = useProfileStore((state) => state.setTitleFont)
+  const setBioFont = useProfileStore((state) => state.setBioFont)
 
   // Theme store for default text color
   const themeTextColor = useThemeStore((state) => state.colors.text)
@@ -112,6 +133,8 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
   const setZineTitleSize = useThemeStore((state) => state.setZineTitleSize)
   const zineBadgeText = useThemeStore((state) => state.zineBadgeText)
   const setZineBadgeText = useThemeStore((state) => state.setZineBadgeText)
+  const wordArtTitleStyle = useThemeStore((state) => state.wordArtTitleStyle)
+  const setWordArtTitleStyle = useThemeStore((state) => state.setWordArtTitleStyle)
 
   // Image upload state
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
@@ -198,6 +221,14 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
               {tab.label}
             </button>
           ))}
+          {themeId !== 'word-art' && themeId !== 'phone-home' && themeId !== 'macintosh' && themeId !== 'blinkies' && themeId !== 'chaotic-zine' && themeId !== 'artifact' && (
+          <button
+            onClick={() => { addCard('text'); window.dispatchEvent(new Event('scroll-preview-bottom')) }}
+            className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors border border-dashed border-muted-foreground/40 text-muted-foreground hover:bg-muted/80"
+          >
+            <span className="flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add Text</span>
+          </button>
+          )}
         </div>
       </div>
 
@@ -216,6 +247,246 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
         {activeTab === 'templates' && <TemplatePicker />}
 
         {activeTab === 'header' && (
+          themeId === 'macintosh' ? (
+            /* Macintosh theme: Display Name only */
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Display Name</Label>
+                <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              </div>
+            </div>
+          ) : themeId === 'word-art' ? (
+            /* Word Art theme: Display Name + Title Word Art style + Social Icons */
+            <div className="space-y-6">
+              {/* Display Name */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Display Name</Label>
+                <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              </div>
+
+              {/* Title Word Art Style */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Title Style</Label>
+                <WordArtStylePicker
+                  currentStyleId={wordArtTitleStyle}
+                  onChange={setWordArtTitleStyle}
+                />
+              </div>
+
+              {/* Social Icons */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Social Icons</Label>
+                  <Switch checked={showSocialIcons} onCheckedChange={setShowSocialIcons} />
+                </div>
+                {showSocialIcons && (
+                  <div className="space-y-2">
+                    <SocialIconsEditor />
+                    <SocialIconPicker>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Icon
+                      </Button>
+                    </SocialIconPicker>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : themeId === 'chaotic-zine' ? (
+            /* Chaotic Zine theme: Profile Photo, Logo, Display Name (toggle), Title Size, Badge Text, Social Icons */
+            <div className="space-y-6">
+              {/* Profile Photo */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Profile Photo</Label>
+                  <Switch checked={showAvatar} onCheckedChange={setShowAvatar} />
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-6 w-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      {isUploading && imageType === 'avatar' ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Camera className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                  <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarFileSelect} className="hidden" />
+                </div>
+              </div>
+
+              {/* Logo */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Logo</Label>
+                  <Switch checked={showLogo} onCheckedChange={setShowLogo} />
+                </div>
+                {logoUrl ? (
+                  <div className="relative inline-block">
+                    <img src={logoUrl} alt="Logo" className="h-12 max-w-[150px] object-contain" />
+                    <Button size="icon" variant="secondary" className="absolute -top-1 -right-1 h-6 w-6 rounded-full" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                      {isUploading && imageType === 'logo' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                    {isUploading && imageType === 'logo' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                    Upload Logo
+                  </Button>
+                )}
+                <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoFileSelect} className="hidden" />
+                {logoUrl && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Logo Size</span>
+                      <span>{logoScale}%</span>
+                    </div>
+                    <Slider value={[logoScale]} onValueChange={(v) => setLogoScale(v[0])} min={50} max={300} step={10} />
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">Logo appears above your display name</p>
+              </div>
+
+              {/* Display Name */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Display Name</Label>
+                  <Switch checked={showTitle} onCheckedChange={setShowTitle} />
+                </div>
+                {showTitle && (
+                  <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+                )}
+              </div>
+
+              {/* Title Size + Badge Text */}
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Title Size</span>
+                    <span className="text-xs text-muted-foreground">{Math.round(zineTitleSize * 100)}%</span>
+                  </div>
+                  <Slider
+                    value={[zineTitleSize]}
+                    min={0.5}
+                    max={2.0}
+                    step={0.1}
+                    onValueChange={([v]) => setZineTitleSize(v)}
+                  />
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Bio</Label>
+                  <Switch checked={showBio !== false} onCheckedChange={setShowBio} />
+                </div>
+                {showBio !== false && (
+                  <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
+                )}
+              </div>
+
+              {/* Social Icons */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Social Icons</Label>
+                  <Switch checked={showSocialIcons} onCheckedChange={setShowSocialIcons} />
+                </div>
+                {showSocialIcons && (
+                  <div className="space-y-2">
+                    <SocialIconsEditor />
+                    <SocialIconPicker>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Icon
+                      </Button>
+                    </SocialIconPicker>
+                  </div>
+                )}
+              </div>
+
+              {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+            </div>
+          ) : (themeId === 'vcr-menu' || themeId === 'ipod-classic' || themeId === 'artifact') ? (
+            /* VCR / iPod / Artifact theme: simplified header — only Display Name + Social Icons (VCR also gets Logo) */
+            <div className="space-y-6">
+              {/* Logo — VCR only */}
+              {themeId === 'vcr-menu' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Logo</Label>
+                  <Switch checked={showLogo} onCheckedChange={setShowLogo} />
+                </div>
+                {logoUrl ? (
+                  <div className="relative inline-block">
+                    <img src={logoUrl} alt="Logo" className="h-12 max-w-[150px] object-contain" />
+                    <Button size="icon" variant="secondary" className="absolute -top-1 -right-1 h-6 w-6 rounded-full" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                      {isUploading && imageType === 'logo' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={isUploading}>
+                    {isUploading && imageType === 'logo' ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+                    Upload Logo
+                  </Button>
+                )}
+                <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoFileSelect} className="hidden" />
+                {logoUrl && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Logo Size</span>
+                      <span>{logoScale}%</span>
+                    </div>
+                    <Slider value={[logoScale]} onValueChange={(v) => setLogoScale(v[0])} min={50} max={300} step={10} />
+                  </div>
+                )}
+              </div>
+              )}
+
+              {/* Display Name */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Display Name</Label>
+                  <Switch checked={showTitle} onCheckedChange={setShowTitle} />
+                </div>
+                <Input value={displayName || ''} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              </div>
+
+              {/* Social Icons */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Social Icons</Label>
+                  <Switch checked={showSocialIcons} onCheckedChange={setShowSocialIcons} />
+                </div>
+                {showSocialIcons && (
+                  <div className="space-y-2">
+                    <SocialIconsEditor />
+                    <SocialIconPicker>
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Icon
+                      </Button>
+                    </SocialIconPicker>
+                  </div>
+                )}
+              </div>
+
+              {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
+            </div>
+          ) : (
           <div className="space-y-6">
             {/* Profile Photo */}
             <div className="space-y-3">
@@ -270,15 +541,6 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
               )}
             </div>
 
-            {/* Layout */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Layout</Label>
-              <ToggleGroup type="single" variant="outline" value={profileLayout} onValueChange={(v) => v && setProfileLayout(v as ProfileLayout)} className="justify-start">
-                <ToggleGroupItem value="classic">Classic</ToggleGroupItem>
-                <ToggleGroupItem value="hero">Hero</ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-
             {/* Display Name */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -292,37 +554,22 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
                   <ToggleGroupItem value="large">Large</ToggleGroupItem>
                 </ToggleGroup>
               )}
+              {TITLE_FONT_THEMES.includes(themeId) && (
+                <Select value={titleFont || '__default__'} onValueChange={(v) => setTitleFont(v === '__default__' ? null : v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Theme Default" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__default__">Theme Default</SelectItem>
+                    {CURATED_FONTS.map((f) => (
+                      <SelectItem key={f.id} value={f.variable} style={{ fontFamily: f.variable }}>{f.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            {/* Chaotic Zine: Title Size + Badge Text */}
-            {themeId === 'chaotic-zine' && (
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Zine Title</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Title Size</span>
-                    <span className="text-xs text-muted-foreground">{Math.round(zineTitleSize * 100)}%</span>
-                  </div>
-                  <Slider
-                    value={[zineTitleSize]}
-                    min={0.5}
-                    max={2.0}
-                    step={0.1}
-                    onValueChange={([v]) => setZineTitleSize(v)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">Badge Text</span>
-                  <Input
-                    value={zineBadgeText}
-                    onChange={(e) => setZineBadgeText(e.target.value)}
-                    placeholder="NEW!"
-                    className="uppercase"
-                  />
-                  <p className="text-xs text-muted-foreground">Shown on first card. Leave empty to hide.</p>
-                </div>
-              </div>
-            )}
+            {/* Chaotic Zine title/badge controls moved to dedicated chaotic-zine branch above */}
 
             {/* Logo */}
             <div className="space-y-2">
@@ -357,8 +604,28 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
 
             {/* Bio */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Bio</Label>
-              <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Bio</Label>
+                {(themeId === 'mac-os' || themeId === 'system-settings' || themeId === 'instagram-reels' || themeId === 'blinkies') && (
+                  <Switch checked={showBio !== false} onCheckedChange={setShowBio} />
+                )}
+              </div>
+              {showBio !== false && (
+                <Textarea value={bio || ''} onChange={(e) => setBio(e.target.value)} placeholder="Tell your audience about yourself..." rows={2} className="resize-none" />
+              )}
+              {TITLE_FONT_THEMES.includes(themeId) && (
+                <Select value={bioFont || '__default__'} onValueChange={(v) => setBioFont(v === '__default__' ? null : v)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Theme Default" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__default__">Theme Default</SelectItem>
+                    {CURATED_FONTS.map((f) => (
+                      <SelectItem key={f.id} value={f.variable} style={{ fontFamily: f.variable }}>{f.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* Header Text Color */}
@@ -401,23 +668,10 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
 
             {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
           </div>
+          )
         )}
       </div>
 
-      {/* Text Blocks */}
-      <div className="mt-4 pt-4 border-t space-y-2">
-        <p className="text-sm font-medium">Text Blocks</p>
-        <p className="text-xs text-muted-foreground">Add standalone text to your page</p>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => { addCard('text'); window.dispatchEvent(new Event('scroll-preview-bottom')) }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Text Block
-        </Button>
-      </div>
 
       {/* Image Crop Dialog */}
       {selectedImage && (

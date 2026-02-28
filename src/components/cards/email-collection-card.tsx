@@ -40,8 +40,11 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
   const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get theme border color
+  // Get theme settings
   const themeBorderColor = useThemeStore((state) => state.colors.border)
+  const cardTypeFontSizes = useThemeStore((state) => state.cardTypeFontSizes)
+  const fontFamilyScales = useThemeStore((state) => state.fontFamilyScales)
+  const fonts = useThemeStore((state) => state.fonts)
 
   // Merge card content with defaults
   const content: EmailCollectionCardContent = {
@@ -99,6 +102,14 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
     : content.textAlign === 'right' ? 'text-right'
     : 'text-center'
 
+  // Custom font + size
+  const customFont = content.fontFamily || null
+  const baseSize = cardTypeFontSizes.link
+  const fontScale = customFont ? (fontFamilyScales?.[customFont] ?? 1) : 1
+  const fontSize = baseSize * fontScale
+  const headingFont = customFont || 'var(--font-theme-heading)'
+  const bodyFont = customFont || 'var(--font-theme-body)'
+
   // Custom text color style
   const textStyle = content.textColor ? { color: content.textColor } : undefined
 
@@ -110,7 +121,7 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
           <CheckCircle2 className="h-12 w-12 text-green-500" />
           <p
             className="text-lg font-medium"
-            style={{ ...textStyle, fontFamily: 'var(--font-theme-heading)' }}
+            style={{ ...textStyle, fontFamily: headingFont, fontSize: `${fonts.headingSize * fontSize}rem` }}
           >
             {isAlreadySubscribed ? "You're already subscribed!" : content.successMessage}
           </p>
@@ -123,8 +134,8 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
     <div className={`w-full p-6 ${textAlignClass}`}>
       {/* Heading */}
       <h3
-        className="text-xl font-semibold mb-2"
-        style={{ ...textStyle, fontFamily: 'var(--font-theme-heading)' }}
+        className="font-semibold mb-2"
+        style={{ ...textStyle, fontFamily: headingFont, fontSize: `${fonts.headingSize * fontSize}rem` }}
       >
         {content.heading}
       </h3>
@@ -133,7 +144,7 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
       {content.subheading && (
         <p
           className="text-muted-foreground mb-4"
-          style={{ ...textStyle, fontFamily: 'var(--font-theme-body)' }}
+          style={{ ...textStyle, fontFamily: bodyFont, fontSize: `${fonts.bodySize * 0.875 * fontSize}rem` }}
         >
           {content.subheading}
         </p>
@@ -150,11 +161,11 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
             .email-card-input::placeholder {
               color: ${content.textColor || 'inherit'} !important;
               opacity: 1 !important;
-              font-family: var(--font-theme-body) !important;
+              font-family: ${bodyFont} !important;
             }
             .email-card-input {
               background-color: transparent !important;
-              font-family: var(--font-theme-body) !important;
+              font-family: ${bodyFont} !important;
             }
           `}</style>
           {/* Name field (optional) */}
@@ -218,7 +229,8 @@ export function EmailCollectionCard({ card, pageId, isEditing = false }: EmailCo
             variant="outline"
             className="w-full"
             style={{
-              fontFamily: 'var(--font-theme-body)',
+              fontFamily: bodyFont,
+              fontSize: `${fonts.bodySize * 0.875 * fontSize}rem`,
               borderColor: themeBorderColor || undefined,
               color: content.textColor || undefined,
               backgroundColor: 'transparent',

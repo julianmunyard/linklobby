@@ -5,8 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
+import { useThemeStore } from '@/stores/theme-store'
 
 const RECENT_COLORS_KEY = 'linklobby-recent-colors'
 const MAX_RECENT_COLORS = 8
@@ -34,6 +35,30 @@ function addRecentColor(color: string) {
   }
 }
 
+// Convert CSS color values (oklch, rgb, hsl, hex, named) to hex for display
+function toHex(cssColor: string): string | null {
+  if (typeof document === 'undefined') return null
+  if (!cssColor) return null
+  // Already hex
+  if (/^#[0-9a-f]{3,8}$/i.test(cssColor)) return cssColor
+  try {
+    const el = document.createElement('div')
+    el.style.color = cssColor
+    document.body.appendChild(el)
+    const computed = getComputedStyle(el).color
+    document.body.removeChild(el)
+    // computed is rgb(r, g, b) or rgba(r, g, b, a)
+    const match = computed.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    if (!match) return null
+    const r = parseInt(match[1]).toString(16).padStart(2, '0')
+    const g = parseInt(match[2]).toString(16).padStart(2, '0')
+    const b = parseInt(match[3]).toString(16).padStart(2, '0')
+    return `#${r}${g}${b}`
+  } catch {
+    return null
+  }
+}
+
 interface ColorPickerProps {
   color: string
   onChange: (color: string) => void
@@ -45,6 +70,31 @@ export function ColorPicker({ color, onChange, label, className }: ColorPickerPr
   // Local state for responsive UI while picking
   const [localColor, setLocalColor] = useState(color)
   const [recentColors, setRecentColors] = useState<string[]>([])
+
+  // Get current theme colors
+  const themeColors = useThemeStore((state) => state.colors)
+
+  // Build unique theme color swatches (deduplicated, converted to hex)
+  const themeSwatches = useMemo(() => {
+    const entries = [
+      { key: 'background', value: themeColors.background },
+      { key: 'cardBg', value: themeColors.cardBg },
+      { key: 'text', value: themeColors.text },
+      { key: 'accent', value: themeColors.accent },
+      { key: 'border', value: themeColors.border },
+      { key: 'link', value: themeColors.link },
+    ]
+    const seen = new Set<string>()
+    const result: { key: string; hex: string }[] = []
+    for (const entry of entries) {
+      const hex = toHex(entry.value)
+      if (hex && !seen.has(hex.toLowerCase())) {
+        seen.add(hex.toLowerCase())
+        result.push({ key: entry.key, hex })
+      }
+    }
+    return result
+  }, [themeColors])
 
   // Load recent colors on mount
   useEffect(() => {
@@ -77,6 +127,16 @@ export function ColorPicker({ color, onChange, label, className }: ColorPickerPr
     setLocalColor(color)
   }
 
+  // Labels for theme color swatches
+  const themeColorLabels: Record<string, string> = {
+    background: 'Background',
+    cardBg: 'Card',
+    text: 'Text',
+    accent: 'Accent',
+    border: 'Border',
+    link: 'Link',
+  }
+
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <Label className="text-sm min-w-[80px]">{label}</Label>
@@ -91,6 +151,29 @@ export function ColorPicker({ color, onChange, label, className }: ColorPickerPr
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-3 color-picker-popover" align="start">
+          {/* Theme colors */}
+          {themeSwatches.length > 0 && (
+            <div className="mb-3">
+              <p className="text-xs text-muted-foreground mb-2">Theme</p>
+              <div className="flex gap-1 flex-wrap">
+                {themeSwatches.map((swatch) => (
+                  <button
+                    key={swatch.key}
+                    onClick={() => handleRecentClick(swatch.hex)}
+                    className={cn(
+                      "w-6 h-6 rounded border-2 transition-transform hover:scale-110",
+                      localColor.toLowerCase() === swatch.hex.toLowerCase()
+                        ? "border-primary ring-2 ring-primary/30"
+                        : "border-border"
+                    )}
+                    style={{ backgroundColor: swatch.hex }}
+                    title={`${themeColorLabels[swatch.key] || swatch.key}: ${swatch.hex}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Recent colors */}
           {recentColors.length > 0 && (
             <div className="mb-3">

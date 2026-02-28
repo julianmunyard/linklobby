@@ -50,8 +50,10 @@ interface StaticProfileHeaderProps {
   avatarUrl: string | null
   avatarFeather: number
   avatarSize: number
+  avatarShape?: 'circle' | 'square'
   showAvatar: boolean
   showTitle: boolean
+  showBio?: boolean
   titleSize: "small" | "large"
   showLogo: boolean
   logoUrl: string | null
@@ -63,6 +65,9 @@ interface StaticProfileHeaderProps {
   showSocialIcons: boolean
   socialIconsJson?: string | null
   socialIconSize?: number
+  // Per-header font overrides
+  titleFont?: string | null
+  bioFont?: string | null
   // Theme fonts
   fuzzyEnabled?: boolean
   fuzzyIntensity?: number
@@ -85,8 +90,10 @@ export function StaticProfileHeader({
   avatarUrl,
   avatarFeather,
   avatarSize = 80,
+  avatarShape = 'circle',
   showAvatar,
   showTitle,
+  showBio = true,
   titleSize,
   showLogo,
   logoUrl,
@@ -97,6 +104,8 @@ export function StaticProfileHeader({
   showSocialIcons,
   socialIconsJson,
   socialIconSize = 24,
+  titleFont,
+  bioFont,
   fuzzyEnabled = false,
   fuzzyIntensity = 0.19,
   fuzzySpeed = 12,
@@ -194,7 +203,7 @@ export function StaticProfileHeader({
           titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
         )}
         style={{
-          fontFamily: 'var(--font-theme-heading)',
+          fontFamily: titleFont || 'var(--font-theme-heading)',
           ...(headerTextColor && { color: headerTextColor })
         }}
       >
@@ -209,13 +218,13 @@ export function StaticProfileHeader({
 
   // Render bio
   const renderBio = () => {
-    if (!bio) return null
+    if (!showBio || !bio) return null
 
     return (
       <p
         className="text-sm text-theme-text/70 text-center max-w-xs"
         style={{
-          fontFamily: 'var(--font-theme-body)',
+          fontFamily: bioFont || 'var(--font-theme-body)',
           ...(headerTextColor && { color: headerTextColor, opacity: 0.7 })
         }}
       >
@@ -240,8 +249,9 @@ export function StaticProfileHeader({
         {showAvatar && (
           <div
             className={cn(
-              "relative",
-              avatarFeather === 0 && "bg-muted rounded-full overflow-hidden"
+              "relative overflow-hidden",
+              avatarShape === 'square' ? "rounded-lg" : "rounded-full",
+              !avatarUrl && "bg-muted"
             )}
             style={{ width: avatarSize, height: avatarSize }}
           >
@@ -251,10 +261,7 @@ export function StaticProfileHeader({
                 alt=""
                 width={avatarSize}
                 height={avatarSize}
-                className={cn(
-                  "w-full h-full object-cover",
-                  avatarFeather === 0 && "rounded-full"
-                )}
+                className="w-full h-full object-cover"
                 style={featherMask ? {
                   WebkitMaskImage: featherMask,
                   maskImage: featherMask,
@@ -262,7 +269,7 @@ export function StaticProfileHeader({
                 priority
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center rounded-full bg-muted">
+              <div className="w-full h-full flex items-center justify-center">
                 <User className="w-10 h-10 text-muted-foreground" />
               </div>
             )}

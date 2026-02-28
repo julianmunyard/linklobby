@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent, isAudioContent } from '@/types/card'
 import type { AudioCardContent } from '@/types/audio'
@@ -19,6 +19,7 @@ import {
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
 import type { ComponentType } from 'react'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 type IconComponent = ComponentType<{ className?: string }>
@@ -175,6 +176,7 @@ interface ChaoticZineLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
 }
@@ -195,23 +197,55 @@ export function ChaoticZineLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   selectedCardId,
 }: ChaoticZineLayoutProps) {
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
   const zineBadgeText = useThemeStore((s) => s.zineBadgeText)
   const zineTitleSize = useThemeStore((s) => s.zineTitleSize)
   const zineShowDoodles = useThemeStore((s) => s.zineShowDoodles)
+  const backgroundType = useThemeStore((s) => s.background.type)
 
   // Profile data
   const displayName = useProfileStore((s) => s.displayName)
   const bio = useProfileStore((s) => s.bio)
   const avatarUrl = useProfileStore((s) => s.avatarUrl)
   const showAvatar = useProfileStore((s) => s.showAvatar)
+  const showTitle = useProfileStore((s) => s.showTitle)
+  const showLogo = useProfileStore((s) => s.showLogo)
+  const logoUrl = useProfileStore((s) => s.logoUrl)
+  const logoScale = useProfileStore((s) => s.logoScale)
   const socialIcons = useProfileStore((s) => s.socialIcons)
   const showSocialIcons = useProfileStore((s) => s.showSocialIcons)
+  const showBio = useProfileStore((s) => s.showBio)
 
   const titleText = displayName || title || 'ZINE'
 
@@ -255,7 +289,7 @@ export function ChaoticZineLayout({
   }
 
   return (
-    <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--theme-background)' }}>
+    <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: backgroundType === 'solid' ? 'var(--theme-background)' : 'transparent' }}>
       {/* Large faded typography decorations */}
       {zineShowDoodles && (
         <>
@@ -299,26 +333,67 @@ export function ChaoticZineLayout({
 
         {/* Profile Section */}
         <div className="w-full text-center" style={{ marginBottom: '2rem' }}>
+          {/* Logo above display name */}
+          {showLogo && logoUrl && (
+            <div
+              style={{ marginBottom: '1rem', cursor: isPreview ? 'pointer' : undefined }}
+              onClick={() => {
+                if (isPreview && window.parent !== window) {
+                  window.parent.postMessage({ type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } }, window.location.origin)
+                }
+              }}
+            >
+              <img
+                src={logoUrl}
+                alt="Logo"
+                style={{
+                  height: `${(logoScale / 100) * 48}px`,
+                  maxWidth: '80%',
+                  objectFit: 'contain',
+                  margin: '0 auto',
+                  display: 'block',
+                }}
+              />
+            </div>
+          )}
+
           {/* Ransom-note title */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px', marginBottom: '2rem', transform: 'rotate(-2deg)' }}>
-            {titleText.split('').map((char, index) => {
-              if (char === ' ') {
-                return <span key={index} style={{ width: '15px' }} />
-              }
-              return (
-                <span
-                  key={index}
-                  style={getCharStyle(index, zineTitleSize)}
-                >
-                  {char}
-                </span>
-              )
-            })}
-          </div>
+          {showTitle !== false && (
+            <div
+              style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px', marginBottom: '2rem', transform: 'rotate(-2deg)', cursor: isPreview ? 'pointer' : undefined }}
+              onClick={() => {
+                if (isPreview && window.parent !== window) {
+                  window.parent.postMessage({ type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } }, window.location.origin)
+                }
+              }}
+            >
+              {titleText.split('').map((char, index) => {
+                if (char === ' ') {
+                  return <span key={index} style={{ width: '15px' }} />
+                }
+                return (
+                  <span
+                    key={index}
+                    style={getCharStyle(index, zineTitleSize)}
+                  >
+                    {char}
+                  </span>
+                )
+              })}
+            </div>
+          )}
 
           {/* Profile photo with grayscale + tape */}
           {showAvatar && avatarUrl && (
-            <div className="relative" style={{ width: '140px', height: '140px', margin: '0 auto 1.5rem' }}>
+            <div
+              className="relative"
+              style={{ width: '140px', height: '140px', margin: '0 auto 1.5rem', cursor: isPreview ? 'pointer' : undefined }}
+              onClick={() => {
+                if (isPreview && window.parent !== window) {
+                  window.parent.postMessage({ type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } }, window.location.origin)
+                }
+              }}
+            >
               {/* Tape overlay */}
               <div
                 className="zine-tape"
@@ -349,7 +424,7 @@ export function ChaoticZineLayout({
           )}
 
           {/* Bio text */}
-          {bio && (
+          {showBio !== false && bio && (
             <div
               className="zine-bio"
               style={{
@@ -361,6 +436,12 @@ export function ChaoticZineLayout({
                 lineHeight: 1.4,
                 padding: '0.5rem',
                 display: 'inline-block',
+                cursor: isPreview ? 'pointer' : undefined,
+              }}
+              onClick={() => {
+                if (isPreview && window.parent !== window) {
+                  window.parent.postMessage({ type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } }, window.location.origin)
+                }
               }}
             >
               {bio}
@@ -478,7 +559,17 @@ export function ChaoticZineLayout({
                 />
                 {/* Text color must match the background */}
                 <span style={{ position: 'relative', zIndex: 1, color: isDark ? 'var(--theme-background)' : 'var(--theme-text)' }}>
-                  {displayText}
+                  {isEditable ? (
+                    <InlineEditable
+                      value={card.title || ''}
+                      onCommit={(text) => handleInlineCommit(card.id, text)}
+                      multiline={false}
+                      placeholder="Tap to type"
+                      onEditStart={() => handleInlineEditStart(card.id)}
+                      onEditEnd={handleInlineEditEnd}
+                      className="outline-none min-w-[1ch] inline-block"
+                    />
+                  ) : displayText}
                 </span>
                 {/* Badge on first card */}
                 {index === 0 && zineBadgeText && (
@@ -566,14 +657,21 @@ export function ChaoticZineLayout({
 
         {/* Social Icons - matches original .socials footer */}
         {showSocialIcons && socialIcons.length > 0 && (
-          <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem', zIndex: 2 }}>
+          <div
+            style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem', zIndex: 2, cursor: isPreview ? 'pointer' : undefined }}
+            onClick={() => {
+              if (isPreview && window.parent !== window) {
+                window.parent.postMessage({ type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } }, window.location.origin)
+              }
+            }}
+          >
             {socialIcons.map((icon) => {
               const IconComponent = PLATFORM_ICONS[icon.platform]
               if (!IconComponent) return null
               return (
                 <a
                   key={icon.id}
-                  href={icon.url}
+                  href={isPreview ? undefined : icon.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="zine-social-icon"
@@ -584,13 +682,20 @@ export function ChaoticZineLayout({
                     alignItems: 'center',
                     justifyContent: 'center',
                     border: '3px solid var(--theme-text)',
-                    background: '#fff',
+                    background: 'var(--theme-card-bg)',
                     color: 'var(--theme-text)',
                     textDecoration: 'none',
                     fontSize: '1.5rem',
                     fontWeight: 'bold',
                   }}
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    if (isPreview) {
+                      e.preventDefault()
+                      // Don't stop propagation — let parent div handle OPEN_DESIGN_TAB
+                    } else {
+                      e.stopPropagation()
+                    }
+                  }}
                 >
                   <IconComponent className="w-5 h-5" />
                 </a>

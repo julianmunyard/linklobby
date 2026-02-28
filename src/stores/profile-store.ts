@@ -8,6 +8,7 @@ import type {
   SocialPlatform,
   TitleSize,
   ProfileLayout,
+  AvatarShape,
 } from '@/types/profile'
 
 /**
@@ -59,8 +60,10 @@ interface ProfileState extends Profile {
   setAvatarUrl: (url: string | null) => void
   setAvatarFeather: (feather: number) => void
   setAvatarSize: (size: number) => void
+  setAvatarShape: (shape: AvatarShape) => void
   setShowAvatar: (show: boolean) => void
   setShowTitle: (show: boolean) => void
+  setShowBio: (show: boolean) => void
   setTitleSize: (size: TitleSize) => void
   setShowLogo: (show: boolean) => void
   setLogoUrl: (url: string | null) => void
@@ -69,6 +72,8 @@ interface ProfileState extends Profile {
   setShowSocialIcons: (show: boolean) => void
   setHeaderTextColor: (color: string | null) => void
   setSocialIconColor: (color: string | null) => void
+  setTitleFont: (font: string | null) => void
+  setBioFont: (font: string | null) => void
   addSocialIcon: (platform: SocialPlatform, url: string) => void
   updateSocialIcon: (id: string, updates: Partial<Pick<SocialIcon, 'url' | 'platform'>>) => void
   removeSocialIcon: (id: string) => void
@@ -85,8 +90,10 @@ const defaultProfile: Profile = {
   avatarUrl: null,
   avatarFeather: 0,
   avatarSize: 80,
+  avatarShape: 'circle',
   showAvatar: true,
   showTitle: true,
+  showBio: true,
   titleSize: 'large',
   showLogo: false,
   logoUrl: null,
@@ -96,6 +103,8 @@ const defaultProfile: Profile = {
   socialIcons: [],
   headerTextColor: null,
   socialIconColor: null,
+  titleFont: null,
+  bioFont: null,
 }
 
 export const useProfileStore = create<ProfileState>()((set, get) => ({
@@ -114,9 +123,13 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
 
   setAvatarSize: (size) => set({ avatarSize: size, hasChanges: true }),
 
+  setAvatarShape: (shape) => set({ avatarShape: shape, hasChanges: true }),
+
   setShowAvatar: (show) => set({ showAvatar: show, hasChanges: true }),
 
   setShowTitle: (show) => set({ showTitle: show, hasChanges: true }),
+
+  setShowBio: (show) => set({ showBio: show, hasChanges: true }),
 
   setTitleSize: (size) => set({ titleSize: size, hasChanges: true }),
 
@@ -133,6 +146,10 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
   setHeaderTextColor: (color) => set({ headerTextColor: color, hasChanges: true }),
 
   setSocialIconColor: (color) => set({ socialIconColor: color, hasChanges: true }),
+
+  setTitleFont: (font) => set({ titleFont: font, hasChanges: true }),
+
+  setBioFont: (font) => set({ bioFont: font, hasChanges: true }),
 
   addSocialIcon: (platform, url) =>
     set((state) => {
@@ -196,8 +213,10 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       avatarUrl: state.avatarUrl,
       avatarFeather: state.avatarFeather,
       avatarSize: state.avatarSize,
+      avatarShape: state.avatarShape,
       showAvatar: state.showAvatar,
       showTitle: state.showTitle,
+      showBio: state.showBio,
       titleSize: state.titleSize,
       showLogo: state.showLogo,
       logoUrl: state.logoUrl,
@@ -207,6 +226,8 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       socialIcons: sortIconsBySortKey(state.socialIcons),
       headerTextColor: state.headerTextColor,
       socialIconColor: state.socialIconColor,
+      titleFont: state.titleFont,
+      bioFont: state.bioFont,
     }
   },
 

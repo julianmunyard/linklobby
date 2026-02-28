@@ -41,7 +41,7 @@ export interface PhoneHomeLayout {
   row: number     // Row in the grid (0-based)
   col: number     // Column in the grid (0-based, max 3)
   width: 1 | 2 | 4   // Grid columns spanned
-  height: 1 | 2 | 3 | 4 | 5 | 6  // Grid rows spanned
+  height: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8  // Grid rows spanned
 }
 
 import type { AudioCardContent } from './audio'
@@ -73,7 +73,7 @@ export const CARD_TYPE_SIZING: Record<CardType, CardSize[] | null> = {
   link: null, // Always full width - simple text link
   mini: null, // Compact width - fits content
   text: ['big', 'small'], // Text cards support sizing for horizontal stacking
-  'email-collection': null, // Always full width - form needs space
+  'email-collection': ['big', 'small'], // Email collection cards support sizing
   'release': ['big', 'small'], // Release cards support sizing
 }
 
@@ -119,11 +119,13 @@ export const POSITION_REVERSE: Record<number, HorizontalPosition> = {
 export interface HeroCardContent {
   imageUrl?: string
   imageAlt?: string
+  showTitle?: boolean   // Whether to show title overlay (default true)
   showButton?: boolean  // Whether to show the CTA button (default true)
   buttonText?: string
   buttonStyle?: "primary" | "secondary" | "outline"
   textColor?: string    // Override text color (default white)
   fuzzyText?: FuzzyTextSettings  // Distress text effect
+  showTextGlow?: boolean // Gradient overlay behind text for readability (default true)
 }
 
 export interface HorizontalLinkContent {
@@ -148,6 +150,7 @@ export interface SquareCardContent {
   showTitle?: boolean  // Whether to show title overlay (default true)
   textColor?: string   // Override text color (default white)
   fuzzyText?: FuzzyTextSettings  // Distress text effect
+  showTextGlow?: boolean // Gradient overlay behind text for readability (default true)
 }
 
 export interface VideoCardContent {
@@ -172,6 +175,7 @@ export interface VideoCardContent {
 export interface GalleryImage {
   id: string
   url: string
+  originalUrl?: string // Original (uncropped) image URL — used for re-crop
   alt: string
   storagePath: string  // For deletion
   caption?: string     // Optional label displayed below image
@@ -232,6 +236,7 @@ export interface ReleaseCardContent extends ScheduledContent {
   // Core release info
   albumArtUrl?: string           // Uploaded album art
   albumArtStoragePath?: string   // For deletion
+  originalAlbumArtUrl?: string   // Original (uncropped) album art — used for re-crop
   releaseTitle?: string          // Album/single name
   artistName?: string            // Artist name (if different from profile)
 
@@ -250,6 +255,7 @@ export interface ReleaseCardContent extends ScheduledContent {
 
   // Styling
   textColor?: string
+  fontFamily?: string
   fuzzyText?: FuzzyTextSettings
 }
 

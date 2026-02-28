@@ -34,6 +34,8 @@ export type TemplateProfile = Partial<Pick<
   | 'bio'
   | 'avatarUrl'
   | 'avatarFeather'
+  | 'avatarSize'
+  | 'avatarShape'
   | 'showAvatar'
   | 'showTitle'
   | 'titleSize'

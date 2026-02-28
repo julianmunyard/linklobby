@@ -65,23 +65,6 @@ export function FontPicker() {
           </span>
         </div>
 
-        {/* Heading Weight */}
-        <div className="flex items-center gap-3">
-          <Label className="text-xs min-w-[60px]">Weight</Label>
-          <ToggleGroup
-            type="single"
-            value={fonts.headingWeight}
-            onValueChange={(value) => value && setFont('headingWeight', value)}
-            className="justify-start"
-          >
-            <ToggleGroupItem value="normal" className="text-xs h-7">
-              Regular
-            </ToggleGroupItem>
-            <ToggleGroupItem value="bold" className="text-xs h-7 font-bold">
-              Bold
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
       </div>
 
       {/* Body Font */}
@@ -131,28 +114,6 @@ export function FontPicker() {
         </div>
       </div>
 
-      {/* Font Preview */}
-      <div className="p-3 rounded-lg border bg-muted/30">
-        <p
-          className="text-lg mb-1"
-          style={{
-            fontFamily: fonts.heading,
-            fontWeight: fonts.headingWeight === 'bold' ? 700 : 400,
-            fontSize: `${fonts.headingSize}rem`,
-          }}
-        >
-          Heading Preview
-        </p>
-        <p
-          className="text-muted-foreground"
-          style={{
-            fontFamily: fonts.body,
-            fontSize: `${fonts.bodySize}rem`,
-          }}
-        >
-          Body text preview shows how your description text will appear on cards.
-        </p>
-      </div>
     </div>
   )
 }

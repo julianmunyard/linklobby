@@ -481,14 +481,15 @@ function MusicWidget({
   const customHeight = content.embedHeight as number | undefined
   const isBandcamp = platform === 'bandcamp'
 
-  // Bandcamp: render exactly as the embed specifies — no rounding, no overflow clipping
+  // Bandcamp: use native embed height, grid cell is expanded to fit
   if (isBandcamp) {
+    const bcHeight = customHeight || 470
     return (
-      <div className="w-full">
+      <div className="w-full" style={{ height: bcHeight }}>
         <iframe
           src={iframeUrl}
           width="100%"
-          height={customHeight || 470}
+          height={bcHeight}
           frameBorder="0"
           seamless
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -919,13 +920,23 @@ export function StaticPhoneHomeLayout({
 
                   // Music widgets (4x2 slim or larger)
                   if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
+                    // For Bandcamp, calculate rows needed to fit the native embed height
+                    const mc = card.content as Record<string, unknown>
+                    const isBc = (mc.platform as string) === 'bandcamp'
+                    const bcEmbedH = mc.embedHeight as number | undefined
+                    let rowSpan = layout.height
+                    if (isBc && bcEmbedH) {
+                      // Each row is 76px with 20px gap between rows
+                      const neededRows = Math.ceil((bcEmbedH + 20) / 96)
+                      rowSpan = Math.max(layout.height, neededRows)
+                    }
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full overflow-hidden"
+                        className="w-full h-full"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
-                          gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          gridRow: `${layout.row + 1} / span ${rowSpan}`,
                         }}
                       >
                         <MusicWidget card={card} layout={layout} onTap={handleTap} />

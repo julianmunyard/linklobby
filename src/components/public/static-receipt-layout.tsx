@@ -598,8 +598,11 @@ export function StaticReceiptLayout({
 
       </div>
 
-      {/* Legal Footer - outside flex row so it sits below the receipt */}
-      <footer className="pb-8 text-center text-xs text-black" style={{ opacity: 0.4 }}>
+      {/* Spacer for fixed footer */}
+      <div className="h-16" />
+
+      {/* Legal Footer - fixed to bottom */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 py-3 text-center text-xs text-black" style={{ opacity: 0.4 }}>
         <div className="flex items-center justify-center gap-4">
           <Link
             href={`/privacy?username=${username}`}
@@ -616,7 +619,7 @@ export function StaticReceiptLayout({
           </Link>
         </div>
         {!hasProAccess && (
-          <div className="mt-2">
+          <div className="mt-1">
             Powered by LinkLobby
           </div>
         )}

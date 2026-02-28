@@ -272,8 +272,11 @@ export function StaticMacintoshLayout({
         })}
       </div>
 
-      {/* Legal footer — pinned to bottom via mt-auto */}
-      <footer className="mt-auto pt-6 text-center text-xs" style={{ opacity: 0.5 }}>
+      {/* Spacer for fixed footer */}
+      <div className="h-16" />
+
+      {/* Legal footer — fixed to bottom */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 py-3 text-center text-xs" style={{ opacity: 0.5 }}>
         <div className="flex items-center justify-center gap-4" style={{ color: '#000' }}>
           <Link
             href={`/privacy?username=${username}`}
@@ -290,7 +293,7 @@ export function StaticMacintoshLayout({
           </Link>
         </div>
         {!hasProAccess && (
-          <div className="mt-2" style={{ color: '#000' }}>
+          <div className="mt-1" style={{ color: '#000' }}>
             Powered by LinkLobby
           </div>
         )}
@@ -426,7 +429,7 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
     return (
       <div data-card-id={card.id} style={{ border: MAC_BORDER, overflow: 'hidden' }}>
         <LinesTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: audioContent.playerColors?.elementBgColor || '#fff' }}>
+        <div style={{ background: audioContent.playerColors?.elementBgColor || '#fff', color: audioContent.textColor || '#000' }}>
           <AudioPlayer
             tracks={displayTracks}
             albumArtUrl={audioContent.albumArtUrl}
@@ -436,6 +439,7 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
             transparentBackground={audioContent.transparentBackground ?? false}
             reverbConfig={audioContent.reverbConfig}
             playerColors={audioContent.playerColors}
+            textColor={audioContent.textColor}
             cardId={card.id}
             pageId={card.page_id}
             themeVariant="macintosh"
@@ -544,6 +548,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
   const macLinks = (content?.macLinks as Array<{ title: string; url: string }>) || []
   const notepadStyle = (content?.notepadStyle as string) || 'list'
   const notepadBgColor = (content?.notepadBgColor as string) || '#F2FFA4'
+  const notepadTextColor = (content?.notepadTextColor as string) || '#000000'
   const title = card.title || 'Note Pad'
   const fontSize = bodySize ? `${14 * bodySize}px` : '14px'
 
@@ -557,7 +562,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
       <div style={{ background: notepadBgColor, minHeight: '100px' }}>
         <div style={{ padding: '12px 16px' }}>
           {macLinks.length === 0 ? (
-            <p style={{ fontFamily: TITLE_FONT, fontSize, color: '#666' }}>No links yet...</p>
+            <p style={{ fontFamily: TITLE_FONT, fontSize, color: notepadTextColor, opacity: 0.5 }}>No links yet...</p>
           ) : notepadStyle === 'buttons' ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
               {macLinks.map((link, i) => (
@@ -565,7 +570,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                   <div
                     key={i}
                     style={{
-                      background: '#000',
+                      background: notepadTextColor,
                       clipPath: PIXEL_BTN_CLIP,
                       padding: '2px',
                       width: '100%',
@@ -578,7 +583,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                       style={{
                         fontFamily: TITLE_FONT,
                         fontSize,
-                        color: '#000',
+                        color: notepadTextColor,
                         background: notepadBgColor,
                         clipPath: PIXEL_BTN_CLIP,
                         padding: '8px 16px',
@@ -597,7 +602,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                     style={{
                       fontFamily: TITLE_FONT,
                       fontSize,
-                      color: '#000',
+                      color: notepadTextColor,
                       padding: '8px 16px',
                       textAlign: 'center',
                       width: '100%',
@@ -620,7 +625,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                       style={{
                         fontFamily: TITLE_FONT,
                         fontSize,
-                        color: '#000',
+                        color: notepadTextColor,
                         textDecoration: 'none',
                       }}
                       data-card-id={card.id}
@@ -629,7 +634,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                       {link.title || link.url}
                     </a>
                   ) : (
-                    <span style={{ fontFamily: TITLE_FONT, fontSize, color: '#000' }}>
+                    <span style={{ fontFamily: TITLE_FONT, fontSize, color: notepadTextColor }}>
                       {link.title || 'Untitled'}
                     </span>
                   )}

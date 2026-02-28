@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { Card } from '@/types/card'
 import { isAudioContent } from '@/types/card'
 import type { AudioCardContent } from '@/types/audio'
@@ -21,6 +21,7 @@ import {
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
 import type { ComponentType } from 'react'
+import { InlineEditable } from '@/components/preview/inline-editable'
 
 type IconComponent = ComponentType<{ className?: string }>
 
@@ -72,9 +73,11 @@ interface ArtifactLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
   onHeaderClick?: () => void
+  onHeroClick?: () => void
   onAddAudioCard?: () => void
 }
 
@@ -82,12 +85,67 @@ export function ArtifactLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   selectedCardId,
   onHeaderClick,
+  onHeroClick,
   onAddAudioCard,
 }: ArtifactLayoutProps) {
   const [audioOpen, setAudioOpen] = useState(false)
+  const [marqueeEditing, setMarqueeEditing] = useState(false)
+  const marqueeLastTapRef = useRef(0)
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
+
+  // Inline edit for theme store fields (header metadata, marquee)
+  const themeFieldSetters: Record<string, (text: string) => void> = {
+    marquee: useThemeStore.getState().setArtifactMarqueeText,
+    topLeft: useThemeStore.getState().setArtifactHeaderTopLeft,
+    topCenter: useThemeStore.getState().setArtifactHeaderTopCenter,
+    topRight: useThemeStore.getState().setArtifactHeaderTopRight,
+    bottomLeft: useThemeStore.getState().setArtifactHeaderBottomLeft,
+    bottomCenter: useThemeStore.getState().setArtifactHeaderBottomCenter,
+    bottomRight: useThemeStore.getState().setArtifactHeaderBottomRight,
+  }
+
+  const handleThemeFieldCommit = useCallback((field: string, text: string) => {
+    themeFieldSetters[field]?.(text)
+  }, [])
+
+  const handleThemeEditStart = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  // Inline edit for display name (profile store)
+  const handleDisplayNameCommit = useCallback((text: string) => {
+    useProfileStore.getState().setDisplayName(text)
+  }, [])
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const displayName = useProfileStore((s) => s.displayName)
@@ -213,9 +271,42 @@ export function ArtifactLayout({
                 letterSpacing: '-0.02em',
               }}
             >
-              <span>{artifactHeaderTopLeft || `USER.ID_${String(titleText.length).padStart(2, '0')}`}</span>
-              <span>{artifactHeaderTopCenter || '[ONLINE]'}</span>
-              <span>{artifactHeaderTopRight || `EST. ${currentYear}`}</span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderTopLeft}
+                    onCommit={(text) => handleThemeFieldCommit('topLeft', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="TOP LEFT"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderTopLeft}
+              </span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderTopCenter}
+                    onCommit={(text) => handleThemeFieldCommit('topCenter', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="TOP CENTER"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderTopCenter}
+              </span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderTopRight}
+                    onCommit={(text) => handleThemeFieldCommit('topRight', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="TOP RIGHT"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderTopRight}
+              </span>
             </div>
           )}
 
@@ -232,11 +323,18 @@ export function ArtifactLayout({
               overflow: 'hidden',
               wordBreak: 'break-word',
               overflowWrap: 'break-word',
-              pointerEvents: 'none',
-              userSelect: 'none',
             }}
           >
-            {titleText}
+            {isEditable ? (
+              <InlineEditable
+                value={displayName || ''}
+                onCommit={handleDisplayNameCommit}
+                onEditStart={handleThemeEditStart}
+                onEditEnd={handleInlineEditEnd}
+                placeholder="YOUR NAME"
+                className="outline-none min-w-[1ch] inline-block uppercase"
+              />
+            ) : titleText}
           </h1>
 
           {artifactShowHeaderMeta && (
@@ -251,9 +349,42 @@ export function ArtifactLayout({
                 letterSpacing: '-0.02em',
               }}
             >
-              <span>{artifactHeaderBottomLeft || 'DIGITAL // PHY'}</span>
-              <span>{artifactHeaderBottomCenter || '///'}</span>
-              <span>{artifactHeaderBottomRight || 'SYS_ADMIN'}</span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderBottomLeft}
+                    onCommit={(text) => handleThemeFieldCommit('bottomLeft', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="BOTTOM LEFT"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderBottomLeft}
+              </span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderBottomCenter}
+                    onCommit={(text) => handleThemeFieldCommit('bottomCenter', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="///"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderBottomCenter}
+              </span>
+              <span>
+                {isEditable ? (
+                  <InlineEditable
+                    value={artifactHeaderBottomRight}
+                    onCommit={(text) => handleThemeFieldCommit('bottomRight', text)}
+                    onEditStart={handleThemeEditStart}
+                    onEditEnd={handleInlineEditEnd}
+                    placeholder="BOTTOM RIGHT"
+                    className="outline-none min-w-[1ch] inline-block"
+                  />
+                ) : artifactHeaderBottomRight}
+              </span>
             </div>
           )}
         </div>
@@ -269,28 +400,73 @@ export function ArtifactLayout({
             alignItems: 'center',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-              whiteSpace: 'nowrap',
-              animation: 'artifact-marquee 20s linear infinite',
-            }}
-          >
-            {[0, 1].map(i => (
-              <span
-                key={i}
-                style={{
-                  fontFamily: 'var(--font-archivo-black)',
-                  fontSize: '1.5rem',
-                  textTransform: 'uppercase',
-                  color: marqueeTextColor,
-                  paddingRight: '2rem',
+          {isEditable && marqueeEditing ? (
+            /* Static editable field while editing */
+            <div
+              style={{
+                width: '100%',
+                padding: '0 1rem',
+                fontFamily: 'var(--font-archivo-black)',
+                fontSize: '1.5rem',
+                textTransform: 'uppercase',
+                color: marqueeTextColor,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+              }}
+            >
+              <InlineEditable
+                value={artifactMarqueeText || ''}
+                onCommit={(text) => {
+                  handleThemeFieldCommit('marquee', text)
+                  setMarqueeEditing(false)
                 }}
-              >
-                {`>>> ${marqueeText} >>> ${marqueeText} `}
-              </span>
-            ))}
-          </div>
+                onEditStart={handleThemeEditStart}
+                onEditEnd={() => {
+                  handleInlineEditEnd()
+                  setMarqueeEditing(false)
+                }}
+                placeholder="MARQUEE TEXT"
+                className="outline-none min-w-[1ch] inline-block uppercase"
+                autoEdit
+              />
+            </div>
+          ) : (
+            /* Scrolling marquee — double-tap enters edit mode in editor */
+            <div
+              style={{
+                display: 'flex',
+                whiteSpace: 'nowrap',
+                animation: 'artifact-marquee 20s linear infinite',
+              }}
+              onDoubleClick={isEditable ? (e) => { e.stopPropagation(); setMarqueeEditing(true) } : undefined}
+              onTouchEnd={isEditable ? (e: React.TouchEvent) => {
+                const now = Date.now()
+                if (now - marqueeLastTapRef.current < 400) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setMarqueeEditing(true)
+                  marqueeLastTapRef.current = 0
+                } else {
+                  marqueeLastTapRef.current = now
+                }
+              } : undefined}
+            >
+              {[0, 1].map(i => (
+                <span
+                  key={i}
+                  style={{
+                    fontFamily: 'var(--font-archivo-black)',
+                    fontSize: '1.5rem',
+                    textTransform: 'uppercase',
+                    color: marqueeTextColor,
+                    paddingRight: '2rem',
+                  }}
+                >
+                  {`>>> ${marqueeText} >>> ${marqueeText} `}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 3. TWO-PANEL HERO (25vh) */}
@@ -353,6 +529,10 @@ export function ArtifactLayout({
               justifyContent: 'center',
               overflow: 'hidden',
               position: 'relative',
+              cursor: isPreview ? 'pointer' : 'default',
+            }}
+            onClick={() => {
+              if (isPreview && onHeroClick) onHeroClick()
             }}
           >
             {artifactHeroMediaType === 'video' && artifactHeroVideoUrl ? (
@@ -521,7 +701,17 @@ export function ArtifactLayout({
                     lineHeight: 1.1,
                   }}
                 >
-                  {displayTitle}
+                  {isEditable ? (
+                    <InlineEditable
+                      value={card.title || ''}
+                      onCommit={(text) => handleInlineCommit(card.id, text)}
+                      multiline={false}
+                      placeholder="Tap to type"
+                      onEditStart={() => handleInlineEditStart(card.id)}
+                      onEditEnd={handleInlineEditEnd}
+                      className="outline-none min-w-[1ch] inline-block uppercase"
+                    />
+                  ) : displayTitle}
                 </div>
 
                 {/* Subtitle */}

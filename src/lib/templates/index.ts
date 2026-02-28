@@ -3,8 +3,6 @@
 
 import type { TemplateDefinition } from './types'
 import type { ThemeId } from '@/types/theme'
-import { chaoticZineOG } from './data/chaotic-zine/o-g'
-
 import { instagramReelsCards } from './data/instagram-reels/cards'
 
 import { instagramReelsYellowBrown } from './data/instagram-reels/yellow-brown'
@@ -21,8 +19,6 @@ import { systemSettingsLinksOnAPage } from './data/system-settings/links-on-a-pa
 
 import { systemSettingsQuiteBeskoke } from './data/system-settings/quite-beskoke'
 
-import { systemSettingsSpreadThemOut } from './data/system-settings/spread-them-out'
-
 import { blinkiesBlinkies } from './data/blinkies/blinkies'
 
 import { blinkiesMakeItRed } from './data/blinkies/make-it-red'
@@ -33,13 +29,9 @@ import { vcrMenuHomeVideo } from './data/vcr-menu/home-video'
 
 import { ipodClassicYourIpod } from './data/ipod-classic/your-ipod'
 
-import { macintosh84Tosh } from './data/macintosh/84-tosh'
-
 import { macintosh84Macintosh } from './data/macintosh/84-macintosh'
 
 import { wordArtJustWordArt } from './data/word-art/just-word-art'
-
-import { phoneHomeWindowsPhone } from './data/phone-home/windows-phone'
 
 import { chaoticZineSimpleNew } from './data/chaotic-zine/simple-new'
 
@@ -57,8 +49,15 @@ import { phoneHomeCheckers } from './data/phone-home/checkers'
 
 import { phoneHomeQuiteYellowActually } from './data/phone-home/quite-yellow-actually'
 
+import { systemSettingsHawaii } from './data/system-settings/hawaii'
+
+import { systemSettingsAmerica } from './data/system-settings/america'
+
+import { systemSettingsUrAStar } from './data/system-settings/ur-a-star'
+
+import { phoneHomeMclovinsIphone } from './data/phone-home/mclovins-iphone'
+
 const ALL_TEMPLATES: TemplateDefinition[] = [
-  chaoticZineOG,
   instagramReelsCards,
   instagramReelsYellowBrown,
   instagramReelsRedAndBlueHero,
@@ -67,16 +66,13 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   systemSettingsMakeItRed,
   systemSettingsLinksOnAPage,
   systemSettingsQuiteBeskoke,
-  systemSettingsSpreadThemOut,
   blinkiesBlinkies,
   blinkiesMakeItRed,
   blinkiesBlinkOnce,
   vcrMenuHomeVideo,
   ipodClassicYourIpod,
-  macintosh84Tosh,
   macintosh84Macintosh,
   wordArtJustWordArt,
-  phoneHomeWindowsPhone,
   chaoticZineSimpleNew,
   artifactBrutal,
   phoneHomeBurple,
@@ -85,6 +81,10 @@ const ALL_TEMPLATES: TemplateDefinition[] = [
   macOsWhiteLight,
   phoneHomeCheckers,
   phoneHomeQuiteYellowActually,
+  systemSettingsHawaii,
+  systemSettingsAmerica,
+  systemSettingsUrAStar,
+  phoneHomeMclovinsIphone,
 ]
 
 /**

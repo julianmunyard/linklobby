@@ -58,6 +58,8 @@ function FeatureCell({ value }: { value: boolean | 'soon' }) {
 export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
   const [period, setPeriod] = useState<BillingPeriod>('monthly')
   const [loadingTier, setLoadingTier] = useState<PlanTier | null>(null)
+  const [showDowngradeConfirm, setShowDowngradeConfirm] = useState(false)
+  const [downgradeSuccess, setDowngradeSuccess] = useState(false)
 
   const proMonthly = 699
   const proAnnual = 6710
@@ -111,18 +113,49 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
     }
   }
 
+  async function handleDowngradeToFree() {
+    setLoadingTier('free')
+    try {
+      const res = await fetch('/api/billing/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (res.status === 401) {
+        window.location.href = '/login?next=/pricing'
+        return
+      }
+
+      const data = await res.json()
+      if (data.error) {
+        console.error('Cancel error:', data.error)
+        return
+      }
+
+      setDowngradeSuccess(true)
+      setShowDowngradeConfirm(false)
+    } finally {
+      setLoadingTier(null)
+    }
+  }
+
   const tierRank: Record<PlanTier, number> = { free: 0, pro: 1, artist: 2 }
   const currentRank = currentTier ? tierRank[currentTier] : -1
 
   function getCtaLabel(tier: PlanTier): string {
+    if (downgradeSuccess && tier === 'free') return 'Downgrade Scheduled'
     if (currentTier === tier) return 'Current Plan'
-    if (currentRank > tierRank[tier]) return tier === 'free' ? 'Free Plan' : 'Included in your plan'
+    if (tier === 'free' && currentRank > 0) return 'Downgrade to Free'
+    if (currentRank > tierRank[tier]) return 'Included in your plan'
     if (!currentTier && tier === 'free') return 'Get Started'
     return 'Upgrade'
   }
 
   function isCtaDisabled(tier: PlanTier): boolean {
+    if (downgradeSuccess && tier === 'free') return true
     if (currentTier === tier) return true
+    // Allow downgrade to free
+    if (tier === 'free' && currentRank > 0) return false
     if (currentRank >= tierRank[tier]) return true
     if (loadingTier === tier) return true
     return false
@@ -151,6 +184,8 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
       onCta: () => {
         if (!currentTier) {
           window.location.href = '/signup'
+        } else if (currentRank > 0) {
+          setShowDowngradeConfirm(true)
         }
       },
     },
@@ -187,14 +222,14 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
     <div className="w-full">
       {/* Monthly/Annual toggle */}
       <div className="flex justify-center mb-8">
-        <div className="relative flex items-center bg-muted rounded-full p-1 gap-1">
+        <div className="relative flex items-center bg-white/10 rounded-full p-1 gap-1">
           <button
             onClick={() => setPeriod('monthly')}
             className={cn(
               'px-4 py-1.5 rounded-full text-sm font-medium transition-all',
               period === 'monthly'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-white/15 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white'
             )}
           >
             Monthly
@@ -204,12 +239,12 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
             className={cn(
               'px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2',
               period === 'annual'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
+                ? 'bg-white/15 text-white shadow-sm'
+                : 'text-neutral-400 hover:text-white'
             )}
           >
             Annual
-            <span className="text-[10px] font-semibold bg-green-500/20 text-green-600 dark:text-green-400 rounded-full px-1.5 py-0.5">
+            <span className="text-[10px] font-semibold bg-green-500/20 text-green-400 rounded-full px-1.5 py-0.5">
               Save 20%
             </span>
           </button>
@@ -224,15 +259,17 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
             className={cn(
               'relative rounded-xl border p-4 flex flex-col min-w-0',
               t.isCurrent
-                ? 'border-green-500 bg-green-500/5 shadow-lg ring-1 ring-green-500'
+                ? 'border-white/30 bg-white/[0.05] shadow-[0_0_20px_rgba(255,255,255,0.08)] ring-1 ring-white/15'
                 : t.popular
-                  ? 'border-primary bg-primary/5 shadow-lg ring-1 ring-primary'
-                  : 'border-border bg-card'
+                  ? 'border-white/20 bg-white/[0.03] shadow-lg ring-1 ring-white/10'
+                  : t.tier === 'free'
+                    ? 'border-white/20 bg-white/[0.03] shadow-[0_0_20px_rgba(255,255,255,0.06)] ring-1 ring-white/10'
+                    : 'border-white/10 bg-white/[0.02]'
             )}
           >
             {t.isCurrent && (
               <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <span className="bg-green-500 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                <span className="bg-white text-neutral-900 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
                   Your Plan
                 </span>
               </div>
@@ -245,13 +282,13 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
               </div>
             )}
             <div className="mb-3 mt-1">
-              <h3 className="text-base font-bold">{t.name}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t.description}</p>
+              <h3 className="text-base font-bold text-white">{t.name}</h3>
+              <p className="text-xs text-neutral-400 mt-0.5">{t.description}</p>
             </div>
             <div className="mb-4">
-              <span className="text-2xl font-bold">{t.price}</span>
+              <span className="text-2xl font-bold text-white">{t.price}</span>
               {t.annualNote && (
-                <p className="text-[10px] text-muted-foreground mt-0.5">{t.annualNote}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5">{t.annualNote}</p>
               )}
             </div>
             <Button
@@ -261,20 +298,59 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
               disabled={t.ctaDisabled}
               onClick={t.onCta}
             >
-              {loadingTier === t.tier ? 'Redirecting...' : t.ctaLabel}
+              {loadingTier === t.tier
+                ? (t.tier === 'free' ? 'Cancelling...' : 'Redirecting...')
+                : t.ctaLabel}
             </Button>
           </div>
         ))}
       </div>
 
+      {/* Downgrade confirmation */}
+      {showDowngradeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-900 border border-white/10 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-2">Downgrade to Free?</h3>
+            <p className="text-sm text-neutral-400 mb-6">
+              You&apos;ll keep access to your {currentTier === 'artist' ? 'Artist' : 'Pro'} features until the end of your current billing period. After that, your account will revert to the Free plan.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDowngradeConfirm(false)}
+                className="text-neutral-300 border-white/10 hover:bg-white/5"
+              >
+                Keep my plan
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDowngradeToFree}
+                disabled={loadingTier === 'free'}
+              >
+                {loadingTier === 'free' ? 'Cancelling...' : 'Downgrade'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Downgrade success banner */}
+      {downgradeSuccess && (
+        <div className="mb-6 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-neutral-300 text-center">
+          Your subscription has been cancelled. You&apos;ll keep your current features until the end of your billing period.
+        </div>
+      )}
+
       {/* Feature comparison table */}
-      <div className="overflow-x-auto rounded-xl border">
+      <div className="overflow-x-auto rounded-xl border border-white/10">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="text-left px-3 py-2.5 font-medium text-muted-foreground">Features</th>
+            <tr className="border-b border-white/10 bg-white/5">
+              <th className="text-left px-3 py-2.5 font-medium text-neutral-400">Features</th>
               {tiers.map((t) => (
-                <th key={t.tier} className="px-2 py-2.5 text-center font-semibold">
+                <th key={t.tier} className="px-2 py-2.5 text-center font-semibold text-white">
                   {t.name}
                 </th>
               ))}
@@ -284,9 +360,9 @@ export function PricingTable({ currentTier, onSelectPlan }: PricingTableProps) {
             {FEATURES.map((feature, i) => (
               <tr
                 key={feature.label}
-                className={cn('border-b last:border-0', i % 2 === 0 ? 'bg-background' : 'bg-muted/20')}
+                className={cn('border-b border-white/5 last:border-0', i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.02]')}
               >
-                <td className="px-3 py-2.5 text-left text-muted-foreground">{feature.label}</td>
+                <td className="px-3 py-2.5 text-left text-neutral-400">{feature.label}</td>
                 <td className="px-2 py-2.5 text-center">
                   <FeatureCell value={feature.free} />
                 </td>

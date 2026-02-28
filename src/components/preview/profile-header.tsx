@@ -1,18 +1,21 @@
 "use client"
 
 import { User } from "lucide-react"
-import { useCallback } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { useProfileStore } from "@/stores/profile-store"
 import { cn } from "@/lib/utils"
 import { InlineEditable } from "@/components/preview/inline-editable"
 
 /**
  * Returns true when rendered inside the editor iframe (not standalone/public page).
- * Used to show click-to-edit affordances only in the editor context.
+ * Deferred to useEffect to avoid hydration mismatch (server always returns false).
  */
 function useIsInEditorIframe(): boolean {
-  if (typeof window === "undefined") return false
-  return window.parent !== window
+  const [isInEditor, setIsInEditor] = useState(false)
+  useEffect(() => {
+    setIsInEditor(window.parent !== window)
+  }, [])
+  return isInEditor
 }
 
 /**
@@ -73,9 +76,11 @@ export function ProfileHeader() {
 
   const displayName = useProfileStore((state) => state.displayName)
   const bio = useProfileStore((state) => state.bio)
+  const showBio = useProfileStore((state) => state.showBio)
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const avatarFeather = useProfileStore((state) => state.avatarFeather)
   const avatarSize = useProfileStore((state) => state.avatarSize)
+  const avatarShape = useProfileStore((state) => state.avatarShape)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -84,6 +89,8 @@ export function ProfileHeader() {
   const logoScale = useProfileStore((state) => state.logoScale)
   const profileLayout = useProfileStore((state) => state.profileLayout)
   const headerTextColor = useProfileStore((state) => state.headerTextColor)
+  const titleFont = useProfileStore((state) => state.titleFont)
+  const bioFont = useProfileStore((state) => state.bioFont)
 
   // Render logo
   const renderLogo = () => {
@@ -121,7 +128,7 @@ export function ProfileHeader() {
             titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
           )}
           style={{
-            fontFamily: 'var(--font-theme-heading)',
+            fontFamily: titleFont || 'var(--font-theme-heading)',
             ...(headerTextColor && { color: headerTextColor })
           }}
         >
@@ -146,7 +153,7 @@ export function ProfileHeader() {
           titleSize === "large" ? "text-4xl leading-tight" : "text-lg"
         )}
         style={{
-          fontFamily: 'var(--font-theme-heading)',
+          fontFamily: titleFont || 'var(--font-theme-heading)',
           ...(headerTextColor && { color: headerTextColor })
         }}
       >
@@ -157,13 +164,14 @@ export function ProfileHeader() {
 
   // Render bio
   const renderBio = () => {
+    if (showBio === false) return null
     // In editor iframe: always render InlineEditable (even if bio is empty — show placeholder)
     if (isInEditor) {
       return (
         <p
           className="text-sm text-theme-text/70 text-center max-w-xs"
           style={{
-            fontFamily: 'var(--font-theme-body)',
+            fontFamily: bioFont || 'var(--font-theme-body)',
             ...(headerTextColor && { color: headerTextColor, opacity: 0.7 })
           }}
         >
@@ -185,7 +193,7 @@ export function ProfileHeader() {
       <p
         className="text-sm text-theme-text/70 text-center max-w-xs"
         style={{
-          fontFamily: 'var(--font-theme-body)',
+          fontFamily: bioFont || 'var(--font-theme-body)',
           ...(headerTextColor && { color: headerTextColor, opacity: 0.7 })
         }}
       >
@@ -202,8 +210,9 @@ export function ProfileHeader() {
     : undefined
 
   // Hover affordance classes — only shown in editor iframe
+  // Note: must NOT include `rounded` — tailwind-merge would override `rounded-full` on the avatar
   const editorHoverClass = isInEditor
-    ? "cursor-pointer hover:ring-2 hover:ring-blue-400/30 rounded transition-all"
+    ? "cursor-pointer hover:ring-2 hover:ring-blue-400/30 transition-all"
     : ""
 
   // Classic layout: centered circle avatar, title below, social icons row
@@ -215,8 +224,9 @@ export function ProfileHeader() {
         {showAvatar && (
           <div
             className={cn(
-              "relative",
-              avatarFeather === 0 && "bg-muted rounded-full overflow-hidden",
+              "relative overflow-hidden",
+              avatarShape === 'square' ? "rounded-lg" : "rounded-full",
+              !avatarUrl && "bg-muted",
               editorHoverClass
             )}
             style={{ width: avatarSize, height: avatarSize }}
@@ -228,17 +238,14 @@ export function ProfileHeader() {
               <img
                 src={avatarUrl}
                 alt=""
-                className={cn(
-                  "w-full h-full object-cover",
-                  avatarFeather === 0 && "rounded-full"
-                )}
+                className="w-full h-full object-cover"
                 style={featherMask ? {
                   WebkitMaskImage: featherMask,
                   maskImage: featherMask,
                 } : undefined}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center rounded-full bg-muted">
+              <div className="w-full h-full flex items-center justify-center">
                 <User className="w-10 h-10 text-muted-foreground" />
               </div>
             )}
@@ -246,20 +253,22 @@ export function ProfileHeader() {
         )}
 
         {/* Logo */}
-        {renderLogo()}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderLogo()}
+        </div>
 
-        {/* Title — inline editable in editor, click-to-navigate fallback */}
+        {/* Title — inline editable in editor, single click opens Title Edit */}
         <div
           className={editorHoverClass}
-          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+          onClick={handleHeaderClick}
         >
           {renderTitle()}
         </div>
 
-        {/* Bio — inline editable in editor, click-to-navigate fallback */}
+        {/* Bio — inline editable in editor, single click opens Title Edit */}
         <div
           className={editorHoverClass}
-          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+          onClick={handleHeaderClick}
         >
           {renderBio()}
         </div>
@@ -297,18 +306,20 @@ export function ProfileHeader() {
 
       {/* Logo, Title, Bio below banner */}
       <div className="flex flex-col items-center gap-2 px-4 pt-3 pb-2">
-        {renderLogo()}
-        {/* Title — inline editable in editor, click-to-navigate fallback */}
+        <div className={editorHoverClass} onClick={handleHeaderClick}>
+          {renderLogo()}
+        </div>
+        {/* Title — inline editable in editor, single click opens Title Edit */}
         <div
           className={editorHoverClass}
-          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+          onClick={handleHeaderClick}
         >
           {renderTitle()}
         </div>
-        {/* Bio — inline editable in editor, click-to-navigate fallback */}
+        {/* Bio — inline editable in editor, single click opens Title Edit */}
         <div
           className={editorHoverClass}
-          onClick={isInEditor ? (e) => e.stopPropagation() : handleHeaderClick}
+          onClick={handleHeaderClick}
         >
           {renderBio()}
         </div>

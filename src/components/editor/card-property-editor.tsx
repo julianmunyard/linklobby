@@ -8,6 +8,8 @@ import { z } from "zod"
 import { X, Copy, Trash2, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import { validateAndFixUrl } from "@/lib/url-validation"
+import { CURATED_FONTS } from "@/app/fonts"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -77,13 +79,13 @@ function SocialIconCustomization({
 }) {
   const getSortedSocialIcons = useProfileStore((s) => s.getSortedSocialIcons)
   const socialIcons = getSortedSocialIcons()
-  const socialAppIcons = (currentContent.socialAppIcons ?? {}) as Record<string, { appIconUrl?: string; appIconColor?: string }>
+  const socialAppIcons = (currentContent.socialAppIcons ?? {}) as Record<string, { appIconUrl?: string; appIconColor?: string; originalAppIconUrl?: string }>
 
-  function updatePlatformIcon(platform: string, updates: { appIconUrl?: string; appIconColor?: string }) {
+  function updatePlatformIcon(platform: string, updates: { appIconUrl?: string; appIconColor?: string; originalAppIconUrl?: string }) {
     const current = socialAppIcons[platform] ?? {}
     const updated = { ...current, ...updates }
     // Remove undefined values
-    if (!updated.appIconUrl) delete updated.appIconUrl
+    if (!updated.appIconUrl) { delete updated.appIconUrl; delete updated.originalAppIconUrl }
     if (!updated.appIconColor) delete updated.appIconColor
     const newSocialAppIcons = { ...socialAppIcons }
     if (Object.keys(updated).length === 0) {
@@ -114,7 +116,8 @@ function SocialIconCustomization({
             <Label className="text-xs font-medium">{platformMeta.label}</Label>
             <ImageUpload
               value={override?.appIconUrl}
-              onChange={(url) => updatePlatformIcon(si.platform, { appIconUrl: url })}
+              originalValue={override?.originalAppIconUrl}
+              onChange={(url, originalUrl) => updatePlatformIcon(si.platform, { appIconUrl: url, originalAppIconUrl: originalUrl })}
               cardId={`${card.id}-${si.platform}`}
               cardType="square"
             />
@@ -194,9 +197,13 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
   const removeCard = usePageStore((state) => state.removeCard)
   const setAllCardsTransparency = usePageStore((state) => state.setAllCardsTransparency)
   const themeId = useThemeStore((s) => s.themeId)
-  const themeTextColor = useThemeStore((s) => s.colors.text)
+  const themeColors = useThemeStore((s) => s.colors)
+  const setThemeColor = useThemeStore((s) => s.setColor)
+  const themeTextColor = themeColors.text
   const cardTypeFontSizes = useThemeStore((s) => s.cardTypeFontSizes)
   const setCardTypeFontSize = useThemeStore((s) => s.setCardTypeFontSize)
+  const fontFamilyScales = useThemeStore((s) => s.fontFamilyScales)
+  const setFontFamilyScale = useThemeStore((s) => s.setFontFamilyScale)
   const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
   const addToDock = useThemeStore((s) => s.addToDock)
   const removeFromDock = useThemeStore((s) => s.removeFromDock)
@@ -240,9 +247,9 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
     return () => subscription.unsubscribe()
   }, [form, card.id, updateCard])
 
-  // Handle image changes
-  function handleImageChange(imageUrl: string | undefined) {
-    const content = { ...(card.content as Record<string, unknown>), imageUrl }
+  // Handle image changes (stores both cropped URL and original URL for re-crop)
+  function handleImageChange(imageUrl: string | undefined, originalImageUrl?: string | undefined) {
+    const content = { ...(card.content as Record<string, unknown>), imageUrl, originalImageUrl }
     updateCard(card.id, { content })
     onSettingChanged?.()
   }
@@ -289,9 +296,12 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
   const macWindowStyle = currentContent.macWindowStyle as string | undefined
   const isMacCard = !!macWindowStyle
   const isPhoneHome = themeId === 'phone-home'
+  const isBlinkieLink = themeId === 'blinkies' && (card.card_type === 'link' || card.card_type === 'mini')
   const isPhoneHomeWidget = isPhoneHome && (card.card_type === 'gallery' || card.card_type === 'audio')
   const isMusicCard = card.card_type === 'music'
   const isAudioCard = card.card_type === 'audio'
+  const isEmailCard = card.card_type === 'email-collection'
+  const isReleaseCard = card.card_type === 'release'
 
   // Handle card type change
   function handleTypeChange(newType: CardType) {
@@ -302,7 +312,6 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
   // Handle duplicate
   function handleDuplicate() {
     duplicateCard(card.id)
-    onClose()
   }
 
   // Handle delete with undo toast
@@ -358,6 +367,284 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
       },
       duration: 5000,
     })
+  }
+
+  // iPod theme: link cards only need title + URL
+  const isIpodSimple = themeId === 'ipod-classic' && !['audio', 'release', 'social-icons'].includes(card.card_type)
+  if (isIpodSimple) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="font-semibold text-sm">Edit Link</h2>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
+          <Form {...form}>
+            <form className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Menu item name" {...field} className="h-11" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://" {...field} onBlur={handleUrlBlur} className="h-11" />
+                    </FormControl>
+                    {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+
+          <div className="pt-4 mt-4 border-t">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="w-full h-11"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove from page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Word Art theme: link cards need Word Art style + title + URL
+  const isWordArtSimple = themeId === 'word-art' && !['audio', 'social-icons'].includes(card.card_type)
+  if (isWordArtSimple) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="font-semibold text-sm">Edit Link</h2>
+            <p className="text-xs text-muted-foreground">Word Art</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
+          <Form {...form}>
+            <form className="space-y-4">
+              {/* Word Art Style Picker */}
+              <WordArtStylePicker
+                currentStyleId={(currentContent.wordArtStyle as string) || 'style-one'}
+                onChange={(styleId) => handleContentChange({ wordArtStyle: styleId })}
+              />
+
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Link text" {...field} className="h-11" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://" {...field} onBlur={handleUrlBlur} className="h-11" />
+                    </FormControl>
+                    {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+
+          <div className="pt-4 mt-4 border-t">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="w-full h-11"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove from page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Chaotic Zine theme: link cards only need title + URL + badge text on first card
+  const isZineSimple = themeId === 'chaotic-zine' && !['audio', 'release', 'text', 'social-icons'].includes(card.card_type)
+  const zineBadgeText = useThemeStore((s) => s.zineBadgeText)
+  const setZineBadgeText = useThemeStore((s) => s.setZineBadgeText)
+  const isFirstZineCard = isZineSimple && (() => {
+    const allCards = usePageStore.getState().cards
+    const visible = allCards
+      .filter(c => c.is_visible !== false && c.card_type !== 'social-icons' && c.card_type !== 'release')
+      .sort((a, b) => (a.sortKey || '').localeCompare(b.sortKey || ''))
+    return visible.length > 0 && visible[0].id === card.id
+  })()
+  if (isZineSimple) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="font-semibold text-sm">Edit Link</h2>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
+          <Form {...form}>
+            <form className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Link title" {...field} className="h-11" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://" {...field} onBlur={handleUrlBlur} className="h-11" />
+                    </FormControl>
+                    {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+
+          {/* Badge Text — only on the first card */}
+          {isFirstZineCard && (
+            <div className="space-y-1 pt-4 mt-4 border-t">
+              <Label className="text-sm font-medium">Badge Text</Label>
+              <Input
+                value={zineBadgeText}
+                onChange={(e) => setZineBadgeText(e.target.value)}
+                placeholder="NEW!"
+                className="h-11 uppercase"
+              />
+              <p className="text-xs text-muted-foreground">Shown on this card. Leave empty to hide.</p>
+            </div>
+          )}
+
+          <div className={isFirstZineCard ? "pt-4 mt-4 border-t" : "pt-4 mt-4 border-t"}>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="w-full h-11"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove from page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // VCR theme: simple link cards only need name + URL
+  const isVcrSimple = themeId === 'vcr-menu' && !['audio', 'release', 'text', 'social-icons'].includes(card.card_type)
+  if (isVcrSimple) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="font-semibold text-sm">Edit Link</h2>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 touch-pan-y">
+          <Form {...form}>
+            <form className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="MENU ITEM" {...field} className="h-11 uppercase" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Link</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://" {...field} onBlur={handleUrlBlur} className="h-11" />
+                    </FormControl>
+                    {urlError && <p className="text-xs text-destructive">{urlError}</p>}
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+
+          <div className="pt-4 mt-4 border-t">
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="w-full h-11"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove from page
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Social icons card - shows all icons with editing
@@ -467,13 +754,95 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               />
             </div>
 
-            {/* Card Type Picker - only for convertible types, hidden for Mac cards and Phone Home */}
+            {/* Title/Description/URL - hidden for notepad, map, calculator Mac cards, music cards, audio cards, and all phone-home cards */}
+            {!isMusicCard && !isAudioCard && !isEmailCard && !isReleaseCard && !isPhoneHome && (!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link' || macWindowStyle === 'presave' || macWindowStyle === 'gallery') && (
+            <>
+            {/* Title — text cards get Textarea for multiline, others get Input */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    {card.card_type === 'text' ? (
+                      <Textarea
+                        placeholder="Enter text..."
+                        {...field}
+                        value={field.value ?? ""}
+                        rows={4}
+                        className="resize-y"
+                      />
+                    ) : (
+                      <Input
+                        placeholder="Enter title..."
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Description - hidden for square cards, Mac cards, and blinky/link cards */}
+            {!isMacCard && !isBlinkieLink && card.card_type !== "square" && (
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter description..."
+                        rows={3}
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* URL */}
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder={isBlinkieLink ? "https://..." : "https://... or paste embed code"}
+                      {...field}
+                      value={field.value ?? ""}
+                      onBlur={handleUrlBlur}
+                    />
+                  </FormControl>
+                  {urlError && (
+                    <p className="text-sm text-destructive">{urlError}</p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            </>
+            )}
+
+            {/* Link Type Picker - only for convertible types, hidden for Mac cards and Phone Home */}
             {!isMacCard && themeId !== 'phone-home' && isConvertibleType(card.card_type) && (
               <div className="space-y-2">
-                <Label>Card Type</Label>
+                <Label>Link Type</Label>
                 <CardTypePicker
                   currentType={card.card_type}
                   onChange={handleTypeChange}
+                  themeId={themeId}
+                  hiddenTypes={themeId === 'blinkies' ? ['mini', 'horizontal'] : undefined}
                 />
               </div>
             )}
@@ -486,7 +855,7 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               />
             )}
 
-            {/* Phone Home theme: App Icon + Dock + Page + Widget Size */}
+            {/* Phone Home theme: Name/URL + App Icon + Dock + Page + Widget Size */}
             {themeId === 'phone-home' && (
               <PhoneHomeCardControls
                 card={card}
@@ -495,6 +864,7 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                 addToDock={addToDock}
                 removeFromDock={removeFromDock}
                 onContentChange={handleContentChange}
+                onCardUpdate={(updates) => updateCard(card.id, updates)}
               />
             )}
 
@@ -533,6 +903,8 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                 onChange={handleContentChange}
                 cardId={card.id}
                 themeId={themeId}
+                cardTitle={themeId === 'blinkies' ? undefined : (card.title ?? '')}
+                onCardTitleChange={themeId === 'blinkies' ? undefined : (title) => updateCard(card.id, { title: title || null })}
               />
             )}
 
@@ -572,6 +944,7 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                 macLinks={(currentContent.macLinks as Array<{ title: string; url: string }>) || []}
                 notepadStyle={(currentContent.notepadStyle as string) || 'list'}
                 notepadBgColor={(currentContent.notepadBgColor as string) || '#F2FFA4'}
+                notepadTextColor={(currentContent.notepadTextColor as string) || '#000000'}
                 onChange={handleContentChange}
               />
             )}
@@ -603,16 +976,40 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                       Text shown above the countdown timer
                     </p>
                   </div>
-                  <ColorPicker
-                    label="Window Background"
-                    color={(currentContent.presaveBgColor as string) || '#ad7676'}
-                    onChange={(color) => handleContentChange({ presaveBgColor: color })}
-                  />
-                  <ColorPicker
-                    label="Text Color"
-                    color={(currentContent.textColor as string) || '#000000'}
-                    onChange={(color) => handleContentChange({ textColor: color })}
-                  />
+                  <div className="space-y-2">
+                    <Label>Window Background</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={(currentContent.presaveBgColor as string) || '#ad7676'}
+                        onChange={(e) => handleContentChange({ presaveBgColor: e.target.value })}
+                        className="h-9 w-9 rounded border cursor-pointer"
+                      />
+                      <Input
+                        placeholder="#ad7676"
+                        value={(currentContent.presaveBgColor as string) || ''}
+                        onChange={(e) => handleContentChange({ presaveBgColor: e.target.value })}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Text Color</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={(currentContent.textColor as string) || '#000000'}
+                        onChange={(e) => handleContentChange({ textColor: e.target.value })}
+                        className="h-9 w-9 rounded border cursor-pointer"
+                      />
+                      <Input
+                        placeholder="#000000"
+                        value={(currentContent.textColor as string) || ''}
+                        onChange={(e) => handleContentChange({ textColor: e.target.value })}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
                   <ReleaseCardFields
                     content={currentContent as Partial<ReleaseCardContent>}
                     onChange={handleContentChange}
@@ -647,6 +1044,7 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                 <label className="text-sm font-medium">Image</label>
                 <ImageUpload
                   value={imageUrl}
+                  originalValue={currentContent.originalImageUrl as string | undefined}
                   onChange={handleImageChange}
                   cardId={card.id}
                   cardType={card.card_type}
@@ -654,10 +1052,21 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               </div>
             )}
 
-            {/* Card Size - visual toggle with SVG icons, hidden for Mac cards and phone-home gallery/audio */}
+            {/* Text Glow toggle — only for hero/square cards with an image */}
+            {(card.card_type === 'hero' || card.card_type === 'square') && imageUrl && (
+              <div className="flex items-center justify-between">
+                <Label>Text Glow</Label>
+                <Switch
+                  checked={currentContent.showTextGlow === true}
+                  onCheckedChange={(checked) => handleContentChange({ showTextGlow: checked })}
+                />
+              </div>
+            )}
+
+            {/* Link Size + Text Align + Vertical Align — grouped together */}
             {!isMacCard && !isPhoneHomeWidget && CARD_TYPE_SIZING[card.card_type] && (
               <div className="space-y-2">
-                <Label>Card Size</Label>
+                <Label>Link Size</Label>
                 <ToggleGroup
                   type="single"
                   value={card.size}
@@ -670,20 +1079,68 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
                   className="justify-start"
                 >
                   <ToggleGroupItem value="big" aria-label="Full width" className="flex-col gap-1 h-auto py-2 px-4">
-                    {/* Full width rectangle SVG */}
                     <svg width="48" height="24" viewBox="0 0 48 24" className="text-current">
                       <rect x="2" y="4" width="44" height="16" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     <span className="text-xs">Big</span>
                   </ToggleGroupItem>
                   <ToggleGroupItem value="small" aria-label="Half width" className="flex-col gap-1 h-auto py-2 px-4">
-                    {/* Half width rectangle SVG */}
                     <svg width="48" height="24" viewBox="0 0 48 24" className="text-current">
                       <rect x="10" y="4" width="28" height="16" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" />
                     </svg>
                     <span className="text-xs">Small</span>
                   </ToggleGroupItem>
                 </ToggleGroup>
+              </div>
+            )}
+
+            {/* Text Align + Vertical Align — side by side, hidden for Mac cards, phone-home, music cards, audio cards, and blinky/link cards */}
+            {!isMacCard && !isPhoneHome && !isMusicCard && !isAudioCard && !isBlinkieLink && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Text Align</Label>
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    value={(currentContent.textAlign as string) || "center"}
+                    onValueChange={(value) => {
+                      if (value) handleContentChange({ textAlign: value as TextAlign })
+                    }}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="left" aria-label="Align left">
+                      <AlignLeft className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="center" aria-label="Align center">
+                      <AlignCenter className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="right" aria-label="Align right">
+                      <AlignRight className="h-4 w-4" />
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+                <div className="space-y-2">
+                  <Label>Vertical Align</Label>
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    value={(currentContent.verticalAlign as string) || "middle"}
+                    onValueChange={(value) => {
+                      if (value) handleContentChange({ verticalAlign: value as VerticalAlign })
+                    }}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="top" aria-label="Align top">
+                      <AlignVerticalJustifyStart className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="middle" aria-label="Align middle">
+                      <AlignVerticalJustifyCenter className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="bottom" aria-label="Align bottom">
+                      <AlignVerticalJustifyEnd className="h-4 w-4" />
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
               </div>
             )}
 
@@ -713,74 +1170,103 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               </div>
             )}
 
-            {/* Text Alignment - hidden for Mac cards, phone-home gallery/audio, and music cards */}
-            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
-              <Label>Text Align</Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={(currentContent.textAlign as string) || "center"}
-                onValueChange={(value) => {
-                  if (value) handleContentChange({ textAlign: value as TextAlign })
-                }}
-                className="justify-start"
-              >
-                <ToggleGroupItem value="left" aria-label="Align left">
-                  <AlignLeft className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="center" aria-label="Align center">
-                  <AlignCenter className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="right" aria-label="Align right">
-                  <AlignRight className="h-4 w-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>}
+            {/* Font Size & Text Color - for convertible types + email-collection (hidden for blinkies, phone-home, macintosh) */}
+            {(isConvertibleType(card.card_type) || isEmailCard || isReleaseCard) && !isPhoneHome && !isMacCard && !(themeId === 'blinkies' && card.card_type !== 'text') && (<>
+              {/* Per-font-family size slider when card has a custom font */}
+              {(() => {
+                const customFont = (currentContent.fontFamily as string) || null
+                const fontSizeKeyMap: Record<string, keyof typeof cardTypeFontSizes> = {
+                  hero: 'hero', horizontal: 'horizontal', square: 'square',
+                  link: 'link', mini: 'mini', text: 'text',
+                }
+                const cardTypeKey = fontSizeKeyMap[card.card_type] ?? 'link'
+                const fontName = customFont ? CURATED_FONTS.find(f => f.variable === customFont)?.name : null
+                const sizeLabel = card.card_type === 'text' ? 'Font Size (all text cards)' : `Font Size (all ${card.card_type} cards)`
 
-            {/* Vertical Alignment - hidden for Mac cards, phone-home gallery/audio, and music cards */}
-            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
-              <Label>Vertical Align</Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={(currentContent.verticalAlign as string) || "middle"}
-                onValueChange={(value) => {
-                  if (value) handleContentChange({ verticalAlign: value as VerticalAlign })
-                }}
-                className="justify-start"
-              >
-                <ToggleGroupItem value="top" aria-label="Align top">
-                  <AlignVerticalJustifyStart className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="middle" aria-label="Align middle">
-                  <AlignVerticalJustifyCenter className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="bottom" aria-label="Align bottom">
-                  <AlignVerticalJustifyEnd className="h-4 w-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>}
-
-            {/* Font Size & Text Color - for link, mini, text cards (hidden for blinkies theme) */}
-            {(card.card_type === 'link' || card.card_type === 'mini' || card.card_type === 'text') && !(themeId === 'blinkies' && card.card_type !== 'text') && (<>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <Label>{card.card_type === 'text' ? 'Font Size (all text cards)' : 'Font Size (all link cards)'}</Label>
-                  <span className="text-muted-foreground">{Math.round((cardTypeFontSizes[card.card_type === 'text' ? 'text' : 'link']) * 100)}%</span>
-                </div>
-                <Slider
-                  value={[cardTypeFontSizes[card.card_type === 'text' ? 'text' : 'link']]}
-                  onValueChange={(v) => setCardTypeFontSize(card.card_type === 'text' ? 'text' : 'link', v[0])}
-                  min={0.5}
-                  max={2}
-                  step={0.1}
-                />
-              </div>
+                return customFont ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <Label>{fontName} Size</Label>
+                      <span className="text-muted-foreground">{Math.round((fontFamilyScales?.[customFont] ?? 1) * 100)}%</span>
+                    </div>
+                    <Slider
+                      value={[fontFamilyScales?.[customFont] ?? 1]}
+                      onValueChange={(v) => setFontFamilyScale(customFont, v[0])}
+                      min={0.5}
+                      max={2}
+                      step={0.05}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <Label>{sizeLabel}</Label>
+                      <span className="text-muted-foreground">{Math.round((cardTypeFontSizes[cardTypeKey]) * 100)}%</span>
+                    </div>
+                    <Slider
+                      value={[cardTypeFontSizes[cardTypeKey]]}
+                      onValueChange={(v) => setCardTypeFontSize(cardTypeKey, v[0])}
+                      min={0.5}
+                      max={2}
+                      step={0.1}
+                    />
+                  </div>
+                )
+              })()}
               <ColorPicker
                 label="Text Color"
                 color={(currentContent.textColor as string) || themeTextColor}
                 onChange={(color) => handleContentChange({ textColor: color })}
               />
+              <div className="space-y-2">
+                <Label>Title Font</Label>
+                <Select
+                  value={(currentContent.fontFamily as string) || '__default__'}
+                  onValueChange={(value) => handleContentChange({ fontFamily: value === '__default__' ? null : value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Theme default" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__default__">Theme default</SelectItem>
+                    {CURATED_FONTS.map((font) => (
+                      <SelectItem
+                        key={font.id}
+                        value={font.variable}
+                        style={{ fontFamily: font.variable }}
+                      >
+                        {font.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Description Font - for card types that show descriptions */}
+              {['hero', 'link', 'horizontal', 'mini', 'text'].includes(card.card_type) && (
+                <div className="space-y-2">
+                  <Label>Description Font</Label>
+                  <Select
+                    value={(currentContent.descriptionFontFamily as string) || '__default__'}
+                    onValueChange={(value) => handleContentChange({ descriptionFontFamily: value === '__default__' ? null : value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Theme default" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__default__">Theme default</SelectItem>
+                      {CURATED_FONTS.map((font) => (
+                        <SelectItem
+                          key={font.id}
+                          value={font.variable}
+                          style={{ fontFamily: font.variable }}
+                        >
+                          {font.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </>)}
 
             {/* Border & Fill - text cards only */}
@@ -807,116 +1293,57 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
               </div>
             )}
 
-            {/* Transparent Background - hidden for Mac cards, phone-home gallery/audio, and music cards */}
-            {!isMacCard && !isPhoneHomeWidget && !isMusicCard && <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={!!currentContent.transparentBackground}
-                    onCheckedChange={(checked) => {
-                      handleContentChange({ transparentBackground: checked })
-                    }}
-                  />
-                  <Label className="cursor-pointer" onClick={() => {
-                    handleContentChange({ transparentBackground: !currentContent.transparentBackground })
-                  }}>
-                    Transparent Background
-                  </Label>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setAllCardsTransparency(!!currentContent.transparentBackground)
-                    toast("Applied transparency to all cards")
+            {/* Transparent Background - hidden for Mac cards, phone-home, music cards, audio cards, and blinky/link cards */}
+            {!isMacCard && !isPhoneHome && !isMusicCard && !isAudioCard && !isBlinkieLink && <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={!!currentContent.transparentBackground}
+                  onCheckedChange={(checked) => {
+                    handleContentChange({ transparentBackground: checked })
+                    setAllCardsTransparency(checked)
                   }}
-                  className="h-8"
-                >
-                  Apply to All
-                </Button>
+                />
+                <Label className="cursor-pointer" onClick={() => {
+                  const newValue = !currentContent.transparentBackground
+                  handleContentChange({ transparentBackground: newValue })
+                  setAllCardsTransparency(newValue)
+                }}>
+                  Transparent Background
+                </Label>
               </div>
-            </div>}
 
-            {/* Title - hidden for notepad, map, calculator Mac cards, music cards, and audio cards */}
-            {!isMusicCard && !isAudioCard && (!isMacCard || macWindowStyle === 'small-window' || macWindowStyle === 'large-window' || macWindowStyle === 'title-link' || macWindowStyle === 'presave' || macWindowStyle === 'gallery') && (
-            <>
-            {/* Title — text cards get Textarea for multiline, others get Input */}
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    {card.card_type === 'text' ? (
-                      <Textarea
-                        placeholder="Enter text..."
-                        {...field}
-                        value={field.value ?? ""}
-                        rows={4}
-                        className="resize-y"
-                      />
-                    ) : (
-                      <Input
-                        placeholder="Enter title..."
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Description - hidden for square cards and Mac cards */}
-            {!isMacCard && card.card_type !== "square" && (
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter description..."
-                        rows={3}
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {/* URL */}
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="https://... or paste embed code"
-                      {...field}
-                      value={field.value ?? ""}
-                      onBlur={handleUrlBlur}
-                    />
-                  </FormControl>
-                  {urlError && (
-                    <p className="text-sm text-destructive">{urlError}</p>
+              {/* Quick-access theme color pickers — only for themes with visible card backgrounds */}
+              {themeId === 'system-settings' && (
+                <div className="space-y-2 pl-1">
+                  {!currentContent.transparentBackground && (
+                    <>
+                      <ColorPicker label="Outer Box" color={themeColors.cardBg} onChange={(v) => setThemeColor('cardBg', v)} />
+                      <ColorPicker label="Inner Box Fill" color={themeColors.accent} onChange={(v) => setThemeColor('accent', v)} />
+                    </>
                   )}
-                  <FormMessage />
-                </FormItem>
+                  <ColorPicker label="Text & Border" color={themeColors.text} onChange={(v) => setThemeColor('text', v)} />
+                </div>
               )}
-            />
-            </>
-            )}
+              {themeId === 'mac-os' && (
+                <div className="space-y-2 pl-1">
+                  {!currentContent.transparentBackground && (
+                    <ColorPicker label="Card" color={themeColors.cardBg} onChange={(v) => setThemeColor('cardBg', v)} />
+                  )}
+                  <ColorPicker label="Border" color={themeColors.border} onChange={(v) => setThemeColor('border', v)} />
+                  <ColorPicker label="Text" color={themeColors.text} onChange={(v) => setThemeColor('text', v)} />
+                  <ColorPicker label="Title Bar Line" color={themeColors.titleBarLine || '#000000'} onChange={(v) => setThemeColor('titleBarLine', v)} />
+                </div>
+              )}
+              {(themeId === 'instagram-reels' || (themeId === 'blinkies' && !isBlinkieLink)) && (
+                <div className="space-y-2 pl-1">
+                  {!currentContent.transparentBackground && (
+                    <ColorPicker label="Card" color={themeColors.cardBg} onChange={(v) => setThemeColor('cardBg', v)} />
+                  )}
+                  <ColorPicker label="Border" color={themeColors.border} onChange={(v) => setThemeColor('border', v)} />
+                  <ColorPicker label="Text" color={themeColors.text} onChange={(v) => setThemeColor('text', v)} />
+                </div>
+              )}
+            </div>}
 
             {/* Type-specific fields */}
             {!isMacCard && card.card_type === "hero" && (

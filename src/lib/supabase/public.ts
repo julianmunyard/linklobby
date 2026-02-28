@@ -34,84 +34,48 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
   // Try with social_icon_color first, fall back without it if column doesn't exist
   let profile: Record<string, unknown> | null = null
 
-  const selectWithColor = `
-      username,
-      display_name,
-      bio,
-      avatar_url,
-      avatar_feather,
-      avatar_size,
-      show_avatar,
-      show_title,
-      title_size,
-      show_logo,
-      logo_url,
-      logo_scale,
-      profile_layout,
-      show_social_icons,
-      social_icons,
-      header_text_color,
-      social_icon_color,
-      pages!inner (
-        id,
-        user_id,
-        is_published,
-        theme_settings,
-        created_at,
-        updated_at
-      )
-  `
+  // Build select query with graceful fallback for columns that may not exist yet.
+  // We attempt the full query first; if it fails on a missing column, we retry
+  // without that column. This avoids hard 404s when migrations haven't been applied.
+  const allProfileColumns = [
+    'username', 'display_name', 'bio', 'avatar_url', 'avatar_feather',
+    'avatar_size', 'avatar_shape', 'show_avatar', 'show_title', 'show_bio',
+    'title_size', 'show_logo', 'logo_url', 'logo_scale', 'profile_layout',
+    'show_social_icons', 'social_icons', 'header_text_color', 'social_icon_color',
+    'title_font', 'bio_font',
+  ]
+  const pagesJoin = `pages!inner ( id, user_id, is_published, theme_settings, created_at, updated_at )`
 
-  const selectWithoutColor = `
-      username,
-      display_name,
-      bio,
-      avatar_url,
-      avatar_feather,
-      avatar_size,
-      show_avatar,
-      show_title,
-      title_size,
-      show_logo,
-      logo_url,
-      logo_scale,
-      profile_layout,
-      show_social_icons,
-      social_icons,
-      header_text_color,
-      pages!inner (
-        id,
-        user_id,
-        is_published,
-        theme_settings,
-        created_at,
-        updated_at
-      )
-  `
+  let remainingColumns = [...allProfileColumns]
 
-  const { data, error: profileError } = await supabase
-    .from('profiles')
-    .select(selectWithColor)
-    .eq('username', username.toLowerCase())
-    .eq('pages.is_published', true)
-    .single()
-
-  if (profileError?.message?.includes('social_icon_color')) {
-    // Column doesn't exist yet - retry without it
-    const { data: fallback, error: fallbackError } = await supabase
+  while (remainingColumns.length > 0) {
+    const selectStr = `${remainingColumns.join(', ')}, ${pagesJoin}`
+    const { data, error } = await supabase
       .from('profiles')
-      .select(selectWithoutColor)
+      .select(selectStr)
       .eq('username', username.toLowerCase())
       .eq('pages.is_published', true)
       .single()
 
-    if (fallbackError || !fallback) return null
-    profile = fallback as Record<string, unknown>
-  } else if (profileError || !data) {
+    if (!error && data) {
+      profile = data as unknown as Record<string, unknown>
+      break
+    }
+
+    // If error mentions a missing column, remove it and retry
+    if (error?.code === '42703' && error.message) {
+      const match = error.message.match(/column\s+\w+\.(\w+)\s+does not exist/)
+      if (match) {
+        remainingColumns = remainingColumns.filter(c => c !== match[1])
+        continue
+      }
+    }
+
+    // Unrecoverable error
     return null
-  } else {
-    profile = data as Record<string, unknown>
   }
+
+  if (!profile) return null
 
   // Extract page from nested structure
   const pagesRaw = profile.pages as Record<string, unknown>[] | Record<string, unknown> | null
@@ -202,8 +166,10 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
       avatar_url: profile.avatar_url as string | null,
       avatar_feather: (profile.avatar_feather as number) ?? 0,
       avatar_size: (profile.avatar_size as number) ?? 80,
+      avatar_shape: (profile.avatar_shape as 'circle' | 'square') ?? 'circle',
       show_avatar: (profile.show_avatar as boolean) ?? true,
       show_title: (profile.show_title as boolean) ?? true,
+      show_bio: (profile.show_bio as boolean) ?? true,
       title_size: profile.title_size as 'small' | 'large',
       show_logo: (profile.show_logo as boolean) ?? false,
       logo_url: profile.logo_url as string | null,
@@ -215,6 +181,8 @@ export async function fetchPublicPageData(username: string): Promise<PublicPageD
         : JSON.stringify(profile.social_icons || []),
       header_text_color: profile.header_text_color as string | null,
       social_icon_color: (profile.social_icon_color as string) ?? null,
+      title_font: (profile.title_font as string) ?? null,
+      bio_font: (profile.bio_font as string) ?? null,
     },
     page,
     cards,

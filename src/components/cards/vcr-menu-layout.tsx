@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent, isAudioContent } from '@/types/card'
 import { AudioCard } from '@/components/cards/audio-card'
@@ -9,6 +9,7 @@ import { sortCardsBySortKey } from '@/lib/ordering'
 import { useThemeStore } from '@/stores/theme-store'
 import { useProfileStore } from '@/stores/profile-store'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import * as SiIcons from 'react-icons/si'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
@@ -16,7 +17,10 @@ interface VcrMenuLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
+  onHeaderClick?: () => void
+  onSocialIconClick?: () => void
   selectedCardId?: string | null
 }
 
@@ -34,7 +38,10 @@ export function VcrMenuLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
+  onHeaderClick,
+  onSocialIconClick,
   selectedCardId
 }: VcrMenuLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
@@ -44,8 +51,37 @@ export function VcrMenuLayout({
   const vcrCenterContent = useThemeStore((s) => s.vcrCenterContent)
   const getSortedSocialIcons = useProfileStore((s) => s.getSortedSocialIcons)
   const socialIcons = getSortedSocialIcons()
+  const showLogo = useProfileStore((s) => s.showLogo)
+  const logoUrl = useProfileStore((s) => s.logoUrl)
+  const logoScale = useProfileStore((s) => s.logoScale)
+  const showTitle = useProfileStore((s) => s.showTitle)
   const containerRef = useRef<HTMLDivElement>(null)
   const touchStartY = useRef<number>(0)
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
 
   // Filter to only visible cards, excluding social-icons
   // Release cards are included in the normal flow so they can be reordered
@@ -78,6 +114,9 @@ export function VcrMenuLayout({
   }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Don't intercept keys when inline editing is active
+    if ((e.target as HTMLElement)?.isContentEditable) return
+
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       setFocusedIndex(prev => Math.min(prev + 1, visibleCards.length - 1))
@@ -87,9 +126,7 @@ export function VcrMenuLayout({
     } else if (e.key === 'Enter' && visibleCards[focusedIndex]) {
       e.preventDefault()
       const card = visibleCards[focusedIndex]
-      if (card.url && isPreview) {
-        window.open(card.url, '_blank', 'noopener,noreferrer')
-      } else if (onCardClick) {
+      if (onCardClick) {
         onCardClick(card.id)
       }
     }
@@ -117,11 +154,15 @@ export function VcrMenuLayout({
   }
 
   const handleCardClick = (card: Card, index: number) => {
+    if (isEditable) {
+      // In editor: single tap opens editor panel immediately
+      setFocusedIndex(index)
+      onCardClick?.(card.id)
+      return
+    }
     if (focusedIndex === index) {
       // Already focused, activate it
-      if (card.url && isPreview) {
-        window.open(card.url, '_blank', 'noopener,noreferrer')
-      } else if (onCardClick) {
+      if (onCardClick) {
         onCardClick(card.id)
       }
     } else {
@@ -136,7 +177,7 @@ export function VcrMenuLayout({
       className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto"
       style={{
         fontFamily: 'var(--font-pixter-granular)',
-        backgroundColor: 'var(--theme-background)',
+        backgroundColor: 'transparent',
       }}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
@@ -150,21 +191,42 @@ export function VcrMenuLayout({
           vcrCenterContent && "min-h-full justify-center"
         )}
       >
+        {/* Logo above title */}
+        {showLogo && logoUrl && (
+          <div
+            className={cn("mb-4", isEditable && onHeaderClick && "cursor-pointer hover:opacity-80 transition-opacity")}
+            onClick={isEditable && onHeaderClick ? onHeaderClick : undefined}
+          >
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="max-w-[200px] h-auto object-contain mx-auto"
+              style={{ transform: `scale(${(logoScale || 100) / 100})`, transformOrigin: 'center' }}
+            />
+          </div>
+        )}
+
         {/* Title with dashes - responsive */}
-        <div
-          className="text-center mb-6 tracking-wider w-full px-2"
-          style={{
-            color: 'var(--theme-text)',
-            fontSize: `clamp(1.4rem, 5vw, ${titleFontSize})`,
-            letterSpacing: '0.1em'
-          }}
-        >
-          <span className="hidden sm:inline select-none">---------- </span>
-          <span className="sm:hidden select-none">--- </span>
-          <span>{displayTitle}</span>
-          <span className="sm:hidden select-none"> ---</span>
-          <span className="hidden sm:inline select-none"> ----------</span>
-        </div>
+        {showTitle !== false && (
+          <div
+            className={cn(
+              "text-center mb-6 tracking-wider w-full px-2",
+              isEditable && onHeaderClick && "cursor-pointer hover:opacity-80 transition-opacity"
+            )}
+            style={{
+              color: 'var(--theme-text)',
+              fontSize: `clamp(1.4rem, 5vw, ${titleFontSize})`,
+              letterSpacing: '0.1em'
+            }}
+            onClick={isEditable && onHeaderClick ? onHeaderClick : undefined}
+          >
+            <span className="hidden sm:inline select-none">---------- </span>
+            <span className="sm:hidden select-none">--- </span>
+            <span>{displayTitle}</span>
+            <span className="sm:hidden select-none"> ---</span>
+            <span className="hidden sm:inline select-none"> ----------</span>
+          </div>
+        )}
 
         {/* Social icons below title */}
         {socialIcons.length > 0 && (
@@ -178,10 +240,11 @@ export function VcrMenuLayout({
               return (
                 <a
                   key={icon.id}
-                  href={icon.url}
+                  href={isPreview ? undefined : icon.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-70 transition-opacity"
+                  onClick={isPreview ? (e: React.MouseEvent) => { e.preventDefault(); if (isEditable && onSocialIconClick) onSocialIconClick() } : undefined}
+                  className={cn("hover:opacity-70 transition-opacity", isEditable && onSocialIconClick && "cursor-pointer")}
                   style={{ color: 'var(--theme-text)' }}
                 >
                   <IconComponent className="w-6 h-6" />
@@ -268,12 +331,12 @@ export function VcrMenuLayout({
                 >
                   {!isReleased ? (
                     <a
-                      href={preSaveUrl}
+                      href={isPreview ? undefined : preSaveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block w-full text-base tracking-wider px-3 py-2 border hover:opacity-80 transition-opacity"
                       style={{ color: 'var(--theme-text)', borderColor: 'var(--theme-text)' }}
-                      onClick={(e) => { if (!preSaveUrl) e.preventDefault() }}
+                      onClick={(e) => { if (isPreview || !preSaveUrl) e.preventDefault() }}
                     >
                       <div className="text-center mb-2">
                         <span className="inline-block px-2 py-1 border" style={{ borderColor: 'var(--theme-text)' }}>
@@ -295,9 +358,10 @@ export function VcrMenuLayout({
                   ) : afterCountdownAction === 'custom' && (
                     afterCountdownUrl ? (
                       <a
-                        href={afterCountdownUrl}
+                        href={isPreview ? undefined : afterCountdownUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={isPreview ? (e: React.MouseEvent) => e.preventDefault() : undefined}
                         className="block w-full text-center text-base tracking-wider px-4 py-2 border hover:opacity-80 transition-opacity"
                         style={{ color: 'var(--theme-text)', borderColor: 'var(--theme-text)' }}
                       >
@@ -332,7 +396,19 @@ export function VcrMenuLayout({
                 }}
                 onClick={() => handleCardClick(card, index)}
               >
-                {displayText}
+                {isEditable ? (
+                  <InlineEditable
+                    value={card.title || ''}
+                    onCommit={(text) => handleInlineCommit(card.id, text)}
+                    multiline={false}
+                    placeholder="Tap to type"
+                    onEditStart={() => handleInlineEditStart(card.id)}
+                    onEditEnd={handleInlineEditEnd}
+                    className="outline-none min-w-[1ch] inline-block uppercase"
+                  />
+                ) : (
+                  displayText
+                )}
               </button>
             )
           })}

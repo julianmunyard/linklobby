@@ -164,7 +164,13 @@ interface StaticChaoticZineLayoutProps {
   showSocialIcons?: boolean
   avatarUrl?: string | null
   showAvatar?: boolean
+  showTitle?: boolean
+  showLogo?: boolean
+  logoUrl?: string | null
+  logoScale?: number
   bio?: string | null
+  showBio?: boolean
+  hasMediaBackground?: boolean
   zineBadgeText?: string
   zineTitleSize?: number
   zineShowDoodles?: boolean
@@ -181,7 +187,13 @@ export function StaticChaoticZineLayout({
   showSocialIcons = true,
   avatarUrl,
   showAvatar = true,
+  showTitle = true,
+  showLogo = false,
+  logoUrl,
+  logoScale = 100,
   bio,
+  showBio = true,
+  hasMediaBackground = false,
   zineBadgeText = 'NEW!',
   zineTitleSize = 1.0,
   zineShowDoodles = true,
@@ -225,7 +237,7 @@ export function StaticChaoticZineLayout({
   }
 
   return (
-    <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: 'var(--theme-background)' }}>
+    <div className="fixed inset-0 w-full z-10 overflow-x-hidden overflow-y-auto" style={{ background: hasMediaBackground ? 'transparent' : 'var(--theme-background)' }}>
       {/* Large faded typography decorations */}
       {zineShowDoodles && (
         <>
@@ -269,7 +281,25 @@ export function StaticChaoticZineLayout({
 
         {/* Profile Section */}
         <div className="w-full text-center" style={{ marginBottom: '2rem' }}>
+          {/* Logo above display name */}
+          {showLogo && logoUrl && (
+            <div style={{ marginBottom: '1rem' }}>
+              <img
+                src={logoUrl}
+                alt="Logo"
+                style={{
+                  height: `${(logoScale / 100) * 48}px`,
+                  maxWidth: '80%',
+                  objectFit: 'contain',
+                  margin: '0 auto',
+                  display: 'block',
+                }}
+              />
+            </div>
+          )}
+
           {/* Ransom-note title */}
+          {showTitle && (
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px', marginBottom: '2rem', transform: 'rotate(-2deg)' }}>
             {titleText.split('').map((char, index) => {
               if (char === ' ') {
@@ -285,6 +315,7 @@ export function StaticChaoticZineLayout({
               )
             })}
           </div>
+          )}
 
           {/* Profile photo with grayscale + tape */}
           {showAvatar && avatarUrl && (
@@ -318,7 +349,7 @@ export function StaticChaoticZineLayout({
           )}
 
           {/* Bio text */}
-          {bio && (
+          {showBio && bio && (
             <div
               className="zine-bio"
               style={{
@@ -564,7 +595,7 @@ export function StaticChaoticZineLayout({
                     alignItems: 'center',
                     justifyContent: 'center',
                     border: '3px solid var(--theme-text)',
-                    background: '#fff',
+                    background: 'var(--theme-card-bg)',
                     color: 'var(--theme-text)',
                     textDecoration: 'none',
                     fontSize: '1.5rem',
@@ -579,8 +610,11 @@ export function StaticChaoticZineLayout({
         )}
       </div>
 
-      {/* Legal Footer */}
-      <footer className="pb-8 text-center text-xs" style={{ opacity: 0.4, color: 'var(--theme-text)' }}>
+      {/* Spacer for fixed footer */}
+      <div className="h-16" />
+
+      {/* Legal Footer - fixed to bottom */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 py-3 text-center text-xs" style={{ opacity: 0.4, color: 'var(--theme-text)' }}>
         <div className="flex items-center justify-center gap-4">
           <Link href={`/privacy?username=${username}`} className="hover:opacity-80 transition-opacity">
             Privacy Policy
@@ -591,7 +625,7 @@ export function StaticChaoticZineLayout({
           </Link>
         </div>
         {!hasProAccess && (
-          <div className="mt-2">
+          <div className="mt-1">
             Powered by LinkLobby
           </div>
         )}

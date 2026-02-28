@@ -14,8 +14,9 @@ import { compressImageForUpload } from "@/lib/image-compression"
 import type { CardType } from "@/types/card"
 
 interface ImageUploadProps {
-  value?: string           // Current image URL
-  onChange: (url: string | undefined) => void
+  value?: string           // Current (cropped) image URL
+  originalValue?: string   // Original (uncropped) image URL — used for re-crop
+  onChange: (url: string | undefined, originalUrl?: string | undefined) => void
   cardId: string           // For organizing uploads
   cardType: CardType       // For determining aspect ratio
   disabled?: boolean
@@ -34,6 +35,7 @@ function getAspectForCardType(cardType: CardType): number {
 
 export function ImageUpload({
   value,
+  originalValue,
   onChange,
   cardId,
   cardType,
@@ -46,9 +48,11 @@ export function ImageUpload({
   const [sourceImageType, setSourceImageType] = useState<string>('image/jpeg')
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [pendingBlob, setPendingBlob] = useState<Blob | null>(null)
+  // Holds the original image URL for the current crop session (set during new file select)
+  const pendingOriginalUrlRef = useRef<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Handle file selection - open crop dialog
+  // Handle file selection - upload original then open crop dialog
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -74,8 +78,24 @@ export function ImageUpload({
     // GIF files: skip cropping to preserve animation, upload directly
     if (file.type === 'image/gif') {
       if (inputRef.current) inputRef.current.value = ""
+      pendingOriginalUrlRef.current = null
       handleCropComplete(file, 'image/gif')
       return
+    }
+
+    // Upload the original (uncropped) image to storage first
+    try {
+      const hasAlpha = file.type === 'image/png' || file.type === 'image/webp'
+      const uploadContentType = hasAlpha ? 'image/png' : 'image/jpeg'
+      const extMap: Record<string, string> = { 'image/png': 'png', 'image/webp': 'webp' }
+      const ext = extMap[uploadContentType] || 'jpg'
+      const fileToCompress = new File([file], `original.${ext}`, { type: uploadContentType })
+      const compressedOriginal = await compressImageForUpload(fileToCompress)
+      const originalResult = await uploadCardImageBlob(compressedOriginal, cardId, uploadContentType)
+      pendingOriginalUrlRef.current = originalResult.url
+    } catch {
+      // If original upload fails, we'll still allow cropping — just won't have original for re-crop
+      pendingOriginalUrlRef.current = null
     }
 
     // Read file as data URL for cropper
@@ -93,10 +113,12 @@ export function ImageUpload({
     }
   }
 
-  // Handle thumbnail click - open crop dialog with existing image
+  // Handle thumbnail click - open crop dialog with ORIGINAL image for re-crop
   function handleThumbnailClick() {
     if (!value || disabled || isUploading) return
-    setImageToCrop(value)
+    // Use the original (uncropped) image if available, otherwise fall back to current
+    setImageToCrop(originalValue || value)
+    pendingOriginalUrlRef.current = originalValue || null
     setCropDialogOpen(true)
   }
 
@@ -121,8 +143,10 @@ export function ImageUpload({
       setPendingBlob(compressedBlob)
 
       const result = await uploadCardImageBlob(compressedBlob, cardId, uploadContentType)
-      onChange(result.url)
+      // Pass both cropped URL and original URL to parent
+      onChange(result.url, pendingOriginalUrlRef.current || originalValue || undefined)
       setPendingBlob(null) // Clear pending blob on success
+      pendingOriginalUrlRef.current = null
       toast.success("Image uploaded")
     } catch (err) {
       const message = err instanceof Error ? err.message : "Upload failed"
@@ -140,7 +164,7 @@ export function ImageUpload({
       setIsUploading(true)
       setUploadError(null)
       const result = await uploadCardImageBlob(pendingBlob, cardId)
-      onChange(result.url)
+      onChange(result.url, originalValue)
       setPendingBlob(null)
       toast.success("Image uploaded")
     } catch (err) {
@@ -152,7 +176,7 @@ export function ImageUpload({
   }
 
   function handleRemove() {
-    onChange(undefined)
+    onChange(undefined, undefined)
     toast.success("Image removed")
     // Note: We don't delete from storage immediately - orphan cleanup can happen later
   }

@@ -44,9 +44,6 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
   const username = normalizeLinktreeInput(input)
   const url = `https://linktr.ee/${username}`
 
-  console.log('[LinktreeScraper] Normalized username:', username)
-  console.log('[LinktreeScraper] Fetching URL:', url)
-
   try {
     const response = await axios.get(url, {
       headers: {
@@ -63,32 +60,22 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
       throw new LinktreeNotFoundError(username)
     }
 
-    console.log('[LinktreeScraper] Response status:', response.status)
-
     // Parse HTML and extract __NEXT_DATA__
     const $ = cheerio.load(response.data)
     const nextDataScript = $('#__NEXT_DATA__').html()
 
     if (!nextDataScript) {
-      console.error('[LinktreeScraper] No __NEXT_DATA__ found in page')
       throw new LinktreeNotFoundError(username)
     }
 
-    console.log('[LinktreeScraper] Found __NEXT_DATA__, parsing...')
-
     // Parse and validate JSON
     const rawData = JSON.parse(nextDataScript)
-    console.log('[LinktreeScraper] Raw data keys:', Object.keys(rawData))
-    console.log('[LinktreeScraper] pageProps keys:', rawData?.props?.pageProps ? Object.keys(rawData.props.pageProps) : 'none')
 
     const validated = LinktreeDataSchema.safeParse(rawData)
 
     if (!validated.success) {
-      console.error('[LinktreeScraper] Validation failed:', JSON.stringify(validated.error.issues, null, 2))
       throw new LinktreeFetchError('Unable to parse Linktree page. The page structure may have changed.')
     }
-
-    console.log('[LinktreeScraper] Validation passed, links count:', validated.data.props.pageProps.links?.length)
 
     const pageProps = validated.data.props.pageProps
 
@@ -128,7 +115,6 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
       for (const link of topLevel) {
         // Handle HEADER and GROUP types as section dividers
         if ((link.type === 'HEADER' || link.type === 'GROUP') && link.title) {
-          console.log(`[LinktreeScraper] Found header/group: "${link.title}" (type: ${link.type})`)
           result.push({
             ...link,
             type: 'HEADER', // Normalize to HEADER for our mapper
@@ -138,7 +124,6 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
           // Add children of this GROUP
           const groupId = String(link.id)
           const children = childrenByParent[groupId] || []
-          console.log(`[LinktreeScraper] Group "${link.title}" has ${children.length} children`)
           for (const child of children) {
             if (child.url && !child.locked) {
               result.push(child)
@@ -149,7 +134,6 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
         // Handle nested links array (legacy format, may still exist)
         if (link.links && Array.isArray(link.links) && link.links.length > 0) {
-          console.log(`[LinktreeScraper] Found nested group "${link.title}" with ${link.links.length} nested links (legacy format)`)
           if (link.title) {
             result.push({
               ...link,
@@ -174,8 +158,6 @@ export async function scrapeLinktreeProfile(input: string): Promise<LinktreePage
 
     const allLinks = reconstructOrder(pageProps.links)
     const clickableLinks = allLinks.filter(l => l.url && l.type !== 'HEADER')
-    const headerCount = allLinks.filter(l => l.type === 'HEADER').length
-    console.log(`[LinktreeScraper] Total links: ${allLinks.length} (${clickableLinks.length} clickable, ${headerCount} headers)`)
 
     if (clickableLinks.length === 0) {
       throw new LinktreeEmptyError()

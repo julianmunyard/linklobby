@@ -76,11 +76,14 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
 
   // Get theme ID for data-theme attribute
   const themeId = themeSettings?.themeId ?? 'mac-os'
-
-  // Status bar color for mobile safe areas
-  const statusBarColor = background.topBarColor || colors.background
-
   const isMacintosh = themeId === 'macintosh'
+
+  // Status bar color for mobile Safari safe areas (top notch + bottom home indicator)
+  const statusBarColor = background.topBarColor || (isMacintosh ? '#ffffff' : colors.background)
+  const htmlBgColor = isMacintosh
+    ? '#ffffff'
+    : background.topBarColor
+      || (background.type === 'solid' || !background.type ? colors.background : '#000000')
   const macPattern = themeSettings?.macPattern || ''
   const macPatternColor = themeSettings?.macPatternColor || '#c0c0c0'
 
@@ -95,10 +98,12 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
         dangerouslySetInnerHTML={{
           __html: `
             html {
-              ${isMacintosh ? `background-color: #ffffff !important;` : `background-color: ${statusBarColor};`}
+              background-color: ${htmlBgColor} !important;
               min-height: 100% !important;
             }
             body {
+              min-height: 100% !important;
+              overflow-x: hidden !important;
               ${Object.entries(cssVariables)
                 .map(([key, value]) => `${key}: ${value};`)
                 .join("\n              ")}
@@ -127,7 +132,8 @@ export function ThemeInjector({ themeSettings }: ThemeInjectorProps) {
       />
       <script
         dangerouslySetInnerHTML={{
-          __html: `document.documentElement.setAttribute('data-theme', '${themeId}');`,
+          __html: `document.documentElement.setAttribute('data-theme', '${themeId}');
+var m=document.querySelector('meta[name="theme-color"]');if(m){m.content='${statusBarColor}';}else{m=document.createElement('meta');m.name='theme-color';m.content='${statusBarColor}';document.head.appendChild(m);}`,
         }}
       />
     </>

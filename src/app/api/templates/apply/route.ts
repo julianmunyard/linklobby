@@ -42,8 +42,6 @@ function getContentTypeForExtension(ext: string): string {
 }
 
 export async function POST(request: Request) {
-  console.log('[API /templates/apply] POST request received')
-
   if (!validateCsrfOrigin(request)) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
@@ -84,8 +82,6 @@ export async function POST(request: Request) {
     if (!template) {
       return NextResponse.json({ error: `Template "${templateId}" not found` }, { status: 404 })
     }
-
-    console.log(`[API /templates/apply] Applying template "${template.name}" for user ${user.id}, mode=${mode}`)
 
     // --- Step 4: Upload media assets ---
     // urlMap: filename -> { newUrl, newStoragePath }
@@ -131,7 +127,6 @@ export async function POST(request: Request) {
           newStoragePath: uploadData.path,
         }
 
-        console.log(`[API /templates/apply] Uploaded "${assetFilename}" -> ${urlData.publicUrl}`)
       } catch (err) {
         console.warn(`[API /templates/apply] Unexpected error uploading "${assetFilename}":`, err)
         // Continue — non-fatal
@@ -226,7 +221,6 @@ export async function POST(request: Request) {
 
     // --- Step 6: Handle existing cards (replace or add) ---
     if (mode === 'replace') {
-      console.log(`[API /templates/apply] Deleting existing cards for page ${page.id}`)
       const { error: deleteError } = await supabase
         .from('cards')
         .delete()
@@ -242,7 +236,6 @@ export async function POST(request: Request) {
     }
 
     // --- Step 7: Batch insert card records ---
-    console.log(`[API /templates/apply] Inserting ${cardRecords.length} cards`)
     const { data: insertedCards, error: insertError } = await supabase
       .from('cards')
       .insert(cardRecords)
@@ -255,8 +248,6 @@ export async function POST(request: Request) {
         { status: 500 }
       )
     }
-
-    console.log(`[API /templates/apply] Successfully inserted ${insertedCards.length} cards`)
 
     // --- Step 8: Map DB rows back to Card type ---
     const createdCards: Card[] = insertedCards

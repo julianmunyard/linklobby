@@ -1,7 +1,7 @@
 // src/components/cards/horizontal-link.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import { ChevronRight, Link2 } from "lucide-react"
 
@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card, HorizontalLinkContent } from "@/types/card"
 import { renderWithLineBreaks } from "@/lib/render-utils"
+import { InlineEditable } from "@/components/preview/inline-editable"
 
 interface HorizontalLinkProps {
   card: Card
   isPreview?: boolean
+  isEditable?: boolean
 }
 
 // Check if URL looks valid for an image
@@ -21,18 +23,52 @@ function isValidImageUrl(url: string | undefined): boolean {
   return url.startsWith('http') && !url.includes('undefined') && !url.includes('null')
 }
 
-export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps) {
+export function HorizontalLink({ card, isPreview = false, isEditable = false }: HorizontalLinkProps) {
   const content = card.content as HorizontalLinkContent & { textAlign?: string; verticalAlign?: string }
   const [imageError, setImageError] = useState(false)
+
+  const handleTitleCommit = useCallback((text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId: card.id, title: text } },
+        window.location.origin
+      )
+    }
+  }, [card.id])
+
+  const handleEditStart = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId: card.id } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [card.id])
+
+  const handleEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   const hasLink = Boolean(card.url)
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "middle"
   const textColor = content.textColor
-  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.horizontal)
+  const fontFamily = (content as Record<string, unknown>).fontFamily as string | undefined
+  const baseFontSize = useThemeStore((state) => state.cardTypeFontSizes.horizontal)
+  const fontFamilyScales = useThemeStore((state) => state.fontFamilyScales)
+  const fonts = useThemeStore((state) => state.fonts)
+  const fontScale = fontFamily ? (fontFamilyScales?.[fontFamily] ?? 1) : 1
+  const fontSize = baseFontSize * fontScale
+  const descriptionFontFamily = (content as Record<string, unknown>).descriptionFontFamily as string | undefined
+  const headingFont = fontFamily || 'var(--font-theme-heading)'
+  const bodyFont = descriptionFontFamily || fontFamily || 'var(--font-theme-body)'
 
-  const Wrapper = hasLink ? "a" : "div"
-  const wrapperProps = hasLink
+  const useLink = hasLink && !isEditable
+  const Wrapper = useLink ? "a" : "div"
+  const wrapperProps = useLink
     ? {
         href: card.url!,
         target: "_blank",
@@ -82,14 +118,26 @@ export function HorizontalLink({ card, isPreview = false }: HorizontalLinkProps)
       >
         <h3
           className={cn("font-medium break-words ", !textColor && "text-theme-text")}
-          style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
+          style={{ fontFamily: headingFont, fontSize: `${fonts.headingSize * fontSize}rem`, ...(textColor && { color: textColor }) }}
         >
-          {card.title || "Untitled Link"}
+          {isEditable ? (
+            <InlineEditable
+              value={card.title || ''}
+              onCommit={handleTitleCommit}
+              multiline={false}
+              placeholder="Tap to type"
+              onEditStart={handleEditStart}
+              onEditEnd={handleEditEnd}
+              className="outline-none min-w-[1ch] inline-block w-full"
+            />
+          ) : (
+            card.title || "Untitled Link"
+          )}
         </h3>
         {card.description && (
           <p
             className={cn("break-words ", !textColor && "text-theme-text/70")}
-            style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
+            style={{ fontFamily: bodyFont, fontSize: `${fonts.bodySize * 0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
           >
             {renderWithLineBreaks(card.description)}
           </p>

@@ -4,7 +4,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
-import { Lock, Plus } from 'lucide-react'
+import { Lock, Plus, ArrowLeft, Loader2 } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +18,48 @@ import {
 import { getTemplate } from '@/lib/templates'
 import { getTheme } from '@/lib/themes'
 import { usePageStore } from '@/stores/page-store'
+import { useThemeStore } from '@/stores/theme-store'
+import { useProfileStore } from '@/stores/profile-store'
+import { useActiveTemplate } from '@/components/editor/dev-template-saver'
 import type { TemplateDefinition } from '@/lib/templates'
 import type { ThemeId } from '@/types/theme'
+import type { Card } from '@/types/card'
+import type { ThemeState } from '@/types/theme'
+import type { Profile } from '@/types/profile'
 import { cn } from '@/lib/utils'
 import { usePlanTier } from '@/contexts/plan-tier-context'
 import { PRO_THEMES } from '@/lib/stripe/plans'
+
+// ---------------------------------------------------------------------------
+// "Create Your Own" starter themes — each points to a starter template
+// ---------------------------------------------------------------------------
+
+const STARTER_THEMES = [
+  {
+    id: 'mac-os' as const,
+    label: 'Mac OS',
+    description: 'Clean, modern link page',
+    templateId: 'mac-os-my-mac', // TODO: replace with dev template ID
+    preview: '/templates/previews/mac-os-my-mac.mp4',
+    poster: '/templates/mac-os-my-mac/thumbnail.jpg',
+  },
+  {
+    id: 'instagram-reels' as const,
+    label: 'Instagram',
+    description: 'Bold, card-based layout',
+    templateId: 'instagram-reels-cards', // TODO: replace with dev template ID
+    preview: '/templates/previews/instagram-reels-cards.mp4',
+    poster: '/templates/instagram-reels-cards/thumbnail.jpg',
+  },
+  {
+    id: 'system-settings' as const,
+    label: 'System Settings',
+    description: 'Minimal, settings-style page',
+    templateId: 'system-settings-quite-beskoke', // TODO: replace with dev template ID
+    preview: '/templates/previews/system-settings-quite-beskoke.mp4',
+    poster: '/templates/system-settings-quite-beskoke/thumbnail.jpg',
+  },
+]
 
 // ---------------------------------------------------------------------------
 // Curated featured template IDs
@@ -111,12 +148,16 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
 interface FeaturedThemesTabProps {
   onNavigateToTheme: (themeId: string) => void
   onNavigateToLinks?: () => void
+  onNavigateToDesign?: () => void
   onTemplateApplied?: () => void
 }
 
-export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: FeaturedThemesTabProps) {
+export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks, onNavigateToDesign }: FeaturedThemesTabProps) {
   const { planTier } = usePlanTier()
-  const [showCreateOwnConfirm, setShowCreateOwnConfirm] = useState(false)
+  const [showStarterPicker, setShowStarterPicker] = useState(false)
+  const [showStarterConfirm, setShowStarterConfirm] = useState(false)
+  const [pendingStarter, setPendingStarter] = useState<typeof STARTER_THEMES[number] | null>(null)
+  const [applyingStarterId, setApplyingStarterId] = useState<string | null>(null)
 
   const featuredTemplates = useMemo(() => {
     return FEATURED_IDS
@@ -141,22 +182,146 @@ export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: Feat
   }
 
   // ---------------------------------------------------------------------------
-  // Create Your Own flow
+  // Create Your Own flow — shows starter theme picker
   // ---------------------------------------------------------------------------
 
   function handleCreateYourOwn() {
+    setShowStarterPicker(true)
+  }
+
+  function handleStarterClick(starter: typeof STARTER_THEMES[number]) {
+    if (applyingStarterId) return
+
     const existingCardCount = usePageStore.getState().cards.length
     if (existingCardCount > 0) {
-      setShowCreateOwnConfirm(true)
+      setPendingStarter(starter)
+      setShowStarterConfirm(true)
     } else {
-      doCreateYourOwn()
+      applyStarterTemplate(starter, 'replace')
     }
   }
 
-  function doCreateYourOwn() {
-    usePageStore.getState().setCards([])
-    toast.success('Blank canvas ready — start adding your links!')
-    onNavigateToLinks?.()
+  async function applyStarterTemplate(starter: typeof STARTER_THEMES[number], mode: 'replace' | 'add') {
+    setApplyingStarterId(starter.id)
+    setShowStarterConfirm(false)
+
+    try {
+      const res = await fetch('/api/templates/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: starter.templateId, mode }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err?.error || `HTTP ${res.status}`)
+      }
+
+      const data = await res.json() as {
+        cards: Card[]
+        theme: ThemeState
+        profile: Partial<Profile>
+        templateName: string
+      }
+
+      // Hydrate stores
+      usePageStore.getState().setCards(data.cards)
+      useThemeStore.getState().loadFromDatabase(data.theme)
+      useProfileStore.getState().initializeProfile(data.profile)
+
+      useThemeStore.setState({ hasChanges: true })
+      useProfileStore.setState({ hasChanges: true })
+
+      toast.success(`${starter.label} template applied — start customising!`)
+      useActiveTemplate.getState().setActiveTemplate(starter.templateId)
+
+      // Navigate to links tab so they can start editing
+      onNavigateToLinks?.()
+    } catch (err) {
+      console.error('[FeaturedThemesTab] starter apply error:', err)
+      toast.error('Failed to apply template. Please try again.')
+    } finally {
+      setApplyingStarterId(null)
+      setPendingStarter(null)
+    }
+  }
+
+  if (showStarterPicker) {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="p-4 pb-20">
+          <div className="flex items-center gap-2 mb-1">
+            <button
+              onClick={() => setShowStarterPicker(false)}
+              className="p-1 -ml-1 rounded-md hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <h3 className="text-base font-semibold">Choose a look</h3>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4 ml-7">
+            Pick a starting style — you can customise everything after
+          </p>
+
+          <div className="grid grid-cols-3 gap-3">
+            {STARTER_THEMES.map((starter) => (
+              <motion.button
+                key={starter.id}
+                onClick={() => handleStarterClick(starter)}
+                disabled={!!applyingStarterId}
+                className={cn(
+                  'flex flex-col rounded-lg border-2 border-border bg-card text-left overflow-hidden',
+                  'transition-colors hover:border-accent',
+                  applyingStarterId && applyingStarterId !== starter.id && 'opacity-50 pointer-events-none'
+                )}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.12 }}
+              >
+                <div className="relative w-full aspect-[9/16] bg-muted">
+                  <LazyVideo
+                    src={starter.preview}
+                    poster={starter.poster}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {applyingStarterId === starter.id && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20">
+                      <Loader2 className="w-6 h-6 text-white animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-2 flex flex-col gap-0.5">
+                  <span className="text-xs font-medium leading-tight truncate">
+                    {starter.label}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground leading-snug">
+                    {starter.description}
+                  </span>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* Starter template confirmation dialog (when user has existing cards) */}
+        <AlertDialog open={showStarterConfirm} onOpenChange={setShowStarterConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Apply {pendingStarter?.label} template?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have {usePageStore.getState().cards.length} existing card
+                {usePageStore.getState().cards.length === 1 ? '' : 's'}. What would you like to do?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => pendingStarter && applyStarterTemplate(pendingStarter, 'replace')}>
+                Replace my page
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    )
   }
 
   return (
@@ -172,6 +337,31 @@ export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: Feat
 
         {/* Template grid */}
         <div className="grid grid-cols-2 gap-3">
+          {/* Create Your Own card — first in grid, same phone-style look */}
+          <motion.button
+            onClick={handleCreateYourOwn}
+            className={cn(
+              'flex flex-col rounded-lg border-2 border-dashed border-border bg-card text-left overflow-hidden',
+              'transition-colors hover:border-accent hover:bg-muted/30',
+            )}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.12 }}
+          >
+            <div className="relative w-full aspect-[9/16] bg-muted/50 flex flex-col items-center justify-center gap-3">
+              <div className="rounded-full bg-muted p-3">
+                <Plus className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </div>
+            <div className="p-2.5 flex flex-col gap-0.5">
+              <span className="text-xs font-medium leading-tight">
+                Create Your Own
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                Pick a look to start with
+              </span>
+            </div>
+          </motion.button>
+
           {featuredTemplates.map(({ template, themeName }) => (
             <motion.button
               key={template.id}
@@ -213,13 +403,15 @@ export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: Feat
               </div>
 
               {/* Card info */}
-              <div className="p-2.5 flex flex-col gap-0.5">
-                <span className="text-xs font-medium leading-tight truncate">
-                  {template.name}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {themeName}
-                </span>
+              <div className="p-2.5 flex items-center justify-between gap-2">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-xs font-medium leading-tight truncate">
+                    {template.name}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {themeName}
+                  </span>
+                </div>
                 <span
                   role="button"
                   tabIndex={0}
@@ -233,51 +425,22 @@ export function FeaturedThemesTab({ onNavigateToTheme, onNavigateToLinks }: Feat
                       onNavigateToTheme(template.themeId)
                     }
                   }}
-                  className="text-[10px] text-white hover:underline text-left mt-1 w-fit"
+                  className="shrink-0 relative rounded-md overflow-hidden p-[2px]"
                 >
-                  Explore theme
+                  {/* Static border */}
+                  <span className="absolute inset-0 rounded-md bg-white/40" />
+                  {/* Chasing light overlay */}
+                  <span className="absolute inset-0 animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_70%,white_85%,transparent_100%)]" />
+                  {/* Inner background */}
+                  <span className="relative block bg-white text-black text-[10px] font-semibold px-2.5 py-1.5 rounded-[4px]">
+                    Explore
+                  </span>
                 </span>
               </div>
             </motion.button>
           ))}
-
-          {/* Create Your Own card */}
-          <motion.button
-            onClick={handleCreateYourOwn}
-            className={cn(
-              'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card',
-              'transition-colors hover:border-accent hover:bg-muted/30 min-h-[180px] gap-3 p-4'
-            )}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.12 }}
-          >
-            <div className="rounded-full bg-muted p-3">
-              <Plus className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground text-center leading-tight">
-              Create Your Own
-            </span>
-          </motion.button>
         </div>
       </div>
-
-      {/* Create Your Own confirmation dialog */}
-      <AlertDialog open={showCreateOwnConfirm} onOpenChange={setShowCreateOwnConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Start with a blank canvas?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will clear your existing cards. Continue?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { setShowCreateOwnConfirm(false); doCreateYourOwn() }}>
-              Clear and start fresh
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

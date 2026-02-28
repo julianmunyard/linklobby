@@ -41,13 +41,13 @@ export function CardRenderer({ card, isPreview = false, isEditable = false, them
 
   switch (card.card_type) {
     case "hero":
-      cardContent = <HeroCard card={card} isPreview={isPreview} />
+      cardContent = <HeroCard card={card} isPreview={isPreview} isEditable={isEditable} />
       break
     case "horizontal":
-      cardContent = <HorizontalLink card={card} isPreview={isPreview} />
+      cardContent = <HorizontalLink card={card} isPreview={isPreview} isEditable={isEditable} />
       break
     case "square":
-      cardContent = <SquareCard card={card} isPreview={isPreview} />
+      cardContent = <SquareCard card={card} isPreview={isPreview} isEditable={isEditable} />
       break
     case "social-icons":
       // Social icons don't need themed wrapper - they're just icons
@@ -61,11 +61,11 @@ export function CardRenderer({ card, isPreview = false, isEditable = false, them
       if (effectiveThemeId === 'blinkies') {
         return <BlinkieLink card={card} isPreview={isPreview} />
       }
-      cardContent = <LinkCard card={card} isPreview={isPreview} />
+      cardContent = <LinkCard card={card} isPreview={isPreview} isEditable={isEditable} />
       break
     }
     case "video":
-      cardContent = <VideoCard card={card} isPreview={isPreview} />
+      cardContent = <VideoCard card={card} isPreview={isPreview} isEditable={isEditable} />
       break
     case "gallery":
       cardContent = <GalleryCard card={card} isPreview={isPreview} />

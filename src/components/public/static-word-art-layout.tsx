@@ -329,8 +329,11 @@ export function StaticWordArtLayout({
 
       </div>
 
-      {/* Legal Footer — pinned to bottom */}
-      <footer className="mt-auto pt-6 pb-6 text-center text-xs" style={{ opacity: 0.5 }}>
+      {/* Spacer for fixed footer */}
+      <div className="h-16" />
+
+      {/* Legal Footer — fixed to bottom */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 py-3 text-center text-xs" style={{ opacity: 0.5 }}>
         <div className="flex items-center justify-center gap-4" style={{ color: 'var(--theme-text)' }}>
           <Link
             href={`/privacy?username=${username}`}
@@ -347,7 +350,7 @@ export function StaticWordArtLayout({
           </Link>
         </div>
         {!hasProAccess && (
-          <div className="mt-2" style={{ color: 'var(--theme-text)' }}>
+          <div className="mt-1" style={{ color: 'var(--theme-text)' }}>
             Powered by LinkLobby
           </div>
         )}

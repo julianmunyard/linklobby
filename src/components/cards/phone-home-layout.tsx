@@ -426,14 +426,15 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
   const customHeight = content.embedHeight as number | undefined
   const isBandcamp = platform === 'bandcamp'
 
-  // Bandcamp: render exactly as the embed specifies — no rounding, no overflow clipping, no size adjustment
+  // Bandcamp: render at exact native embed height — no grid constraints
   if (isBandcamp) {
+    const bcHeight = customHeight || 470
     return (
-      <div className={cn('w-full relative', onClick && 'cursor-pointer')}>
+      <div className={cn('w-full relative', onClick && 'cursor-pointer')} style={{ height: bcHeight }}>
         <iframe
           src={iframeUrl}
           width="100%"
-          height={customHeight || 470}
+          height={bcHeight}
           frameBorder="0"
           seamless
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -1252,12 +1253,22 @@ export function PhoneHomeLayout({
 
     // Music widgets
     if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
+      // For Bandcamp, expand row span to fit native embed height
+      const mc = card.content as Record<string, unknown>
+      const isBc = (mc.platform as string) === 'bandcamp'
+      const bcEmbedH = mc.embedHeight as number | undefined
+      let rowSpan = layout.height
+      if (isBc && bcEmbedH) {
+        const neededRows = Math.ceil((bcEmbedH + 20) / 96)
+        rowSpan = Math.max(layout.height, neededRows)
+      }
       const musicGridStyle: React.CSSProperties = {
         ...gridStyle,
+        gridRow: `${layout.row + 1} / span ${rowSpan}`,
       }
       const inner = (
         <div
-          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
+          className={cn('w-full h-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
           style={{ cursor: 'pointer' }}
         >
           <MusicWidget card={card} layout={layout} onClick={handleIconTap} />

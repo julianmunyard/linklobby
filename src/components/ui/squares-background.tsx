@@ -54,10 +54,10 @@ export function Squares({
       canvas.height = canvas.offsetHeight
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const updateHovered = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect()
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
+      const mouseX = clientX - rect.left
+      const mouseY = clientY - rect.top
 
       const gridX = Math.floor(
         (mouseX + ((offsetRef.current.x % squareSize) + squareSize) % squareSize) / squareSize
@@ -69,7 +69,20 @@ export function Squares({
       hoveredSquare.current = { x: gridX, y: gridY }
     }
 
+    const handleMouseMove = (e: MouseEvent) => {
+      updateHovered(e.clientX, e.clientY)
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0]
+      if (touch) updateHovered(touch.clientX, touch.clientY)
+    }
+
     const handleMouseLeave = () => {
+      hoveredSquare.current = null
+    }
+
+    const handleTouchEnd = () => {
       hoveredSquare.current = null
     }
 
@@ -137,6 +150,8 @@ export function Squares({
     window.addEventListener('resize', resizeCanvas)
     canvas.addEventListener('mousemove', handleMouseMove)
     canvas.addEventListener('mouseleave', handleMouseLeave)
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: true })
+    canvas.addEventListener('touchend', handleTouchEnd)
 
     requestRef.current = requestAnimationFrame(drawGrid)
 
@@ -144,6 +159,8 @@ export function Squares({
       window.removeEventListener('resize', resizeCanvas)
       canvas.removeEventListener('mousemove', handleMouseMove)
       canvas.removeEventListener('mouseleave', handleMouseLeave)
+      canvas.removeEventListener('touchmove', handleTouchMove)
+      canvas.removeEventListener('touchend', handleTouchEnd)
       cancelAnimationFrame(requestRef.current)
     }
   }, [squareSize, borderColor, hoverFillColor, getDirectionOffset])

@@ -31,33 +31,35 @@ const FRAME_INSETS: Record<string, { top: number; bottom: number; left: number; 
  */
 function LegalFooter({ username, hasProAccess, themeDowngraded }: { username: string; hasProAccess?: boolean; themeDowngraded?: boolean }) {
   return (
-    <footer className="py-6 text-center text-xs" style={{ opacity: 0.5 }}>
-      {themeDowngraded && (
-        <div className="mb-3 text-theme-text text-[11px]">
-          This page uses a premium theme. Upgrade to Pro to see the full design.
+    <>
+      <footer className="w-full py-4 mt-8 text-center text-xs" style={{ opacity: 0.5 }}>
+        {themeDowngraded && (
+          <div className="mb-1 text-theme-text text-[11px]">
+            This page uses a premium theme. Upgrade to Pro to see the full design.
+          </div>
+        )}
+        <div className="flex items-center justify-center gap-4 text-theme-text">
+          <Link
+            href={`/privacy?username=${username}`}
+            className="hover:opacity-80 transition-opacity"
+          >
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link
+            href="/terms"
+            className="hover:opacity-80 transition-opacity"
+          >
+            Terms of Service
+          </Link>
         </div>
-      )}
-      <div className="flex items-center justify-center gap-4 text-theme-text">
-        <Link
-          href={`/privacy?username=${username}`}
-          className="hover:opacity-80 transition-opacity"
-        >
-          Privacy Policy
-        </Link>
-        <span>•</span>
-        <Link
-          href="/terms"
-          className="hover:opacity-80 transition-opacity"
-        >
-          Terms of Service
-        </Link>
-      </div>
-      {!hasProAccess && (
-        <div className="mt-2 text-theme-text">
-          Powered by LinkLobby
-        </div>
-      )}
-    </footer>
+        {!hasProAccess && (
+          <div className="mt-1 text-theme-text">
+            Powered by LinkLobby
+          </div>
+        )}
+      </footer>
+    </>
   )
 }
 
@@ -69,8 +71,10 @@ interface PublicPageRendererProps {
   avatarUrl: string | null
   avatarFeather: number
   avatarSize: number
+  avatarShape?: 'circle' | 'square'
   showAvatar: boolean
   showTitle: boolean
+  showBio?: boolean
   titleSize: "small" | "large"
   showLogo: boolean
   logoUrl: string | null
@@ -78,6 +82,8 @@ interface PublicPageRendererProps {
   profileLayout: "classic" | "hero"
   headerTextColor: string | null
   socialIconColor: string | null
+  titleFont?: string | null
+  bioFont?: string | null
   showSocialIcons: boolean
   socialIconsJson?: string | null
   // Theme fonts
@@ -162,8 +168,10 @@ export function PublicPageRenderer({
   avatarUrl,
   avatarFeather,
   avatarSize,
+  avatarShape = 'circle',
   showAvatar,
   showTitle,
+  showBio = true,
   titleSize,
   showLogo,
   logoUrl,
@@ -171,6 +179,8 @@ export function PublicPageRenderer({
   profileLayout,
   headerTextColor,
   socialIconColor,
+  titleFont,
+  bioFont,
   showSocialIcons,
   socialIconsJson,
   fuzzyEnabled,
@@ -236,6 +246,7 @@ export function PublicPageRenderer({
         phoneHomeVariant={phoneHomeVariant}
         socialIconsJson={socialIconsJson}
         socialIconColor={socialIconColor}
+        statusBarColor={background?.topBarColor}
       />
     )
   }
@@ -254,6 +265,10 @@ export function PublicPageRenderer({
         bodySize={bodySize}
         centerContent={vcrCenterContent}
         socialIcons={socialIcons}
+        showLogo={showLogo}
+        logoUrl={logoUrl}
+        logoScale={logoScale}
+        showTitle={showTitle}
         hasProAccess={hasProAccess}
       />
     )
@@ -351,7 +366,13 @@ export function PublicPageRenderer({
         showSocialIcons={showSocialIcons}
         avatarUrl={avatarUrl}
         showAvatar={showAvatar}
+        showTitle={showTitle}
+        showLogo={showLogo}
+        logoUrl={logoUrl}
+        logoScale={logoScale}
         bio={bio}
+        showBio={showBio}
+        hasMediaBackground={background?.type === 'image' || background?.type === 'video'}
         zineBadgeText={zineBadgeText}
         zineTitleSize={zineTitleSize}
         zineShowDoodles={zineShowDoodles}
@@ -433,8 +454,10 @@ export function PublicPageRenderer({
             avatarUrl={avatarUrl}
             avatarFeather={avatarFeather}
             avatarSize={avatarSize}
+            avatarShape={avatarShape}
             showAvatar={showAvatar}
             showTitle={showTitle}
+            showBio={showBio}
             titleSize={titleSize}
             showLogo={showLogo}
             logoUrl={logoUrl}
@@ -448,6 +471,8 @@ export function PublicPageRenderer({
             fuzzyEnabled={fuzzyEnabled}
             fuzzyIntensity={fuzzyIntensity}
             fuzzySpeed={fuzzySpeed}
+            titleFont={titleFont}
+            bioFont={bioFont}
           />
         </div>
 
@@ -502,8 +527,10 @@ export function PublicPageRenderer({
             avatarUrl={avatarUrl}
             avatarFeather={avatarFeather}
             avatarSize={avatarSize}
+            avatarShape={avatarShape}
             showAvatar={showAvatar}
             showTitle={showTitle}
+            showBio={showBio}
             titleSize={titleSize}
             showLogo={showLogo}
             logoUrl={logoUrl}
@@ -517,6 +544,8 @@ export function PublicPageRenderer({
             fuzzyEnabled={fuzzyEnabled}
             fuzzyIntensity={fuzzyIntensity}
             fuzzySpeed={fuzzySpeed}
+            titleFont={titleFont}
+            bioFont={bioFont}
           />
 
           {/* Card Grid */}
@@ -549,8 +578,10 @@ export function PublicPageRenderer({
           avatarUrl={avatarUrl}
           avatarFeather={avatarFeather}
           avatarSize={avatarSize}
+          avatarShape={avatarShape}
           showAvatar={showAvatar}
           showTitle={showTitle}
+          showBio={showBio}
           titleSize={titleSize}
           showLogo={showLogo}
           logoUrl={logoUrl}
@@ -564,6 +595,8 @@ export function PublicPageRenderer({
           fuzzyEnabled={fuzzyEnabled}
           fuzzyIntensity={fuzzyIntensity}
           fuzzySpeed={fuzzySpeed}
+          titleFont={titleFont}
+          bioFont={bioFont}
         />
 
         {/* Card Grid */}

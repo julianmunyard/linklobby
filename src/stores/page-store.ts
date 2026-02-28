@@ -112,7 +112,7 @@ export const usePageStore = create<PageState>()(
       id: generateId(),
       page_id: '', // Set when saving to DB
       card_type: type,
-      title: null,
+      title: 'Untitled',
       description: null,
       url: null,
       content: defaultContent,
@@ -298,14 +298,18 @@ export const usePageStore = create<PageState>()(
   })),
 
   setAllCardsTransparency: (transparent) => set((state) => ({
-    cards: state.cards.map((card) => ({
-      ...card,
-      content: {
-        ...card.content,
-        transparentBackground: transparent,
-      },
-      updated_at: new Date().toISOString(),
-    })),
+    cards: state.cards.map((card) => {
+      // Don't touch audio cards — they may have custom GIF/image backgrounds
+      if (card.card_type === 'audio') return card
+      return {
+        ...card,
+        content: {
+          ...card.content,
+          transparentBackground: transparent,
+        },
+        updated_at: new Date().toISOString(),
+      }
+    }),
     hasChanges: true,
   })),
 

@@ -69,11 +69,13 @@ export function AudioCard({ card, isPreview = false, themeIdOverride }: AudioCar
       transparentBackground={content.transparentBackground ?? false}
       reverbConfig={content.reverbConfig}
       playerColors={content.playerColors}
+      textColor={content.textColor}
       blinkieColors={content.blinkieColors}
       blinkieCardHasBgImage={!!(content.blinkieBoxBackgrounds?.cardBgUrl) && !(content.transparentBackground)}
       cardId={card.id}
       isEditing={isPreview}
       themeVariant={themeVariant}
+      playerStyle={content.playerStyle}
       pageId={card.page_id}
     />
   )

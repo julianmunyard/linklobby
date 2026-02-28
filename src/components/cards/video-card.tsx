@@ -1,11 +1,12 @@
 // src/components/cards/video-card.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Play, Video } from 'lucide-react'
 import { useThemeStore } from '@/stores/theme-store'
 import { useOptionalEmbedPlayback } from '@/components/providers/embed-provider'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import type { Card } from '@/types/card'
 import { isVideoContent, type VideoCardContent } from '@/types/card'
 
@@ -45,11 +46,14 @@ function RetroVideoControlBar({ title }: { title?: string | null }) {
 interface VideoCardProps {
   card: Card
   isPreview?: boolean
+  isEditable?: boolean
 }
 
-export function VideoCard({ card, isPreview = false }: VideoCardProps) {
-  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.video)
+export function VideoCard({ card, isPreview = false, isEditable = false }: VideoCardProps) {
+  const rawFontSize = useThemeStore((state) => state.cardTypeFontSizes.video)
+  const headingSize = useThemeStore((state) => state.fonts.headingSize)
   const themeId = useThemeStore((state) => state.themeId)
+  const fontSize = headingSize * rawFontSize
   const isSystemSettings = themeId === 'system-settings'
 
   // Use type guard to safely cast content
@@ -75,6 +79,8 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
       <VideoCardUpload
         videoUrl={content.uploadedVideoUrl as string}
         title={card.title}
+        cardId={card.id}
+        isEditable={isEditable}
         zoom={content.videoZoom as number | undefined}
         positionX={content.videoPositionX as number | undefined}
         positionY={content.videoPositionY as number | undefined}
@@ -95,13 +101,14 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
         embedVideoId={content.embedVideoId as string | undefined}
         thumbnailUrl={content.embedThumbnailUrl as string | undefined}
         title={card.title}
+        cardId={card.id}
+        isEditable={isEditable}
         textAlign={(content.textAlign as 'left' | 'center' | 'right') ?? 'center'}
         verticalAlign={(content.verticalAlign as 'top' | 'middle' | 'bottom') ?? 'bottom'}
         textColor={textColor}
         fontSize={fontSize}
         showRetroControls={isSystemSettings}
         embedIsVertical={content.embedIsVertical as boolean | undefined}
-        cardId={card.id}
       />
     )
   }
@@ -124,6 +131,8 @@ export function VideoCard({ card, isPreview = false }: VideoCardProps) {
 interface VideoCardUploadProps {
   videoUrl: string
   title: string | null
+  cardId?: string
+  isEditable?: boolean
   zoom?: number
   positionX?: number
   positionY?: number
@@ -137,6 +146,8 @@ interface VideoCardUploadProps {
 function VideoCardUpload({
   videoUrl,
   title,
+  cardId,
+  isEditable = false,
   zoom = 1,
   positionX = 50,
   positionY = 50,
@@ -146,6 +157,30 @@ function VideoCardUpload({
   fontSize = 1,
   showRetroControls = false,
 }: VideoCardUploadProps) {
+  const handleTitleCommit = useCallback((text: string) => {
+    if (cardId && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [cardId])
+
+  const handleEditStart = useCallback(() => {
+    if (cardId && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [cardId])
+
+  const handleEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   // Text alignment classes
   const textAlignClass = {
     left: 'text-left',
@@ -177,13 +212,23 @@ function VideoCardUpload({
           }}
           aria-label={title || 'Video'}
         />
-        {title && !showRetroControls && (
+        {(title || isEditable) && !showRetroControls && (
           <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
             <p
               className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
               style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
             >
-              {title}
+              {isEditable ? (
+                <InlineEditable
+                  value={title || ''}
+                  onCommit={handleTitleCommit}
+                  multiline={false}
+                  placeholder="Tap to type"
+                  onEditStart={handleEditStart}
+                  onEditEnd={handleEditEnd}
+                  className="outline-none min-w-[1ch] inline-block w-full"
+                />
+              ) : title}
             </p>
           </div>
         )}
@@ -203,13 +248,14 @@ interface VideoCardEmbedProps {
   embedVideoId?: string
   thumbnailUrl?: string
   title: string | null
+  cardId: string
+  isEditable?: boolean
   textAlign?: 'left' | 'center' | 'right'
   verticalAlign?: 'top' | 'middle' | 'bottom'
   textColor?: string
   fontSize?: number
   showRetroControls?: boolean
   embedIsVertical?: boolean
-  cardId: string
 }
 
 // Container for 9:16 vertical content (TikTok, Instagram Reels)
@@ -237,16 +283,42 @@ function VideoCardEmbed({
   embedVideoId,
   thumbnailUrl,
   title,
+  cardId,
+  isEditable = false,
   textAlign = 'center',
   verticalAlign = 'bottom',
   textColor = '#ffffff',
   fontSize = 1,
   showRetroControls = false,
   embedIsVertical = false,
-  cardId,
 }: VideoCardEmbedProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const playback = useOptionalEmbedPlayback()
+
+  const handleTitleCommit = useCallback((text: string) => {
+    if (cardId && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [cardId])
+
+  const handleEditStart = useCallback(() => {
+    if (cardId && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [cardId])
+
+  const handleEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
 
   // Register with playback coordination
   useEffect(() => {
@@ -362,13 +434,23 @@ function VideoCardEmbed({
             </div>
 
             {/* Title overlay (optional) - hide when retro controls shown */}
-            {title && !showRetroControls && (
+            {(title || isEditable) && !showRetroControls && (
               <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
                 <p
                   className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
                   style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
                 >
-                  {title}
+                  {isEditable ? (
+                    <InlineEditable
+                      value={title || ''}
+                      onCommit={handleTitleCommit}
+                      multiline={false}
+                      placeholder="Tap to type"
+                      onEditStart={handleEditStart}
+                      onEditEnd={handleEditEnd}
+                      className="outline-none min-w-[1ch] inline-block w-full"
+                    />
+                  ) : title}
                 </p>
               </div>
             )}
@@ -428,13 +510,23 @@ function VideoCardEmbed({
         </div>
 
         {/* Title overlay (optional) - hide when retro controls shown */}
-        {title && !showRetroControls && (
+        {(title || isEditable) && !showRetroControls && (
           <div className={`absolute inset-x-0 ${verticalPositionClass} from-black/70 via-black/20 to-transparent p-4`}>
             <p
               className={`font-medium drop-shadow-sm line-clamp-2 ${textAlignClass}`}
               style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${1 * fontSize}rem` }}
             >
-              {title}
+              {isEditable ? (
+                <InlineEditable
+                  value={title || ''}
+                  onCommit={handleTitleCommit}
+                  multiline={false}
+                  placeholder="Tap to type"
+                  onEditStart={handleEditStart}
+                  onEditEnd={handleEditEnd}
+                  className="outline-none min-w-[1ch] inline-block w-full"
+                />
+              ) : title}
             </p>
           </div>
         )}

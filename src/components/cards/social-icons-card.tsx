@@ -21,19 +21,16 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
 
   const socialIcons = getSortedSocialIcons()
 
-  // If social icons are hidden or empty, show placeholder in editor only
-  if (!showSocialIcons || socialIcons.length === 0) {
-    // On public page (not preview), hide completely
+  // If social icons are hidden, hide completely everywhere
+  if (!showSocialIcons) return null
+
+  // If no icons added yet, show placeholder in editor only
+  if (socialIcons.length === 0) {
     if (!isPreview) return null
-    // In editor preview, show placeholder
     return (
       <div className="w-full p-4 rounded-lg border border-dashed bg-muted/50 text-center">
-        <p className="text-sm text-muted-foreground">
-          Social Icons
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {!showSocialIcons ? "Hidden (enable in Header settings)" : "Add icons in Header settings"}
-        </p>
+        <p className="text-sm text-muted-foreground">Social Icons</p>
+        <p className="text-xs text-muted-foreground">Add icons in Header settings</p>
       </div>
     )
   }
@@ -66,12 +63,12 @@ export function SocialIconsCard({ isPreview = false }: SocialIconsCardProps) {
         return (
           <a
             key={icon.id}
-            href={isPreview ? icon.url : undefined}
+            href={isPreview ? undefined : icon.url}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-70 transition-opacity inline-block"
             style={{ color: iconColor }}
-            onClick={isPreview ? undefined : (e) => e.preventDefault()}
+            onClick={isPreview ? (e: React.MouseEvent) => e.preventDefault() : undefined}
           >
             {iconContent}
           </a>

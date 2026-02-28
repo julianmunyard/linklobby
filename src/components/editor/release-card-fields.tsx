@@ -8,7 +8,6 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { ColorPicker } from '@/components/ui/color-picker'
 import { cn } from '@/lib/utils'
 import { uploadCardImageBlob } from '@/lib/supabase/storage'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
@@ -37,6 +36,8 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
   const [uploadError, setUploadError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const originalFileRef = useRef<File | null>(null)
+  // Holds the original (uncropped) image URL for the current crop session
+  const pendingOriginalUrlRef = useRef<string | null>(null)
 
   // Merge with defaults
   const values: Partial<ReleaseCardContent> = {
@@ -85,7 +86,7 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       try {
         setIsUploading(true)
         const result = await uploadCardImageBlob(file, cardId, file.type)
-        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path, originalAlbumArtUrl: undefined })
         toast.success('Album art uploaded')
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Upload failed'
@@ -95,6 +96,19 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       }
       if (inputRef.current) inputRef.current.value = ''
       return
+    }
+
+    // Upload the original (uncropped) image to storage first
+    try {
+      const isPng = file.type === 'image/png' || file.type === 'image/webp'
+      const uploadType = isPng ? 'image/png' : 'image/jpeg'
+      const ext = isPng ? 'png' : 'jpg'
+      const fileToCompress = new File([file], `original.${ext}`, { type: uploadType })
+      const compressedOriginal = await compressImageForUpload(fileToCompress)
+      const originalResult = await uploadCardImageBlob(compressedOriginal, cardId, uploadType)
+      pendingOriginalUrlRef.current = originalResult.url
+    } catch {
+      pendingOriginalUrlRef.current = null
     }
 
     const reader = new FileReader()
@@ -122,7 +136,9 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
       const compressedBlob = await compressImageForUpload(fileToCompress)
 
       const result = await uploadCardImageBlob(compressedBlob, cardId, isPng ? 'image/png' : 'image/jpeg')
-      onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+      const originalUrl = pendingOriginalUrlRef.current || values.originalAlbumArtUrl
+      onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path, ...(originalUrl ? { originalAlbumArtUrl: originalUrl } : {}) })
+      pendingOriginalUrlRef.current = null
       toast.success('Album art uploaded')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Upload failed'
@@ -133,7 +149,7 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
   }
 
   function handleRemoveArt() {
-    onChange({ albumArtUrl: undefined, albumArtStoragePath: undefined })
+    onChange({ albumArtUrl: undefined, albumArtStoragePath: undefined, originalAlbumArtUrl: undefined })
     toast.success('Album art removed')
   }
 
@@ -151,7 +167,9 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
               )}
               onClick={() => {
                 if (!isUploading && values.albumArtUrl) {
-                  setImageToCrop(values.albumArtUrl)
+                  // Use original (uncropped) image for re-crop if available
+                  setImageToCrop(values.originalAlbumArtUrl || values.albumArtUrl)
+                  pendingOriginalUrlRef.current = values.originalAlbumArtUrl || null
                   setCropDialogOpen(true)
                 }
               }}
@@ -364,15 +382,6 @@ export function ReleaseCardFields({ content, onChange, cardId, hideNameFields }:
           </div>
         </div>
       </div>
-
-      {/* Text Color */}
-      {!hideNameFields && (
-        <ColorPicker
-          label="Text Color"
-          color={values.textColor || "#ffffff"}
-          onChange={(color) => onChange({ textColor: color })}
-        />
-      )}
 
       {/* Crop dialog */}
       {imageToCrop && (

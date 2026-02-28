@@ -10,7 +10,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
 
 interface ReverbConfigModalProps {
   config: ReverbConfig
@@ -43,20 +42,6 @@ export function ReverbConfigModal({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Enable/Disable Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-semibold">Enabled</label>
-              <p className="text-xs text-muted-foreground">
-                Turn reverb effect on/off
-              </p>
-            </div>
-            <Switch
-              checked={localConfig.enabled}
-              onCheckedChange={(checked) => handleChange('enabled', checked)}
-            />
-          </div>
-
           {/* Mix Slider */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">

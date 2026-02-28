@@ -93,12 +93,10 @@ export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }:
             Color
           </button>
           <button
-            onClick={() => handleButtonClick('style')}
+            onClick={() => handleFullSettingsClick('style')}
             className={cn(
               "px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2",
-              activeDrawer === 'style'
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+              "bg-muted text-muted-foreground"
             )}
           >
             <Sparkles className="h-4 w-4" />
@@ -251,18 +249,6 @@ export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }:
                     min={0}
                     max={32}
                     step={2}
-                  />
-                </div>
-
-                {/* Card Shadows */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm">Card Shadows</Label>
-                    <p className="text-xs text-muted-foreground">Add depth to cards</p>
-                  </div>
-                  <Switch
-                    checked={style.shadowEnabled}
-                    onCheckedChange={(checked) => setStyle('shadowEnabled', checked)}
                   />
                 </div>
 
@@ -559,21 +545,6 @@ export function MobileQuickSettings({ onOpenFullSettings, onQuickSettingsOpen }:
                 rows={2}
                 className="resize-none"
               />
-            </div>
-
-            {/* Profile layout */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Layout</Label>
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                value={profileLayout}
-                onValueChange={(v) => v && setProfileLayout(v as ProfileLayout)}
-                className="justify-start"
-              >
-                <ToggleGroupItem value="classic">Classic</ToggleGroupItem>
-                <ToggleGroupItem value="hero">Hero</ToggleGroupItem>
-              </ToggleGroup>
             </div>
 
             {/* Full settings button */}

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { ColorPicker } from '@/components/ui/color-picker'
+
 import { Upload, Loader2 } from 'lucide-react'
 import { uploadCardVideo } from '@/lib/supabase/storage'
 
@@ -181,6 +181,23 @@ export function MacWindowFields({ macMode, macBodyText, macWindowStyle, macCheck
             </div>
           </div>
           <div className="space-y-2">
+            <Label>Text Color</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={macTextColor || '#000000'}
+                onChange={(e) => onChange({ macTextColor: e.target.value })}
+                className="h-9 w-9 rounded border cursor-pointer"
+              />
+              <Input
+                placeholder="#000000"
+                value={macTextColor || ''}
+                onChange={(e) => onChange({ macTextColor: e.target.value })}
+                className="flex-1"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
             <Label>Text Align</Label>
             <ToggleGroup
               type="single"
@@ -198,11 +215,6 @@ export function MacWindowFields({ macMode, macBodyText, macWindowStyle, macCheck
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
-          <ColorPicker
-            label="Text Color"
-            color={macTextColor || '#000000'}
-            onChange={(color) => onChange({ macTextColor: color })}
-          />
         </>
       )}
     </div>

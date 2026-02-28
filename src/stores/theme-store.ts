@@ -43,6 +43,7 @@ interface ThemeStore extends ThemeState {
   phoneHomeDock: string[]    // Phone Home theme: card IDs pinned to dock (max 4)
   phoneHomeShowDock: boolean // Phone Home theme: show dock bar
   phoneHomeDockTranslucent: boolean // Phone Home theme: translucent dock (modern variant)
+  phoneHomeDockColor: string // Phone Home theme: dock & status bar color
   phoneHomeVariant: 'default' | '8-bit' | 'windows-95' // Phone Home theme: visual variant
   zineBadgeText: string        // Chaotic Zine theme: badge text on first card
   zineTitleSize: number        // Chaotic Zine theme: title character size multiplier (0.5-2.0)
@@ -74,6 +75,7 @@ interface ThemeStore extends ThemeState {
   setStyle: (key: keyof StyleConfig, value: number | boolean) => void
   setBackground: (background: BackgroundConfig) => void
   setCardTypeFontSize: (cardType: keyof CardTypeFontSizes, size: number) => void
+  setFontFamilyScale: (fontFamily: string, scale: number) => void
   setSocialIconSize: (size: number) => void
   setCenterCards: (center: boolean) => void
   setVcrCenterContent: (center: boolean) => void
@@ -95,6 +97,7 @@ interface ThemeStore extends ThemeState {
   removeFromDock: (cardId: string) => void
   setPhoneHomeShowDock: (show: boolean) => void
   setPhoneHomeDockTranslucent: (translucent: boolean) => void
+  setPhoneHomeDockColor: (color: string) => void
   setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => void
   setZineBadgeText: (text: string) => void
   setZineTitleSize: (size: number) => void
@@ -187,6 +190,7 @@ export const useThemeStore = create<ThemeStore>()(
       phoneHomeDock: [],
       phoneHomeShowDock: true,
       phoneHomeDockTranslucent: true,
+      phoneHomeDockColor: '',
       phoneHomeVariant: 'default',
       zineBadgeText: 'NEW!',
       zineTitleSize: 1.0,
@@ -199,7 +203,7 @@ export const useThemeStore = create<ThemeStore>()(
       artifactHeaderBottomCenter: '///',
       artifactHeaderBottomRight: 'SYS_ADMIN',
       artifactShowHeaderMeta: true,
-      artifactHeroOverlay: true,
+      artifactHeroOverlay: false,
       artifactHeroMediaType: 'image' as const,
       artifactHeroImageUrl: '',
       artifactHeroVideoUrl: '',
@@ -217,6 +221,12 @@ export const useThemeStore = create<ThemeStore>()(
         if (!defaults) return
 
         // Set default background based on theme
+        // Themes with mandatory backgrounds override user's background
+        const currentBg = get().background
+        const hasUserBackground = currentBg.type === 'image' || currentBg.type === 'video'
+        // Designer themes that have their own background system
+        const mandatoryBgThemes: ThemeId[] = ['receipt', 'macintosh']
+
         let newBackground: BackgroundConfig
         if (themeId === 'receipt') {
           // Receipt theme defaults to sky/clouds image
@@ -224,8 +234,11 @@ export const useThemeStore = create<ThemeStore>()(
             type: 'image',
             value: '/images/receipt-bg-default.jpeg',
           }
+        } else if (hasUserBackground && !mandatoryBgThemes.includes(themeId)) {
+          // Preserve user's background image/video when switching to themes
+          // that don't have mandatory background requirements
+          newBackground = currentBg
         } else {
-          // Always reset to solid background with theme's default color
           newBackground = {
             type: 'solid',
             value: defaults.colors.background,
@@ -259,14 +272,17 @@ export const useThemeStore = create<ThemeStore>()(
         const palette = theme.palettes.find((p) => p.id === paletteId)
         if (!palette) return
 
+        // Preserve user's background image/video when switching palettes
+        const currentBg = state.background
+        const hasUserBackground = currentBg.type === 'image' || currentBg.type === 'video'
+        const newBackground: BackgroundConfig = hasUserBackground
+          ? currentBg
+          : { type: 'solid', value: palette.colors.background }
+
         set({
           paletteId,
           colors: palette.colors,
-          // Always sync background to palette color (reset to solid)
-          background: {
-            type: 'solid',
-            value: palette.colors.background,
-          },
+          background: newBackground,
           hasChanges: true,
         })
         // Sync palette text color to header title and social icon color
@@ -331,6 +347,16 @@ export const useThemeStore = create<ThemeStore>()(
           cardTypeFontSizes: {
             ...state.cardTypeFontSizes,
             [cardType]: size,
+          },
+          hasChanges: true,
+        }))
+      },
+
+      setFontFamilyScale: (fontFamily: string, scale: number) => {
+        set((state) => ({
+          fontFamilyScales: {
+            ...state.fontFamilyScales,
+            [fontFamily]: scale,
           },
           hasChanges: true,
         }))
@@ -446,6 +472,9 @@ export const useThemeStore = create<ThemeStore>()(
 
       setPhoneHomeDockTranslucent: (translucent: boolean) => {
         set({ phoneHomeDockTranslucent: translucent, hasChanges: true })
+      },
+      setPhoneHomeDockColor: (color: string) => {
+        set({ phoneHomeDockColor: color, hasChanges: true })
       },
 
       setPhoneHomeVariant: (variant: 'default' | '8-bit' | 'windows-95') => {
@@ -571,6 +600,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: theme.style,
           background: theme.background,
           cardTypeFontSizes: { ...initialState.cardTypeFontSizes, ...theme.cardTypeFontSizes },
+          fontFamilyScales: theme.fontFamilyScales ?? {},
           centerCards: theme.centerCards ?? false,
           vcrCenterContent: theme.vcrCenterContent ?? false,
           receiptPrice: theme.receiptPrice ?? 'PRICELESS',
@@ -586,6 +616,7 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeDock: theme.phoneHomeDock ?? [],
           phoneHomeShowDock: theme.phoneHomeShowDock ?? true,
           phoneHomeDockTranslucent: theme.phoneHomeDockTranslucent ?? true,
+          phoneHomeDockColor: theme.phoneHomeDockColor ?? '',
           phoneHomeVariant: theme.phoneHomeVariant ?? 'default',
           zineBadgeText: theme.zineBadgeText ?? 'NEW!',
           zineTitleSize: theme.zineTitleSize ?? 1.0,
@@ -598,7 +629,7 @@ export const useThemeStore = create<ThemeStore>()(
           artifactHeaderBottomCenter: theme.artifactHeaderBottomCenter ?? '///',
           artifactHeaderBottomRight: theme.artifactHeaderBottomRight ?? 'SYS_ADMIN',
           artifactShowHeaderMeta: theme.artifactShowHeaderMeta ?? true,
-          artifactHeroOverlay: theme.artifactHeroOverlay ?? true,
+          artifactHeroOverlay: theme.artifactHeroOverlay ?? false,
           artifactHeroMediaType: (theme.artifactHeroMediaType as 'image' | 'video') ?? 'image',
           artifactHeroImageUrl: theme.artifactHeroImageUrl ?? '',
           artifactHeroVideoUrl: theme.artifactHeroVideoUrl ?? '',
@@ -620,6 +651,7 @@ export const useThemeStore = create<ThemeStore>()(
           style: state.style,
           background: state.background,
           cardTypeFontSizes: state.cardTypeFontSizes,
+          fontFamilyScales: state.fontFamilyScales,
           centerCards: state.centerCards,
           vcrCenterContent: state.vcrCenterContent,
           receiptPrice: state.receiptPrice,
@@ -635,6 +667,7 @@ export const useThemeStore = create<ThemeStore>()(
           phoneHomeDock: state.phoneHomeDock,
           phoneHomeShowDock: state.phoneHomeShowDock,
           phoneHomeDockTranslucent: state.phoneHomeDockTranslucent,
+          phoneHomeDockColor: state.phoneHomeDockColor || undefined,
           phoneHomeVariant: state.phoneHomeVariant,
           zineBadgeText: state.zineBadgeText,
           zineTitleSize: state.zineTitleSize,

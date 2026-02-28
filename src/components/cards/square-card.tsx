@@ -1,7 +1,7 @@
 // src/components/cards/square-card.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import { ImageIcon } from "lucide-react"
 
@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils"
 import { useThemeStore } from "@/stores/theme-store"
 import type { Card, SquareCardContent } from "@/types/card"
 import { renderWithLineBreaks } from "@/lib/render-utils"
+import { InlineEditable } from "@/components/preview/inline-editable"
 
 interface SquareCardProps {
   card: Card
   isPreview?: boolean
+  isEditable?: boolean
 }
 
 // Check if URL looks valid for an image
@@ -21,19 +23,51 @@ function isValidImageUrl(url: string | undefined): boolean {
   return url.startsWith('http') && !url.includes('undefined') && !url.includes('null')
 }
 
-export function SquareCard({ card, isPreview = false }: SquareCardProps) {
+export function SquareCard({ card, isPreview = false, isEditable = false }: SquareCardProps) {
   const content = card.content as SquareCardContent & { textAlign?: string; verticalAlign?: string }
   const [imageError, setImageError] = useState(false)
   const hasLink = Boolean(card.url)
-  const showTitle = content.showTitle !== false && Boolean(card.title)
+  const showTitle = content.showTitle !== false && (Boolean(card.title) || isEditable)
+
+  const handleTitleCommit = useCallback((text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId: card.id, title: text } },
+        window.location.origin
+      )
+    }
+  }, [card.id])
+
+  const handleEditStart = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId: card.id } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [card.id])
+
+  const handleEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   const hasValidImage = isValidImageUrl(content.imageUrl) && !imageError
   const textAlign = content.textAlign || "left"
   const verticalAlign = content.verticalAlign || "bottom"
   const textColor = content.textColor || "#ffffff"
-  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.square)
+  const fontFamily = (content as Record<string, unknown>).fontFamily as string | undefined
+  const baseFontSize = useThemeStore((state) => state.cardTypeFontSizes.square)
+  const fontFamilyScales = useThemeStore((state) => state.fontFamilyScales)
+  const fonts = useThemeStore((state) => state.fonts)
+  const fontScale = fontFamily ? (fontFamilyScales?.[fontFamily] ?? 1) : 1
+  const fontSize = baseFontSize * fontScale
+  const headingFont = fontFamily || 'var(--font-theme-heading)'
 
-  const Wrapper = hasLink ? "a" : "div"
-  const wrapperProps = hasLink
+  const useLink = hasLink && !isEditable
+  const Wrapper = useLink ? "a" : "div"
+  const wrapperProps = useLink
     ? {
         href: card.url!,
         target: "_blank",
@@ -70,7 +104,14 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
       {/* Title overlay */}
       {showTitle && (
         <>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {content.showTextGlow === true && (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(to top, color-mix(in srgb, ${textColor} 60%, transparent) 0%, transparent 100%)`,
+              }}
+            />
+          )}
           <div
             className={cn(
               "absolute inset-0 p-3 flex",
@@ -88,9 +129,21 @@ export function SquareCard({ card, isPreview = false }: SquareCardProps) {
                 textAlign === "center" && "text-center",
                 textAlign === "right" && "text-right"
               )}
-              style={{ fontFamily: 'var(--font-theme-heading)', color: textColor, fontSize: `${0.875 * fontSize}rem` }}
+              style={{ fontFamily: headingFont, color: textColor, fontSize: `${fonts.headingSize * 0.875 * fontSize}rem` }}
             >
-              {renderWithLineBreaks(card.title || "")}
+              {isEditable ? (
+                <InlineEditable
+                  value={card.title || ''}
+                  onCommit={handleTitleCommit}
+                  multiline={true}
+                  placeholder="Tap to type"
+                  onEditStart={handleEditStart}
+                  onEditEnd={handleEditEnd}
+                  className="outline-none min-w-[1ch] inline-block w-full"
+                />
+              ) : (
+                renderWithLineBreaks(card.title || "")
+              )}
             </h3>
           </div>
         </>

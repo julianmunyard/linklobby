@@ -245,6 +245,11 @@ function SortableImage({
 export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhoneHome }: GalleryCardFieldsProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Clear stale error when switching cards
+  useEffect(() => {
+    setError(null)
+  }, [cardId])
   // Crop dialog state
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<GalleryImage | null>(null)
@@ -264,7 +269,27 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
     })
   )
 
-  const images = content.images || []
+  const rawImages = content.images || []
+  const images = rawImages.filter(img => img && img.url)
+
+  // Keep a ref to the latest images so async callbacks never use stale data
+  const imagesRef = useRef(images)
+  imagesRef.current = images
+
+  // Clean up invalid entries (no URL) from store on mount
+  useEffect(() => {
+    if (rawImages.length > 0 && rawImages.length !== images.length) {
+      onChange({ images })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Clear stale "gallery is full" error when images are actually empty
+  useEffect(() => {
+    if (images.length === 0 && error === 'Gallery is full (max 10 images)') {
+      setError(null)
+    }
+  }, [images.length, error])
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
@@ -278,21 +303,27 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
   }, [images, onChange])
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
+    const fileList = e.target.files
+    if (!fileList || fileList.length === 0) return
 
-    // Reset input synchronously at the start so the same file can be re-selected
-    // without waiting for async upload work to complete (prevents duplicate upload bug)
-    if (fileInputRef.current) fileInputRef.current.value = ''
+    // Snapshot files into a plain array immediately — FileList is live and can
+    // be emptied by external resets of the input element
+    const selectedFiles: File[] = []
+    for (let i = 0; i < fileList.length; i++) {
+      selectedFiles.push(fileList[i])
+    }
 
-    // Calculate how many we can add (max 10 total)
-    const remainingSlots = 10 - images.length
-    const filesToUpload = Array.from(files).slice(0, remainingSlots)
+    // Count only images with valid URLs to determine remaining capacity
+    const validImages = (imagesRef.current || []).filter(img => img && img.url)
+    const remainingSlots = 10 - validImages.length
 
-    if (filesToUpload.length === 0) {
+    if (remainingSlots <= 0) {
       setError('Gallery is full (max 10 images)')
       return
     }
+
+    const filesToUpload = selectedFiles.slice(0, remainingSlots)
+    if (filesToUpload.length === 0) return
 
     setIsUploading(true)
     setError(null)
@@ -302,33 +333,26 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
 
       // Upload all files
       for (const file of filesToUpload) {
-        // Compress before upload
         const compressed = await compressImageForUpload(file)
-        if (!isMountedRef.current) return
-
-        // Upload to Supabase
         const result = await uploadCardImage(compressed as File, cardId)
-        if (!isMountedRef.current) return
 
-        // Create new image entry
         newImages.push({
           id: generateId(),
           url: result.url,
-          alt: file.name.replace(/\.[^/.]+$/, ''), // filename without extension
+          originalUrl: result.url,
+          alt: file.name.replace(/\.[^/.]+$/, ''),
           storagePath: result.path,
         })
       }
 
-      if (!isMountedRef.current) return
-      // Add all to images array
-      onChange({ images: [...images, ...newImages] })
+      onChange({ images: [...imagesRef.current, ...newImages] })
     } catch (err) {
-      if (!isMountedRef.current) return
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
-      if (isMountedRef.current) setIsUploading(false)
+      setIsUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
-  }, [images, onChange, cardId])
+  }, [onChange, cardId])
 
   const handleRemoveImage = useCallback((id: string) => {
     const newImages = images.filter(img => img.id !== id)
@@ -364,10 +388,10 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
       // Upload to Supabase
       const result = await uploadCardImage(compressed as File, cardId)
 
-      // Update the image in the array with new URL
+      // Update the image in the array with new cropped URL, preserving originalUrl
       const updatedImages = images.map(img =>
         img.id === imageToCrop.id
-          ? { ...img, url: result.url, storagePath: result.path }
+          ? { ...img, url: result.url, storagePath: result.path, originalUrl: img.originalUrl || img.url }
           : img
       )
       onChange({ images: updatedImages })
@@ -605,7 +629,7 @@ export function GalleryCardFields({ content, onChange, cardId, isMacCard, isPhon
             setCropDialogOpen(open)
             if (!open) setImageToCrop(null)
           }}
-          imageSrc={imageToCrop.url}
+          imageSrc={imageToCrop.originalUrl || imageToCrop.url}
           onCropComplete={handleCropComplete}
           initialAspect={7 / 9} // Default to portrait (matches CircularGallery display frame)
         />

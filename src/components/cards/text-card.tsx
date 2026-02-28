@@ -18,10 +18,19 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
   const content = card.content as LinkCardContent & { textAlign?: string; verticalAlign?: string; showBorder?: boolean; showFill?: boolean }
   const textAlign = content.textAlign || "center"
   const textColor = content.textColor
+  const fontFamily = (content as Record<string, unknown>).fontFamily as string | undefined
   const showBorder = !!content.showBorder
   const showFill = !!content.showFill
-  const fontSize = useThemeStore((state) => state.cardTypeFontSizes.text)
+  const baseSize = useThemeStore((state) => state.cardTypeFontSizes.text)
+  const fontFamilyScales = useThemeStore((state) => state.fontFamilyScales)
+  const fonts = useThemeStore((state) => state.fonts)
   const shadowEnabled = useThemeStore((state) => state.style.shadowEnabled)
+  // Apply per-font-family scale if card has a custom font
+  const fontScale = fontFamily ? (fontFamilyScales?.[fontFamily] ?? 1) : 1
+  const fontSize = baseSize * fontScale
+  const descriptionFontFamily = (content as Record<string, unknown>).descriptionFontFamily as string | undefined
+  const headingFont = fontFamily || 'var(--font-theme-heading)'
+  const bodyFont = descriptionFontFamily || fontFamily || 'var(--font-theme-body)'
 
   const handleTitleCommit = useCallback((text: string) => {
     if (window.parent !== window) {
@@ -73,8 +82,7 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
     >
       <p
         className={cn("font-medium break-words w-full", !textColor && "text-theme-text")}
-        style={{ fontFamily: 'var(--font-theme-heading)', fontSize: `${1 * fontSize}rem`, ...(textColor && { color: textColor }) }}
-        onClick={isEditable ? (e) => e.stopPropagation() : undefined}
+        style={{ fontFamily: headingFont, fontSize: `${fonts.headingSize * fontSize}rem`, ...(textColor && { color: textColor }) }}
       >
         {isEditable ? (
           <InlineEditable
@@ -93,7 +101,7 @@ export function TextCard({ card, isPreview = false, isEditable = false }: TextCa
       {card.description && (
         <p
           className={cn("break-words w-full", !textColor && "text-theme-text/70")}
-          style={{ fontFamily: 'var(--font-theme-body)', fontSize: `${0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
+          style={{ fontFamily: bodyFont, fontSize: `${fonts.bodySize * 0.875 * fontSize}rem`, ...(textColor && { color: textColor, opacity: 0.7 }) }}
         >
           {renderWithLineBreaks(card.description)}
         </p>

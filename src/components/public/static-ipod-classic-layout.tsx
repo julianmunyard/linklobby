@@ -535,7 +535,8 @@ export function StaticIpodClassicLayout({
                     <>
                       {menuCards.map((card, index) => {
                         const isSelected = selectedIndex === index
-                        const displayText = card.card_type === 'social-icons' ? (card.title || 'SOCIALS') : (card.title || card.card_type)
+                        const fallbackTitle = card.card_type === 'social-icons' ? 'SOCIALS' : card.card_type === 'audio' ? 'PLAYER' : card.card_type
+                        const displayText = card.title || fallbackTitle
                         const isLongText = displayText.length > 25
 
                         // Text cards render as non-interactive section dividers
@@ -926,7 +927,7 @@ export function StaticIpodClassicLayout({
                 transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
                 width: '80px',
                 height: 'auto',
-                opacity: 0.9,
+                opacity: sticker.opacity ?? 0.9,
                 mixBlendMode: 'multiply',
               }}
             />

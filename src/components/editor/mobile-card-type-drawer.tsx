@@ -16,6 +16,11 @@ import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { CONVERTIBLE_CARD_TYPES, isConvertibleType } from "./card-type-picker"
 import { BlinkieStylePicker } from "./blinkie-style-picker"
+import { PhoneHomeCardControls } from "./phone-home-card-controls"
+import { GalleryCardFields } from "./gallery-card-fields"
+import { WordArtStylePicker } from "./word-art-style-picker"
+import { MacNotepadFields } from "./mac-notepad-fields"
+import { MacWindowFields } from "./mac-window-fields"
 import { cn } from "@/lib/utils"
 import { validateAndFixUrl } from "@/lib/url-validation"
 import { toast } from "sonner"
@@ -88,6 +93,9 @@ export function MobileCardTypeDrawer({
   const themeId = useThemeStore((state) => state.themeId)
   const cardTypeFontSizes = useThemeStore((state) => state.cardTypeFontSizes)
   const setCardTypeFontSize = useThemeStore((state) => state.setCardTypeFontSize)
+  const phoneHomeDock = useThemeStore((s) => s.phoneHomeDock)
+  const addToDock = useThemeStore((s) => s.addToDock)
+  const removeFromDock = useThemeStore((s) => s.removeFromDock)
   const [activeTab, setActiveTab] = useState(0)
 
   const currentContent = (card?.content || {}) as Record<string, unknown>
@@ -98,6 +106,9 @@ export function MobileCardTypeDrawer({
   const hasImage = card ? !CARD_TYPES_NO_IMAGE.includes(card.card_type) && !isMacCard : false
   const isBlinkieCard = themeId === 'blinkies' && card != null && (card.card_type === 'link' || card.card_type === 'mini')
   const isBlinkieAudioCard = (themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'artifact') && card != null && card.card_type === 'audio'
+  const isPhoneHome = themeId === 'phone-home'
+  const isWordArt = themeId === 'word-art'
+  const isWordArtCard = isWordArt && card != null && !['audio', 'social-icons'].includes(card.card_type)
 
   // State for blinkie style picker dialog in audio background tab
   const [audioBoxBgPickerOpen, setAudioBoxBgPickerOpen] = useState(false)
@@ -125,9 +136,19 @@ export function MobileCardTypeDrawer({
         { key: 'player', label: 'Player' },
       ]
     }
-    const t: TabDef[] = [{ key: 'type', label: isBlinkieCard ? 'Style' : 'Type' }]
+    if (isPhoneHome) {
+      if (card?.card_type === 'gallery') {
+        return [{ key: 'type', label: 'Layout' }, { key: 'content', label: 'Photos' }]
+      }
+      return [{ key: 'type', label: 'App' }]
+    }
+    if (themeId === 'vcr-menu' && card && !['audio', 'release', 'text', 'social-icons'].includes(card.card_type)) {
+      return [{ key: 'content', label: 'Link' }]
+    }
+    const firstLabel = isBlinkieCard ? 'Style' : isWordArtCard ? 'Style' : 'Type'
+    const t: TabDef[] = [{ key: 'type', label: firstLabel }]
     if (!isMacCard) t.push({ key: 'content', label: 'Content' })
-    if (hasImage) t.push({ key: 'photo', label: 'Photo' })
+    if (hasImage && !isMacCard) t.push({ key: 'photo', label: 'Photo' })
     if (!isMacCard) t.push({ key: 'text', label: 'Text' })
     return t
   })()
@@ -158,9 +179,9 @@ export function MobileCardTypeDrawer({
     updateCard(card.id, { content })
   }
 
-  const handleImageChange = (imageUrl: string | undefined) => {
+  const handleImageChange = (imageUrl: string | undefined, originalImageUrl?: string | undefined) => {
     if (!card) return
-    const content = { ...currentContent, imageUrl }
+    const content = { ...currentContent, imageUrl, originalImageUrl }
     updateCard(card.id, { content })
   }
 
@@ -388,10 +409,43 @@ export function MobileCardTypeDrawer({
                       ref={idx === activeTab ? activePaneRef : undefined}
                       className="w-full min-w-full max-w-full flex-shrink-0 overflow-hidden px-0.5"
                     >
-                      {/* ---- Type / Blinkie Style ---- */}
+                      {/* ---- Type / Style / App ---- */}
                       {tab.key === 'type' && (
                         <div className="space-y-1.5">
-                          {isBlinkieCard ? (
+                          {isPhoneHome ? (
+                            <div className="max-h-[50vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
+                              <PhoneHomeCardControls
+                                card={card}
+                                currentContent={currentContent}
+                                phoneHomeDock={phoneHomeDock}
+                                addToDock={addToDock}
+                                removeFromDock={removeFromDock}
+                                onContentChange={handleContentChange}
+                                onCardUpdate={(updates) => updateCard(card.id, updates)}
+                              />
+                            </div>
+                          ) : isMacCard && macWindowStyle === 'notepad' ? (
+                            <MacNotepadFields
+                              macLinks={(currentContent.macLinks as { title: string; url: string }[]) || []}
+                              notepadStyle={(currentContent.notepadStyle as string) || 'lined'}
+                              notepadBgColor={(currentContent.notepadBgColor as string) || '#fffef0'}
+                              notepadTextColor={(currentContent.notepadTextColor as string) || '#000000'}
+                              onChange={handleContentChange}
+                            />
+                          ) : isMacCard && (macWindowStyle === 'small-window' || macWindowStyle === 'large-window') ? (
+                            <MacWindowFields
+                              macMode={(currentContent.macMode as string) || 'text'}
+                              macBodyText={(currentContent.macBodyText as string) || ''}
+                              macWindowStyle={macWindowStyle}
+                              macCheckerColor={currentContent.macCheckerColor as string | undefined}
+                              macWindowBgColor={currentContent.macWindowBgColor as string | undefined}
+                              macTextAlign={currentContent.macTextAlign as string | undefined}
+                              macTextColor={currentContent.macTextColor as string | undefined}
+                              macVideoUrl={currentContent.macVideoUrl as string | undefined}
+                              cardId={card.id}
+                              onChange={handleContentChange}
+                            />
+                          ) : isBlinkieCard ? (
                             <div className="max-h-[40vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
                               <BlinkieStylePicker
                                 currentStyle={(currentContent.blinkieStyle as string) || '0008-pink'}
@@ -400,6 +454,14 @@ export function MobileCardTypeDrawer({
                             </div>
                           ) : (
                             <>
+                              {isWordArtCard && (
+                                <div className="max-h-[30vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5 mb-2">
+                                  <WordArtStylePicker
+                                    currentStyleId={(currentContent.wordArtStyle as string) || 'style-one'}
+                                    onChange={(styleId) => handleContentChange({ wordArtStyle: styleId })}
+                                  />
+                                </div>
+                              )}
                               {isConvertible && (
                                 <div className="grid grid-cols-3 gap-1">
                                   {CONVERTIBLE_CARD_TYPES.map(({ type, icon: Icon, label }) => {
@@ -422,7 +484,7 @@ export function MobileCardTypeDrawer({
                                   })}
                                 </div>
                               )}
-                              {!isConvertible && (
+                              {!isConvertible && !isWordArtCard && (
                                 <div className="rounded-lg bg-muted/50 px-3 py-1.5">
                                   <p className="text-xs text-muted-foreground">
                                     This card type cannot be converted.
@@ -489,20 +551,32 @@ export function MobileCardTypeDrawer({
 
                       {/* ---- Content ---- */}
                       {tab.key === 'content' && (
+                        isPhoneHome && card.card_type === 'gallery' ? (
+                          <div className="max-h-[50vh] overflow-y-auto overscroll-contain -mx-0.5 px-0.5">
+                            <GalleryCardFields
+                              content={currentContent as Partial<import('@/types/card').GalleryCardContent>}
+                              onChange={handleContentChange}
+                              cardId={card.id}
+                              isPhoneHome
+                            />
+                          </div>
+                        ) : (
                         <div className="space-y-1.5">
                           <Input
-                            placeholder="Title"
+                            placeholder={themeId === 'vcr-menu' ? 'Link Name' : 'Title'}
                             value={card.title ?? ''}
                             onChange={(e) => updateCard(card.id, { title: e.target.value || null })}
                             className="h-8 text-sm"
                           />
-                          <Textarea
-                            placeholder="Description"
-                            value={card.description ?? ''}
-                            onChange={(e) => updateCard(card.id, { description: e.target.value || null })}
-                            rows={2}
-                            className="text-sm min-h-0"
-                          />
+                          {themeId !== 'vcr-menu' && (
+                            <Textarea
+                              placeholder="Description"
+                              value={card.description ?? ''}
+                              onChange={(e) => updateCard(card.id, { description: e.target.value || null })}
+                              rows={2}
+                              className="text-sm min-h-0"
+                            />
+                          )}
                           <Input
                             placeholder="https://..."
                             value={card.url ?? ''}
@@ -511,12 +585,14 @@ export function MobileCardTypeDrawer({
                             className="h-8 text-sm"
                           />
                         </div>
+                        )
                       )}
 
                       {/* ---- Photo ---- */}
                       {tab.key === 'photo' && (
                         <ImageUpload
                           value={imageUrl}
+                          originalValue={currentContent.originalImageUrl as string | undefined}
                           onChange={handleImageChange}
                           cardId={card.id}
                           cardType={card.card_type}
@@ -585,14 +661,24 @@ export function MobileCardTypeDrawer({
                               </label>
                             )}
                             {card.card_type === 'hero' && (
-                              <label className="flex items-center gap-1.5 flex-1">
-                                <Switch
-                                  checked={currentContent.showButton !== false}
-                                  onCheckedChange={(checked) => handleContentChange({ showButton: checked })}
-                                  className="scale-75 origin-left"
-                                />
-                                <span className="text-[10px] text-muted-foreground">Show Button</span>
-                              </label>
+                              <>
+                                <label className="flex items-center gap-1.5 flex-1">
+                                  <Switch
+                                    checked={currentContent.showTitle !== false}
+                                    onCheckedChange={(checked) => handleContentChange({ showTitle: checked })}
+                                    className="scale-75 origin-left"
+                                  />
+                                  <span className="text-[10px] text-muted-foreground">Title Overlay</span>
+                                </label>
+                                <label className="flex items-center gap-1.5 flex-1">
+                                  <Switch
+                                    checked={currentContent.showButton !== false}
+                                    onCheckedChange={(checked) => handleContentChange({ showButton: checked })}
+                                    className="scale-75 origin-left"
+                                  />
+                                  <span className="text-[10px] text-muted-foreground">Show Button</span>
+                                </label>
+                              </>
                             )}
                             <label className="flex items-center gap-1.5 flex-1">
                               <Switch
@@ -614,6 +700,14 @@ export function MobileCardTypeDrawer({
                               Apply All
                             </Button>
                           </div>
+                          <video
+                            src="/previews/transparent-background.mp4"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full rounded-md border border-border"
+                          />
 
                           {hasFontSize && (
                             <div className="flex items-center gap-2">

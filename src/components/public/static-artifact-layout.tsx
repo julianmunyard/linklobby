@@ -126,7 +126,7 @@ export function StaticArtifactLayout({
   artifactHeaderBottomCenter,
   artifactHeaderBottomRight,
   artifactShowHeaderMeta = true,
-  artifactHeroOverlay = true,
+  artifactHeroOverlay = false,
   artifactHeroMediaType = 'image',
   artifactHeroImageUrl,
   artifactHeroVideoUrl,
@@ -231,9 +231,9 @@ export function StaticArtifactLayout({
                 letterSpacing: '-0.02em',
               }}
             >
-              <span>{artifactHeaderTopLeft || `USER.ID_${String(username.length).padStart(2, '0')}`}</span>
-              <span>{artifactHeaderTopCenter || '[ONLINE]'}</span>
-              <span>{artifactHeaderTopRight || `EST. ${currentYear}`}</span>
+              <span>{artifactHeaderTopLeft}</span>
+              <span>{artifactHeaderTopCenter}</span>
+              <span>{artifactHeaderTopRight}</span>
             </div>
           )}
 
@@ -265,9 +265,9 @@ export function StaticArtifactLayout({
                 letterSpacing: '-0.02em',
               }}
             >
-              <span>{artifactHeaderBottomLeft || 'DIGITAL // PHY'}</span>
-              <span>{artifactHeaderBottomCenter || '///'}</span>
-              <span>{artifactHeaderBottomRight || 'SYS_ADMIN'}</span>
+              <span>{artifactHeaderBottomLeft}</span>
+              <span>{artifactHeaderBottomCenter}</span>
+              <span>{artifactHeaderBottomRight}</span>
             </div>
           )}
         </div>
@@ -597,10 +597,18 @@ export function StaticArtifactLayout({
         )}
       </div>
 
-      {/* Legal footer */}
+      {/* Spacer for fixed footer */}
+      <div style={{ height: '4rem' }} />
+
+      {/* Legal footer - fixed to bottom */}
       <footer
         style={{
-          padding: '1rem',
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          padding: '0.75rem 1rem',
           textAlign: 'center',
           fontSize: '0.65rem',
           color: colors.text,
@@ -618,7 +626,7 @@ export function StaticArtifactLayout({
           </Link>
         </div>
         {!hasProAccess && (
-          <div style={{ marginTop: '0.5rem' }}>
+          <div style={{ marginTop: '0.25rem' }}>
             Powered by LinkLobby
           </div>
         )}

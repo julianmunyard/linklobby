@@ -11,6 +11,8 @@ import { CookieConsentBanner } from "@/components/legal/cookie-consent-banner"
 import { getUserPlan, isPro } from "@/lib/stripe/subscription"
 import { PRO_THEMES, PRO_CARD_TYPES } from "@/lib/stripe/plans"
 
+export const dynamic = 'force-dynamic'
+
 interface PublicPageProps {
   params: Promise<{
     username: string
@@ -90,6 +92,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const phoneHomeDock = themeSettings?.phoneHomeDock ?? []
   const phoneHomeShowDock = themeSettings?.phoneHomeShowDock ?? true
   const phoneHomeDockTranslucent = themeSettings?.phoneHomeDockTranslucent ?? true
+
+
   const phoneHomeVariant = (themeSettings?.phoneHomeVariant as 'default' | '8-bit' | undefined) ?? 'default'
   const zineBadgeText = themeSettings?.zineBadgeText ?? 'NEW!'
   const zineTitleSize = themeSettings?.zineTitleSize ?? 1.0
@@ -102,7 +106,7 @@ export default async function PublicPage({ params }: PublicPageProps) {
   const artifactHeaderBottomCenter = (themeSettings?.artifactHeaderBottomCenter as string | undefined) ?? '///'
   const artifactHeaderBottomRight = (themeSettings?.artifactHeaderBottomRight as string | undefined) ?? 'SYS_ADMIN'
   const artifactShowHeaderMeta = (themeSettings?.artifactShowHeaderMeta as boolean | undefined) ?? true
-  const artifactHeroOverlay = (themeSettings?.artifactHeroOverlay as boolean | undefined) ?? true
+  const artifactHeroOverlay = (themeSettings?.artifactHeroOverlay as boolean | undefined) ?? false
   const artifactHeroMediaType = (themeSettings?.artifactHeroMediaType as 'image' | 'video' | undefined) ?? 'image'
   const artifactHeroImageUrl = (themeSettings?.artifactHeroImageUrl as string | undefined) ?? ''
   const artifactHeroVideoUrl = (themeSettings?.artifactHeroVideoUrl as string | undefined) ?? ''
@@ -140,8 +144,10 @@ export default async function PublicPage({ params }: PublicPageProps) {
         avatarUrl={profile.avatar_url}
         avatarFeather={profile.avatar_feather}
         avatarSize={profile.avatar_size}
+        avatarShape={profile.avatar_shape}
         showAvatar={profile.show_avatar}
         showTitle={profile.show_title}
+        showBio={profile.show_bio ?? true}
         titleSize={profile.title_size}
         showLogo={profile.show_logo}
         logoUrl={profile.logo_url}
@@ -149,6 +155,8 @@ export default async function PublicPage({ params }: PublicPageProps) {
         profileLayout={profile.profile_layout}
         headerTextColor={profile.header_text_color}
         socialIconColor={profile.social_icon_color}
+        titleFont={profile.title_font}
+        bioFont={profile.bio_font}
         showSocialIcons={profile.show_social_icons}
         socialIconsJson={profile.social_icons}
         fuzzyEnabled={fuzzyEnabled}
@@ -246,13 +254,16 @@ export async function generateViewport({ params }: PublicPageProps): Promise<Vie
   const { username } = await params
   const data = await fetchPublicPageData(username)
 
-  const isMacintosh = data?.page?.theme_settings?.themeId === 'macintosh'
+  const themeId = data?.page?.theme_settings?.themeId
+  const topBarColor = data?.page?.theme_settings?.background?.topBarColor
+  const bgColor = data?.page?.theme_settings?.colors?.background
+  const bgType = data?.page?.theme_settings?.background?.type
 
-  const themeColor = isMacintosh
-    ? '#ffffff'
-    : (data?.page?.theme_settings?.background?.topBarColor
-      || data?.page?.theme_settings?.colors?.background
-      || '#000000')
+  // Status bar color: explicit topBarColor first, then theme-specific defaults
+  const themeColor = topBarColor
+    || (themeId === 'macintosh' ? '#ffffff' : undefined)
+    || (bgType === 'solid' || !bgType ? bgColor : undefined)
+    || undefined
 
   return {
     viewportFit: 'cover',

@@ -42,7 +42,7 @@ export function MacintoshCard({ card, isPreview, onClick, isSelected }: MacCardP
     return (
       <WindowWrapper onClick={onClick} isSelected={isSelected}>
         <LinesTitleBar title={card.title || 'Now Playing'} />
-        <div style={{ background: (card.content as unknown as AudioCardContent)?.playerColors?.elementBgColor || '#fff' }}>
+        <div style={{ background: (card.content as unknown as AudioCardContent)?.playerColors?.elementBgColor || '#fff', color: (card.content as unknown as AudioCardContent)?.textColor || '#000' }}>
           <AudioCard card={card} isPreview={isPreview} />
         </div>
       </WindowWrapper>
@@ -270,6 +270,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
   const macLinks = (content?.macLinks as Array<{ title: string; url: string }>) || []
   const notepadStyle = (content?.notepadStyle as string) || 'list'
   const notepadBgColor = (content?.notepadBgColor as string) || '#F2FFA4'
+  const notepadTextColor = (content?.notepadTextColor as string) || '#000000'
   const title = card.title || 'Note Pad'
 
   return (
@@ -285,7 +286,8 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
               style={{
                 fontFamily: TITLE_FONT,
                 fontSize: '14px',
-                color: '#666',
+                color: notepadTextColor,
+                opacity: 0.5,
               }}
             >
               No links yet...
@@ -297,7 +299,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                   <div
                     key={i}
                     style={{
-                      background: '#000',
+                      background: notepadTextColor,
                       clipPath: PIXEL_BTN_CLIP,
                       padding: '2px',
                       display: 'inline-block',
@@ -308,7 +310,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                       style={{
                         fontFamily: TITLE_FONT,
                         fontSize: '14px',
-                        color: '#000',
+                        color: notepadTextColor,
                         background: notepadBgColor,
                         clipPath: PIXEL_BTN_CLIP,
                         padding: '8px 16px',
@@ -324,7 +326,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                     style={{
                       fontFamily: TITLE_FONT,
                       fontSize: '14px',
-                      color: '#000',
+                      color: notepadTextColor,
                       padding: '8px 16px',
                       textAlign: 'center',
                       width: '100%',
@@ -343,7 +345,7 @@ export function MacintoshNotepad({ card, onClick, isSelected }: MacCardProps) {
                   style={{
                     fontFamily: TITLE_FONT,
                     fontSize: '14px',
-                    color: '#000',
+                    color: notepadTextColor,
                     padding: '4px 0',
                     borderBottom: '1px solid rgba(0,0,0,0.1)',
                     textAlign: link.url ? 'left' : 'center',
@@ -930,7 +932,7 @@ export function MacintoshSocials({ card, onClick, isSelected }: MacCardProps) {
 
 // ─── 6. Presave ─────────────────────────────────────────────────────────────
 
-export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
+export function MacintoshPresave({ card, isPreview, onClick, isSelected }: MacCardProps) {
   const content = card.content as Record<string, unknown>
   const release = content as Partial<ReleaseCardContent> & { dropsInText?: string }
   const {
@@ -1042,7 +1044,7 @@ export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
               {/* Pre-save button */}
               <div style={macBtnOuter}>
                 {preSaveUrl ? (
-                  <a href={preSaveUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => e.stopPropagation()}>
+                  <a href={isPreview ? undefined : preSaveUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => { e.stopPropagation(); if (isPreview) e.preventDefault() }}>
                     {preSaveButtonText}
                   </a>
                 ) : (
@@ -1058,7 +1060,7 @@ export function MacintoshPresave({ card, onClick, isSelected }: MacCardProps) {
           {(isReleased || hasCompleted) && afterCountdownAction === 'custom' && (
             <div style={macBtnOuter}>
               {afterCountdownUrl ? (
-                <a href={afterCountdownUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => e.stopPropagation()}>
+                <a href={isPreview ? undefined : afterCountdownUrl} target="_blank" rel="noopener noreferrer" style={macBtnInner} onClick={(e) => { e.stopPropagation(); if (isPreview) e.preventDefault() }}>
                   {afterCountdownText || 'OUT NOW'}
                 </a>
               ) : (

@@ -8,6 +8,7 @@
 // - Track loading is done via Superpowered.downloadAndDecode() inside the processor
 //
 import { SuperpoweredGlue, SuperpoweredWebAudio } from '@superpoweredsdk/web'
+
 import type { AudioEngineCallbacks, VarispeedMode } from './types'
 import type { ReverbConfig } from '@/types/audio'
 
@@ -39,10 +40,23 @@ class AudioEngine {
       this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
-      // Initialize Superpowered with local WASM
+      // Initialize Superpowered with local WASM (absolute URL so blob Workers can resolve it)
+      const wasmUrl = `${window.location.origin}/superpowered/superpowered.wasm`
+
+      // Pre-check WASM availability before handing off to Superpowered.
+      // This prevents Superpowered's internal fetch from throwing an unhandled
+      // rejection that triggers the Next.js dev error overlay.
+      const probe = await fetch(wasmUrl, { method: 'HEAD' }).catch(() => null)
+      if (!probe || !probe.ok) {
+        console.warn('AudioEngine: WASM not available, deferring init')
+        return
+      }
+
+      // Set the CDN URL so blob Workers (track loader) can also resolve it
+      SuperpoweredGlue.wasmCDNUrl = wasmUrl
       this.superpowered = await SuperpoweredGlue.Instantiate(
         'ExampleLicenseKey-WillExpire-OnNextUpdate',
-        '/superpowered/superpowered.wasm'
+        wasmUrl
       )
       this.webaudioManager = new SuperpoweredWebAudio(48000, this.superpowered)
 
@@ -381,7 +395,7 @@ class AudioEngine {
       data: {
         command: 'setReverbConfig',
         config: {
-          enabled: config.enabled,
+          enabled: true,
           mix: config.mix,
           roomSize: config.roomSize,
           damp: config.damp,

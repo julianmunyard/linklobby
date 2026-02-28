@@ -8,13 +8,14 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { ColorPicker } from '@/components/ui/color-picker'
 import { X, Upload, Loader2 } from 'lucide-react'
 import { usePageStore } from '@/stores/page-store'
 import type { ThemeId } from '@/types/theme'
 import { isScatterTheme } from '@/types/scatter'
 
 // Themes with list-based layouts where card style controls (border radius, shadows) don't apply
-const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home']
+const LIST_LAYOUT_THEMES: ThemeId[] = ['vcr-menu', 'ipod-classic', 'receipt', 'phone-home', 'system-settings', 'word-art', 'artifact']
 
 // Available stickers for receipt theme
 const RECEIPT_STICKERS = [
@@ -47,7 +48,7 @@ const IPOD_TEXTURES = [
 const BASIC_THEMES: ThemeId[] = ['mac-os', 'instagram-reels', 'system-settings']
 
 export function StyleControls() {
-  const { themeId, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeDockTranslucent, setPhoneHomeDockTranslucent, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles, artifactMarqueeText, setArtifactMarqueeText, artifactHeaderTopLeft, setArtifactHeaderTopLeft, artifactHeaderTopCenter, setArtifactHeaderTopCenter, artifactHeaderTopRight, setArtifactHeaderTopRight, artifactHeaderBottomLeft, setArtifactHeaderBottomLeft, artifactHeaderBottomCenter, setArtifactHeaderBottomCenter, artifactHeaderBottomRight, setArtifactHeaderBottomRight, artifactShowHeaderMeta, setArtifactShowHeaderMeta, artifactHeroOverlay, setArtifactHeroOverlay, artifactHeroMediaType, setArtifactHeroMediaType, artifactHeroImageUrl, setArtifactHeroImageUrl, artifactHeroVideoUrl, setArtifactHeroVideoUrl, artifactHeroPositionX, setArtifactHeroPositionX, artifactHeroPositionY, setArtifactHeroPositionY } = useThemeStore()
+  const { themeId, colors, setColor, background, setBackground, style, setStyle, centerCards, setCenterCards, vcrCenterContent, setVcrCenterContent, receiptPrice, setReceiptPrice, receiptStickers, addReceiptSticker, updateReceiptSticker, removeReceiptSticker, receiptFloatAnimation, setReceiptFloatAnimation, receiptPaperTexture, setReceiptPaperTexture, ipodStickers, addIpodSticker, updateIpodSticker, removeIpodSticker, ipodTexture, setIpodTexture, phoneHomeShowDock, setPhoneHomeShowDock, phoneHomeDockTranslucent, setPhoneHomeDockTranslucent, phoneHomeVariant, setPhoneHomeVariant, phoneHomeDock, removeFromDock, scatterMode, setScatterMode, visitorDrag, setVisitorDrag, zineShowDoodles, setZineShowDoodles, artifactMarqueeText, setArtifactMarqueeText, artifactHeaderTopLeft, setArtifactHeaderTopLeft, artifactHeaderTopCenter, setArtifactHeaderTopCenter, artifactHeaderTopRight, setArtifactHeaderTopRight, artifactHeaderBottomLeft, setArtifactHeaderBottomLeft, artifactHeaderBottomCenter, setArtifactHeaderBottomCenter, artifactHeaderBottomRight, setArtifactHeaderBottomRight, artifactShowHeaderMeta, setArtifactShowHeaderMeta, artifactHeroOverlay, setArtifactHeroOverlay, artifactHeroMediaType, setArtifactHeroMediaType, artifactHeroImageUrl, setArtifactHeroImageUrl, artifactHeroVideoUrl, setArtifactHeroVideoUrl, artifactHeroPositionX, setArtifactHeroPositionX, artifactHeroPositionY, setArtifactHeroPositionY } = useThemeStore()
   const cards = usePageStore((s) => s.cards)
   const theme = getTheme(themeId)
   const [stickerUploading, setStickerUploading] = useState<'receipt' | 'ipod' | null>(null)
@@ -149,17 +150,6 @@ export function StyleControls() {
             </div>
           </div>
 
-          {/* Shadow Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-sm">Card Shadows</Label>
-              <p className="text-xs text-muted-foreground">Add depth to cards</p>
-            </div>
-            <Switch
-              checked={style.shadowEnabled}
-              onCheckedChange={(checked) => setStyle('shadowEnabled', checked)}
-            />
-          </div>
         </>
       )}
 
@@ -516,6 +506,21 @@ export function StyleControls() {
                       />
                     </div>
 
+                    {/* Opacity slider */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Opacity</Label>
+                        <span className="text-xs text-muted-foreground">{Math.round((sticker.opacity ?? 0.9) * 100)}%</span>
+                      </div>
+                      <Slider
+                        value={[sticker.opacity ?? 0.9]}
+                        onValueChange={([value]) => updateIpodSticker(sticker.id, { opacity: value })}
+                        min={0.1}
+                        max={1}
+                        step={0.05}
+                      />
+                    </div>
+
                     {/* Behind text toggle */}
                     <div className="flex items-center justify-between">
                       <Label className="text-xs">Behind text</Label>
@@ -583,7 +588,7 @@ export function StyleControls() {
             />
           </div>
 
-          {phoneHomeShowDock && phoneHomeVariant === 'default' && (
+          {phoneHomeShowDock && (
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-sm">Translucent Dock</Label>
@@ -595,6 +600,16 @@ export function StyleControls() {
               />
             </div>
           )}
+
+          {/* Dock Color — synced with cardBg so Colors tab stays in sync */}
+          <ColorPicker
+            label="Dock Color"
+            color={colors.cardBg}
+            onChange={(value) => {
+              setColor('cardBg', value)
+              setBackground({ ...background, topBarColor: value })
+            }}
+          />
 
           {phoneHomeDock.length > 0 && (
             <div className="space-y-2">
@@ -620,19 +635,7 @@ export function StyleControls() {
         </div>
       )}
 
-      {/* Chaotic Zine Theme: Show Doodles Toggle */}
-      {themeId === 'chaotic-zine' && (
-        <div className="flex items-center justify-between">
-          <div>
-            <Label className="text-sm">Doodles</Label>
-            <p className="text-xs text-muted-foreground">Arrows, scribbles and background marks</p>
-          </div>
-          <Switch
-            checked={zineShowDoodles}
-            onCheckedChange={setZineShowDoodles}
-          />
-        </div>
-      )}
+      {/* Chaotic Zine doodles toggle moved to BackgroundControls */}
 
       {/* Artifact Theme Settings */}
       {themeId === 'artifact' && (
@@ -668,20 +671,6 @@ export function StyleControls() {
         />
       )}
 
-      {/* Style Preview */}
-      <div className="p-4 rounded-lg border bg-muted/30">
-        <div
-          className="w-full h-16 rounded flex items-center justify-center text-sm"
-          style={{
-            borderRadius: `${style.borderRadius}px`,
-            backgroundColor: 'var(--theme-card-bg, hsl(var(--card)))',
-            boxShadow: style.shadowEnabled ? 'var(--theme-shadow)' : 'none',
-            backdropFilter: theme?.hasGlassEffect ? `blur(${style.blurIntensity}px)` : undefined,
-          }}
-        >
-          Card Preview
-        </div>
-      </div>
     </div>
   )
 }

@@ -50,6 +50,7 @@ export function SquareCardFields({ content, onChange }: SquareCardFieldsProps) {
             color={content.textColor || "#ffffff"}
             onChange={(color) => onChange({ textColor: color })}
           />
+
         </>
       )}
     </div>

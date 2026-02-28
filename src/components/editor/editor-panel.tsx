@@ -360,15 +360,22 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                 {/* Card editor OR tab content */}
                 {selectedCard ? (
                   <div className="flex-1 overflow-hidden flex flex-col">
-                    {/* Design sub-tabs — visible when on Design tab so user can quickly navigate */}
-                    {activeTab === 'design' && (
+                    {/* Design sub-tabs — always visible when a card is selected so user can quickly navigate */}
+                    {(
                       <div className="shrink-0 border-b px-4 py-2 overflow-x-auto scrollbar-none">
                         <div className="flex gap-2 w-max">
-                          {DESIGN_SUB_TABS.filter(tab => !(tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId as any))).map((tab) => (
+                          {DESIGN_SUB_TABS.filter(tab => {
+                            if (tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId as any)) return false
+                            if (tab.id === 'header' && themeId === 'phone-home') return false
+                            if (tab.id === 'style' && (themeId === 'macintosh' || themeId === 'blinkies')) return false
+                            if (tab.id === 'colors' && themeId === 'macintosh') return false
+                            return true
+                          }).map((tab) => (
                             <button
                               key={tab.id}
                               onClick={() => {
                                 selectCard(null)
+                                setActiveTab('design')
                                 setPendingDesignSubTab(tab.id)
                               }}
                               className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors bg-muted text-muted-foreground hover:bg-muted/80"
@@ -407,11 +414,39 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                     <TabsContent
                       value="links"
                       className={cn(
-                        "h-full overflow-hidden",
+                        "h-full overflow-hidden flex flex-col",
                         "data-[state=inactive]:hidden"
                       )}
                     >
-                      <CardsTab />
+                      {/* Design sub-tabs — visible in Links tab for quick navigation */}
+                      <div className="shrink-0 border-b px-4 py-2 overflow-x-auto scrollbar-none">
+                        <div className="flex gap-2 w-max">
+                          {DESIGN_SUB_TABS.filter(tab => {
+                            if (tab.id === 'fonts' && FIXED_FONT_THEMES.includes(themeId as any)) return false
+                            if (tab.id === 'header' && themeId === 'phone-home') return false
+                            if (tab.id === 'style' && (themeId === 'macintosh' || themeId === 'blinkies')) return false
+                            if (tab.id === 'colors' && themeId === 'macintosh') return false
+                            return true
+                          }).map((tab) => (
+                            <button
+                              key={tab.id}
+                              onClick={() => {
+                                selectCard(null)
+                                setActiveTab('design')
+                                setPendingDesignSubTab(tab.id)
+                                router.replace('/editor?tab=design', { scroll: false })
+                                pushNav({ tab: 'design', designSubTab: tab.id })
+                              }}
+                              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors bg-muted text-muted-foreground hover:bg-muted/80"
+                            >
+                              {tab.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <CardsTab />
+                      </div>
                     </TabsContent>
 
                     <TabsContent

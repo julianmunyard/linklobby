@@ -171,6 +171,7 @@ function PreviewContent() {
               style: ts.style,
               background: ts.background,
               cardTypeFontSizes: ts.cardTypeFontSizes,
+              fontFamilyScales: ts.fontFamilyScales ?? {},
               socialIconSize: ts.socialIconSize,
               centerCards: ts.centerCards ?? false,
               vcrCenterContent: ts.vcrCenterContent ?? false,
@@ -186,6 +187,7 @@ function PreviewContent() {
               phoneHomeDock: ts.phoneHomeDock ?? [],
               phoneHomeShowDock: ts.phoneHomeShowDock ?? true,
               phoneHomeDockTranslucent: ts.phoneHomeDockTranslucent ?? true,
+              phoneHomeDockColor: ts.phoneHomeDockColor ?? '',
               phoneHomeVariant: ts.phoneHomeVariant ?? 'default',
               zineBadgeText: ts.zineBadgeText ?? 'NEW!',
               zineTitleSize: ts.zineTitleSize ?? 1.0,
@@ -198,7 +200,7 @@ function PreviewContent() {
               artifactHeaderBottomCenter: ts.artifactHeaderBottomCenter ?? '///',
               artifactHeaderBottomRight: ts.artifactHeaderBottomRight ?? 'SYS_ADMIN',
               artifactShowHeaderMeta: ts.artifactShowHeaderMeta ?? true,
-              artifactHeroOverlay: ts.artifactHeroOverlay ?? true,
+              artifactHeroOverlay: ts.artifactHeroOverlay ?? false,
               artifactHeroMediaType: (ts.artifactHeroMediaType as 'image' | 'video') ?? 'image',
               artifactHeroImageUrl: ts.artifactHeroImageUrl ?? '',
               artifactHeroVideoUrl: ts.artifactHeroVideoUrl ?? '',
@@ -337,13 +339,32 @@ function PreviewContent() {
           title={displayName || 'MENU'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
+          onHeaderClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } },
+                window.location.origin
+              )
+            }
+          }}
+          onSocialIconClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } },
+                window.location.origin
+              )
+            }
+          }}
           selectedCardId={state.selectedCardId}
         />
 
         {/* Noise overlay */}
         <GlitchOverlay />
         <NoiseOverlay />
+        {/* Frame overlay */}
+        <FrameOverlay />
       </>
     )
   }
@@ -362,6 +383,7 @@ function PreviewContent() {
           title={displayName || 'links'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
         />
@@ -369,6 +391,8 @@ function PreviewContent() {
         {/* Noise overlay */}
         <GlitchOverlay />
         <NoiseOverlay />
+        {/* Frame overlay */}
+        <FrameOverlay />
       </>
     )
   }
@@ -387,6 +411,7 @@ function PreviewContent() {
           title={displayName || 'RECEIPT'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
         />
@@ -394,6 +419,8 @@ function PreviewContent() {
         {/* Noise overlay */}
         <GlitchOverlay />
         <NoiseOverlay />
+        {/* Frame overlay */}
+        <FrameOverlay />
       </>
     )
   }
@@ -437,12 +464,14 @@ function PreviewContent() {
           title={displayName || 'Word Art'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
           wordArtTitleStyle={wordArtTitleStyle}
         />
         <GlitchOverlay />
         <NoiseOverlay />
+        <FrameOverlay />
       </>
     )
   }
@@ -457,12 +486,14 @@ function PreviewContent() {
           title={displayName || 'Home'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           onMoveCards={handleMoveCards}
           selectedCardId={state.selectedCardId}
         />
         <GlitchOverlay />
         <NoiseOverlay />
+        <FrameOverlay />
       </>
     )
   }
@@ -477,11 +508,13 @@ function PreviewContent() {
           title={displayName || 'ZINE'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
         />
         <GlitchOverlay />
         <NoiseOverlay />
+        <FrameOverlay />
       </>
     )
   }
@@ -494,9 +527,18 @@ function PreviewContent() {
           title={displayName || 'ARTIFACT'}
           cards={state.cards}
           isPreview={true}
+          isEditable={true}
           onCardClick={handleCardClick}
           selectedCardId={state.selectedCardId}
           onHeaderClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'style' } },
+                window.location.origin
+              )
+            }
+          }}
+          onHeroClick={() => {
             if (window.parent !== window) {
               window.parent.postMessage(
                 { type: 'OPEN_DESIGN_TAB', payload: { tab: 'style' } },
@@ -513,6 +555,9 @@ function PreviewContent() {
             }
           }}
         />
+        <GlitchOverlay />
+        <NoiseOverlay />
+        <FrameOverlay />
       </>
     )
   }

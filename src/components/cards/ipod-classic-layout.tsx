@@ -11,12 +11,14 @@ import { PageBackground, DimOverlay, NoiseOverlay } from '@/components/preview/p
 import { AudioCard } from '@/components/cards/audio-card'
 import { getAudioEngine } from '@/audio/engine/audioEngine'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 interface IpodClassicLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
 }
@@ -36,6 +38,7 @@ export function IpodClassicLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   selectedCardId
 }: IpodClassicLayoutProps) {
@@ -57,6 +60,31 @@ export function IpodClassicLayout({
   const ipodStickers = useThemeStore((s) => s.ipodStickers)
   const updateIpodSticker = useThemeStore((s) => s.updateIpodSticker)
   const ipodTexture = useThemeStore((s) => s.ipodTexture)
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
 
   // Wheel rotation tracking
   const lastAngleRef = useRef<number | null>(null)
@@ -127,6 +155,13 @@ export function IpodClassicLayout({
     setCurrentScreen('nowplaying')
     setActiveAudioCard(card)
     setSelectedIndex(0)
+    // Open card property editor in parent
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId: card.id } },
+        window.location.origin
+      )
+    }
   }
 
   // Go back to main screen
@@ -137,15 +172,16 @@ export function IpodClassicLayout({
 
   // Activate selected link
   const activateLink = useCallback((card: Card) => {
-    if (card.url && isPreview) {
-      window.open(card.url, '_blank', 'noopener,noreferrer')
-    } else if (onCardClick) {
+    if (onCardClick) {
       onCardClick(card.id)
     }
-  }, [isPreview, onCardClick])
+  }, [onCardClick])
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    // Don't intercept keys when inline editing is active
+    if ((e.target as HTMLElement)?.isContentEditable) return
+
     let menuLength = 0
     if (currentScreen === 'main') {
       menuLength = menuCards.length + completedReleaseLinks.length + releaseCards.length
@@ -188,9 +224,7 @@ export function IpodClassicLayout({
             const card = completedReleaseLinks[linkIndex]
             if (card && isReleaseContent(card.content)) {
               const content = card.content as ReleaseCardContent
-              if (content.afterCountdownUrl && isPreview) {
-                window.open(content.afterCountdownUrl, '_blank', 'noopener,noreferrer')
-              } else if (onCardClick) {
+              if (onCardClick) {
                 onCardClick(card.id)
               }
             }
@@ -202,9 +236,7 @@ export function IpodClassicLayout({
         } else {
           // On socials screen, open the URL
           const icon = socialIcons[selectedIndex]
-          if (icon?.url) {
-            window.open(icon.url, '_blank', 'noopener,noreferrer')
-          }
+          // Links don't navigate in preview — only on public page
         }
         break
       case 'Escape':
@@ -274,9 +306,7 @@ export function IpodClassicLayout({
             const card = completedReleaseLinks[linkIndex]
             if (card && isReleaseContent(card.content)) {
               const content = card.content as ReleaseCardContent
-              if (content.afterCountdownUrl && isPreview) {
-                window.open(content.afterCountdownUrl, '_blank', 'noopener,noreferrer')
-              } else if (onCardClick) {
+              if (onCardClick) {
                 onCardClick(card.id)
               }
             }
@@ -288,9 +318,7 @@ export function IpodClassicLayout({
         } else {
           // On socials screen, open the URL
           const icon = socialIcons[selectedIndex]
-          if (icon?.url) {
-            window.open(icon.url, '_blank', 'noopener,noreferrer')
-          }
+          // Links don't navigate in preview — only on public page
         }
         break
       case 'menu':
@@ -579,7 +607,17 @@ export function IpodClassicLayout({
                 ) : (
                   <span className="text-[11px]">▶</span>
                 )}
-                <span className="font-bold text-[12px] tracking-wide">{displayTitle}</span>
+                <span
+                  className="font-bold text-[12px] tracking-wide cursor-pointer"
+                  onClick={() => {
+                    if (currentScreen === 'main' && window.parent !== window) {
+                      window.parent.postMessage(
+                        { type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } },
+                        window.location.origin
+                      )
+                    }
+                  }}
+                >{displayTitle}</span>
                 {/* Old-school battery icon */}
                 <svg className="ipod-battery" viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <rect x="0.5" y="0.5" width="20" height="11" rx="1.5" stroke="currentColor" strokeWidth="1" fill="none"/>
@@ -603,7 +641,8 @@ export function IpodClassicLayout({
                     <>
                       {menuCards.map((card, index) => {
                         const isSelected = selectedIndex === index
-                        const displayText = card.card_type === 'social-icons' ? (card.title || 'SOCIALS') : (card.title || card.card_type)
+                        const fallbackTitle = card.card_type === 'social-icons' ? 'SOCIALS' : card.card_type === 'audio' ? 'PLAYER' : card.card_type
+                        const displayText = card.title || fallbackTitle
                         const isLongText = displayText.length > 25
 
                         // Text cards render as non-interactive section dividers
@@ -629,24 +668,32 @@ export function IpodClassicLayout({
                               isSelected && 'selected'
                             )}
                             onClick={() => {
-                              if (selectedIndex === index) {
-                                // Already selected - activate
-                                if (card.card_type === 'social-icons') {
-                                  goToSocials()
-                                } else if (card.card_type === 'audio') {
-                                  goToNowPlaying(card)
-                                } else {
-                                  activateLink(card)
-                                }
+                              setSelectedIndex(index)
+                              if (card.card_type === 'social-icons') {
+                                goToSocials()
+                              } else if (card.card_type === 'audio') {
+                                goToNowPlaying(card)
                               } else {
-                                setSelectedIndex(index)
+                                activateLink(card)
                               }
                             }}
                           >
                             <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
-                              <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
-                                {displayText}
-                              </span>
+                              {isEditable && card.card_type !== 'social-icons' ? (
+                                  <InlineEditable
+                                    value={card.title || fallbackTitle}
+                                    onCommit={(text) => handleInlineCommit(card.id, text)}
+                                    multiline={false}
+                                    placeholder="Untitled"
+                                    onEditStart={() => handleInlineEditStart(card.id)}
+                                    onEditEnd={handleInlineEditEnd}
+                                    className="outline-none min-w-[1ch] inline-block"
+                                  />
+                              ) : (
+                                <span className={cn(isSelected && isLongText && 'ipod-marquee')}>
+                                  {displayText}
+                                </span>
+                              )}
                             </span>
                             <span className="text-[11px] ml-2">{card.card_type === 'audio' ? '\u266B' : '>'}</span>
                           </div>
@@ -668,16 +715,9 @@ export function IpodClassicLayout({
                               isSelected && 'selected'
                             )}
                             onClick={() => {
-                              if (selectedIndex === index) {
-                                // Already selected - open URL
-                                const url = content.afterCountdownUrl
-                                if (url && isPreview) {
-                                  window.open(url, '_blank', 'noopener,noreferrer')
-                                } else if (onCardClick) {
-                                  onCardClick(card.id)
-                                }
-                              } else {
-                                setSelectedIndex(index)
+                              setSelectedIndex(index)
+                              if (onCardClick) {
+                                onCardClick(card.id)
                               }
                             }}
                           >
@@ -706,12 +746,8 @@ export function IpodClassicLayout({
                               isSelected && 'selected'
                             )}
                             onClick={() => {
-                              if (selectedIndex === index) {
-                                // Already selected - navigate to release screen
-                                goToRelease(releaseIndex)
-                              } else {
-                                setSelectedIndex(index)
-                              }
+                              setSelectedIndex(index)
+                              goToRelease(releaseIndex)
                             }}
                           >
                             <span className="flex-1 text-[12px] overflow-hidden whitespace-nowrap">
@@ -747,9 +783,7 @@ export function IpodClassicLayout({
                           onClick={() => {
                             if (selectedIndex === index) {
                               // Already selected - open URL
-                              if (icon.url) {
-                                window.open(icon.url, '_blank', 'noopener,noreferrer')
-                              }
+                              // Links don't navigate in preview — only on public page
                             } else {
                               setSelectedIndex(index)
                             }
@@ -843,11 +877,11 @@ export function IpodClassicLayout({
                         {/* Pre-save button - styled like selected menu item, at bottom */}
                         {preSaveUrl && (
                           <a
-                            href={preSaveUrl}
+                            href={isPreview ? undefined : preSaveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="ipod-menu-item selected text-[11px] justify-between mt-auto"
-                            onClick={(e) => !isPreview && e.preventDefault()}
+                            onClick={isPreview ? (e: React.MouseEvent) => e.preventDefault() : undefined}
                           >
                             <span>{preSaveButtonText}</span>
                             <span className="text-[10px] ml-2">{'>'}</span>
@@ -990,7 +1024,7 @@ export function IpodClassicLayout({
                 width: '80px',
                 height: 'auto',
                 userSelect: 'none',
-                opacity: 0.9,
+                opacity: sticker.opacity ?? 0.9,
                 mixBlendMode: 'multiply',
               }}
               onMouseDown={(e) => handleStickerMouseDown(e, sticker.id)}

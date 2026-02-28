@@ -27,11 +27,13 @@ interface AudioCardFieldsProps {
   onChange: (updates: Record<string, unknown>) => void
   cardId: string
   themeId?: string
+  cardTitle?: string
+  onCardTitleChange?: (title: string) => void
 }
 
-export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCardFieldsProps) {
+export function AudioCardFields({ content, onChange, cardId, themeId, cardTitle, onCardTitleChange }: AudioCardFieldsProps) {
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
-  const [isUploadingArt, setIsUploadingArt] = useState(false)
+  const [isUploadingArt, setIsUploadingArt] = useState<string | false>(false) // trackId or false
   const [uploadProgress, setUploadProgress] = useState(0)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
@@ -40,11 +42,16 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
   const [cardBgPositionOpen, setCardBgPositionOpen] = useState(false)
   const trackInputRef = useRef<HTMLInputElement>(null)
   const artInputRef = useRef<HTMLInputElement>(null)
+  const artTrackIdRef = useRef<string | null>(null)
   const cardBgInputRef = useRef<HTMLInputElement>(null)
   const originalFileRef = useRef<File | null>(null)
+  // Holds the original (uncropped) image URL for the current crop session
+  const pendingOriginalUrlRef = useRef<string | null>(null)
 
   const tracks = content.tracks || []
   const reverbConfig = content.reverbConfig || DEFAULT_REVERB_CONFIG
+  const isCdPlayer = content.playerStyle === 'cd-player'
+  const isPhoneHomeDefault = themeId === 'phone-home' && !isCdPlayer
 
   // Handle track upload
   async function handleTrackUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -168,7 +175,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
     }
   }
 
-  // Handle album art file selection
+  // Handle album art file selection (per-track)
   async function handleArtSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -183,14 +190,22 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       return
     }
 
+    const trackId = artTrackIdRef.current
     originalFileRef.current = file
 
     // GIFs: upload directly to preserve animation (canvas destroys frames)
     if (file.type === 'image/gif') {
       try {
-        setIsUploadingArt(true)
+        setIsUploadingArt(trackId || 'card')
         const result = await uploadCardImageBlob(file, cardId, file.type)
-        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+        if (trackId) {
+          const updatedTracks = tracks.map((t) =>
+            t.id === trackId ? { ...t, albumArtUrl: result.url, albumArtStoragePath: result.path, originalAlbumArtUrl: undefined } : t
+          )
+          onChange({ tracks: updatedTracks })
+        } else {
+          onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path, originalAlbumArtUrl: undefined })
+        }
         toast.success('Album art uploaded')
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Upload failed'
@@ -200,6 +215,19 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       }
       if (artInputRef.current) artInputRef.current.value = ''
       return
+    }
+
+    // Upload the original (uncropped) image to storage first
+    try {
+      const isPng = file.type === 'image/png' || file.type === 'image/webp'
+      const uploadType = isPng ? 'image/png' : 'image/jpeg'
+      const ext = isPng ? 'png' : 'jpg'
+      const fileToCompress = new File([file], `original.${ext}`, { type: uploadType })
+      const compressedOriginal = await compressImageForUpload(fileToCompress)
+      const originalResult = await uploadCardImageBlob(compressedOriginal, cardId, uploadType)
+      pendingOriginalUrlRef.current = originalResult.url
+    } catch {
+      pendingOriginalUrlRef.current = null
     }
 
     const reader = new FileReader()
@@ -215,10 +243,11 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
     }
   }
 
-  // Handle crop complete - upload album art
+  // Handle crop complete - upload album art (per-track)
   async function handleCropComplete(croppedBlob: Blob) {
+    const trackId = artTrackIdRef.current
     try {
-      setIsUploadingArt(true)
+      setIsUploadingArt(trackId || 'card')
 
       const isPng = originalFileRef.current?.type === 'image/png'
       const ext = isPng ? 'png' : 'jpg'
@@ -226,7 +255,19 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
       const compressedBlob = await compressImageForUpload(fileToCompress)
 
       const result = await uploadCardImageBlob(compressedBlob, cardId, isPng ? 'image/png' : 'image/jpeg')
-      onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path })
+      const originalUrl = pendingOriginalUrlRef.current
+      if (trackId) {
+        const track = tracks.find(t => t.id === trackId)
+        const origArtUrl = originalUrl || (track as unknown as Record<string, unknown>)?.originalAlbumArtUrl as string | undefined
+        const updatedTracks = tracks.map((t) =>
+          t.id === trackId ? { ...t, albumArtUrl: result.url, albumArtStoragePath: result.path, ...(origArtUrl ? { originalAlbumArtUrl: origArtUrl } : {}) } : t
+        )
+        onChange({ tracks: updatedTracks })
+      } else {
+        const origArtUrl = originalUrl || (content as Record<string, unknown>).originalAlbumArtUrl as string | undefined
+        onChange({ albumArtUrl: result.url, albumArtStoragePath: result.path, ...(origArtUrl ? { originalAlbumArtUrl: origArtUrl } : {}) })
+      }
+      pendingOriginalUrlRef.current = null
       toast.success('Album art uploaded')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Upload failed'
@@ -236,9 +277,12 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
     }
   }
 
-  // Handle album art removal
-  function handleRemoveArt() {
-    onChange({ albumArtUrl: undefined, albumArtStoragePath: undefined })
+  // Handle album art removal (per-track)
+  function handleRemoveTrackArt(trackId: string) {
+    const updatedTracks = tracks.map((t) =>
+      t.id === trackId ? { ...t, albumArtUrl: undefined, albumArtStoragePath: undefined, originalAlbumArtUrl: undefined } : t
+    )
+    onChange({ tracks: updatedTracks })
     toast.success('Album art removed')
   }
 
@@ -249,12 +293,27 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
 
   // Format reverb status for display
   function getReverbStatus(): string {
-    if (!reverbConfig.enabled) return 'Reverb: Off'
-    return `Reverb: On (Room: ${(reverbConfig.roomSize * 100).toFixed(0)}%)`
+    return `Reverb (Room: ${(reverbConfig.roomSize * 100).toFixed(0)}%)`
   }
 
   return (
     <div className="space-y-6">
+      {/* Display Title */}
+      {onCardTitleChange && (
+        <div className="space-y-2">
+          <Label>Display Title</Label>
+          <Input
+            placeholder="Player title"
+            value={cardTitle ?? ''}
+            onChange={(e) => onCardTitleChange(e.target.value)}
+            className="h-9"
+          />
+          <p className="text-xs text-muted-foreground">
+            Shown as the menu label in iPod and other themes
+          </p>
+        </div>
+      )}
+
       {/* Track Upload Section */}
       <div className="space-y-3">
         <Label>Audio Tracks</Label>
@@ -311,121 +370,136 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
-                <Input
-                  placeholder="Track title"
-                  value={track.title}
-                  onChange={(e) => handleTrackUpdate(track.id, 'title', e.target.value)}
-                  className="h-8 text-sm"
-                />
-                <Input
-                  placeholder="Artist name"
-                  value={track.artist}
-                  onChange={(e) => handleTrackUpdate(track.id, 'artist', e.target.value)}
-                  className="h-8 text-sm"
-                />
+                <div className="flex gap-2">
+                  {/* Per-track album art thumbnail */}
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                    {track.albumArtUrl ? (
+                      <div
+                        className="relative h-12 w-12 rounded overflow-hidden bg-muted cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => {
+                          if (isUploadingArt) return
+                          artTrackIdRef.current = track.id
+                          // Use original (uncropped) image for re-crop if available
+                          const origUrl = (track as unknown as Record<string, unknown>).originalAlbumArtUrl as string | undefined
+                          setImageToCrop(origUrl || track.albumArtUrl!)
+                          pendingOriginalUrlRef.current = origUrl || null
+                          setCropDialogOpen(true)
+                        }}
+                      >
+                        <Image
+                          src={track.albumArtUrl}
+                          alt="Track art"
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="h-12 w-12 rounded bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+                        onClick={() => {
+                          artTrackIdRef.current = track.id
+                          artInputRef.current?.click()
+                        }}
+                        disabled={!!isUploadingArt}
+                      >
+                        {isUploadingArt === track.id ? (
+                          <Upload className="h-3 w-3 text-muted-foreground animate-pulse" />
+                        ) : (
+                          <Upload className="h-3 w-3 text-muted-foreground" />
+                        )}
+                      </button>
+                    )}
+                    {track.albumArtUrl && (
+                      <div className="flex gap-0.5">
+                        <button
+                          type="button"
+                          className="text-[10px] text-muted-foreground hover:text-foreground"
+                          onClick={() => {
+                            artTrackIdRef.current = track.id
+                            artInputRef.current?.click()
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <span className="text-[10px] text-muted-foreground/40">|</span>
+                        <button
+                          type="button"
+                          className="text-[10px] text-muted-foreground hover:text-destructive"
+                          onClick={() => handleRemoveTrackArt(track.id)}
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {/* Track title & artist fields */}
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      placeholder="Track title"
+                      value={track.title}
+                      onChange={(e) => handleTrackUpdate(track.id, 'title', e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                    <Input
+                      placeholder="Artist name"
+                      value={track.artist}
+                      onChange={(e) => handleTrackUpdate(track.id, 'artist', e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Album Art Section */}
-      <div className="space-y-2">
-        <Label>Album Art</Label>
-        <div className="flex items-center gap-3">
-          {content.albumArtUrl ? (
-            <div
-              className={cn(
-                'relative h-20 w-20 rounded-lg overflow-hidden bg-muted flex-shrink-0',
-                !isUploadingArt && 'cursor-pointer hover:opacity-80 transition-opacity'
-              )}
-              onClick={() => {
-                if (!isUploadingArt && content.albumArtUrl) {
-                  setImageToCrop(content.albumArtUrl)
-                  setCropDialogOpen(true)
-                }
-              }}
-            >
-              <Image
-                src={content.albumArtUrl}
-                alt="Album art"
-                fill
-                className="object-cover"
-                sizes="80px"
-              />
-            </div>
-          ) : (
-            <div className="h-20 w-20 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-              <Upload className="h-5 w-5 text-muted-foreground" />
-            </div>
-          )}
+      {/* Hidden file input for per-track album art */}
+      <input
+        ref={artInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleArtSelect}
+        className="hidden"
+        disabled={!!isUploadingArt}
+      />
 
-          <div className="flex-1 space-y-2">
-            <input
-              ref={artInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleArtSelect}
-              className="hidden"
-              disabled={isUploadingArt}
-            />
-            <Button
+      {/* Player Style selector (phone-home theme only) */}
+      {themeId === 'phone-home' && (
+        <div className="space-y-2">
+          <Label>Player Style</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
               type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => artInputRef.current?.click()}
-              disabled={isUploadingArt}
-              className="w-full"
+              className={cn(
+                "flex flex-col items-center gap-1.5 p-3 rounded-lg border text-xs transition-all",
+                (!content.playerStyle || content.playerStyle === 'default')
+                  ? "ring-2 ring-primary border-primary bg-primary/5"
+                  : "hover:border-muted-foreground/40"
+              )}
+              onClick={() => onChange({ playerStyle: 'default' })}
             >
-              {content.albumArtUrl ? 'Change' : 'Upload'}
-            </Button>
-            {content.albumArtUrl && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleRemoveArt}
-                className="w-full"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Remove
-              </Button>
-            )}
+              <span className="text-lg">🎛</span>
+              <span className="font-medium">Default</span>
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "flex flex-col items-center gap-1.5 p-3 rounded-lg border text-xs transition-all",
+                content.playerStyle === 'cd-player'
+                  ? "ring-2 ring-primary border-primary bg-primary/5"
+                  : "hover:border-muted-foreground/40"
+              )}
+              onClick={() => onChange({ playerStyle: 'cd-player' })}
+            >
+              <span className="text-lg">💿</span>
+              <span className="font-medium">CD Player</span>
+            </button>
           </div>
         </div>
-      </div>
-
-      {/* Player Display Toggle */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label>Waveform Display</Label>
-            <p className="text-xs text-muted-foreground">
-              Show waveform or progress bar
-            </p>
-          </div>
-          <Switch
-            checked={content.showWaveform ?? true}
-            onCheckedChange={(checked) => onChange({ showWaveform: checked })}
-          />
-        </div>
-      </div>
-
-      {/* Looping Toggle */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label>Loop Playback</Label>
-            <p className="text-xs text-muted-foreground">
-              Automatically restart when track ends
-            </p>
-          </div>
-          <Switch
-            checked={content.looping ?? false}
-            onCheckedChange={(checked) => onChange({ looping: checked })}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Autoplay Toggle */}
       <div className="space-y-2">
@@ -458,85 +532,48 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
         />
       </div>
 
-      {/* Player Colors */}
-      <div className="space-y-3">
-        <Label>Player Colors</Label>
-        <div className="space-y-2">
-          {themeId === 'macintosh' ? (
-            <>
-              <ColorPicker
-                label="Window Background"
-                color={content.playerColors?.elementBgColor || '#ffffff'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, elementBgColor: color },
-                  })
-                }
+      {/* Window Color & Text Color (macintosh theme) */}
+      {themeId === 'macintosh' && (
+        <>
+          <div className="space-y-2">
+            <Label>Window Color</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={content.playerColors?.elementBgColor || '#ffffff'}
+                onChange={(e) => onChange({ playerColors: { ...content.playerColors, elementBgColor: e.target.value } })}
+                className="h-9 w-9 rounded border cursor-pointer"
               />
-              <ColorPicker
-                label="Borders"
-                color={content.playerColors?.borderColor || '#000000'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, borderColor: color },
-                  })
-                }
+              <Input
+                placeholder="#ffffff"
+                value={content.playerColors?.elementBgColor || ''}
+                onChange={(e) => onChange({ playerColors: { ...content.playerColors, elementBgColor: e.target.value } })}
+                className="flex-1"
               />
-              <ColorPicker
-                label="Checker Fill"
-                color={content.playerColors?.foregroundColor || '#000000'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, foregroundColor: color },
-                  })
-                }
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Text Color</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={content.textColor || '#000000'}
+                onChange={(e) => onChange({ textColor: e.target.value })}
+                className="h-9 w-9 rounded border cursor-pointer"
               />
-            </>
-          ) : (
-            <>
-              <ColorPicker
-                label="Border"
-                color={content.playerColors?.borderColor || '#3b82f6'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, borderColor: color },
-                  })
-                }
+              <Input
+                placeholder="#000000"
+                value={content.textColor || ''}
+                onChange={(e) => onChange({ textColor: e.target.value })}
+                className="flex-1"
               />
-              <ColorPicker
-                label="Elements"
-                color={content.playerColors?.elementBgColor || '#e5e7eb'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, elementBgColor: color },
-                  })
-                }
-              />
-              <ColorPicker
-                label="Accent"
-                color={content.playerColors?.foregroundColor || '#3b82f6'}
-                onChange={(color) =>
-                  onChange({
-                    playerColors: { ...content.playerColors, foregroundColor: color },
-                  })
-                }
-              />
-            </>
-          )}
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => onChange({ playerColors: undefined })}
-          className="w-full"
-        >
-          Reset to Theme Defaults
-        </Button>
-      </div>
+            </div>
+          </div>
+        </>
+      )}
 
-      {/* Card Background (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
-      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home' || themeId === 'artifact') && (() => {
+      {/* Card Background (poolsuite themes + phone-home default player) */}
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'artifact' || isPhoneHomeDefault) && (() => {
         const styleId = content.blinkieBoxBackgrounds?.cardOuter
         const styleDef = styleId ? BLINKIE_STYLES[styleId] : null
         return (
@@ -788,8 +825,8 @@ export function AudioCardFields({ content, onChange, cardId, themeId }: AudioCar
         )
       })()}
 
-      {/* Blinkie Colors (poolsuite themes: blinkies, system-settings, mac-os, instagram-reels) */}
-      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'phone-home' || themeId === 'artifact') && (() => {
+      {/* Blinkie Colors (poolsuite themes + phone-home default player) */}
+      {(themeId === 'blinkies' || themeId === 'system-settings' || themeId === 'mac-os' || themeId === 'instagram-reels' || themeId === 'artifact' || isPhoneHomeDefault) && (() => {
         const palettes: { name: string; outerBox: string; innerBox: string; text: string; playerBox: string; buttons: string }[] = [
           { name: 'Default',        outerBox: '#3d2020', innerBox: '#c9a832', text: '#9898a8', playerBox: '#8b7db8', buttons: '#b83232' },
           { name: 'Classic',        outerBox: '#F9F0E9', innerBox: '#EDE4DA', text: '#000000', playerBox: '#F9F0E9', buttons: '#F9F0E9' },

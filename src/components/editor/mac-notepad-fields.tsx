@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { ColorPicker } from '@/components/ui/color-picker'
+
 
 interface MacLink {
   title: string
@@ -16,10 +16,11 @@ interface MacNotepadFieldsProps {
   macLinks: MacLink[]
   notepadStyle: string
   notepadBgColor: string
+  notepadTextColor: string
   onChange: (updates: Record<string, unknown>) => void
 }
 
-export function MacNotepadFields({ macLinks, notepadStyle, notepadBgColor, onChange }: MacNotepadFieldsProps) {
+export function MacNotepadFields({ macLinks, notepadStyle, notepadBgColor, notepadTextColor, onChange }: MacNotepadFieldsProps) {
   const links = macLinks || []
 
   function addLink() {
@@ -58,11 +59,41 @@ export function MacNotepadFields({ macLinks, notepadStyle, notepadBgColor, onCha
         </ToggleGroup>
       </div>
 
-      <ColorPicker
-        label="Window Color"
-        color={notepadBgColor || '#F2FFA4'}
-        onChange={(color) => onChange({ notepadBgColor: color })}
-      />
+      <div className="space-y-2">
+        <Label>Window Color</Label>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={notepadBgColor || '#F2FFA4'}
+            onChange={(e) => onChange({ notepadBgColor: e.target.value })}
+            className="h-9 w-9 rounded border cursor-pointer"
+          />
+          <Input
+            placeholder="#F2FFA4"
+            value={notepadBgColor || ''}
+            onChange={(e) => onChange({ notepadBgColor: e.target.value })}
+            className="flex-1"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Text Color</Label>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={notepadTextColor || '#000000'}
+            onChange={(e) => onChange({ notepadTextColor: e.target.value })}
+            className="h-9 w-9 rounded border cursor-pointer"
+          />
+          <Input
+            placeholder="#000000"
+            value={notepadTextColor || ''}
+            onChange={(e) => onChange({ notepadTextColor: e.target.value })}
+            className="flex-1"
+          />
+        </div>
+      </div>
 
       <div className="flex items-center justify-between">
         <Label>Note Pad Links</Label>

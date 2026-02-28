@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent } from '@/types/card'
 import type { SocialPlatform } from '@/types/profile'
@@ -20,6 +20,7 @@ import {
   SiPatreon, SiVenmo, SiCashapp, SiPaypal
 } from 'react-icons/si'
 import type { ComponentType } from 'react'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
 type IconComponent = ComponentType<{ className?: string }>
@@ -94,6 +95,7 @@ interface ReceiptLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
 }
@@ -112,11 +114,37 @@ export function ReceiptLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   selectedCardId
 }: ReceiptLayoutProps) {
   const [focusedIndex, setFocusedIndex] = useState<number>(0)
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   const [ditheredPhoto, setDitheredPhoto] = useState<string | null>(null)
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
@@ -272,6 +300,9 @@ export function ReceiptLayout({
   }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Don't intercept keys when inline editing is active
+    if ((e.target as HTMLElement)?.isContentEditable) return
+
     if (e.key === 'ArrowDown') {
       e.preventDefault()
       setFocusedIndex(prev => Math.min(prev + 1, visibleCards.length - 1))
@@ -454,7 +485,19 @@ export function ReceiptLayout({
                     onClick={() => handleCardClick(card, index)}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="truncate flex-1 group-hover:underline">{displayText}</span>
+                      <span className="truncate flex-1 group-hover:underline">
+                        {isEditable ? (
+                          <InlineEditable
+                            value={card.title || ''}
+                            onCommit={(text) => handleInlineCommit(card.id, text)}
+                            multiline={false}
+                            placeholder="Tap to type"
+                            onEditStart={() => handleInlineEditStart(card.id)}
+                            onEditEnd={handleInlineEditEnd}
+                            className="outline-none min-w-[1ch] inline-block"
+                          />
+                        ) : displayText}
+                      </span>
                       <span className="receipt-dots flex-shrink-0 mx-2">
                         {'.' .repeat(Math.max(3, 20 - displayText.length))}
                       </span>
@@ -594,11 +637,11 @@ export function ReceiptLayout({
                     return (
                       <a
                         key={icon.id}
-                        href={icon.url}
+                        href={isPreview ? undefined : icon.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="opacity-80 hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); if (isPreview) e.preventDefault() }}
                       >
                         <IconComponent className="w-5 h-5" />
                       </a>

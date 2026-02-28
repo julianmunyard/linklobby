@@ -138,7 +138,17 @@ export function MacintoshLayout({
           <span>Edit</span>
           <span>View</span>
         </div>
-        <div style={{ flexShrink: 0 }}>
+        <div
+          style={{ flexShrink: 0, cursor: 'pointer' }}
+          onClick={() => {
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } },
+                window.location.origin
+              )
+            }
+          }}
+        >
           <span>{title}</span>
         </div>
       </div>

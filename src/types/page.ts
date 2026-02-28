@@ -26,8 +26,10 @@ export interface PublicPageData {
     avatar_url: string | null
     avatar_feather: number
     avatar_size: number
+    avatar_shape: 'circle' | 'square'
     show_avatar: boolean
     show_title: boolean
+    show_bio: boolean
     title_size: 'small' | 'large'
     show_logo: boolean
     logo_url: string | null
@@ -37,6 +39,8 @@ export interface PublicPageData {
     social_icons: string | null  // JSON string from DB
     header_text_color: string | null
     social_icon_color: string | null
+    title_font: string | null
+    bio_font: string | null
   }
   page: Page
   cards: Card[]

@@ -43,8 +43,10 @@ export async function GET() {
     avatarUrl: profile.avatar_url,
     avatarFeather: profile.avatar_feather ?? 0,
     avatarSize: profile.avatar_size ?? 80,
+    avatarShape: profile.avatar_shape ?? 'circle',
     showAvatar: profile.show_avatar ?? true,
     showTitle: profile.show_title ?? true,
+    showBio: profile.show_bio ?? true,
     titleSize: profile.title_size,
     showLogo: profile.show_logo ?? false,
     logoUrl: profile.logo_url,
@@ -54,6 +56,8 @@ export async function GET() {
     socialIcons: profile.social_icons || [],
     headerTextColor: profile.header_text_color,
     socialIconColor: profile.social_icon_color ?? null,
+    titleFont: profile.title_font ?? null,
+    bioFont: profile.bio_font ?? null,
   })
 }
 
@@ -81,8 +85,10 @@ export async function POST(request: Request) {
     avatar_url: body.avatarUrl,
     avatar_feather: body.avatarFeather,
     avatar_size: body.avatarSize,
+    avatar_shape: body.avatarShape,
     show_avatar: body.showAvatar,
     show_title: body.showTitle,
+    show_bio: body.showBio,
     title_size: body.titleSize,
     show_logo: body.showLogo,
     logo_url: body.logoUrl,
@@ -92,6 +98,8 @@ export async function POST(request: Request) {
     social_icons: body.socialIcons,
     header_text_color: body.headerTextColor,
     social_icon_color: body.socialIconColor,
+    title_font: body.titleFont,
+    bio_font: body.bioFont,
     updated_at: new Date().toISOString(),
   }
 
@@ -100,9 +108,13 @@ export async function POST(request: Request) {
     .update(updateData)
     .eq('id', user.id)
 
-  // If social_icon_color column doesn't exist yet, retry without it
-  if (error?.message?.includes('social_icon_color')) {
+  // If new columns don't exist yet in schema cache, retry without them
+  if (error?.message?.includes('avatar_shape') || error?.message?.includes('avatar_size') || error?.message?.includes('social_icon_color') || error?.message?.includes('title_font') || error?.message?.includes('bio_font')) {
+    delete updateData.avatar_shape
+    delete updateData.avatar_size
     delete updateData.social_icon_color
+    delete updateData.title_font
+    delete updateData.bio_font
     const retry = await supabase
       .from('profiles')
       .update(updateData)

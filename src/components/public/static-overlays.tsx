@@ -36,19 +36,53 @@ export function StaticBackground({ background }: StaticBackgroundProps) {
     const imgZoom = background.imageZoom ?? 1
     const imgPosX = background.imagePositionX ?? 50
     const imgPosY = background.imagePositionY ?? 50
+    const hasDesktop = !!background.desktopValue
+    const deskZoom = background.desktopImageZoom ?? 1
+    const deskPosX = background.desktopImagePositionX ?? 50
+    const deskPosY = background.desktopImagePositionY ?? 50
+
     return (
       <>
-        <div
-          className="fixed inset-0 -z-10 overflow-hidden"
-          style={{
-            backgroundImage: `url(${background.value})`,
-            backgroundSize: 'cover',
-            backgroundPosition: `${imgPosX}% ${imgPosY}%`,
-            backgroundRepeat: 'no-repeat',
-            transform: `scale(${imgZoom})`,
-            transformOrigin: `${imgPosX}% ${imgPosY}%`,
-          }}
-        />
+        {hasDesktop ? (
+          <>
+            {/* Mobile layer */}
+            <div
+              className="fixed inset-0 -z-10 block md:hidden"
+              style={{
+                backgroundImage: `url(${background.value})`,
+                backgroundSize: 'cover',
+                backgroundPosition: `${imgPosX}% ${imgPosY}%`,
+                backgroundRepeat: 'no-repeat',
+                transform: `scale(${imgZoom})`,
+                transformOrigin: `${imgPosX}% ${imgPosY}%`,
+              }}
+            />
+            {/* Desktop layer */}
+            <div
+              className="fixed inset-0 -z-10 hidden md:block"
+              style={{
+                backgroundImage: `url(${background.desktopValue})`,
+                backgroundSize: 'cover',
+                backgroundPosition: `${deskPosX}% ${deskPosY}%`,
+                backgroundRepeat: 'no-repeat',
+                transform: `scale(${deskZoom})`,
+                transformOrigin: `${deskPosX}% ${deskPosY}%`,
+              }}
+            />
+          </>
+        ) : (
+          <div
+            className="fixed inset-0 -z-10"
+            style={{
+              backgroundImage: `url(${background.value})`,
+              backgroundSize: 'cover',
+              backgroundPosition: `${imgPosX}% ${imgPosY}%`,
+              backgroundRepeat: 'no-repeat',
+              transform: `scale(${imgZoom})`,
+              transformOrigin: `${imgPosX}% ${imgPosY}%`,
+            }}
+          />
+        )}
         {background.dimOverlay && (
           <div
             className="fixed inset-0 -z-[9] pointer-events-none"

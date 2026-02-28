@@ -13,15 +13,12 @@ import { generalApiRatelimit, checkRateLimit } from '@/lib/ratelimit'
 const BUCKET_NAME = 'card-images'
 
 export async function POST(request: Request) {
-  console.log('[API /import/linktree] POST request received')
-
   if (!validateCsrfOrigin(request)) {
     return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 })
   }
 
   try {
     // Authenticate user
-    console.log('[API /import/linktree] Authenticating user...')
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -32,7 +29,6 @@ export async function POST(request: Request) {
     if (!rl.allowed) return rl.response!
 
     const page = await fetchUserPage()
-    console.log('[API /import/linktree] User page:', page ? page.id : 'null')
     if (!page) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
@@ -44,24 +40,13 @@ export async function POST(request: Request) {
     }
 
     // Scrape Linktree profile
-    console.log('[API /import/linktree] Scraping username:', username)
     const profileData = await scrapeLinktreeProfile(username)
-    console.log('[API /import/linktree] Scraped links count:', profileData.links.length)
-    console.log('[API /import/linktree] Social links count:', profileData.socialLinks?.length ?? 0)
 
     // Map to our card format - returns structured {card, imageBlob} pairs + detected social icons
     const { mappedCards, detectedSocialIcons, failures } = await mapLinktreeToCards(
       profileData.links,
       profileData.socialLinks
     )
-
-    console.log('[API /import/linktree] Mapped cards count:', mappedCards.length)
-
-    // Log first 5 mapped cards to verify order
-    console.log('[API /import/linktree] First 5 mapped cards:')
-    mappedCards.slice(0, 5).forEach((m, i) => {
-      console.log(`  ${i}: "${m.card.title}" (${m.card.card_type})`)
-    })
 
     // Pre-generate all sortKeys upfront for correct ordering
     // This is much faster than generating them one at a time
@@ -105,7 +90,6 @@ export async function POST(request: Request) {
                 .getPublicUrl(uploadData.path)
 
               content.imageUrl = urlData.publicUrl
-              console.log(`[API /import/linktree] Uploaded image for "${cardData.title}": ${urlData.publicUrl}`)
             } else if (uploadError) {
               console.warn(`[API /import/linktree] Image upload failed for "${cardData.title}":`, uploadError.message)
             }
@@ -130,14 +114,6 @@ export async function POST(request: Request) {
       })
     )
 
-    // Log first 5 card records with sortKeys
-    console.log('[API /import/linktree] First 5 card records with sortKeys:')
-    cardRecords.slice(0, 5).forEach((r, i) => {
-      console.log(`  ${i}: "${r.title}" sortKey="${r.sort_key}"`)
-    })
-
-    console.log('[API /import/linktree] Inserting', cardRecords.length, 'cards in batch')
-
     // Single batch insert - much faster than sequential inserts
     const { data: insertedCards, error: insertError } = await supabase
       .from('cards')
@@ -148,8 +124,6 @@ export async function POST(request: Request) {
       console.error('[API /import/linktree] Batch insert error:', insertError)
       throw new Error(`Failed to insert cards: ${insertError.message}`)
     }
-
-    console.log('[API /import/linktree] Successfully inserted', insertedCards?.length ?? 0, 'cards')
 
     // Map back to Card type and sort by sortKey to ensure correct order
     const createdCards: Card[] = (insertedCards || [])
@@ -169,12 +143,6 @@ export async function POST(request: Request) {
         updated_at: row.updated_at,
       }))
       .sort((a, b) => a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0)
-
-    // Log final order
-    console.log('[API /import/linktree] Final cards order (first 5):')
-    createdCards.slice(0, 5).forEach((c, i) => {
-      console.log(`  ${i}: "${c.title}" sortKey="${c.sortKey}"`)
-    })
 
     return NextResponse.json({
       success: true,

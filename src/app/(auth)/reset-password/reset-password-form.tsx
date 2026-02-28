@@ -51,7 +51,7 @@ export function ResetPasswordForm() {
 
   if (success) {
     return (
-      <Card className="bg-card/80 backdrop-blur-xl border-white/10">
+      <Card className="!bg-white/5 backdrop-blur-xl border-white/10 shadow-[0_0_40px_rgba(149,98,50,0.15),0_0_80px_rgba(105,98,73,0.1)]">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Password updated</CardTitle>
           <CardDescription>
@@ -63,7 +63,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-xl border-white/10">
+    <Card className="!bg-white/5 backdrop-blur-xl border-white/10 shadow-[0_0_40px_rgba(149,98,50,0.15),0_0_80px_rgba(105,98,73,0.1)]">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Set new password</CardTitle>
         <CardDescription>Choose a strong password for your account.</CardDescription>

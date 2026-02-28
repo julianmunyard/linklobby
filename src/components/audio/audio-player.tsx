@@ -29,11 +29,15 @@ function poolsuiteHalftone(color: string) {
 }
 
 // Touch-friendly speed slider — converts touch X position to 0.5-1.5 range
+// Uses directional lock: if the first move is more vertical than horizontal, bail out
+// so the page can scroll normally.
 function useSpeedSliderTouch(
   trackRef: React.RefObject<HTMLDivElement | null>,
   onSpeedChange: (speed: number) => void
 ) {
   const dragging = useRef(false)
+  const locked = useRef(false)
+  const startPos = useRef({ x: 0, y: 0 })
 
   const calcSpeed = useCallback((clientX: number) => {
     const el = trackRef.current
@@ -46,17 +50,25 @@ function useSpeedSliderTouch(
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     dragging.current = true
-    calcSpeed(e.touches[0].clientX)
-  }, [calcSpeed])
+    locked.current = false
+    startPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }, [])
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     if (!dragging.current) return
+    if (!locked.current) {
+      const dx = Math.abs(e.touches[0].clientX - startPos.current.x)
+      const dy = Math.abs(e.touches[0].clientY - startPos.current.y)
+      if (dy > dx) { dragging.current = false; return } // vertical — let page scroll
+      locked.current = true
+    }
     e.preventDefault()
     calcSpeed(e.touches[0].clientX)
   }, [calcSpeed])
 
   const onTouchEnd = useCallback(() => {
     dragging.current = false
+    locked.current = false
   }, [])
 
   return { onTouchStart, onTouchMove, onTouchEnd }
@@ -84,6 +96,8 @@ interface AudioPlayerProps {
   isEditing?: boolean         // In editor = show reverb config button
   onContentChange?: (updates: Record<string, unknown>) => void  // For editor updates
   themeVariant?: ThemeVariant
+  textColor?: string
+  playerStyle?: string
   className?: string
 }
 
@@ -102,7 +116,9 @@ export function AudioPlayer({
   pageId,
   isEditing = false,
   onContentChange,
+  textColor,
   themeVariant = 'instagram-reels',
+  playerStyle,
   className = ''
 }: AudioPlayerProps) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -118,6 +134,8 @@ export function AudioPlayer({
   const currentTrack = tracks.length > 0 ? tracks[currentTrackIndex] : placeholderTrack
   const isPlaceholder = tracks.length === 0 || !currentTrack.audioUrl
   const currentTrackUrl = currentTrack.audioUrl || undefined
+  // Per-track art with card-level fallback
+  const effectiveAlbumArtUrl = currentTrack.albumArtUrl || albumArtUrl
 
   // Use the audio player hook (must be called before any early returns)
   const player = useAudioPlayer({
@@ -144,12 +162,18 @@ export function AudioPlayer({
   const varispeedTrackRef = useRef<HTMLDivElement>(null)
   const speedTouch = useSpeedSliderTouch(varispeedTrackRef, player.setSpeed)
 
+  // Re-check marquee on track change and after refs attach (e.g. iPod now-playing screen appears)
+  const marqueeTitle = `${currentTrack.title}${currentTrack.artist ? ` — ${currentTrack.artist}` : ''}`
   useEffect(() => {
-    if (!marqueeContainerRef.current || !marqueeTextRef.current) return
-    const container = marqueeContainerRef.current
-    const text = marqueeTextRef.current
-    setIsMarqueeNeeded(text.scrollWidth > container.clientWidth)
-  }, [currentTrackIndex])
+    // Small delay to let refs attach after conditional render
+    const timer = setTimeout(() => {
+      if (!marqueeContainerRef.current || !marqueeTextRef.current) return
+      const container = marqueeContainerRef.current
+      const text = marqueeTextRef.current
+      setIsMarqueeNeeded(text.scrollWidth > container.clientWidth)
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [currentTrackIndex, marqueeTitle])
 
   // Always render the player — even with no tracks, show the placeholder UI
   // so the card appears on public pages before tracks are uploaded
@@ -196,8 +220,10 @@ export function AudioPlayer({
   const isCompact = isReceipt || isVcr || isClassified || isPoolsuite || isMacintosh || isIpodClassic
 
   // Color overrides per theme
-  // VCR: follow theme text color (var(--theme-text)); receipt: force black; classified/system-settings: theme text
-  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacintosh ? '#000' : isIpodClassic ? 'var(--theme-text, #3d3c39)' : (isVcr || isClassified) ? 'var(--theme-text)' : playerColors?.foregroundColor
+  // VCR/classified: follow theme text color; receipt: force black; macintosh/ipod: fixed black
+  // Poolsuite themes (system-settings, blinkies, mac-os, instagram-reels): use player color override or fixed #000
+  // so that changing theme text/border color does NOT affect the player
+  const effectiveForegroundColor = isReceipt ? '#1a1a1a' : isMacintosh ? '#000' : isIpodClassic ? 'var(--theme-text, #3d3c39)' : (isVcr || isClassified) ? 'var(--theme-text)' : playerColors?.foregroundColor || (isPoolsuite ? (textColor || '#000') : undefined)
   const effectiveElementBgColor = transparentBackground ? 'transparent' : (isReceipt || isVcr || isClassified || isMacintosh || isIpodClassic) ? 'transparent' : playerColors?.elementBgColor
 
   // ─── VCR THEME: fully bordered OSD layout ───
@@ -468,7 +494,7 @@ export function AudioPlayer({
     const macChecker = playerColors?.foregroundColor || '#000'
     const macFont: React.CSSProperties = {
       fontFamily: "var(--font-pix-chicago), 'Chicago', monospace",
-      color: macBorder
+      color: textColor || macBorder
     }
     // 8-bit pixel border clip-path for boxes
     const macPixelClip = `polygon(
@@ -738,6 +764,413 @@ export function AudioPlayer({
     // Varispeed slider position for halftone fill
     const varispeedPercent = ((player.speed - 0.5) / (1.5 - 0.5)) * 100
 
+    // ─── CD PLAYER VARIANT (Win95 style) ───
+    if (playerStyle === 'cd-player') {
+      const w95Gray = '#c0c0c0'
+      const w95DarkShadow = '#404040'
+      const w95Shadow = '#808080'
+      const w95Highlight = '#dfdfdf'
+      const w95Light = '#ffffff'
+      const w95Raised: React.CSSProperties = {
+        boxShadow: `inset -1px -1px 0 ${w95Shadow}, inset 1px 1px 0 ${w95Light}, inset -2px -2px 0 ${w95DarkShadow}, inset 2px 2px 0 ${w95Highlight}`,
+        backgroundColor: w95Gray,
+      }
+      const w95Sunken: React.CSSProperties = {
+        boxShadow: `inset 1px 1px 0 ${w95Shadow}, inset -1px -1px 0 ${w95Light}, inset 2px 2px 0 ${w95DarkShadow}, inset -2px -2px 0 ${w95Highlight}`,
+        backgroundColor: w95Gray,
+      }
+      const w95BtnBase: React.CSSProperties = {
+        ...w95Raised,
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 0,
+        fontFamily: 'var(--font-chikarego), "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Arial, sans-serif',
+        fontSize: '11px',
+        color: '#000000',
+        minWidth: '28px',
+        height: '24px',
+      }
+      const w95Font: React.CSSProperties = {
+        fontFamily: 'var(--font-chikarego), "MS Sans Serif", "Microsoft Sans Serif", Tahoma, Arial, sans-serif',
+        fontSize: '11px',
+        color: '#000000',
+      }
+      const labelWidth = '38px'
+
+      return (
+        <div className={cn('cd-player-win95', className)} style={{ fontFamily: w95Font.fontFamily }}>
+          <style>{`
+            .cd-player-win95 button.w95-btn:active {
+              box-shadow: inset 1px 1px 0 ${w95Shadow}, inset -1px -1px 0 ${w95Light}, inset 2px 2px 0 ${w95DarkShadow}, inset -2px -2px 0 ${w95Highlight} !important;
+              padding-top: 1px !important;
+              padding-left: 1px !important;
+            }
+          `}</style>
+          {/* Outer raised border (window chrome) */}
+          <div style={w95Raised}>
+            {/* Title bar */}
+            <div
+              style={{
+                background: 'linear-gradient(90deg, #000080, #0b5ea8)',
+                padding: '2px 3px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '3px',
+              }}
+            >
+              <span style={{ fontSize: '12px', lineHeight: 1 }}>💿</span>
+              <span style={{ color: '#ffffff', fontSize: '11px', fontWeight: 'bold', flex: 1, fontFamily: w95Font.fontFamily }}>
+                CD Player
+              </span>
+              {/* Decorative window buttons */}
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {['─', '□', '✕'].map((ch, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      ...w95Raised,
+                      width: '16px',
+                      height: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '9px',
+                      lineHeight: 1,
+                      color: '#000',
+                    }}
+                  >
+                    {ch}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Body */}
+            <div style={{ backgroundColor: w95Gray, padding: '6px' }}>
+              {/* Main content: album art left, info/controls right */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                {/* Album art — perfect square, fills full left height */}
+                <div
+                  style={{
+                    ...w95Sunken,
+                    width: '96px',
+                    height: '96px',
+                    flexShrink: 0,
+                    padding: '2px',
+                    overflow: 'hidden',
+                    aspectRatio: '1 / 1',
+                    alignSelf: 'center',
+                  }}
+                >
+                  {effectiveAlbumArtUrl ? (
+                    <Image
+                      src={effectiveAlbumArtUrl}
+                      alt="Album art"
+                      width={96}
+                      height={96}
+                      className="object-cover"
+                      style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', backgroundColor: '#000080', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '32px' }}>💿</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right column: artist, title, progress, varispeed, reverb, transport */}
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px', justifyContent: 'flex-start' }}>
+                  {/* Artist field */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ ...w95Font, width: labelWidth, flexShrink: 0, fontSize: '10px', textAlign: 'right' }}>Artist:</span>
+                    <div
+                      style={{
+                        ...w95Sunken,
+                        backgroundColor: '#ffffff',
+                        flex: 1,
+                        minWidth: 0,
+                        padding: '2px 4px',
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <span style={{ ...w95Font, fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {currentTrack?.artist || 'Unknown'}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Title field */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ ...w95Font, width: labelWidth, flexShrink: 0, fontSize: '10px', textAlign: 'right' }}>Title:</span>
+                    <div
+                      style={{
+                        ...w95Sunken,
+                        backgroundColor: '#ffffff',
+                        flex: 1,
+                        minWidth: 0,
+                        padding: '2px 4px',
+                        height: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <span style={{ ...w95Font, fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {currentTrack?.title || 'Track 1'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Progress bar — flat fill, drag to seek */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ ...w95Font, width: labelWidth, flexShrink: 0, fontSize: '9px', textAlign: 'right', opacity: 0.7 }}>Progress:</span>
+                    <div
+                      data-no-drag
+                      style={{
+                        ...w95Sunken,
+                        padding: '2px',
+                        position: 'relative',
+                        height: '12px',
+                        cursor: 'pointer',
+                        touchAction: 'pan-y',
+                        flex: 1,
+                      }}
+                      onMouseDown={(e) => {
+                        const el = e.currentTarget
+                        const seek = (clientX: number) => {
+                          const rect = el.getBoundingClientRect()
+                          player.seek(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)))
+                        }
+                        seek(e.clientX)
+                        const onMove = (ev: MouseEvent) => seek(ev.clientX)
+                        const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp) }
+                        document.addEventListener('mousemove', onMove)
+                        document.addEventListener('mouseup', onUp)
+                      }}
+                      onTouchStart={(e) => {
+                        const el = e.currentTarget
+                        const startX = e.touches[0].clientX
+                        const startY = e.touches[0].clientY
+                        let locked = false
+                        const seek = (clientX: number) => {
+                          const rect = el.getBoundingClientRect()
+                          player.seek(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)))
+                        }
+                        const onMove = (ev: TouchEvent) => {
+                          if (!locked) {
+                            const dx = Math.abs(ev.touches[0].clientX - startX)
+                            const dy = Math.abs(ev.touches[0].clientY - startY)
+                            if (dy > dx) { onEnd(); return } // vertical scroll — bail out
+                            locked = true
+                          }
+                          ev.preventDefault()
+                          seek(ev.touches[0].clientX)
+                        }
+                        const onEnd = () => { el.removeEventListener('touchmove', onMove); el.removeEventListener('touchend', onEnd) }
+                        el.addEventListener('touchmove', onMove, { passive: false })
+                        el.addEventListener('touchend', onEnd)
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          left: '2px',
+                          bottom: '2px',
+                          width: `${progressPercent}%`,
+                          backgroundColor: '#000080',
+                          maxWidth: 'calc(100% - 4px)',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Varispeed slider — thin line with centred thumb */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ ...w95Font, width: labelWidth, flexShrink: 0, fontSize: '9px', textAlign: 'right', opacity: 0.7 }}>Varispeed:</span>
+                    <div
+                      data-no-drag
+                      style={{
+                        flex: 1,
+                        position: 'relative',
+                        height: '12px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+                        const speed = Math.round((0.5 + ratio * 1.0) * 100) / 100
+                        player.setSpeed(speed)
+                      }}
+                    >
+                      {/* Thin centre line */}
+                      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', marginTop: '-1px', backgroundColor: w95DarkShadow }} />
+                      {/* Tick marks */}
+                      {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                        <div
+                          key={t}
+                          style={{
+                            position: 'absolute',
+                            left: `${t * 100}%`,
+                            top: '1px',
+                            bottom: '1px',
+                            width: '1px',
+                            backgroundColor: w95Shadow,
+                          }}
+                        />
+                      ))}
+                      {/* Rectangular raised thumb — centred on line */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '0px',
+                          bottom: '0px',
+                          left: `calc(${varispeedPercent}% - 4px)`,
+                          width: '8px',
+                          ...w95Raised,
+                        }}
+                      />
+                      {/* Hidden range for keyboard/touch */}
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="1.5"
+                        step="0.01"
+                        value={player.speed}
+                        onChange={(e) => player.setSpeed(parseFloat(e.target.value))}
+                        style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', touchAction: 'pan-y' }}
+                        aria-label="Varispeed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reverb — thin line slider, same style as varispeed */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ ...w95Font, width: labelWidth, flexShrink: 0, fontSize: '9px', textAlign: 'right', opacity: 0.7 }}>Reverb:</span>
+                    <div
+                      data-no-drag
+                      style={{
+                        flex: 1,
+                        position: 'relative',
+                        height: '12px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+                        player.setReverbMix(Math.round(ratio * 100) / 100)
+                      }}
+                    >
+                      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', marginTop: '-1px', backgroundColor: w95DarkShadow }} />
+                      {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+                        <div key={t} style={{ position: 'absolute', left: `${t * 100}%`, top: '1px', bottom: '1px', width: '1px', backgroundColor: w95Shadow }} />
+                      ))}
+                      <div style={{ position: 'absolute', top: '0px', bottom: '0px', left: `calc(${player.reverbMix * 100}% - 4px)`, width: '8px', ...w95Raised }} />
+                      <input
+                        type="range" min="0" max="1" step="0.01"
+                        value={player.reverbMix}
+                        onChange={(e) => player.setReverbMix(parseFloat(e.target.value))}
+                        style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', touchAction: 'pan-y' }}
+                        aria-label="Reverb mix"
+                      />
+                    </div>
+                  </div>
+                  {/* Transport buttons — centred over slider area */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: labelWidth, flexShrink: 0 }} />
+                    <div style={{ flex: 1, display: 'flex', gap: '2px', justifyContent: 'center' }}>
+                {/* Prev track */}
+                {tracks.length > 1 && (
+                  <button
+                    className="w95-btn"
+                    onClick={() => {
+                      const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length
+                      handleTrackSelect(prevIndex)
+                    }}
+                    style={w95BtnBase}
+                    aria-label="Previous track"
+                    title="Previous"
+                  >
+                    <span style={{ fontSize: '10px' }}>|◀︎◀︎</span>
+                  </button>
+                )}
+
+                {/* Play */}
+                <button
+                  className="w95-btn"
+                  onClick={handlePlay}
+                  disabled={!currentTrack}
+                  style={{ ...w95BtnBase, minWidth: '34px' }}
+                  aria-label="Play"
+                  title="Play"
+                >
+                  <span style={{ fontSize: '12px' }}>▶︎</span>
+                </button>
+
+                {/* Pause */}
+                <button
+                  className="w95-btn"
+                  onClick={handlePlay}
+                  disabled={!currentTrack}
+                  style={w95BtnBase}
+                  aria-label="Pause"
+                  title="Pause"
+                >
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', letterSpacing: '1px' }}>❚❚</span>
+                </button>
+
+                {/* Stop (seek to start + pause) */}
+                <button
+                  className="w95-btn"
+                  onClick={() => {
+                    if (player.isPlaying) player.togglePlay()
+                    player.seek(0)
+                  }}
+                  style={w95BtnBase}
+                  aria-label="Stop"
+                  title="Stop"
+                >
+                  <span style={{ fontSize: '11px' }}>■︎</span>
+                </button>
+
+                {/* Next track */}
+                {tracks.length > 1 && (
+                  <button
+                    className="w95-btn"
+                    onClick={() => {
+                      const nextIndex = (currentTrackIndex + 1) % tracks.length
+                      handleTrackSelect(nextIndex)
+                    }}
+                    style={w95BtnBase}
+                    aria-label="Next track"
+                    title="Next"
+                  >
+                    <span style={{ fontSize: '10px' }}>▶︎▶︎|</span>
+                  </button>
+                )}
+
+                {/* Eject (decorative) */}
+                <button
+                  className="w95-btn"
+                  style={w95BtnBase}
+                  aria-label="Eject"
+                  title="Eject"
+                >
+                  <span style={{ fontSize: '10px' }}>⏏︎</span>
+                </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div
         className={cn('poolsuite-player flex flex-col gap-2 p-2.5', className)}
@@ -900,7 +1333,7 @@ export function AudioPlayer({
             {/* Varispeed slider — large touch zone wraps the visual track */}
             <div
               className="relative"
-              style={{ touchAction: 'none', margin: '0 0 -14px 0', padding: '0 0 14px 0' }}
+              style={{ touchAction: 'pan-y', margin: '0 0 -14px 0', padding: '0 0 14px 0' }}
               onTouchStart={speedTouch.onTouchStart}
               onTouchMove={speedTouch.onTouchMove}
               onTouchEnd={speedTouch.onTouchEnd}
@@ -1087,7 +1520,7 @@ export function AudioPlayer({
             {/* Checkerboard slider with 8-bit rectangle knob — touch zone wraps track */}
             <div
               className="relative"
-              style={{ touchAction: 'none', margin: '-10px 0', padding: '10px 0' }}
+              style={{ touchAction: 'pan-y', margin: '-10px 0', padding: '10px 0' }}
               onTouchStart={speedTouch.onTouchStart}
               onTouchMove={speedTouch.onTouchMove}
               onTouchEnd={speedTouch.onTouchEnd}
@@ -1284,10 +1717,10 @@ export function AudioPlayer({
         {/* Top row: Album art, Play/Pause, Track info */}
         <div className={cn("flex items-start", isReceipt ? "gap-2 items-center" : "gap-3")}>
         {/* Album Art — receipt: shown behind play button; other themes: separate */}
-        {albumArtUrl && !isReceipt && (
+        {effectiveAlbumArtUrl && !isReceipt && (
           <div className="relative w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
             <Image
-              src={albumArtUrl}
+              src={effectiveAlbumArtUrl}
               alt="Album art"
               fill
               className="object-cover"
@@ -1297,10 +1730,10 @@ export function AudioPlayer({
 
         {/* Play/Pause Control */}
         <div className="flex-shrink-0 relative">
-          {isReceipt && albumArtUrl && (
+          {isReceipt && effectiveAlbumArtUrl && (
             <div className="absolute inset-0 overflow-hidden">
               <Image
-                src={albumArtUrl}
+                src={effectiveAlbumArtUrl}
                 alt=""
                 fill
                 className="object-cover"
@@ -1314,7 +1747,7 @@ export function AudioPlayer({
             isLoading={player.isLoading}
             onTogglePlay={handlePlay}
             foregroundColor={effectiveForegroundColor}
-            elementBgColor={isReceipt ? (albumArtUrl ? 'rgba(0,0,0,0.5)' : '#1a1a1a') : effectiveElementBgColor}
+            elementBgColor={isReceipt ? (effectiveAlbumArtUrl ? 'rgba(0,0,0,0.5)' : '#1a1a1a') : effectiveElementBgColor}
             themeVariant={themeVariant}
           />
         </div>

@@ -27,6 +27,7 @@ export interface EmailCollectionCardContent {
   // Standard card properties
   textAlign?: 'left' | 'center' | 'right'
   textColor?: string
+  fontFamily?: string
   transparentBackground?: boolean
 }
 

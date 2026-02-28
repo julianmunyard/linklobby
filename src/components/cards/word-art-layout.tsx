@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import type { Card, ReleaseCardContent } from '@/types/card'
 import { isReleaseContent, isAudioContent } from '@/types/card'
 import { AudioCard } from '@/components/cards/audio-card'
@@ -11,6 +11,7 @@ import { useProfileStore } from '@/stores/profile-store'
 import { SOCIAL_PLATFORMS } from '@/types/profile'
 import { getWordArtStyle } from '@/lib/word-art-styles'
 import type { WordArtStyle } from '@/lib/word-art-styles'
+import { InlineEditable } from '@/components/preview/inline-editable'
 import * as SiIcons from 'react-icons/si'
 import Countdown, { CountdownRenderProps } from 'react-countdown'
 
@@ -18,6 +19,7 @@ interface WordArtLayoutProps {
   title: string
   cards: Card[]
   isPreview?: boolean
+  isEditable?: boolean
   onCardClick?: (cardId: string) => void
   selectedCardId?: string | null
   wordArtTitleStyle?: string
@@ -58,11 +60,37 @@ export function WordArtLayout({
   title,
   cards,
   isPreview = false,
+  isEditable = false,
   onCardClick,
   selectedCardId,
   wordArtTitleStyle = 'style-eleven',
 }: WordArtLayoutProps) {
   const [completedReleases, setCompletedReleases] = useState<Set<string>>(new Set())
+
+  const handleInlineCommit = useCallback((cardId: string, text: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'UPDATE_CARD', payload: { cardId, title: text } },
+        window.location.origin
+      )
+    }
+  }, [])
+
+  const handleInlineEditStart = useCallback((cardId: string) => {
+    if (window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'SELECT_CARD', payload: { cardId } },
+        window.location.origin
+      )
+      window.parent.postMessage({ type: 'INLINE_EDIT_ACTIVE' }, window.location.origin)
+    }
+  }, [])
+
+  const handleInlineEditEnd = useCallback(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'INLINE_EDIT_DONE' }, window.location.origin)
+    }
+  }, [])
   const headingSize = useThemeStore((s) => s.fonts.headingSize)
   const bodySize = useThemeStore((s) => s.fonts.bodySize)
   const centerCards = useThemeStore((s) => s.centerCards)
@@ -97,16 +125,20 @@ export function WordArtLayout({
       tabIndex={0}
     >
       <div className={cn("flex flex-col items-center w-full px-4 py-12", centerCards && "min-h-full justify-center")}>
-        {/* Title — clickable to edit title word art style */}
+        {/* Title — clickable to open Title Edit in design panel */}
         <button
           className={cn(
             "text-center mb-8 w-full px-2 cursor-pointer focus:outline-none transition-all",
             "hover:scale-105",
-            selectedCardId === '__word-art-title__' && "ring-2 ring-blue-500 ring-offset-4 rounded-sm"
           )}
           onClick={(e) => {
             e.stopPropagation()
-            onCardClick?.('__word-art-title__')
+            if (window.parent !== window) {
+              window.parent.postMessage(
+                { type: 'OPEN_DESIGN_TAB', payload: { tab: 'header' } },
+                window.location.origin
+              )
+            }
           }}
         >
           <WordArtText
@@ -265,11 +297,30 @@ export function WordArtLayout({
                 style={{ wordBreak: 'break-word' }}
                 onClick={() => onCardClick?.(card.id)}
               >
-                <WordArtText
-                  text={displayText}
-                  style={cardStyle}
-                  fontSize={`clamp(1.1rem, 4vw, ${linkFontSize})`}
-                />
+                {isEditable ? (
+                  <span
+                    style={{ ...cardStyle.wrapperStyle, fontSize: `clamp(1.1rem, 4vw, ${linkFontSize})` }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span style={{ ...cardStyle.textStyle, fontSize: `clamp(1.1rem, 4vw, ${linkFontSize})` }}>
+                      <InlineEditable
+                        value={card.title || ''}
+                        onCommit={(text) => handleInlineCommit(card.id, text)}
+                        multiline={false}
+                        placeholder="Tap to type"
+                        onEditStart={() => handleInlineEditStart(card.id)}
+                        onEditEnd={handleInlineEditEnd}
+                        className="outline-none min-w-[1ch] inline-block"
+                      />
+                    </span>
+                  </span>
+                ) : (
+                  <WordArtText
+                    text={displayText}
+                    style={cardStyle}
+                    fontSize={`clamp(1.1rem, 4vw, ${linkFontSize})`}
+                  />
+                )}
               </button>
             )
           })}

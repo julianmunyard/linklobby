@@ -229,7 +229,6 @@ function mapSocialLinks(socialLinks: LinktreeSocialLink[] | undefined): Detected
     const platform = LINKTREE_SOCIAL_TYPE_MAP[link.type?.toUpperCase()]
     if (platform && link.url) {
       result.push({ platform, url: link.url })
-      console.log(`[LinktreeMapper] Mapped social link: ${link.type} -> ${platform} (${link.url})`)
     }
   }
 
@@ -277,14 +276,11 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
 
   // Skip data URIs, SVGs, and other non-downloadable formats
   if (imageUrl.startsWith('data:') || imageUrl.endsWith('.svg') || imageUrl.includes('/svg')) {
-    console.log('[ImageDownload] Skipping non-image URL:', imageUrl.substring(0, 50))
     return null
   }
 
   // Handle relative URLs (shouldn't happen but just in case)
   const fullUrl = imageUrl.startsWith('http') ? imageUrl : `https://linktr.ee${imageUrl}`
-
-  console.log('[ImageDownload] Attempting:', fullUrl)
 
   try {
     const response = await axios.get(fullUrl, {
@@ -301,11 +297,8 @@ async function downloadImage(imageUrl: string): Promise<Blob | null> {
     const contentType = response.headers['content-type'] || 'image/jpeg'
     const dataSize = response.data.byteLength || 0
 
-    console.log('[ImageDownload] Success:', fullUrl, `(${dataSize} bytes, ${contentType})`)
-
     // Skip very small images (likely broken or placeholder)
     if (dataSize < 100) {
-      console.warn('[ImageDownload] Skipping tiny image:', fullUrl, `(${dataSize} bytes)`)
       return null
     }
 
@@ -343,7 +336,6 @@ export async function mapLinktreeToCards(
     // Keep HEADER links as text cards (section dividers)
     if (link.type === 'HEADER') {
       regularLinks.push(link)
-      console.log(`[LinktreeMapper] Keeping header: "${link.title}"`)
       continue
     }
 
@@ -354,19 +346,11 @@ export async function mapLinktreeToCards(
     regularLinks.push(link)
   }
 
-  console.log(`[LinktreeMapper] Found ${detectedSocialIcons.length} social icons from socialLinks array, ${regularLinks.length} regular links`)
-
   // Use horizontal card type for links with thumbnails (supports images), link type otherwise
   const layout: LayoutItem[] = regularLinks.map((link) => ({
     type: (link.type === 'HEADER' ? 'text' : link.thumbnail ? 'horizontal' : 'link') as CardType,
     size: 'big' as CardSize,
   }))
-
-  // Log what we're processing
-  console.log('[LinktreeMapper] Processing', regularLinks.length, 'regular links')
-  regularLinks.forEach((link, i) => {
-    console.log(`[LinktreeMapper] Link ${i}: "${link.title}" thumbnail:`, link.thumbnail || '(none)')
-  })
 
   // Process regular links in parallel with Promise.allSettled
   const settledResults = await Promise.allSettled(

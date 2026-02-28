@@ -9,13 +9,12 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ColorPicker } from '@/components/ui/color-picker'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
-import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone, Pipette, Zap } from 'lucide-react'
+import { Loader2, Upload, Image, Video, Paintbrush, Frame, Sparkles, Moon, Smartphone, Pipette, Zap, Monitor, ChevronDown, X } from 'lucide-react'
 import type { BackgroundConfig } from '@/types/theme'
 
 // Available frame overlays
 const FRAME_OPTIONS = [
   { id: '', label: 'None', path: '' },
-  { id: 'awge-tv', label: 'AWGE TV', path: '/frames/awge-tv.png' },
 ] as const
 
 // Macintosh desktop patterns
@@ -35,8 +34,12 @@ export function BackgroundControls() {
   const macPatternColor = useThemeStore((s) => s.macPatternColor)
   const setMacPattern = useThemeStore((s) => s.setMacPattern)
   const setMacPatternColor = useThemeStore((s) => s.setMacPatternColor)
+  const zineShowDoodles = useThemeStore((s) => s.zineShowDoodles)
+  const setZineShowDoodles = useThemeStore((s) => s.setZineShowDoodles)
   const [isUploading, setIsUploading] = useState(false)
+  const [isDesktopUploading, setIsDesktopUploading] = useState(false)
   const [isVideoUploading, setIsVideoUploading] = useState(false)
+  const [desktopExpanded, setDesktopExpanded] = useState(!!background.desktopValue)
   const [videoUrl, setVideoUrl] = useState(background.type === 'video' ? background.value : '')
 
   const handleTypeChange = (type: BackgroundConfig['type']) => {
@@ -69,6 +72,32 @@ export function BackgroundControls() {
     } finally {
       setIsUploading(false)
     }
+  }
+
+  const handleDesktopImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsDesktopUploading(true)
+    try {
+      const { uploadBackgroundImage } = await import('@/lib/storage')
+      const url = await uploadBackgroundImage(file)
+      setBackground({ ...background, desktopValue: url })
+    } catch (error) {
+      console.error('Desktop background upload failed:', error)
+    } finally {
+      setIsDesktopUploading(false)
+    }
+  }
+
+  const handleRemoveDesktopImage = () => {
+    setBackground({
+      ...background,
+      desktopValue: undefined,
+      desktopImageZoom: undefined,
+      desktopImagePositionX: undefined,
+      desktopImagePositionY: undefined,
+    })
   }
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -692,23 +721,26 @@ export function BackgroundControls() {
           )}
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-border" />
-
-        {/* Glitch Effects */}
-        {glitchSection}
-
-        {/* Divider */}
-        <div className="h-px bg-border" />
-
-        {/* Status Bar Color */}
-        {statusBarSection}
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {/* Chaotic Zine: Doodles Toggle */}
+      {themeId === 'chaotic-zine' && (
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Doodles</Label>
+            <p className="text-xs text-muted-foreground">Arrows, scribbles and background marks</p>
+          </div>
+          <Switch
+            checked={zineShowDoodles}
+            onCheckedChange={setZineShowDoodles}
+          />
+        </div>
+      )}
+
       {/* Background Type Selector */}
       <div>
         <Label className="text-xs font-medium text-muted-foreground mb-2 block">Background Type</Label>
@@ -747,7 +779,7 @@ export function BackgroundControls() {
         <div className="space-y-2">
           <Label className="text-xs">Background Image</Label>
           {background.value ? (
-            <div className="relative aspect-video rounded overflow-hidden">
+            <div className="relative h-24 rounded overflow-hidden">
               <img
                 src={background.value}
                 alt="Background preview"
@@ -760,7 +792,7 @@ export function BackgroundControls() {
               <Button
                 variant="secondary"
                 size="sm"
-                className="absolute bottom-2 right-2"
+                className="absolute bottom-1.5 right-1.5 h-7 text-xs"
                 onClick={() => document.getElementById('bg-image-input')?.click()}
               >
                 Change
@@ -769,15 +801,15 @@ export function BackgroundControls() {
           ) : (
             <Button
               variant="outline"
-              className="w-full h-20 flex flex-col items-center justify-center gap-2"
+              className="w-full h-14 flex items-center justify-center gap-2"
               onClick={() => document.getElementById('bg-image-input')?.click()}
               disabled={isUploading}
             >
               {isUploading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>
-                  <Upload className="w-5 h-5" />
+                  <Upload className="w-4 h-4" />
                   <span className="text-xs">Upload Image</span>
                 </>
               )}
@@ -833,6 +865,125 @@ export function BackgroundControls() {
                   step={1}
                 />
               </div>
+
+              {/* Desktop Background (Optional) */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDesktopExpanded(!desktopExpanded)}
+                  className="flex items-center gap-2 w-full text-left"
+                >
+                  <Monitor className="w-3.5 h-3.5 text-muted-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground flex-1">Desktop Background</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${desktopExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {desktopExpanded && (
+                  <div className="space-y-3 pt-3 pl-4 border-l-2 border-border mt-2">
+                    <p className="text-xs text-muted-foreground">Upload a wider image for desktop screens. Falls back to the image above if not set.</p>
+
+                    {background.desktopValue ? (
+                      <div className="relative h-20 rounded overflow-hidden">
+                        <img
+                          src={background.desktopValue}
+                          alt="Desktop background preview"
+                          className="w-full h-full object-cover"
+                          style={{
+                            transform: `scale(${background.desktopImageZoom ?? 1})`,
+                            objectPosition: `${background.desktopImagePositionX ?? 50}% ${background.desktopImagePositionY ?? 50}%`,
+                          }}
+                        />
+                        <div className="absolute bottom-1.5 right-1.5 flex gap-1">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => document.getElementById('bg-desktop-image-input')?.click()}
+                          >
+                            Change
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="h-7 w-7 p-0"
+                            onClick={handleRemoveDesktopImage}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="w-full h-12 flex items-center justify-center gap-2"
+                        onClick={() => document.getElementById('bg-desktop-image-input')?.click()}
+                        disabled={isDesktopUploading}
+                      >
+                        {isDesktopUploading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4" />
+                            <span className="text-xs">Upload Desktop Image</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    <input
+                      id="bg-desktop-image-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleDesktopImageUpload}
+                    />
+
+                    {/* Desktop Image Crop Controls */}
+                    {background.desktopValue && (
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs">Zoom</Label>
+                            <span className="text-xs text-muted-foreground">{(background.desktopImageZoom ?? 1).toFixed(1)}x</span>
+                          </div>
+                          <Slider
+                            value={[background.desktopImageZoom ?? 1]}
+                            onValueChange={([v]) => setBackground({ ...background, desktopImageZoom: v })}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs">Position X</Label>
+                            <span className="text-xs text-muted-foreground">{background.desktopImagePositionX ?? 50}%</span>
+                          </div>
+                          <Slider
+                            value={[background.desktopImagePositionX ?? 50]}
+                            onValueChange={([v]) => setBackground({ ...background, desktopImagePositionX: v })}
+                            min={0}
+                            max={100}
+                            step={1}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs">Position Y</Label>
+                            <span className="text-xs text-muted-foreground">{background.desktopImagePositionY ?? 50}%</span>
+                          </div>
+                          <Slider
+                            value={[background.desktopImagePositionY ?? 50]}
+                            onValueChange={([v]) => setBackground({ ...background, desktopImagePositionY: v })}
+                            min={0}
+                            max={100}
+                            step={1}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -846,18 +997,18 @@ export function BackgroundControls() {
             <Label className="text-xs">Upload Video</Label>
             <Button
               variant="outline"
-              className="w-full h-16 flex flex-col items-center justify-center gap-2"
+              className="w-full h-14 flex items-center justify-center gap-2"
               onClick={() => document.getElementById('bg-video-input')?.click()}
               disabled={isVideoUploading}
             >
               {isVideoUploading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-xs">Uploading...</span>
                 </>
               ) : (
                 <>
-                  <Upload className="w-5 h-5" />
+                  <Upload className="w-4 h-4" />
                   <span className="text-xs">Upload MP4, WebM, or MOV</span>
                 </>
               )}
@@ -891,7 +1042,7 @@ export function BackgroundControls() {
 
           {/* Video Preview */}
           {(videoUrl || background.value) && (
-            <div className="aspect-video rounded overflow-hidden bg-muted">
+            <div className="h-24 rounded overflow-hidden bg-muted">
               <video
                 src={videoUrl || background.value}
                 className="w-full h-full object-cover"

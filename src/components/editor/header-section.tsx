@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Camera, User, Upload, Plus, Loader2, ChevronDown, X } from "lucide-react"
+import { Camera, User, Upload, Plus, Loader2, ChevronDown, X, Circle, Square } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,7 +28,7 @@ import { compressImageForUpload } from "@/lib/image-compression"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import type { TitleSize, ProfileLayout } from "@/types/profile"
+import type { TitleSize, AvatarShape } from "@/types/profile"
 
 // Check if file is HEIC/HEIF format
 function isHeicFile(file: File): boolean {
@@ -79,6 +79,7 @@ export function HeaderSection() {
   const avatarUrl = useProfileStore((state) => state.avatarUrl)
   const avatarFeather = useProfileStore((state) => state.avatarFeather)
   const avatarSize = useProfileStore((state) => state.avatarSize)
+  const avatarShape = useProfileStore((state) => state.avatarShape)
   const showAvatar = useProfileStore((state) => state.showAvatar)
   const showTitle = useProfileStore((state) => state.showTitle)
   const titleSize = useProfileStore((state) => state.titleSize)
@@ -96,13 +97,14 @@ export function HeaderSection() {
   const setAvatarUrl = useProfileStore((state) => state.setAvatarUrl)
   const setAvatarFeather = useProfileStore((state) => state.setAvatarFeather)
   const setAvatarSize = useProfileStore((state) => state.setAvatarSize)
+  const setAvatarShape = useProfileStore((state) => state.setAvatarShape)
   const setShowAvatar = useProfileStore((state) => state.setShowAvatar)
   const setShowTitle = useProfileStore((state) => state.setShowTitle)
   const setTitleSize = useProfileStore((state) => state.setTitleSize)
   const setShowLogo = useProfileStore((state) => state.setShowLogo)
   const setLogoUrl = useProfileStore((state) => state.setLogoUrl)
   const setLogoScale = useProfileStore((state) => state.setLogoScale)
-  const setProfileLayout = useProfileStore((state) => state.setProfileLayout)
+  // profileLayout is always 'classic' (hero option removed)
   const setShowSocialIcons = useProfileStore((state) => state.setShowSocialIcons)
   const setSocialIconSize = useThemeStore((state) => state.setSocialIconSize)
 
@@ -261,6 +263,7 @@ export function HeaderSection() {
     }
   }
 
+  const isIpod = themeId === 'ipod-classic'
   const [headerOpen, setHeaderOpen] = useState(true)
 
   return (
@@ -280,8 +283,8 @@ export function HeaderSection() {
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-4">
-          {/* Profile Photo */}
-          <CollapsibleSection
+          {/* Profile Photo - hidden on iPod */}
+          {!isIpod && <CollapsibleSection
         title="Profile Photo"
         defaultOpen={true}
         toggle={
@@ -293,17 +296,38 @@ export function HeaderSection() {
         }
       >
         <div className="space-y-3">
-          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <User className="h-6 w-6 text-muted-foreground" />
-            )}
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-16 h-16 bg-muted flex items-center justify-center overflow-hidden",
+              avatarShape === 'square' ? "rounded-lg" : "rounded-full"
+            )}>
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              value={avatarShape}
+              onValueChange={(value) => {
+                if (value) setAvatarShape(value as AvatarShape)
+              }}
+              className="flex-col gap-1"
+            >
+              <ToggleGroupItem value="circle" aria-label="Circle avatar" className="h-7 w-7 p-0">
+                <Circle className="h-3.5 w-3.5" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="square" aria-label="Square avatar" className="h-7 w-7 p-0">
+                <Square className="h-3.5 w-3.5" />
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
           <div className="flex gap-2">
             <Button
@@ -377,27 +401,7 @@ export function HeaderSection() {
             )}
           </>
         )}
-      </CollapsibleSection>
-
-      {/* Layout */}
-      <CollapsibleSection title="Layout" defaultOpen={true}>
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={profileLayout}
-          onValueChange={(value) => {
-            if (value) setProfileLayout(value as ProfileLayout)
-          }}
-          className="justify-start"
-        >
-          <ToggleGroupItem value="classic" aria-label="Classic layout">
-            Classic
-          </ToggleGroupItem>
-          <ToggleGroupItem value="hero" aria-label="Hero layout">
-            Hero
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </CollapsibleSection>
+      </CollapsibleSection>}
 
       {/* Display Name / Title */}
       <CollapsibleSection
@@ -441,8 +445,8 @@ export function HeaderSection() {
       </CollapsibleSection>
 
 
-      {/* Logo */}
-      <CollapsibleSection
+      {/* Logo - hidden on iPod */}
+      {!isIpod && <CollapsibleSection
         title="Logo"
         defaultOpen={false}
         toggle={
@@ -518,10 +522,10 @@ export function HeaderSection() {
             />
           </div>
         )}
-      </CollapsibleSection>
+      </CollapsibleSection>}
 
-      {/* Bio */}
-      <CollapsibleSection title="Bio" defaultOpen={false}>
+      {/* Bio - hidden on iPod */}
+      {!isIpod && <CollapsibleSection title="Bio" defaultOpen={false}>
         <Textarea
           id="bio"
           value={bio || ""}
@@ -530,7 +534,7 @@ export function HeaderSection() {
           rows={3}
           className="resize-none"
         />
-      </CollapsibleSection>
+      </CollapsibleSection>}
 
       {/* Social Icons */}
       <CollapsibleSection
@@ -579,10 +583,10 @@ export function HeaderSection() {
         )}
           </CollapsibleSection>
 
-      {/* Fonts */}
-      <CollapsibleSection title="Fonts" defaultOpen={false}>
+      {/* Fonts - hidden on iPod */}
+      {!isIpod && <CollapsibleSection title="Fonts" defaultOpen={false}>
         <FontPicker />
-      </CollapsibleSection>
+      </CollapsibleSection>}
         </CollapsibleContent>
       </Collapsible>
 

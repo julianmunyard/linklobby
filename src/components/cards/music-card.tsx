@@ -60,9 +60,10 @@ interface MusicLinkFallbackProps {
   platform: MusicPlatform
   embedUrl: string
   title?: string
+  isPreview?: boolean
 }
 
-function MusicLinkFallback({ platform, embedUrl, title }: MusicLinkFallbackProps) {
+function MusicLinkFallback({ platform, embedUrl, title, isPreview }: MusicLinkFallbackProps) {
   const PlatformIcon = PLATFORM_ICONS[platform] ?? Music
   const platformColor = PLATFORM_COLORS[platform] ?? '#8B5CF6'
   const platformName = PLATFORM_NAMES[platform] ?? 'Music'
@@ -72,9 +73,10 @@ function MusicLinkFallback({ platform, embedUrl, title }: MusicLinkFallbackProps
 
   return (
     <a
-      href={embedUrl}
+      href={isPreview ? undefined : embedUrl}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={isPreview ? (e: React.MouseEvent) => e.preventDefault() : undefined}
       className="block w-full no-underline"
     >
       <div
@@ -128,6 +130,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
         platform={platform}
         embedUrl={embedUrl}
         title={title}
+        isPreview={isPreview}
       />
     )
   }
@@ -148,6 +151,7 @@ export function MusicCard({ card, isPreview = false }: MusicCardProps) {
         platform={platform}
         embedUrl={embedUrl}
         title={title}
+        isPreview={isPreview}
       />
     )
   }

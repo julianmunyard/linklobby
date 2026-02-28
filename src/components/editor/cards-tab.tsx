@@ -10,13 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ProBadge } from "@/components/billing/pro-gate"
+import { usePlanTier } from "@/contexts/plan-tier-context"
 import { SortableCardList } from "@/components/canvas/sortable-card-list"
 import { CanvasContainer } from "@/components/canvas/canvas-container"
 import { usePageStore } from "@/stores/page-store"
 import { useThemeStore } from "@/stores/theme-store"
 import { useCards } from "@/hooks/use-cards"
 import { generateAppendKey, generatePrependKey, sortCardsBySortKey } from "@/lib/ordering"
-import type { CardType } from "@/types/card"
+import type { CardType, CardSize } from "@/types/card"
 import { CARD_TYPE_SIZING } from "@/types/card"
 import { DEFAULT_EMAIL_COLLECTION_CONTENT } from "@/types/fan-tools"
 import { DEFAULT_RELEASE_CONTENT } from "./release-card-fields"
@@ -44,6 +45,25 @@ const PHONE_HOME_CARD_TYPES: { type: CardType; label: string }[] = [
   { type: "social-icons", label: "Social Icons" },
 ]
 
+// iPod Classic / VCR theme — only link, player, and social icons
+const SIMPLE_CARD_TYPES: { type: CardType; label: string }[] = [
+  { type: "link", label: "Link" },
+  { type: "audio", label: "Audio Player" },
+  { type: "social-icons", label: "Social Icons" },
+]
+
+// Word Art theme — only link and social icons
+const WORD_ART_CARD_TYPES: { type: CardType; label: string }[] = [
+  { type: "link", label: "Link" },
+  { type: "social-icons", label: "Social Icons" },
+]
+
+// Artifact theme — only link and audio player
+const ARTIFACT_CARD_TYPES: { type: CardType; label: string; pro?: boolean }[] = [
+  { type: "link", label: "Link" },
+  { type: "audio", label: "Audio Player", pro: true },
+]
+
 type MacWindowStyle = 'notepad' | 'small-window' | 'large-window' | 'title-link' | 'map' | 'calculator' | 'presave' | 'gallery'
 
 const MAC_CARD_TYPES: { label: string; macWindowStyle: MacWindowStyle }[] = [
@@ -66,6 +86,9 @@ export function CardsTab() {
   const reorderCards = usePageStore((state) => state.reorderCards)
   const selectCard = usePageStore((state) => state.selectCard)
   const themeId = useThemeStore((state) => state.themeId)
+  const { planTier } = usePlanTier()
+
+  const showLinkSize = ['mac-os', 'instagram-reels', 'system-settings', 'blinkies'].includes(themeId)
 
   // Sort cards and filter out theme-incompatible hidden cards
   const allCards = useMemo(() => sortCardsBySortKey(rawCards), [rawCards])
@@ -78,7 +101,10 @@ export function CardsTab() {
     return true
   }), [allCards, themeId])
 
+  const updateCard = usePageStore((state) => state.updateCard)
   const removeCardFromStore = usePageStore((state) => state.removeCard)
+
+  const selectedCard = useMemo(() => cards.find(c => c.id === selectedCardId), [cards, selectedCardId])
 
   const { isLoading, error, createCard, removeCard: removeCardFromDb } = useCards()
 
@@ -257,6 +283,37 @@ export function CardsTab() {
                     {label}
                   </DropdownMenuItem>
                 ))
+              ) : themeId === 'word-art' ? (
+                WORD_ART_CARD_TYPES.map(({ type, label }) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleAddCard(type)}
+                    className="min-h-11"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))
+              ) : (themeId === 'ipod-classic' || themeId === 'vcr-menu') ? (
+                SIMPLE_CARD_TYPES.map(({ type, label }) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleAddCard(type)}
+                    className="min-h-11"
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))
+              ) : themeId === 'artifact' ? (
+                ARTIFACT_CARD_TYPES.map(({ type, label, pro }) => (
+                  <DropdownMenuItem
+                    key={type}
+                    onClick={() => handleAddCard(type)}
+                    className="min-h-11 flex items-center justify-between gap-2"
+                  >
+                    <span>{label}</span>
+                    {pro && planTier === 'free' && <ProBadge feature={label} className="ml-auto shrink-0" />}
+                  </DropdownMenuItem>
+                ))
               ) : (
                 CARD_TYPES.map(({ type, label, singleton, pro }) => {
                   const alreadyExists = singleton && cards.some(c => c.card_type === type)
@@ -271,7 +328,7 @@ export function CardsTab() {
                         {label}
                         {alreadyExists && " (added)"}
                       </span>
-                      {pro && <ProBadge feature={label} className="ml-auto shrink-0" />}
+                      {pro && planTier === 'free' && <ProBadge feature={label} className="ml-auto shrink-0" />}
                     </DropdownMenuItem>
                   )
                 })
@@ -280,6 +337,43 @@ export function CardsTab() {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Link Size toggle — Big/Small for the selected card */}
+      {showLinkSize && selectedCard && CARD_TYPE_SIZING[selectedCard.card_type] && (
+        <div className="shrink-0 px-4 py-3 border-b">
+          <p className="text-base font-semibold mb-2">Link Size</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => updateCard(selectedCard.id, { size: 'big' as CardSize })}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-lg border-2 transition-colors ${
+                selectedCard.size === 'big'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-muted-foreground'
+              }`}
+            >
+              <svg width="56" height="28" viewBox="0 0 56 28" className="text-current">
+                <rect x="2" y="4" width="52" height="20" rx="3" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2" />
+              </svg>
+              <span className="text-sm font-medium">Big</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateCard(selectedCard.id, { size: 'small' as CardSize })}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-lg border-2 transition-colors ${
+                selectedCard.size === 'small'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:border-muted-foreground'
+              }`}
+            >
+              <svg width="56" height="28" viewBox="0 0 56 28" className="text-current">
+                <rect x="10" y="4" width="36" height="20" rx="3" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2" />
+              </svg>
+              <span className="text-sm font-medium">Small</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Scrollable card list */}
       <div className="flex-1 overflow-y-auto p-4">

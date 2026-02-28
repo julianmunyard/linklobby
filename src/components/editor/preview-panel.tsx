@@ -11,8 +11,8 @@ import { useIsMobileLayout } from "@/hooks/use-media-query"
 import type { Profile } from "@/types/profile"
 import type { Card } from "@/types/card"
 
-const MOBILE_WIDTH = 375
-const MOBILE_HEIGHT = 667
+const MOBILE_WIDTH = 450
+const MOBILE_HEIGHT = 812
 
 export function PreviewPanel() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile")
@@ -149,8 +149,8 @@ export function PreviewPanel() {
     if (iframe?.contentWindow && previewReady) {
       const snapshot = getSnapshot()
       const profileSnapshot = getProfileSnapshot()
-      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag } = useThemeStore.getState()
-      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag }
+      const { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, fontFamilyScales, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeDockTranslucent, phoneHomeDockColor, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag } = useThemeStore.getState()
+      const themeSnapshot = { themeId, paletteId, colors, fonts, style, background, cardTypeFontSizes, fontFamilyScales, socialIconSize, centerCards, vcrCenterContent, receiptPrice, receiptStickers, receiptFloatAnimation, receiptPaperTexture, ipodStickers, ipodTexture, macPattern, macPatternColor, wordArtTitleStyle, phoneHomeDock, phoneHomeShowDock, phoneHomeDockTranslucent, phoneHomeDockColor, phoneHomeVariant, zineBadgeText, zineTitleSize, zineShowDoodles, artifactMarqueeText, artifactHeaderTopLeft, artifactHeaderTopCenter, artifactHeaderTopRight, artifactHeaderBottomLeft, artifactHeaderBottomCenter, artifactHeaderBottomRight, artifactShowHeaderMeta, artifactHeroOverlay, artifactHeroMediaType, artifactHeroImageUrl, artifactHeroVideoUrl, artifactHeroPositionX, artifactHeroPositionY, scatterMode, visitorDrag }
       iframe.contentWindow.postMessage(
         { type: "STATE_UPDATE", payload: { ...snapshot, profile: profileSnapshot, themeState: themeSnapshot } },
         window.location.origin

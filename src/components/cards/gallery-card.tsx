@@ -52,10 +52,10 @@ export function GalleryCard({ card, isPreview = false }: GalleryCardProps) {
 
   // Memoize tap handler to prevent unnecessary WebGL recreations
   const handleTap = useCallback((link: string | null) => {
-    if (link) {
+    if (link && !isPreview) {
       window.open(link, '_blank', 'noopener,noreferrer')
     }
-  }, [])
+  }, [isPreview])
 
   // No images yet - show empty state
   if (!content.images || content.images.length === 0) {

@@ -1,10 +1,12 @@
 // src/components/editor/card-type-picker.tsx
 "use client"
 
+import { useMemo } from "react"
 import { RectangleHorizontal, Minus, Square, Type, Tag, AlignLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { CardType } from "@/types/card"
+import type { ThemeId } from "@/types/theme"
 
 // Only link card types that can be converted between each other
 // Excludes: dropdown (container), video/gallery/game/audio (specialized)
@@ -20,13 +22,21 @@ export const CONVERTIBLE_CARD_TYPES = [
 interface CardTypePickerProps {
   currentType: CardType
   onChange: (type: CardType) => void
+  themeId?: ThemeId
+  hiddenTypes?: CardType[]
 }
 
-export function CardTypePicker({ currentType, onChange }: CardTypePickerProps) {
+export function CardTypePicker({ currentType, onChange, themeId, hiddenTypes }: CardTypePickerProps) {
+  const visibleTypes = useMemo(() => {
+    let types = CONVERTIBLE_CARD_TYPES.filter(t => !hiddenTypes?.includes(t.type))
+    return types
+  }, [hiddenTypes])
+
   return (
-    <div className="grid grid-cols-6 gap-2">
-      {CONVERTIBLE_CARD_TYPES.map(({ type, icon: Icon, label }) => {
+    <div className={cn("grid gap-2", visibleTypes.length <= 4 ? "grid-cols-4" : "grid-cols-6")}>
+      {visibleTypes.map(({ type, icon: Icon, label }) => {
         const isSelected = currentType === type
+        const displayLabel = type === 'link' && themeId === 'blinkies' ? 'Link / Blinky' : label
         return (
           <Button
             key={type}
@@ -39,7 +49,7 @@ export function CardTypePicker({ currentType, onChange }: CardTypePickerProps) {
             onClick={() => onChange(type)}
           >
             <Icon className="h-6 w-6" />
-            <span className="text-xs">{label}</span>
+            <span className="text-xs">{displayLabel}</span>
           </Button>
         )
       })}

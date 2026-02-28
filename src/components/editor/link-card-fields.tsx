@@ -47,8 +47,8 @@ export function LinkCardFields({ content, onChange, cardType = 'link' }: LinkCar
 
   return (
     <div className="space-y-4">
-      {/* Embed Code */}
-      {cardType === 'link' && (
+      {/* Embed Code — hidden for blinkies theme */}
+      {cardType === 'link' && themeId !== 'blinkies' && (
         <div className="space-y-2">
           <Label>Embed Code</Label>
           {hasEmbed ? (
