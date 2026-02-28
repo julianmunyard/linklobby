@@ -943,10 +943,11 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full overflow-hidden"
+                        className="w-full"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${rowSpan}`,
+                          height: 'fit-content',
                         }}
                       >
                         <MusicWidget card={card} layout={layout} onTap={handleTap} />
