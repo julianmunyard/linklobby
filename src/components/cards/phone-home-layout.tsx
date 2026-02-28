@@ -1422,7 +1422,7 @@ export function PhoneHomeLayout({
 
   const gridArea = (
     <div
-      className="flex-1 min-h-0 flex overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden"
+      className="absolute inset-0 flex overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden"
       ref={gridContainerRef}
       style={{
         scrollSnapType: 'x mandatory',
@@ -1520,26 +1520,34 @@ export function PhoneHomeLayout({
       <StatusBar />
 
       {/* Grid area — wrapped in DndContext when in editor preview */}
-      {isPreview ? (
-        <DndContext
-          sensors={sensors}
-          measuring={measuringConfig}
-          autoScroll={false}
-          onDragStart={handleDndDragStart}
-          onDragEnd={handleDndDragEnd}
-          onDragCancel={handleDndDragCancel}
-        >
-          {gridArea}
-          <DragOverlay dropAnimation={null}>
-            {dragOverlayContent}
-          </DragOverlay>
-        </DndContext>
-      ) : (
-        gridArea
-      )}
+      <div className="relative flex-1 min-h-0">
+        {isPreview ? (
+          <DndContext
+            sensors={sensors}
+            measuring={measuringConfig}
+            autoScroll={false}
+            onDragStart={handleDndDragStart}
+            onDragEnd={handleDndDragEnd}
+            onDragCancel={handleDndDragCancel}
+          >
+            {gridArea}
+            <DragOverlay dropAnimation={null}>
+              {dragOverlayContent}
+            </DragOverlay>
+          </DndContext>
+        ) : (
+          gridArea
+        )}
 
-      {/* Pagination dots */}
-      {pageCount > 1 && <PaginationDots count={pageCount} active={currentPage} onPageChange={goToPage} />}
+        {/* Pagination dots — overlaid so they don't steal grid height */}
+        {pageCount > 1 && (
+          <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
+            <div className="pointer-events-auto">
+              <PaginationDots count={pageCount} active={currentPage} onPageChange={goToPage} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Dock */}
       {phoneHomeShowDock && (

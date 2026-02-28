@@ -861,17 +861,17 @@ export function StaticPhoneHomeLayout({
       {/* Status bar */}
       <PhoneHomeStatusBar />
 
-      <div
-        ref={containerRef}
-        className="flex-1 min-h-0 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
-        style={{
-          scrollSnapType: 'x mandatory',
-          WebkitOverflowScrolling: 'touch',
-          scrollbarWidth: 'none',
-          overscrollBehaviorX: 'contain',
-        } as React.CSSProperties}
-
-      >
+      <div className="relative flex-1 min-h-0">
+        <div
+          ref={containerRef}
+          className="absolute inset-0 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+          style={{
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            overscrollBehaviorX: 'contain',
+          } as React.CSSProperties}
+        >
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
@@ -1030,12 +1030,17 @@ export function StaticPhoneHomeLayout({
               </div>
             </div>
           ))}
-      </div>
+        </div>
 
-      {/* Pagination dots */}
-      {pageCount > 1 && (
-        <PaginationDots count={pageCount} active={currentPage} onPageChange={goToPage} />
-      )}
+        {/* Pagination dots — overlaid so they don't steal grid height */}
+        {pageCount > 1 && (
+          <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
+            <div className="pointer-events-auto">
+              <PaginationDots count={pageCount} active={currentPage} onPageChange={goToPage} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Dock */}
       {phoneHomeShowDock && (
