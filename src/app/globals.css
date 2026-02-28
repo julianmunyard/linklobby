@@ -6,6 +6,12 @@ html, body {
   overscroll-behavior: none;
 }
 
+/* Prevent iOS long-press "Save Image" / "Copy" callout on images and links.
+   This fires when users try to drag icons in the phone-home editor. */
+img, a, [draggable="true"] {
+  -webkit-touch-callout: none;
+}
+
 /* Hide scrollbar while keeping scroll functionality */
 @utility scrollbar-none {
   scrollbar-width: none;

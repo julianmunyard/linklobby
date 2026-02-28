@@ -1525,7 +1525,7 @@ export function PhoneHomeLayout({
   )
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none">
+    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ WebkitTouchCallout: 'none' } as React.CSSProperties}>
       {/* Status bar */}
       <StatusBar />
 

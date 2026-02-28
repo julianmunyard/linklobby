@@ -855,7 +855,7 @@ export function StaticPhoneHomeLayout({
 
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ height: '100dvh' }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden text-theme-text select-none" style={{ height: '100dvh', WebkitTouchCallout: 'none' } as React.CSSProperties}>
       {/* Status bar */}
       <PhoneHomeStatusBar />
 
