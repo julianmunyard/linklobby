@@ -873,8 +873,8 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-8 flex flex-col items-center overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden"
-            style={{ scrollSnapAlign: 'start', scrollbarWidth: 'none' } as React.CSSProperties}
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-8 flex flex-col items-center overflow-hidden"
+            style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid container */}
               <div
