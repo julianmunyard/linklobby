@@ -923,11 +923,11 @@ export function StaticPhoneHomeLayout({
                     // For Bandcamp, calculate rows needed to fit the native embed height
                     const mc = card.content as Record<string, unknown>
                     const isBc = (mc.platform as string) === 'bandcamp'
-                    const bcEmbedH = mc.embedHeight as number | undefined
                     let rowSpan = layout.height
-                    if (isBc && bcEmbedH) {
+                    if (isBc) {
+                      const bcH = (mc.embedHeight as number | undefined) || 470
                       // Each row is 76px with 20px gap between rows
-                      const neededRows = Math.ceil((bcEmbedH + 20) / 96)
+                      const neededRows = Math.ceil((bcH + 20) / 96)
                       rowSpan = Math.max(layout.height, neededRows)
                     }
                     return (

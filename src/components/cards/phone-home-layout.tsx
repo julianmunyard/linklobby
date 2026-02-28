@@ -1256,10 +1256,10 @@ export function PhoneHomeLayout({
       // For Bandcamp, expand row span to fit native embed height
       const mc = card.content as Record<string, unknown>
       const isBc = (mc.platform as string) === 'bandcamp'
-      const bcEmbedH = mc.embedHeight as number | undefined
       let rowSpan = layout.height
-      if (isBc && bcEmbedH) {
-        const neededRows = Math.ceil((bcEmbedH + 20) / 96)
+      if (isBc) {
+        const bcH = (mc.embedHeight as number | undefined) || 470
+        const neededRows = Math.ceil((bcH + 20) / 96)
         rowSpan = Math.max(layout.height, neededRows)
       }
       const musicGridStyle: React.CSSProperties = {
