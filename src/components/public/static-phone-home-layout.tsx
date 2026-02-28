@@ -792,6 +792,26 @@ export function StaticPhoneHomeLayout({
     if (currentPage >= pageCount) setCurrentPage(Math.max(0, pageCount - 1))
   }, [currentPage, pageCount])
 
+  // Scale grid to fit available height — measures container vs content and zooms down
+  const gridRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [gridScale, setGridScale] = useState(1)
+
+  useEffect(() => {
+    const measure = () => {
+      const container = containerRef.current
+      const grid = gridRefs.current[0]
+      if (!container || !grid) return
+      const available = container.clientHeight
+      const natural = grid.scrollHeight
+      if (natural <= 0) return
+      setGridScale(natural > available ? Math.max(0.5, available / natural) : 1)
+    }
+    // Measure after layout settles
+    requestAnimationFrame(measure)
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [pages])
+
 
   // Handle card taps
   const handleTap = useCallback(
@@ -871,38 +891,22 @@ export function StaticPhoneHomeLayout({
         } as React.CSSProperties}
 
       >
-        {pages.map((pageItems, pageIdx) => {
-          // Build per-row sizing: 'auto' for rows with fixed-height content
-          // (audio players, music embeds, galleries), 'minmax(0,76px)' for icon rows
-          const autoRows = new Set<number>()
-          for (const { card, layout } of pageItems) {
-            if (
-              card.card_type === 'audio' ||
-              (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) ||
-              (card.card_type === 'gallery' && (layout.width > 1 || layout.height > 1))
-            ) {
-              for (let r = layout.row; r < layout.row + layout.height; r++) {
-                autoRows.add(r)
-              }
-            }
-          }
-          const rowDefs = Array.from({ length: MAX_ROWS_PER_PAGE }, (_, i) =>
-            autoRows.has(i) ? 'auto' : 'minmax(0,76px)'
-          ).join(' ')
-
-          return (
+        {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center"
             style={{ scrollSnapAlign: 'start' }}
           >
-              {/* Grid — auto rows for fixed-height content, minmax for icons */}
+              {/* Grid — fixed 76px rows, scaled with zoom to fit viewport */}
               <div
-                className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
+                ref={(el) => { gridRefs.current[pageIdx] = el }}
+                className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: rowDefs,
-                }}
+                  gridAutoRows: '76px',
+                  zoom: gridScale !== 1 ? gridScale : undefined,
+                  transformOrigin: 'top center',
+                } as React.CSSProperties}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
                   // Social icon (expanded from social-icons card)
@@ -1046,8 +1050,7 @@ export function StaticPhoneHomeLayout({
                 })}
               </div>
             </div>
-          )
-        })}
+          ))}
       </div>
 
       {/* Pagination dots */}
