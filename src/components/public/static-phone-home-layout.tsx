@@ -882,7 +882,7 @@ export function StaticPhoneHomeLayout({
                 className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 1fr)`,
+                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
