@@ -111,9 +111,18 @@ export function useCards() {
               sortKey: card.sortKey,
               is_visible: card.is_visible,
             }),
-          }).then(response => {
+          }).then(async response => {
             if (!response.ok) {
-              throw new Error(`Failed to save card: ${response.statusText}`)
+              const body = await response.text().catch(() => '')
+              // Try to extract JSON error message
+              let errorMsg = `${response.status}`
+              try {
+                const json = JSON.parse(body)
+                if (json.error) errorMsg = json.error
+              } catch {
+                if (body.length < 200) errorMsg = body || errorMsg
+              }
+              throw new Error(`Card save failed (${response.status}): ${errorMsg}`)
             }
             return response
           })

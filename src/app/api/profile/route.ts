@@ -22,43 +22,51 @@ async function fetchUserProfile(supabase: Awaited<ReturnType<typeof createClient
 }
 
 export async function GET() {
-  const supabase = await createClient()
-  const { profile, user, error } = await fetchUserProfile(supabase)
+  try {
+    const supabase = await createClient()
+    const { profile, user, error } = await fetchUserProfile(supabase)
 
-  if (!user || error === 'Unauthorized') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user || error === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
+    if (error || !profile) {
+      return NextResponse.json({ error: error || 'Profile not found' }, { status: 500 })
+    }
+
+    // Map database columns to frontend types
+    return NextResponse.json({
+      displayName: profile.display_name,
+      bio: profile.bio,
+      avatarUrl: profile.avatar_url,
+      avatarFeather: profile.avatar_feather ?? 0,
+      avatarSize: profile.avatar_size ?? 80,
+      avatarShape: profile.avatar_shape ?? 'circle',
+      showAvatar: profile.show_avatar ?? true,
+      showTitle: profile.show_title ?? true,
+      showBio: profile.show_bio ?? true,
+      titleSize: profile.title_size,
+      showLogo: profile.show_logo ?? false,
+      logoUrl: profile.logo_url,
+      logoScale: profile.logo_scale ?? 100,
+      profileLayout: profile.profile_layout,
+      showSocialIcons: profile.show_social_icons,
+      socialIcons: profile.social_icons || [],
+      headerTextColor: profile.header_text_color,
+      socialIconColor: profile.social_icon_color ?? null,
+      titleFont: profile.title_font ?? null,
+      bioFont: profile.bio_font ?? null,
+    })
+  } catch (err) {
+    console.error('GET /api/profile error:', err)
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Internal server error' },
+      { status: 500 }
+    )
   }
-
-  const rl = await checkRateLimit(generalApiRatelimit, user.id)
-  if (!rl.allowed) return rl.response!
-
-  if (error) {
-    return NextResponse.json({ error }, { status: 500 })
-  }
-
-  // Map database columns to frontend types
-  return NextResponse.json({
-    displayName: profile.display_name,
-    bio: profile.bio,
-    avatarUrl: profile.avatar_url,
-    avatarFeather: profile.avatar_feather ?? 0,
-    avatarSize: profile.avatar_size ?? 80,
-    avatarShape: profile.avatar_shape ?? 'circle',
-    showAvatar: profile.show_avatar ?? true,
-    showTitle: profile.show_title ?? true,
-    showBio: profile.show_bio ?? true,
-    titleSize: profile.title_size,
-    showLogo: profile.show_logo ?? false,
-    logoUrl: profile.logo_url,
-    logoScale: profile.logo_scale ?? 100,
-    profileLayout: profile.profile_layout,
-    showSocialIcons: profile.show_social_icons,
-    socialIcons: profile.social_icons || [],
-    headerTextColor: profile.header_text_color,
-    socialIconColor: profile.social_icon_color ?? null,
-    titleFont: profile.title_font ?? null,
-    bioFont: profile.bio_font ?? null,
-  })
 }
 
 export async function POST(request: Request) {

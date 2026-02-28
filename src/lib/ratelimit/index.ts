@@ -124,12 +124,18 @@ export async function checkRateLimit(
 ): Promise<{ allowed: boolean; response?: NextResponse }> {
   if (!limiter) return { allowed: true }
 
-  const { success, reset, reason } = await limiter.limit(key)
+  try {
+    const { success, reset, reason } = await limiter.limit(key)
 
-  // Fail-open on Redis timeout — don't block users if Redis is down
-  if (!success && reason !== 'timeout') {
-    return { allowed: false, response: rateLimitResponse(reset) }
+    // Fail-open on Redis timeout — don't block users if Redis is down
+    if (!success && reason !== 'timeout') {
+      return { allowed: false, response: rateLimitResponse(reset) }
+    }
+
+    return { allowed: true }
+  } catch (err) {
+    // Fail-open on any Redis error (connection refused, auth failed, etc.)
+    console.error('Rate limit check failed (allowing request):', err)
+    return { allowed: true }
   }
-
-  return { allowed: true }
 }

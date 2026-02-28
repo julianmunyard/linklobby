@@ -12,36 +12,44 @@ import { generalApiRatelimit, checkRateLimit } from "@/lib/ratelimit"
  * Fetches theme_settings from the user's page
  */
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const rl = await checkRateLimit(generalApiRatelimit, user.id)
-  if (!rl.allowed) return rl.response!
-
-  // Get user's page with theme settings
-  const { data: page, error } = await supabase
-    .from('pages')
-    .select('id, theme_settings')
-    .eq('user_id', user.id)
-    .single()
-
-  if (error) {
-    // If no page exists, return null (not an error)
-    if (error.code === 'PGRST116') {
-      return NextResponse.json({ theme: null })
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    console.error('Theme fetch error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
 
-  return NextResponse.json({
-    theme: page.theme_settings,
-    pageId: page.id
-  })
+    const rl = await checkRateLimit(generalApiRatelimit, user.id)
+    if (!rl.allowed) return rl.response!
+
+    // Get user's page with theme settings
+    const { data: page, error } = await supabase
+      .from('pages')
+      .select('id, theme_settings')
+      .eq('user_id', user.id)
+      .single()
+
+    if (error) {
+      // If no page exists, return null (not an error)
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ theme: null })
+      }
+      console.error('Theme fetch error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      theme: page.theme_settings,
+      pageId: page.id
+    })
+  } catch (err) {
+    console.error('GET /api/theme error:', err)
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Internal server error' },
+      { status: 500 }
+    )
+  }
 }
 
 /**
