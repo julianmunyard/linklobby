@@ -9,7 +9,8 @@ import { Loader2, AlertCircle, CheckCircle2, Music } from 'lucide-react'
 import { SiSpotify, SiApplemusic, SiSoundcloud, SiBandcamp, SiAudiomack } from 'react-icons/si'
 import { detectPlatform, detectPlatformLoose, fetchPlatformEmbed, isMusicPlatform } from '@/lib/platform-embed'
 import type { EmbedPlatform } from '@/lib/platform-embed'
-import type { MusicCardContent, MusicPlatform } from '@/types/card'
+import type { MusicCardContent, MusicPlatform, PhoneHomeLayout } from '@/types/card'
+import { detectBandcampHeight, rowsForHeight } from '@/components/editor/phone-home-card-controls'
 
 // Platform display info
 const PLATFORM_INFO: Record<MusicPlatform, { name: string; icon: React.ComponentType<{ className?: string }> }> = {
@@ -93,6 +94,10 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
       // Special handling for Bandcamp embed code or EmbeddedPlayer URL
       const bandcampEmbed = extractBandcampEmbed(input)
       if (bandcampEmbed) {
+        // Auto-detect the correct widget height from the Bandcamp URL
+        const bcPixelHeight = detectBandcampHeight(bandcampEmbed.embedUrl)
+        const bcRows = rowsForHeight(bcPixelHeight)
+        const existingLayout = (content as Record<string, unknown>)?.phoneHomeLayout as PhoneHomeLayout | undefined
         onChange({
           platform: 'bandcamp' as MusicPlatform,
           embedUrl: bandcampEmbed.originalUrl || bandcampEmbed.embedUrl,
@@ -101,6 +106,13 @@ export function MusicCardFields({ content, onChange, cardId }: MusicCardFieldsPr
           thumbnailUrl: undefined,
           title: undefined,
           embeddable: true,
+          phoneHomeLayout: {
+            page: existingLayout?.page ?? 0,
+            row: existingLayout?.row ?? 0,
+            col: existingLayout?.col ?? 0,
+            width: 4,
+            height: bcRows,
+          },
         })
         return
       }

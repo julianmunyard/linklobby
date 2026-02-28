@@ -77,9 +77,30 @@ export const PHONE_HOME_ICON_SECTIONS = [
 ]
 
 // Default phone home layout dimensions per card type (matches autoLayoutCards logic)
-export function getDefaultPhoneHomeSize(cardType: CardType, content?: Record<string, unknown>): { width: 1 | 2 | 4; height: 1 | 2 | 3 } {
+// Detect Bandcamp embed height from URL params
+export function detectBandcampHeight(url: string): number {
+  if (!url) return 470
+  if (url.includes('/size=small')) return 42
+  if (url.includes('/artwork=small') && url.includes('/tracklist=false')) return 120
+  if (url.includes('/minimal=true')) return 350
+  return 470
+}
+
+// Calculate grid rows needed for a given pixel height (76px rows, 20px gap)
+export function rowsForHeight(px: number): number {
+  if (px <= 76) return 1
+  return Math.ceil((px + 20) / 96)
+}
+
+export function getDefaultPhoneHomeSize(cardType: CardType, content?: Record<string, unknown>): { width: 1 | 2 | 4; height: number } {
   if (cardType === 'gallery') return { width: 4, height: 2 }
   if (cardType === 'music') {
+    const platform = content?.platform as string | undefined
+    const iframeUrl = (content?.embedIframeUrl || content?.embedUrl || '') as string
+    if (platform === 'bandcamp') {
+      const bcHeight = detectBandcampHeight(iframeUrl)
+      return { width: 4, height: rowsForHeight(bcHeight) }
+    }
     const embedH = content?.embedHeight as number | undefined
     return { width: 4, height: (embedH && embedH > 200) ? 2 : 1 }
   }
@@ -218,7 +239,7 @@ export function PhoneHomeCardControls({
         </div>
       )}
 
-      {/* Widget Size (for gallery only) */}
+      {/* Widget Size (for gallery) */}
       {!isInDock && card.card_type === 'gallery' && (
         <div className="space-y-2">
           <Label className="text-sm">Widget Size</Label>
@@ -242,6 +263,34 @@ export function PhoneHomeCardControls({
             {card.card_type !== 'gallery' && <ToggleGroupItem value="1x1">Icon</ToggleGroupItem>}
             <ToggleGroupItem value="2x2">Square</ToggleGroupItem>
             <ToggleGroupItem value="4x2">Wide</ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      )}
+
+      {/* Widget Size (for music — especially Bandcamp) */}
+      {!isInDock && isMusicCard && (
+        <div className="space-y-2">
+          <Label className="text-sm">Widget Size</Label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={`${phoneLayout?.width ?? defaultSize.width}x${phoneLayout?.height ?? defaultSize.height}`}
+            onValueChange={(v) => {
+              if (!v) return
+              const [w, h] = v.split('x').map(Number)
+              onContentChange({
+                phoneHomeLayout: {
+                  ...(phoneLayout ?? defaultLayout),
+                  width: w,
+                  height: h,
+                },
+              })
+            }}
+            className="justify-start flex-wrap"
+          >
+            <ToggleGroupItem value="4x2">Slim</ToggleGroupItem>
+            <ToggleGroupItem value="4x4">Medium</ToggleGroupItem>
+            <ToggleGroupItem value="4x6">Standard</ToggleGroupItem>
           </ToggleGroup>
         </div>
       )}

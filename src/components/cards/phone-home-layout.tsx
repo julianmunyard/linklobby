@@ -426,21 +426,20 @@ function MusicWidget({ card, layout, onClick }: { card: Card; layout: PhoneHomeL
   const customHeight = content.embedHeight as number | undefined
   const isBandcamp = platform === 'bandcamp'
 
-  // Bandcamp: render at exact native embed height — no grid constraints
+  // Bandcamp: fill the grid cell, no scaling
   if (isBandcamp) {
-    const bcHeight = customHeight || 470
     return (
-      <div className={cn('w-full relative', onClick && 'cursor-pointer')} style={{ height: bcHeight }}>
+      <div className={cn('w-full h-full relative', onClick && 'cursor-pointer')}>
         <iframe
           src={iframeUrl}
           width="100%"
-          height={bcHeight}
+          height="100%"
           frameBorder="0"
           seamless
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
           title={card.title || 'Bandcamp embed'}
-          style={{ border: 0, background: 'transparent', pointerEvents: onClick ? 'none' : undefined }}
+          style={{ border: 0, background: 'transparent', display: 'block', pointerEvents: onClick ? 'none' : undefined }}
         />
         {onClick && (
           <div className="absolute inset-0 z-10" onClick={() => onClick(card.id)} />
@@ -1253,18 +1252,8 @@ export function PhoneHomeLayout({
 
     // Music widgets
     if (card.card_type === 'music' && (layout.width > 1 || layout.height > 1)) {
-      // For Bandcamp, expand row span to fit native embed height
-      const mc = card.content as Record<string, unknown>
-      const isBc = (mc.platform as string) === 'bandcamp'
-      let rowSpan = layout.height
-      if (isBc) {
-        const bcH = (mc.embedHeight as number | undefined) || 470
-        const neededRows = Math.ceil((bcH + 20) / 96)
-        rowSpan = Math.max(layout.height, neededRows)
-      }
       const musicGridStyle: React.CSSProperties = {
         ...gridStyle,
-        gridRow: `${layout.row + 1} / span ${rowSpan}`,
       }
       const inner = (
         <div
