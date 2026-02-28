@@ -457,6 +457,11 @@ class AudioEngine {
     this.callbacks = { ...this.callbacks, ...callbacks }
   }
 
+  getContextState(): AudioContextState | 'uninitialized' {
+    if (!this.processorNode) return 'uninitialized'
+    return this.processorNode.context.state
+  }
+
   /**
    * Check if the engine has been initialized (AudioContext created).
    * Used by useAudioPlayer to decide whether to defer track loading.

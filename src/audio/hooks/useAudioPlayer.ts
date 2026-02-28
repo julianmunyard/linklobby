@@ -70,6 +70,8 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
   // Stable ref for autoplay — avoids re-triggering effects when prop changes
   const autoplayRef = useRef(autoplay)
   autoplayRef.current = autoplay
+  // Cleanup function for autoplay interaction listeners
+  const autoplayCleanupRef = useRef<(() => void) | null>(null)
 
   // Initialize engine eagerly on mount — AudioContext is created here.
   // On desktop, context starts running. On mobile, browser auto-suspends it.
@@ -99,12 +101,40 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
         setDuration(dur)
         setIsLoaded(true)
         setIsLoading(false)
-        // Autoplay: trigger play after track loads (public pages only)
+        // Autoplay: trigger play after track loads.
+        // Browser autoplay policy blocks AudioContext.resume() without a user gesture.
+        // Try immediately (works in editor where user already interacted), then
+        // register a one-shot interaction listener as fallback for public pages.
         if (autoplayRef.current && !engine.isPlaying()) {
-          engine.play()
-          setIsPlaying(true)
-          if (embedPlaybackRef.current) {
-            embedPlaybackRef.current.setActiveEmbed(cardId)
+          const tryAutoplay = () => {
+            if (engine.isPlaying()) return
+            engine.play()
+            setIsPlaying(true)
+            if (embedPlaybackRef.current) {
+              embedPlaybackRef.current.setActiveEmbed(cardId)
+            }
+          }
+
+          tryAutoplay()
+
+          // If context is still suspended after play(), wait for first user interaction
+          if (engine.getContextState() !== 'running') {
+            const onInteraction = () => {
+              tryAutoplay()
+              document.removeEventListener('click', onInteraction, true)
+              document.removeEventListener('touchstart', onInteraction, true)
+              document.removeEventListener('keydown', onInteraction, true)
+            }
+            document.addEventListener('click', onInteraction, true)
+            document.addEventListener('touchstart', onInteraction, true)
+            document.addEventListener('keydown', onInteraction, true)
+
+            // Store cleanup ref so unmount can remove listeners
+            autoplayCleanupRef.current = () => {
+              document.removeEventListener('click', onInteraction, true)
+              document.removeEventListener('touchstart', onInteraction, true)
+              document.removeEventListener('keydown', onInteraction, true)
+            }
           }
         }
       },
@@ -129,6 +159,12 @@ export function useAudioPlayer(options: UseAudioPlayerOptions): UseAudioPlayerRe
       // Pause playback
       if (engine.isPlaying()) {
         engine.pause()
+      }
+
+      // Clean up autoplay interaction listeners
+      if (autoplayCleanupRef.current) {
+        autoplayCleanupRef.current()
+        autoplayCleanupRef.current = null
       }
 
       // Unregister from EmbedPlaybackProvider

@@ -16,6 +16,7 @@ async function getFFmpeg(): Promise<FFmpeg> {
     await ff.load({
       coreURL: `${baseURL}/ffmpeg-core.js`,
       wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+      classWorkerURL: `${baseURL}/worker.js`,
     })
 
     ffmpegInstance = ff
