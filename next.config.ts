@@ -4,7 +4,7 @@ const isDev = process.env.NODE_ENV === 'development'
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ''}
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'
     https://*.supabase.co
     https://connect.facebook.net
     https://www.googletagmanager.com
