@@ -875,7 +875,7 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
+            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center"
             style={{ scrollSnapAlign: 'start' }}
           >
               {/* Grid — matches editor: h-full + minmax rows flex to fit available height */}
