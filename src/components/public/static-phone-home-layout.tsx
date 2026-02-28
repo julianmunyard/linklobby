@@ -792,25 +792,25 @@ export function StaticPhoneHomeLayout({
     if (currentPage >= pageCount) setCurrentPage(Math.max(0, pageCount - 1))
   }, [currentPage, pageCount])
 
-  // Scale grid to fit available height — measures container vs content and zooms down
-  const gridRefs = useRef<(HTMLDivElement | null)[]>([])
+  // Scale grid to fit available height between status bar and dock
+  // Grid natural height is deterministic: rows × 76px + gaps × 20px
+  const GRID_NATURAL_HEIGHT = MAX_ROWS_PER_PAGE * 76 + (MAX_ROWS_PER_PAGE - 1) * 20 // 748px
   const [gridScale, setGridScale] = useState(1)
 
   useEffect(() => {
     const measure = () => {
       const container = containerRef.current
-      const grid = gridRefs.current[0]
-      if (!container || !grid) return
+      if (!container) return
       const available = container.clientHeight
-      const natural = grid.scrollHeight
-      if (natural <= 0) return
-      setGridScale(natural > available ? Math.max(0.5, available / natural) : 1)
+      if (available <= 0) return
+      // Add padding (pt-3=12 + pb-4=16 = 28px)
+      const usable = available - 28
+      setGridScale(usable < GRID_NATURAL_HEIGHT ? Math.max(0.5, usable / GRID_NATURAL_HEIGHT) : 1)
     }
-    // Measure after layout settles
-    requestAnimationFrame(measure)
+    measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [pages])
+  }, [])
 
 
   // Handle card taps
@@ -894,19 +894,16 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center"
-            style={{ scrollSnapAlign: 'start' }}
+            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
+            style={{ scrollSnapAlign: 'start', zoom: gridScale !== 1 ? gridScale : undefined } as React.CSSProperties}
           >
-              {/* Grid — fixed 76px rows, scaled with zoom to fit viewport */}
+              {/* Grid — fixed 76px rows, entire page zoomed to fit viewport */}
               <div
-                ref={(el) => { gridRefs.current[pageIdx] = el }}
                 className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridAutoRows: '76px',
-                  zoom: gridScale !== 1 ? gridScale : undefined,
-                  transformOrigin: 'top center',
-                } as React.CSSProperties}
+                }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
                   // Social icon (expanded from social-icons card)
