@@ -792,25 +792,6 @@ export function StaticPhoneHomeLayout({
     if (currentPage >= pageCount) setCurrentPage(Math.max(0, pageCount - 1))
   }, [currentPage, pageCount])
 
-  // Scale grid to fit available height between status bar and dock
-  // Grid natural height is deterministic: rows × 76px + gaps × 20px
-  const GRID_NATURAL_HEIGHT = MAX_ROWS_PER_PAGE * 76 + (MAX_ROWS_PER_PAGE - 1) * 20 // 748px
-  const [gridScale, setGridScale] = useState(1)
-
-  useEffect(() => {
-    const measure = () => {
-      const container = containerRef.current
-      if (!container) return
-      const available = container.clientHeight
-      if (available <= 0) return
-      // Add padding (pt-3=12 + pb-4=16 = 28px)
-      const usable = available - 28
-      setGridScale(usable < GRID_NATURAL_HEIGHT ? Math.max(0.5, usable / GRID_NATURAL_HEIGHT) : 1)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
 
 
   // Handle card taps
@@ -894,15 +875,15 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
-            style={{ scrollSnapAlign: 'start', zoom: gridScale !== 1 ? gridScale : undefined } as React.CSSProperties}
+            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 flex flex-col items-center overflow-hidden"
+            style={{ scrollSnapAlign: 'start' }}
           >
-              {/* Grid — fixed 76px rows, entire page zoomed to fit viewport */}
+              {/* Grid — matches editor: h-full + minmax rows flex to fit available height */}
               <div
-                className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto"
+                className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridAutoRows: '76px',
+                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
@@ -1001,10 +982,11 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full overflow-hidden"
+                        className="w-full"
                         style={{
                           gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          height: 'fit-content',
                         }}
                       >
                         {isCdPlayer ? audioPlayerEl : (
