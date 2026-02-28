@@ -196,7 +196,7 @@ export function StaticMacintoshLayout({
       {usePatternLayers ? (
         /* Two-layer approach for PNG patterns: pattern + color overlay.
            Uses mix-blend-mode instead of background-blend-mode for iOS Safari compatibility. */
-        <div className="fixed" style={{ zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh' }}>
+        <div className="fixed" style={{ zIndex: 0, top: '-50vh', left: '-50vw', right: '-50vw', bottom: '-50vh', isolation: 'isolate' }}>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${macPattern})`, backgroundRepeat: 'repeat', backgroundSize: 'min(1200px, 250vw) auto', imageRendering: 'pixelated' as const }} />
           <div style={{ position: 'absolute', inset: 0, backgroundColor: bgColor, mixBlendMode: 'multiply' }} />
         </div>
@@ -514,6 +514,7 @@ function StaticMacSocials({ card, socialIcons }: { card: Card; socialIcons: Soci
                   style={{
                     background: '#000',
                     clipPath: PIXEL_BTN_CLIP,
+                    WebkitClipPath: PIXEL_BTN_CLIP,
                     padding: '2px',
                   }}
                 >
@@ -521,6 +522,7 @@ function StaticMacSocials({ card, socialIcons }: { card: Card; socialIcons: Soci
                     style={{
                       background: windowBgColor,
                       clipPath: PIXEL_BTN_CLIP,
+                      WebkitClipPath: PIXEL_BTN_CLIP,
                       padding: '8px',
                       display: 'flex',
                       alignItems: 'center',
@@ -572,6 +574,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                     style={{
                       background: notepadTextColor,
                       clipPath: PIXEL_BTN_CLIP,
+                      WebkitClipPath: PIXEL_BTN_CLIP,
                       padding: '2px',
                       width: '100%',
                     }}
@@ -586,6 +589,7 @@ function StaticNotepad({ card, bodySize }: { card: Card; bodySize?: number }) {
                         color: notepadTextColor,
                         background: notepadBgColor,
                         clipPath: PIXEL_BTN_CLIP,
+                        WebkitClipPath: PIXEL_BTN_CLIP,
                         padding: '8px 16px',
                         textAlign: 'center',
                         textDecoration: 'none',
@@ -1107,7 +1111,7 @@ function StaticCalculator({ card }: { card: Card }) {
       style={{ width: '65%', margin: '0 auto' }}
     >
       {/* Outer jagged black shell */}
-      <div style={{ background: '#000', clipPath: STATIC_CALC_CLIP }}>
+      <div style={{ background: '#000', clipPath: STATIC_CALC_CLIP, WebkitClipPath: STATIC_CALC_CLIP }}>
         {/* Black title bar */}
         <div
           style={{
@@ -1142,7 +1146,7 @@ function StaticCalculator({ card }: { card: Card }) {
         </div>
         {/* Orange halftone body with its own jagged edge, inset from black */}
         <div style={{ padding: '0 6px 6px' }}>
-          <div style={{ clipPath: STATIC_CALC_CLIP, background: STATIC_CALC_HALFTONE, padding: '12px' }}>
+          <div style={{ clipPath: STATIC_CALC_CLIP, WebkitClipPath: STATIC_CALC_CLIP, background: STATIC_CALC_HALFTONE, padding: '12px' }}>
             <div
               style={{
                 background: '#715AFF',
@@ -1243,6 +1247,7 @@ function StaticPresave({ card, bodySize }: { card: Card; bodySize?: number }) {
     color: textColor,
     background: presaveBgColor,
     clipPath: PIXEL_BTN_CLIP,
+    WebkitClipPath: PIXEL_BTN_CLIP,
     padding: '6px 16px',
     cursor: 'pointer',
     textDecoration: 'none',
@@ -1253,6 +1258,7 @@ function StaticPresave({ card, bodySize }: { card: Card; bodySize?: number }) {
   const macBtnOuter: React.CSSProperties = {
     background: textColor,
     clipPath: PIXEL_BTN_CLIP,
+    WebkitClipPath: PIXEL_BTN_CLIP,
     padding: '2px',
     display: 'inline-block',
   }

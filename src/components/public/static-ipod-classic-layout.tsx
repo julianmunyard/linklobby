@@ -488,7 +488,7 @@ export function StaticIpodClassicLayout({
       <StaticBackground background={background} />
       <StaticNoiseOverlay background={background} />
 
-      <div className="relative min-h-screen flex flex-col items-center justify-center p-4">
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4">
         {/* iPod Container */}
         <div className="ipod-container">
           {/* Texture overlay */}

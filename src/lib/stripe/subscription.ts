@@ -1,8 +1,11 @@
 /**
  * Subscription helpers for reading plan tier from local DB.
- * Uses RLS-enabled server client — caller must be in authenticated context.
+ * Uses admin client (service role) to bypass RLS — the public page needs to
+ * read the PAGE OWNER's subscription, not the viewer's. With the RLS-enabled
+ * client, anonymous visitors (and all non-owner viewers) would get no rows,
+ * causing Pro themes to be downgraded to 'instagram-reels'.
  */
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { type PlanTier } from './plans'
 
 export type { PlanTier }
@@ -13,7 +16,7 @@ export type { PlanTier }
  * or subscription was canceled before the period end.
  */
 export async function getUserPlan(userId: string): Promise<PlanTier> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('subscriptions')

@@ -165,7 +165,9 @@ export function ProfileHeader() {
   // Render bio
   const renderBio = () => {
     if (showBio === false) return null
-    // In editor iframe: always render InlineEditable (even if bio is empty — show placeholder)
+    // Don't render anything if bio is empty — no placeholder text
+    if (!bio) return null
+    // In editor iframe: render InlineEditable for inline editing
     if (isInEditor) {
       return (
         <p

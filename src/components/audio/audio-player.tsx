@@ -522,8 +522,8 @@ export function AudioPlayer({
     )`
     // Helper: bordered shell with interior for 8-bit bordered boxes
     const MacBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
-      <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px' }}>
-        <div className={cls} style={{ background: macBg, clipPath: macPixelClip, ...s }}>
+      <div style={{ background: macBorder, clipPath: macPixelClip, WebkitClipPath: macPixelClip, padding: '2px' }}>
+        <div className={cls} style={{ background: macBg, clipPath: macPixelClip, WebkitClipPath: macPixelClip, ...s }}>
           {children}
         </div>
       </div>
@@ -554,8 +554,8 @@ export function AudioPlayer({
               opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
             }}
           >
-            <div style={{ background: macBorder, clipPath: macPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
-              <div className="flex items-center h-full" style={{ background: macBg, clipPath: macPixelClip, padding: '0 12px' }}>
+            <div style={{ background: macBorder, clipPath: macPixelClip, WebkitClipPath: macPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
+              <div className="flex items-center h-full" style={{ background: macBg, clipPath: macPixelClip, WebkitClipPath: macPixelClip, padding: '0 12px' }}>
                 <span className="text-[11px] font-bold whitespace-nowrap">
                   {player.isLoading ? 'LOADING...' : player.isPlaying ? 'PAUSE' : 'PLAY'}
                 </span>
@@ -614,11 +614,12 @@ export function AudioPlayer({
                 )`
                 return (
                   <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
-                    <div className="w-full h-full" style={{ background: macBorder, clipPath: barClip, padding: '2px' }}>
+                    <div className="w-full h-full" style={{ background: macBorder, clipPath: barClip, WebkitClipPath: barClip, padding: '2px' }}>
                       <div
                         className="w-full h-full"
                         style={{
                           clipPath: barClip,
+                          WebkitClipPath: barClip,
                           background: `repeating-conic-gradient(${macChecker} 0% 25%, ${macBg} 0% 50%) 0 0 / 4px 4px`,
                         }}
                       />
@@ -655,10 +656,10 @@ export function AudioPlayer({
                       marginLeft: '-8px',
                     }}
                   >
-                    <div className="w-full h-full" style={{ background: macBorder, clipPath: knobClip, padding: '2px' }}>
+                    <div className="w-full h-full" style={{ background: macBorder, clipPath: knobClip, WebkitClipPath: knobClip, padding: '2px' }}>
                       <div
                         className="w-full h-full flex items-center justify-center gap-[4px]"
-                        style={{ background: macBg, clipPath: knobClip }}
+                        style={{ background: macBg, clipPath: knobClip, WebkitClipPath: knobClip }}
                       >
                         <div style={{ width: '1px', height: '100%', background: macBorder }} />
                         <div style={{ width: '1px', height: '100%', background: macBorder }} />
@@ -1464,8 +1465,8 @@ export function AudioPlayer({
     )`
     // Helper: bordered shell with interior for 8-bit bordered boxes
     const IpodBox = ({ children, className: cls, style: s }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
-      <div style={{ background: ipodBorder, clipPath: ipodPixelClip, padding: '2px' }}>
-        <div className={cls} style={{ background: ipodBg, clipPath: ipodPixelClip, ...s }}>
+      <div style={{ background: ipodBorder, clipPath: ipodPixelClip, WebkitClipPath: ipodPixelClip, padding: '2px' }}>
+        <div className={cls} style={{ background: ipodBg, clipPath: ipodPixelClip, WebkitClipPath: ipodPixelClip, ...s }}>
           {children}
         </div>
       </div>
@@ -1496,8 +1497,8 @@ export function AudioPlayer({
               opacity: !player.isLoaded && !player.isLoading ? 0.5 : 1,
             }}
           >
-            <div style={{ background: ipodBorder, clipPath: ipodPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
-              <div className="flex items-center h-full" style={{ background: ipodBg, clipPath: ipodPixelClip, padding: '0 12px' }}>
+            <div style={{ background: ipodBorder, clipPath: ipodPixelClip, WebkitClipPath: ipodPixelClip, padding: '2px', display: 'inline-block', height: '100%' }}>
+              <div className="flex items-center h-full" style={{ background: ipodBg, clipPath: ipodPixelClip, WebkitClipPath: ipodPixelClip, padding: '0 12px' }}>
                 <span className="text-[11px] font-bold whitespace-nowrap">
                   {player.isLoading ? 'LOADING...' : player.isPlaying ? 'PAUSE' : 'PLAY'}
                 </span>
@@ -1563,11 +1564,12 @@ export function AudioPlayer({
                   )`
                   return (
                     <div className="absolute inset-x-0" style={{ top: '6px', bottom: '6px' }}>
-                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: barClip, padding: '2px' }}>
+                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: barClip, WebkitClipPath: barClip, padding: '2px' }}>
                         <div
                           className="w-full h-full"
                           style={{
                             clipPath: barClip,
+                            WebkitClipPath: barClip,
                             background: `repeating-conic-gradient(${ipodChecker} 0% 25%, ${ipodBg} 0% 50%) 0 0 / 4px 4px`,
                           }}
                         />
@@ -1604,10 +1606,10 @@ export function AudioPlayer({
                         marginLeft: '-8px',
                       }}
                     >
-                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: knobClip, padding: '2px' }}>
+                      <div className="w-full h-full" style={{ background: ipodBorder, clipPath: knobClip, WebkitClipPath: knobClip, padding: '2px' }}>
                         <div
                           className="w-full h-full flex items-center justify-center gap-[4px]"
-                          style={{ background: ipodBg, clipPath: knobClip }}
+                          style={{ background: ipodBg, clipPath: knobClip, WebkitClipPath: knobClip }}
                         >
                           <div style={{ width: '1px', height: '100%', background: ipodBorder }} />
                           <div style={{ width: '1px', height: '100%', background: ipodBorder }} />

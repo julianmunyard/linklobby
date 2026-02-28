@@ -578,7 +578,7 @@ export function IpodClassicLayout({
       <DimOverlay />
       <NoiseOverlay />
 
-      <div className="relative min-h-screen flex items-center justify-center p-4">
+      <div className="relative min-h-screen w-full flex items-center justify-center p-4">
         {/* iPod Container */}
         <div
           ref={ipodRef}
