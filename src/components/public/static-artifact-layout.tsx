@@ -442,6 +442,7 @@ export function StaticArtifactLayout({
                     albumArtUrl={audioContent?.albumArtUrl}
                     showWaveform={audioContent?.showWaveform ?? true}
                     looping={audioContent?.looping ?? false}
+                    autoplay={audioContent?.autoplay ?? false}
                     reverbConfig={audioContent?.reverbConfig}
                     blinkieColors={artifactBlinkieColors}
                     blinkieCardHasBgImage={false}

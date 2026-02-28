@@ -387,6 +387,7 @@ export function StaticReceiptLayout({
                         albumArtUrl={audioContent.albumArtUrl}
                         showWaveform={audioContent.showWaveform ?? true}
                         looping={audioContent.looping ?? false}
+                        autoplay={audioContent.autoplay ?? false}
                         reverbConfig={audioContent.reverbConfig}
                         playerColors={audioContent.playerColors}
                         cardId={card.id}

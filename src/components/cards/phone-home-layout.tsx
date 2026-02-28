@@ -1410,7 +1410,7 @@ export function PhoneHomeLayout({
 
   const gridArea = (
     <div
-      className="flex-1 min-h-0 flex overflow-x-auto [&::-webkit-scrollbar]:hidden"
+      className="flex-1 min-h-0 flex overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden"
       ref={gridContainerRef}
       style={{
         scrollSnapType: 'x mandatory',
@@ -1422,7 +1422,7 @@ export function PhoneHomeLayout({
       {pages.map((pageItems, pageIdx) => (
         <div key={pageIdx} className="w-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start', zoom: phoneScale !== 1 ? phoneScale : undefined } as React.CSSProperties}>
             <div className="relative">
-              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '76px' }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
                   renderGridItem(card, layout, socialIcon, pageIdx),
                 )}
@@ -1467,7 +1467,7 @@ export function PhoneHomeLayout({
         {isPreview && activeDragId && (
           <div key="dnd-new-page" className="min-w-full shrink-0 px-5 pt-3 pb-20" style={{ scrollSnapAlign: 'start' }}>
             <div className="relative">
-              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridAutoRows: '76px' }}>
               </div>
               <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
                 <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto pointer-events-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, 76px)` }}>

@@ -435,7 +435,7 @@ function StaticMacCard({ card, onClick, bodySize, socialIcons }: { card: Card; o
             albumArtUrl={audioContent.albumArtUrl}
             showWaveform={audioContent.showWaveform ?? true}
             looping={audioContent.looping ?? false}
-            autoplay={false}
+            autoplay={audioContent.autoplay ?? false}
             transparentBackground={audioContent.transparentBackground ?? false}
             reverbConfig={audioContent.reverbConfig}
             playerColors={audioContent.playerColors}

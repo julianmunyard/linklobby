@@ -27,8 +27,8 @@ import { toast } from "sonner"
 import { CARD_TYPES_NO_IMAGE, CARD_TYPE_SIZING } from "@/types/card"
 import { CARD_BG_PRESETS } from "@/data/card-bg-presets"
 import { BLINKIE_STYLES } from "@/data/blinkie-styles"
-import { generateId } from "@/lib/utils"
 import type { AudioTrack } from "@/types/audio"
+import { uploadAudioTrack } from "@/lib/audio/upload-audio-track"
 import type { Card, CardType, CardSize, TextAlign, VerticalAlign } from "@/types/card"
 import type { CardTypeFontSizes } from "@/types/theme"
 
@@ -979,35 +979,9 @@ function BlinkieAudioPlayerPane({ currentContent, onContentChange, cardId }: Bli
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.aiff', '.wma']
-    const hasAudioMime = file.type.startsWith('audio/')
-    const hasAudioExt = audioExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
-    if (!hasAudioMime && !hasAudioExt) { toast.error('Must be an audio file'); return }
-    if (file.size > 100 * 1024 * 1024) { toast.error('Max 100MB'); return }
     try {
       setIsUploading(true)
-      const trackId = generateId()
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('cardId', cardId)
-      formData.append('trackId', trackId)
-      const response = await fetch('/api/audio/upload', { method: 'POST', body: formData })
-      if (!response.ok) {
-        const txt = await response.text()
-        let msg = 'Upload failed'
-        try { msg = JSON.parse(txt).error || msg } catch { msg = txt || msg }
-        throw new Error(msg)
-      }
-      const result = await response.json()
-      const newTrack: AudioTrack = {
-        id: trackId,
-        title: file.name.replace(/\.[^/.]+$/, ''),
-        artist: '',
-        duration: result.duration || 0,
-        audioUrl: result.url,
-        storagePath: result.path,
-        waveformData: result.waveformData,
-      }
+      const newTrack = await uploadAudioTrack(file, cardId)
       onContentChange({ tracks: [...tracks, newTrack] })
       toast.success('Track uploaded')
     } catch (err) {

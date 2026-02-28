@@ -964,7 +964,7 @@ export function StaticPhoneHomeLayout({
                         albumArtUrl={ac.albumArtUrl}
                         showWaveform={ac.showWaveform ?? true}
                         looping={ac.looping ?? false}
-                        autoplay={false}
+                        autoplay={ac.autoplay ?? false}
                         transparentBackground={isTransparent}
                         reverbConfig={ac.reverbConfig}
                         playerColors={ac.playerColors}

@@ -13,8 +13,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ReverbConfigModal } from '@/components/audio/reverb-config-modal'
 import { BlinkieStylePicker } from '@/components/editor/blinkie-style-picker'
 import { BLINKIE_STYLES } from '@/data/blinkie-styles'
-import { cn, generateId } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { uploadCardImageBlob } from '@/lib/supabase/storage'
+import { uploadAudioTrack, type UploadProgress } from '@/lib/audio/upload-audio-track'
 import { compressImageForUpload } from '@/lib/image-compression'
 import { ImageCropDialog } from '@/components/shared/image-crop-dialog'
 import { CardBgPositionDialog } from '@/components/editor/card-bg-position-dialog'
@@ -34,7 +35,7 @@ interface AudioCardFieldsProps {
 export function AudioCardFields({ content, onChange, cardId, themeId, cardTitle, onCardTitleChange }: AudioCardFieldsProps) {
   const [isUploadingTrack, setIsUploadingTrack] = useState(false)
   const [isUploadingArt, setIsUploadingArt] = useState<string | false>(false) // trackId or false
-  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
   const [boxBgPickerOpen, setBoxBgPickerOpen] = useState(false)
@@ -58,73 +59,15 @@ export function AudioCardFields({ content, onChange, cardId, themeId, cardTitle,
     const file = e.target.files?.[0]
     if (!file) return
 
-    console.log('[AudioUpload] File selected:', file.name, 'type:', file.type, 'size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
-
-    // Check file type - allow audio/* MIME types and common audio extensions
-    const audioExtensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.aiff', '.wma']
-    const hasAudioMime = file.type.startsWith('audio/')
-    const hasAudioExt = audioExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
-    if (!hasAudioMime && !hasAudioExt) {
-      toast.error('File must be an audio file')
-      return
-    }
-
-    // 100MB limit
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error('Audio file must be less than 100MB')
-      return
-    }
-
     try {
       setIsUploadingTrack(true)
-      setUploadProgress(0)
+      setUploadProgress(null)
 
-      const trackId = generateId()
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('cardId', cardId)
-      formData.append('trackId', trackId)
-
-      console.log('[AudioUpload] Sending to /api/audio/upload...', { cardId, trackId })
-
-      const response = await fetch('/api/audio/upload', {
-        method: 'POST',
-        body: formData,
+      const newTrack = await uploadAudioTrack(file, cardId, (progress) => {
+        setUploadProgress(progress)
       })
 
-      console.log('[AudioUpload] Response status:', response.status)
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error('[AudioUpload] Error response:', errorText)
-        let errorMessage = 'Upload failed'
-        try {
-          const errorJson = JSON.parse(errorText)
-          errorMessage = errorJson.error || errorMessage
-        } catch {
-          errorMessage = errorText || errorMessage
-        }
-        throw new Error(errorMessage)
-      }
-
-      const result = await response.json()
-      console.log('[AudioUpload] Success:', result)
-
-      // Create track object
-      const newTrack: AudioTrack = {
-        id: trackId,
-        title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-        artist: '',
-        duration: result.duration || 0,
-        audioUrl: result.url,
-        storagePath: result.path,
-        waveformData: result.waveformData,
-      }
-
-      // Add to tracks array
-      const updatedTracks = [...tracks, newTrack]
-      onChange({ tracks: updatedTracks })
-
+      onChange({ tracks: [...tracks, newTrack] })
       toast.success('Track uploaded')
     } catch (error) {
       console.error('[AudioUpload] Upload failed:', error)
@@ -132,7 +75,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId, cardTitle,
       toast.error(message)
     } finally {
       setIsUploadingTrack(false)
-      setUploadProgress(0)
+      setUploadProgress(null)
       if (trackInputRef.current) {
         trackInputRef.current.value = ''
       }
@@ -339,7 +282,7 @@ export function AudioCardFields({ content, onChange, cardId, themeId, cardTitle,
             {isUploadingTrack ? (
               <>
                 <Upload className="h-4 w-4 mr-2 animate-pulse" />
-                Uploading... {uploadProgress > 0 && `${uploadProgress}%`}
+                {uploadProgress?.label || 'Processing...'} {uploadProgress ? `${Math.round(uploadProgress.ratio * 100)}%` : ''}
               </>
             ) : (
               <>
