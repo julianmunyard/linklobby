@@ -398,44 +398,34 @@ function PhotoWidget({
 function ScaleToFit({ children }: { children: React.ReactNode }) {
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
-  const [zoom, setZoom] = useState(1)
+  const appliedRef = useRef(false)
 
   useEffect(() => {
     const outer = outerRef.current
     const inner = innerRef.current
     if (!outer || !inner) return
 
-    const update = () => {
+    const apply = () => {
+      if (appliedRef.current) return
       const cellH = outer.clientHeight
-      // Measure natural height with zoom reset
-      const prevZoom = inner.style.zoom
-      inner.style.zoom = '1'
       const contentH = inner.scrollHeight
-      inner.style.zoom = prevZoom
-      if (contentH > cellH && contentH > 0) {
-        setZoom(cellH / contentH)
-      } else {
-        setZoom(1)
+      if (cellH <= 0 || contentH <= 0) return
+      if (contentH > cellH) {
+        const z = cellH / contentH
+        inner.style.zoom = String(z)
+        inner.style.width = `${100 / z}%`
+        appliedRef.current = true
       }
     }
 
-    const ro = new ResizeObserver(update)
-    ro.observe(outer)
-    // Small delay to let children render their full height
-    const timer = setTimeout(update, 100)
-    return () => { ro.disconnect(); clearTimeout(timer) }
+    // Try multiple times as audio player renders progressively
+    const timers = [50, 150, 300, 600, 1000].map(ms => setTimeout(apply, ms))
+    return () => timers.forEach(clearTimeout)
   }, [])
 
   return (
-    <div ref={outerRef} className="w-full h-full overflow-hidden">
-      <div
-        ref={innerRef}
-        style={{
-          zoom,
-          transformOrigin: 'top center',
-          width: zoom < 1 ? `${100 / zoom}%` : '100%',
-        }}
-      >
+    <div ref={outerRef} className="w-full h-full">
+      <div ref={innerRef} style={{ transformOrigin: 'top center' }}>
         {children}
       </div>
     </div>
