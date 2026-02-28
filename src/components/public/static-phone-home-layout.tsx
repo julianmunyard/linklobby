@@ -893,7 +893,7 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={`${card.id}-${socialIcon.platform}`}
-                        className="flex items-center justify-center overflow-hidden"
+                        className="flex items-center justify-center"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -943,10 +943,11 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full overflow-hidden"
+                        className="w-full"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${rowSpan}`,
+                          height: 'fit-content',
                         }}
                       >
                         <MusicWidget card={card} layout={layout} onTap={handleTap} />
@@ -983,10 +984,11 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full overflow-hidden"
+                        className="w-full"
                         style={{
                           gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          height: 'fit-content',
                         }}
                       >
                         {isCdPlayer ? audioPlayerEl : (
@@ -1017,7 +1019,7 @@ export function StaticPhoneHomeLayout({
                   return (
                     <div
                       key={card.id}
-                      className="flex items-center justify-center overflow-hidden"
+                      className="flex items-center justify-center"
                       style={{
                         gridColumn: `${layout.col + 1} / span ${layout.width}`,
                         gridRow: `${layout.row + 1} / span ${layout.height}`,
