@@ -360,6 +360,51 @@ function PhotoWidget({ card, is8Bit = false, isWin95 = false }: { card: Card; is
 }
 
 // ---------------------------------------------------------------------------
+// ScaleToFit — shrinks content via CSS transform so it fits exactly in its container
+// ---------------------------------------------------------------------------
+
+function ScaleToFit({ children }: { children: React.ReactNode }) {
+  const outerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const outer = outerRef.current
+    const inner = innerRef.current
+    if (!outer || !inner) return
+
+    const apply = () => {
+      const cellH = outer.clientHeight
+      const contentH = inner.scrollHeight
+
+      if (cellH > 0 && contentH > cellH) {
+        const s = cellH / contentH
+        inner.style.transform = `scale(${s})`
+        inner.style.transformOrigin = 'top left'
+        inner.style.width = `${100 / s}%`
+      } else {
+        inner.style.transform = ''
+        inner.style.transformOrigin = ''
+        inner.style.width = ''
+      }
+    }
+
+    const ro = new ResizeObserver(() => apply())
+    ro.observe(inner)
+    ro.observe(outer)
+
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    <div ref={outerRef} className="w-full h-full overflow-hidden">
+      <div ref={innerRef}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Music Widget — renders real platform iframe embeds (Spotify, Apple Music, etc.)
 // ---------------------------------------------------------------------------
 
@@ -1291,8 +1336,6 @@ export function PhoneHomeLayout({
       const fullWidthStyle: React.CSSProperties = {
         gridColumn: '1 / -1',
         gridRow: `${layout.row + 1} / span ${layout.height}`,
-        // Let content determine actual height instead of being constrained by 76px row tracks
-        height: 'fit-content',
       }
 
       const audioPlayerEl = (
@@ -1316,40 +1359,42 @@ export function PhoneHomeLayout({
 
       const inner = (
         <div
-          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
+          className={cn('w-full h-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[8px]')}
           style={{ cursor: 'pointer' }}
           onClick={() => handleIconTap(card.id)}
         >
-          {isCdPlayer ? audioPlayerEl : (
-            <SystemSettingsCard
-              cardType="audio"
-              transparentBackground={isTransparent}
-              titleBarStyle="system-settings"
-              blinkieBg
-              blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
-              blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
-              blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
-              blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
-              blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
-              blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
-              blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
-              blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
-              blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
-              blinkieTextColor={ac.blinkieColors?.text}
-            >
-              {audioPlayerEl}
-            </SystemSettingsCard>
-          )}
+          <ScaleToFit>
+            {isCdPlayer ? audioPlayerEl : (
+              <SystemSettingsCard
+                cardType="audio"
+                transparentBackground={isTransparent}
+                titleBarStyle="system-settings"
+                blinkieBg
+                blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
+                blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
+                blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
+                blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
+                blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
+                blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
+                blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
+                blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
+                blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
+                blinkieTextColor={ac.blinkieColors?.text}
+              >
+                {audioPlayerEl}
+              </SystemSettingsCard>
+            )}
+          </ScaleToFit>
         </div>
       )
       if (isPreview) {
         return (
-          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={fullWidthStyle}>
+          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={fullWidthStyle} className="h-full">
             {inner}
           </DraggableGridItem>
         )
       }
-      return <div key={card.id} style={fullWidthStyle}>{inner}</div>
+      return <div key={card.id} className="h-full" style={fullWidthStyle}>{inner}</div>
     }
 
     // Default 1x1 icon
