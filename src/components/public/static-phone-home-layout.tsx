@@ -928,13 +928,12 @@ export function StaticPhoneHomeLayout({
           >
               {/* Grid: 8 rows without dock, 7 rows with dock (dock = bottom row) */}
               <div
-                className="grid w-full max-w-[430px] mx-auto"
+                className="grid w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridTemplateRows: `repeat(${hasDock ? MAX_ROWS_PER_PAGE - 1 : MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                   columnGap: '12px',
                   rowGap: 'clamp(8px, 2vh, 20px)',
-                  alignContent: 'start',
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
@@ -963,6 +962,8 @@ export function StaticPhoneHomeLayout({
                   if (card.card_type === 'gallery') {
                     const isFullWidth = layout.width === 4
                     const isSquare = layout.width === layout.height
+                    // Cap gallery height: rows × 76px + (rows-1) × 20px gap
+                    const maxGalleryH = layout.height * 76 + (layout.height - 1) * 20
                     return (
                       <div
                         key={card.id}
@@ -973,6 +974,7 @@ export function StaticPhoneHomeLayout({
                         style={{
                           gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          maxHeight: maxGalleryH,
                           ...(isSquare ? { aspectRatio: '1' } : {}),
                         }}
                       >
