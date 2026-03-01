@@ -657,16 +657,8 @@ type View =
   | { type: 'categories' }
   | { type: 'detail'; categoryId: CategoryId }
 
-export function ThemePresets({ initialThemeId }: { initialThemeId?: string | null }) {
-  // If an initialThemeId is provided, open the category that contains it
-  const initialView = (): View => {
-    if (initialThemeId) {
-      const cat = THEME_CATEGORIES.find(c => (c.themeIds as readonly string[]).includes(initialThemeId))
-      if (cat) return { type: 'detail', categoryId: cat.id as CategoryId }
-    }
-    return { type: 'categories' }
-  }
-  const [view, setView] = useState<View>(initialView)
+export function ThemePresets() {
+  const [view, setView] = useState<View>({ type: 'categories' })
   // Track navigation direction for slide animation
   const [direction, setDirection] = useState<1 | -1>(1)
 

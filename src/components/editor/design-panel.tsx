@@ -235,7 +235,7 @@ export function DesignPanel({ initialSubTab, initialThemeId }: DesignPanelProps 
 
       {/* Tab content */}
       <div className="space-y-4 mt-1">
-        {activeTab === 'presets' && <ThemePresets initialThemeId={initialThemeId} />}
+        {activeTab === 'presets' && <ThemePresets />}
 
         {activeTab === 'colors' && <ColorCustomizer />}
 
@@ -245,7 +245,7 @@ export function DesignPanel({ initialSubTab, initialThemeId }: DesignPanelProps 
 
         {activeTab === 'style' && <StyleControls />}
 
-        {activeTab === 'templates' && <TemplatePicker />}
+        {activeTab === 'templates' && <TemplatePicker browseThemeId={initialThemeId} />}
 
         {activeTab === 'header' && (
           themeId === 'macintosh' ? (

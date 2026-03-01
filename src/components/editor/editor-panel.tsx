@@ -226,13 +226,13 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
 
 
   const handleNavigateToTheme = (themeId: string) => {
-    // Navigate to Design > Presets with the theme's category open
-    // Does NOT auto-apply the theme — user chooses from presets
-    setPendingDesignSubTab('presets')
+    // Navigate to Design > Templates showing that theme's templates
+    // Does NOT auto-apply the theme — user browses and chooses
+    setPendingDesignSubTab('templates')
     setPendingThemeId(themeId)
     setSidebarTab(null)
     setActiveTab('design')
-    pushNav({ tab: 'design', designSubTab: 'presets' })
+    pushNav({ tab: 'design', designSubTab: 'templates' })
     router.replace('/editor?tab=design', { scroll: false })
   }
 
