@@ -1284,14 +1284,7 @@ export function PhoneHomeLayout({
           onClick={() => handleIconTap(card.id)}
         >
           <ScaleToFit>
-            <div
-              className={cn('overflow-hidden', isSquare ? 'mx-auto' : 'w-full')}
-              style={{
-                ...(isSquare
-                  ? { aspectRatio: '1', height: 152 }
-                  : { height: 152 }),
-              }}
-            >
+            <div className="overflow-hidden w-full" style={{ height: 152 }}>
               <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
             </div>
           </ScaleToFit>

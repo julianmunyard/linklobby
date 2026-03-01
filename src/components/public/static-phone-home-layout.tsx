@@ -972,18 +972,7 @@ export function StaticPhoneHomeLayout({
                         }}
                       >
                         <ScaleToFit>
-                          <div
-                            className={cn(
-                              'overflow-hidden',
-                              isSquare ? 'mx-auto' : 'w-full',
-                            )}
-                            style={{
-                              // Match Spotify embed height (152px) for full-width, square uses aspect-ratio
-                              ...(isSquare
-                                ? { aspectRatio: '1', height: 152 }
-                                : { height: 152 }),
-                            }}
-                          >
+                          <div className="overflow-hidden w-full" style={{ height: 152 }}>
                             <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
                           </div>
                         </ScaleToFit>
