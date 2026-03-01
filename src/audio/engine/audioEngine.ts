@@ -27,7 +27,9 @@ class AudioEngine {
   private durationSeconds = 0
   private currentTimeSeconds = 0
   private callbacks: AudioEngineCallbacks = {}
+  private silentAudioElement: HTMLAudioElement | null = null
   private isIOS = false
+  private audioUnlocked = false
   private pendingPlayAfterLoad = false
 
   async init(): Promise<void> {
@@ -38,11 +40,12 @@ class AudioEngine {
       this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
-      // iOS 17+: Set audio session to "ambient" so Web Audio respects the
-      // ringer/silent switch. The default "auto" lets the browser choose,
-      // which may pick "playback" (ignores silent switch) for AudioWorklet.
+      // iOS 17+: Set audio session to "playback" so Web Audio plays through
+      // even when the ringer/silent switch is off. The default "auto" may
+      // use "ambient" which mutes Web Audio when the ringer is off.
+      // Pre-iOS 17 devices rely on the ensureUnlocked() silent audio trick.
       if ((navigator as any).audioSession) {
-        (navigator as any).audioSession.type = 'ambient'
+        (navigator as any).audioSession.type = 'playback'
       }
 
       // Initialize Superpowered with local WASM (absolute URL so blob Workers can resolve it)
@@ -163,6 +166,55 @@ class AudioEngine {
     return this.started
   }
 
+  /**
+   * iOS silent audio unlock — pre-iOS 17 fallback.
+   * Plays a silent <audio> element to switch the audio session from
+   * "ambient" (ringer channel, muted by silent switch) to "playback"
+   * (media channel, plays through silent switch). On iOS 17+ the
+   * navigator.audioSession.type = "playback" API handles this instead.
+   * Must be called in a user gesture handler.
+   */
+  private ensureUnlocked(): void {
+    if (!this.isIOS || this.audioUnlocked) return
+
+    if (!this.silentAudioElement) {
+      const audio = document.createElement('audio')
+      audio.loop = true
+      audio.volume = 0.001
+      audio.preload = 'auto'
+      audio.controls = false
+      ;(audio as any).disableRemotePlayback = true
+      audio.setAttribute('playsinline', 'true')
+      audio.setAttribute('webkit-playsinline', 'true')
+      ;(audio as any).playsInline = true
+      audio.style.display = 'none'
+
+      const huffman = (count: number, repeatStr: string): string => {
+        let e = repeatStr
+        for (; count > 1; count--) e += repeatStr
+        return e
+      }
+      const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
+      audio.src = silence
+      audio.load()
+
+      document.body.appendChild(audio)
+      this.silentAudioElement = audio
+    }
+
+    this.silentAudioElement.play()
+      .then(() => {
+        this.audioUnlocked = true
+        console.log('iOS media channel unlocked')
+        if (this.processorNode?.context.state !== 'running') {
+          this.processorNode.context.resume()
+        }
+      })
+      .catch((err: unknown) => {
+        console.warn('Silent audio unlock failed:', err)
+      })
+  }
+
   async loadTrack(url: string): Promise<void> {
     if (!this.processorNode) {
       // Engine not ready yet (transient init failure during dev HMR).
@@ -206,6 +258,13 @@ class AudioEngine {
     if (!this.processorNode) {
       console.warn('Cannot play: not initialized')
       return
+    }
+
+    // iOS/iPadOS: unlock media channel so audio plays through silent switch.
+    // On iOS 17+ the audioSession.type = "playback" (set in init) handles this,
+    // but older iOS needs the silent <audio> element trick.
+    if (this.isIOS) {
+      this.ensureUnlocked()
     }
 
     // Resume AudioContext — MUST be synchronous in user gesture callstack.
@@ -446,12 +505,22 @@ class AudioEngine {
 
     this.webaudioManager = null
 
+    if (this.silentAudioElement) {
+      this.silentAudioElement.pause()
+      this.silentAudioElement.src = ''
+      if (this.silentAudioElement.parentNode) {
+        this.silentAudioElement.parentNode.removeChild(this.silentAudioElement)
+      }
+      this.silentAudioElement = null
+    }
+
     this.started = false
     this.isLoadedFlag = false
     this.isPlayingFlag = false
     this.pendingPlayAfterLoad = false
     this.currentUrl = null
     this.superpowered = null
+    this.audioUnlocked = false
 
     console.log('AudioEngine destroyed')
   }
