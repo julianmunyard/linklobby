@@ -1283,9 +1283,11 @@ export function PhoneHomeLayout({
           style={{ cursor: 'pointer' }}
           onClick={() => handleIconTap(card.id)}
         >
-          <div className="w-full h-full overflow-hidden">
-            <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
-          </div>
+          <ScaleToFit>
+            <div className="overflow-hidden w-full" style={{ height: 152 }}>
+              <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
+            </div>
+          </ScaleToFit>
         </div>
       )
       if (isPreview) {

@@ -971,9 +971,11 @@ export function StaticPhoneHomeLayout({
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
                         }}
                       >
-                        <div className="w-full h-full overflow-hidden">
-                          <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
-                        </div>
+                        <ScaleToFit>
+                          <div className="overflow-hidden w-full" style={{ height: 152 }}>
+                            <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
+                          </div>
+                        </ScaleToFit>
                       </div>
                     )
                   }
