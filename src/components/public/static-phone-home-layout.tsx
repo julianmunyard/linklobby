@@ -926,12 +926,12 @@ export function StaticPhoneHomeLayout({
             className="w-full h-full min-w-full max-w-full shrink-0 flex flex-col items-center overflow-hidden"
             style={{ scrollSnapAlign: 'start', padding: 'clamp(8px, 1.5vh, 12px) clamp(12px, 4vw, 20px) clamp(24px, 5vh, 48px)' }}
           >
-              {/* Grid: 8 rows without dock, 7 rows with dock (dock = bottom row) */}
+              {/* Grid: always 8 rows — dock sits below, doesn't replace a row */}
               <div
                 className="grid w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gridTemplateRows: `repeat(${hasDock ? MAX_ROWS_PER_PAGE - 1 : MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
+                  gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                   columnGap: '12px',
                   rowGap: 'clamp(8px, 2vh, 20px)',
                 }}
@@ -965,17 +965,28 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className={cn(
-                          'h-full overflow-hidden',
-                          isSquare ? 'mx-auto' : 'w-full',
-                        )}
+                        className="w-full h-full"
                         style={{
                           gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
-                          ...(isSquare ? { aspectRatio: '1' } : {}),
                         }}
                       >
-                        <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
+                        <ScaleToFit>
+                          <div
+                            className={cn(
+                              'overflow-hidden',
+                              isSquare ? 'mx-auto' : 'w-full',
+                            )}
+                            style={{
+                              // Match Spotify embed height (152px) for full-width, square uses aspect-ratio
+                              ...(isSquare
+                                ? { aspectRatio: '1', height: 152 }
+                                : { height: 152 }),
+                            }}
+                          >
+                            <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
+                          </div>
+                        </ScaleToFit>
                       </div>
                     )
                   }

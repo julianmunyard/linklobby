@@ -1277,14 +1277,24 @@ export function PhoneHomeLayout({
       const inner = (
         <div
           className={cn(
-            'h-full overflow-hidden',
-            isSquare ? 'mx-auto' : 'w-full',
+            'w-full h-full',
             selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`,
           )}
-          style={{ cursor: 'pointer', ...(isSquare ? { aspectRatio: '1' } : {}) }}
+          style={{ cursor: 'pointer' }}
           onClick={() => handleIconTap(card.id)}
         >
-          <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
+          <ScaleToFit>
+            <div
+              className={cn('overflow-hidden', isSquare ? 'mx-auto' : 'w-full')}
+              style={{
+                ...(isSquare
+                  ? { aspectRatio: '1', height: 152 }
+                  : { height: 152 }),
+              }}
+            >
+              <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
+            </div>
+          </ScaleToFit>
         </div>
       )
       if (isPreview) {
