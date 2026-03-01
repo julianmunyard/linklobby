@@ -1270,7 +1270,6 @@ export function PhoneHomeLayout({
     if (card.card_type === 'gallery') {
       const isFullWidth = layout.width === 4
       const isSquare = layout.width === layout.height
-      const maxGalleryH = layout.height * 76 + (layout.height - 1) * 20
       const galleryStyle: React.CSSProperties = {
         gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
         gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -1282,7 +1281,7 @@ export function PhoneHomeLayout({
             isSquare ? 'mx-auto' : 'w-full',
             selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`,
           )}
-          style={{ cursor: 'pointer', maxHeight: maxGalleryH, ...(isSquare ? { aspectRatio: '1' } : {}) }}
+          style={{ cursor: 'pointer', ...(isSquare ? { aspectRatio: '1' } : {}) }}
           onClick={() => handleIconTap(card.id)}
         >
           <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />

@@ -962,8 +962,6 @@ export function StaticPhoneHomeLayout({
                   if (card.card_type === 'gallery') {
                     const isFullWidth = layout.width === 4
                     const isSquare = layout.width === layout.height
-                    // Cap gallery height: rows × 76px + (rows-1) × 20px gap
-                    const maxGalleryH = layout.height * 76 + (layout.height - 1) * 20
                     return (
                       <div
                         key={card.id}
@@ -974,7 +972,6 @@ export function StaticPhoneHomeLayout({
                         style={{
                           gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
-                          maxHeight: maxGalleryH,
                           ...(isSquare ? { aspectRatio: '1' } : {}),
                         }}
                       >
