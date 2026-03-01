@@ -80,7 +80,7 @@ function LazyVideo({ src, poster, className }: { src: string; poster: string; cl
 export function TemplatePicker({ browseThemeId }: { browseThemeId?: string | null } = {}) {
   const { planTier } = usePlanTier()
   const currentThemeId = useThemeStore((state) => state.themeId)
-  const themeId = browseThemeId || currentThemeId
+  const themeId = (browseThemeId || currentThemeId) as ThemeId
   const templates = getTemplatesByTheme(themeId)
   const isProTheme = planTier === 'free' && PRO_THEMES.includes(themeId)
 
