@@ -1312,20 +1312,22 @@ export function PhoneHomeLayout({
       }
       const inner = (
         <div
-          className={cn('w-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
+          className={cn('w-full h-full', selectedCardId === card.id && 'ring-2 ring-blue-500 rounded-[16px]')}
           style={{ cursor: 'pointer' }}
         >
-          <MusicWidget card={card} layout={layout} onClick={handleIconTap} />
+          <ScaleToFit>
+            <MusicWidget card={card} layout={layout} onClick={handleIconTap} />
+          </ScaleToFit>
         </div>
       )
       if (isPreview) {
         return (
-          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={musicGridStyle}>
+          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={musicGridStyle} className="h-full">
             {inner}
           </DraggableGridItem>
         )
       }
-      return <div key={card.id} style={musicGridStyle}>{inner}</div>
+      return <div key={card.id} className="h-full" style={musicGridStyle}>{inner}</div>
     }
 
     // Audio cards — render AudioPlayer directly (same as public static-phone-home-layout)

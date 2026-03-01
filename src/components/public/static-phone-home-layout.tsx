@@ -990,14 +990,15 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full"
+                        className="w-full h-full"
                         style={{
                           gridColumn: `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${rowSpan}`,
-                          height: 'fit-content',
                         }}
                       >
-                        <MusicWidget card={card} layout={layout} onTap={handleTap} />
+                        <ScaleToFit>
+                          <MusicWidget card={card} layout={layout} onTap={handleTap} />
+                        </ScaleToFit>
                       </div>
                     )
                   }
