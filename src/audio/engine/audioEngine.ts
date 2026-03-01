@@ -38,6 +38,13 @@ class AudioEngine {
       this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
+      // iOS 17+: Set audio session to "ambient" so Web Audio respects the
+      // ringer/silent switch. The default "auto" lets the browser choose,
+      // which may pick "playback" (ignores silent switch) for AudioWorklet.
+      if ((navigator as any).audioSession) {
+        (navigator as any).audioSession.type = 'ambient'
+      }
+
       // Initialize Superpowered with local WASM (absolute URL so blob Workers can resolve it)
       const wasmUrl = `${window.location.origin}/superpowered/superpowered.wasm`
 
