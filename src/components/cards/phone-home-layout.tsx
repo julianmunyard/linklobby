@@ -1269,14 +1269,19 @@ export function PhoneHomeLayout({
     // Gallery widgets
     if (card.card_type === 'gallery') {
       const isFullWidth = layout.width === 4
+      const isSquare = layout.width === layout.height
       const galleryStyle: React.CSSProperties = {
         gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
         gridRow: `${layout.row + 1} / span ${layout.height}`,
       }
       const inner = (
         <div
-          className={cn(isFullWidth && 'w-full', selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`)}
-          style={{ aspectRatio: isFullWidth ? `${layout.width} / ${layout.height}` : '1 / 1', cursor: 'pointer', width: '100%', height: '100%' }}
+          className={cn(
+            'h-full overflow-hidden',
+            isSquare ? 'mx-auto' : 'w-full',
+            selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`,
+          )}
+          style={{ cursor: 'pointer', ...(isSquare ? { aspectRatio: '1' } : {}) }}
           onClick={() => handleIconTap(card.id)}
         >
           <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
@@ -1284,12 +1289,12 @@ export function PhoneHomeLayout({
       )
       if (isPreview) {
         return (
-          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={galleryStyle}>
+          <DraggableGridItem key={card.id} id={card.id} data={{ card, layout }} style={galleryStyle} className="h-full">
             {inner}
           </DraggableGridItem>
         )
       }
-      return <div key={card.id} style={galleryStyle}>{inner}</div>
+      return <div key={card.id} className="h-full" style={galleryStyle}>{inner}</div>
     }
 
     // Music widgets

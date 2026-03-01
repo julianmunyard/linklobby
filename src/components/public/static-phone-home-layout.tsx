@@ -959,13 +959,18 @@ export function StaticPhoneHomeLayout({
                   // Gallery widgets span multiple cells
                   if (card.card_type === 'gallery') {
                     const isFullWidth = layout.width === 4
+                    const isSquare = layout.width === layout.height
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full overflow-hidden"
+                        className={cn(
+                          'h-full overflow-hidden',
+                          isSquare ? 'mx-auto' : 'w-full',
+                        )}
                         style={{
                           gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          ...(isSquare ? { aspectRatio: '1' } : {}),
                         }}
                       >
                         <PhotoWidget card={card} layout={layout} is8Bit={is8Bit} isWin95={isWin95} />
