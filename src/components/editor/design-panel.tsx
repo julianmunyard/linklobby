@@ -55,9 +55,10 @@ const TITLE_FONT_THEMES: ThemeId[] = ['blinkies', 'mac-os', 'system-settings', '
 
 interface DesignPanelProps {
   initialSubTab?: string | null
+  initialThemeId?: string | null
 }
 
-export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
+export function DesignPanel({ initialSubTab, initialThemeId }: DesignPanelProps = {}) {
   const [activeTab, setActiveTab] = useState<TabId>('presets')
 
   // Watch for initialSubTab changes and switch to that tab
@@ -234,7 +235,7 @@ export function DesignPanel({ initialSubTab }: DesignPanelProps = {}) {
 
       {/* Tab content */}
       <div className="space-y-4 mt-1">
-        {activeTab === 'presets' && <ThemePresets />}
+        {activeTab === 'presets' && <ThemePresets initialThemeId={initialThemeId} />}
 
         {activeTab === 'colors' && <ColorCustomizer />}
 

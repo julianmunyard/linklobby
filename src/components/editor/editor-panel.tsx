@@ -209,8 +209,9 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     }
   }, [initialDesignTab, onDesignTabConsumed, pushNav])
 
-  // State for navigating to Design > Templates subtab from Featured tab
+  // State for navigating to Design subtab from Featured tab
   const [pendingDesignSubTab, setPendingDesignSubTab] = useState<string | null>(null)
+  const [pendingThemeId, setPendingThemeId] = useState<string | null>(null)
 
   const handleTabChange = (tab: string) => {
     setSidebarTab(null)
@@ -225,13 +226,13 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
 
 
   const handleNavigateToTheme = (themeId: string) => {
-    // Switch theme so TemplatePicker shows that theme's templates
-    useThemeStore.getState().setTheme(themeId as any)
-    // Navigate to Design > Templates
-    setPendingDesignSubTab('templates')
+    // Navigate to Design > Presets with the theme's category open
+    // Does NOT auto-apply the theme — user chooses from presets
+    setPendingDesignSubTab('presets')
+    setPendingThemeId(themeId)
     setSidebarTab(null)
     setActiveTab('design')
-    pushNav({ tab: 'design', designSubTab: 'templates' })
+    pushNav({ tab: 'design', designSubTab: 'presets' })
     router.replace('/editor?tab=design', { scroll: false })
   }
 
@@ -249,13 +250,16 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
     router.replace('/editor?tab=design', { scroll: false })
   }
 
-  // Clear pendingDesignSubTab after DesignTab consumes it
+  // Clear pending state after DesignTab consumes it
   useEffect(() => {
-    if (activeTab === 'design' && pendingDesignSubTab) {
-      const timer = setTimeout(() => setPendingDesignSubTab(null), 100)
+    if (activeTab === 'design' && (pendingDesignSubTab || pendingThemeId)) {
+      const timer = setTimeout(() => {
+        setPendingDesignSubTab(null)
+        setPendingThemeId(null)
+      }, 100)
       return () => clearTimeout(timer)
     }
-  }, [activeTab, pendingDesignSubTab])
+  }, [activeTab, pendingDesignSubTab, pendingThemeId])
 
   const selectedCardId = usePageStore((state) => state.selectedCardId)
   const cards = usePageStore((state) => state.cards)
@@ -456,7 +460,7 @@ export function EditorPanel({ initialTab: initialTabProp, initialDesignTab, onTa
                         "data-[state=inactive]:hidden"
                       )}
                     >
-                      <DesignTab initialSubTab={pendingDesignSubTab || initialDesignTab} />
+                      <DesignTab initialSubTab={pendingDesignSubTab || initialDesignTab} initialThemeId={pendingThemeId} />
                     </TabsContent>
                   </div>
                 )}
