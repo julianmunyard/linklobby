@@ -392,47 +392,6 @@ function PhotoWidget({
 }
 
 // ---------------------------------------------------------------------------
-// ScaleToFit — scales content down via CSS zoom to fit within its container
-// ---------------------------------------------------------------------------
-
-function ScaleToFit({ children }: { children: React.ReactNode }) {
-  const outerRef = useRef<HTMLDivElement>(null)
-  const innerRef = useRef<HTMLDivElement>(null)
-  const appliedRef = useRef(false)
-
-  useEffect(() => {
-    const outer = outerRef.current
-    const inner = innerRef.current
-    if (!outer || !inner) return
-
-    const apply = () => {
-      if (appliedRef.current) return
-      const cellH = outer.clientHeight
-      const contentH = inner.scrollHeight
-      if (cellH <= 0 || contentH <= 0) return
-      if (contentH > cellH) {
-        const z = cellH / contentH
-        inner.style.zoom = String(z)
-        inner.style.width = `${100 / z}%`
-        appliedRef.current = true
-      }
-    }
-
-    // Try multiple times as audio player renders progressively
-    const timers = [50, 150, 300, 600, 1000].map(ms => setTimeout(apply, ms))
-    return () => timers.forEach(clearTimeout)
-  }, [])
-
-  return (
-    <div ref={outerRef} className="w-full h-full">
-      <div ref={innerRef} style={{ transformOrigin: 'top center' }}>
-        {children}
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // Music Widget — renders real platform iframe embeds (Spotify, Apple Music, etc.)
 // ---------------------------------------------------------------------------
 
@@ -1025,34 +984,33 @@ export function StaticPhoneHomeLayout({
                     return (
                       <div
                         key={card.id}
-                        className="w-full h-full"
+                        className="w-full"
                         style={{
                           gridColumn: '1 / -1',
                           gridRow: `${layout.row + 1} / span ${layout.height}`,
+                          height: 'fit-content',
                         }}
                       >
-                        <ScaleToFit>
-                          {isCdPlayer ? audioPlayerEl : (
-                            <SystemSettingsCard
-                              cardType="audio"
-                              transparentBackground={isTransparent}
-                              titleBarStyle="system-settings"
-                              blinkieBg
-                              blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
-                              blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
-                              blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
-                              blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
-                              blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
-                              blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
-                              blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
-                              blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
-                              blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
-                              blinkieTextColor={ac.blinkieColors?.text}
-                            >
-                              {audioPlayerEl}
-                            </SystemSettingsCard>
-                          )}
-                        </ScaleToFit>
+                        {isCdPlayer ? audioPlayerEl : (
+                          <SystemSettingsCard
+                            cardType="audio"
+                            transparentBackground={isTransparent}
+                            titleBarStyle="system-settings"
+                            blinkieBg
+                            blinkieCardOuter={ac.blinkieBoxBackgrounds?.cardOuter}
+                            blinkieCardOuterDim={ac.blinkieBoxBackgrounds?.cardOuterDim}
+                            blinkieOuterBoxColor={ac.blinkieColors?.outerBox}
+                            blinkieInnerBoxColor={ac.blinkieColors?.innerBox}
+                            blinkieCardBgUrl={ac.blinkieBoxBackgrounds?.cardBgUrl}
+                            blinkieCardBgScale={ac.blinkieBoxBackgrounds?.cardBgScale}
+                            blinkieCardBgPosX={ac.blinkieBoxBackgrounds?.cardBgPosX}
+                            blinkieCardBgPosY={ac.blinkieBoxBackgrounds?.cardBgPosY}
+                            blinkieCardBgNone={ac.blinkieBoxBackgrounds?.cardBgNone}
+                            blinkieTextColor={ac.blinkieColors?.text}
+                          >
+                            {audioPlayerEl}
+                          </SystemSettingsCard>
+                        )}
                       </div>
                     )
                   }
