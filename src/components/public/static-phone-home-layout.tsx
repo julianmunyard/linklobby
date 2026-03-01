@@ -923,15 +923,17 @@ export function StaticPhoneHomeLayout({
         {pages.map((pageItems, pageIdx) => (
           <div
             key={pageIdx}
-            className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-12 flex flex-col items-center overflow-hidden"
-            style={{ scrollSnapAlign: 'start' }}
+            className="w-full h-full min-w-full max-w-full shrink-0 flex flex-col items-center overflow-hidden"
+            style={{ scrollSnapAlign: 'start', padding: 'clamp(8px, 1.5vh, 12px) clamp(12px, 4vw, 20px) clamp(24px, 5vh, 48px)' }}
           >
               {/* Grid: 8 rows without dock, 7 rows with dock (dock = bottom row) */}
               <div
-                className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto"
+                className="grid w-full h-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridTemplateRows: `repeat(${hasDock ? MAX_ROWS_PER_PAGE - 1 : MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
+                  columnGap: '12px',
+                  rowGap: 'clamp(8px, 2vh, 20px)',
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {
