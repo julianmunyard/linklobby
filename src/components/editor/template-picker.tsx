@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion } from 'motion/react'
 import { toast } from 'sonner'
 import { Loader2, LayoutTemplate, Lock } from 'lucide-react'
+import type { ThemeId } from '@/types/theme'
 import {
   AlertDialog,
   AlertDialogAction,

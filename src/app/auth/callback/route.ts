@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       redirectTo = `${origin}/settings?email_updated=true`
     }
 
-    const response = NextResponse.redirect(redirectTo)
+    let response = NextResponse.redirect(redirectTo)
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,9 +28,13 @@ export async function GET(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            )
+            response = NextResponse.redirect(redirectTo)
+            cookiesToSet.forEach(({ name, value, options }) =>
               response.cookies.set(name, value, options)
-            })
+            )
           },
         },
       }
