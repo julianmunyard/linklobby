@@ -199,6 +199,19 @@ class AudioEngine {
       .then(() => {
         this.audioUnlocked = true
         console.log('iOS media channel unlocked')
+
+        // Stop the silent audio immediately — it only needs to play momentarily
+        // to unlock the media channel. Keeping it looping creates a "playback"
+        // audio session that overrides the iOS silent/ringer switch.
+        if (this.silentAudioElement) {
+          this.silentAudioElement.pause()
+          this.silentAudioElement.src = ''
+          if (this.silentAudioElement.parentNode) {
+            this.silentAudioElement.parentNode.removeChild(this.silentAudioElement)
+          }
+          this.silentAudioElement = null
+        }
+
         // Ensure AudioContext is running now that media is unlocked
         if (this.processorNode?.context.state !== 'running') {
           this.processorNode.context.resume()
