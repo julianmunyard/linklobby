@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 Phase: 12.71 of 18 - Editor UX Overhaul
 Plan: 10 of 11 - COMPLETE
 Status: **Phase 12.71 active — Plans 01, 02, 03, 04, 05, 06, 07, 08, 09, and 10 complete**
-Last activity: 2026-02-26 - Completed 12.71-10: gallery carousel edge-to-edge and crop icon overlay
+Last activity: 2026-03-01 - Completed quick task 079: Fix iOS silent mode audio
 
 Progress: [█████████████████████████████░░░] ~85%
 
@@ -1459,6 +1459,7 @@ Executed Phase 7 Theme System (7 plans across 5 waves):
 | 076 | Fix CSP headers for Superpowered audio and preview iframe | 2026-02-25 | 097291f | [076-fix-csp-headers-superpowered-audio-and-previ](./quick/076-fix-csp-headers-superpowered-audio-and-previ/) |
 | 077 | Fix Google OAuth redirect loop (cookie propagation) | 2026-02-25 | eb4bed5 | [077-fix-google-oauth-redirect-loop](./quick/077-fix-google-oauth-redirect-loop/) |
 | 078 | ReactBits Squares background + glassmorphism auth cards | 2026-02-26 | 790122a | [078-reactbits-squares-background-login-page](./quick/078-reactbits-squares-background-login-page/) |
+| 079 | Fix iOS silent mode — stop silent unlock element from overriding ringer switch | 2026-03-01 | 340f048 | [079-fix-ios-silent-mode-audio](./quick/079-fix-ios-silent-mode-audio/) |
 
 ---
 
