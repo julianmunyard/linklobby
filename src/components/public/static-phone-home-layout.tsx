@@ -405,29 +405,32 @@ function ScaleToFit({ children }: { children: React.ReactNode }) {
     if (!outer || !inner) return
 
     const apply = () => {
-      // Reset zoom to get natural dimensions
-      inner.style.zoom = ''
-      inner.style.width = ''
-      // Force reflow
-      void inner.offsetHeight
-
       const cellH = outer.clientHeight
-      const contentH = inner.offsetHeight
+      // scrollHeight gives natural content height regardless of transform
+      const contentH = inner.scrollHeight
 
       if (cellH > 0 && contentH > cellH) {
-        const z = cellH / contentH
-        inner.style.zoom = String(z)
-        inner.style.width = `${100 / z}%`
+        const s = cellH / contentH
+        inner.style.transform = `scale(${s})`
+        inner.style.transformOrigin = 'top left'
+        inner.style.width = `${100 / s}%`
+      } else {
+        inner.style.transform = ''
+        inner.style.transformOrigin = ''
+        inner.style.width = ''
       }
     }
 
-    // Measure at multiple intervals as player renders progressively
-    const timers = [100, 400, 1000].map(ms => setTimeout(apply, ms))
-    return () => timers.forEach(clearTimeout)
+    // ResizeObserver fires whenever the player finishes rendering / resizes
+    const ro = new ResizeObserver(() => apply())
+    ro.observe(inner)
+    ro.observe(outer)
+
+    return () => ro.disconnect()
   }, [])
 
   return (
-    <div ref={outerRef} className="w-full h-full">
+    <div ref={outerRef} className="w-full h-full overflow-hidden">
       <div ref={innerRef}>
         {children}
       </div>
