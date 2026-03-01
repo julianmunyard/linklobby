@@ -27,9 +27,7 @@ class AudioEngine {
   private durationSeconds = 0
   private currentTimeSeconds = 0
   private callbacks: AudioEngineCallbacks = {}
-  private silentAudioElement: HTMLAudioElement | null = null
   private isIOS = false
-  private audioUnlocked = false
   private pendingPlayAfterLoad = false
 
   async init(): Promise<void> {
@@ -154,72 +152,8 @@ class AudioEngine {
     }
   }
 
-  /**
-   * iOS silent audio unlock pattern from Munyard Mixer.
-   * Must be called in a user gesture handler. audio.play() fires in the gesture
-   * context (fire-and-forget). When it completes, retries context.resume() to
-   * ensure the AudioContext is actually running after the media channel unlocks.
-   */
   isInitialized(): boolean {
     return this.started
-  }
-
-  private ensureUnlocked(): void {
-    if (!this.isIOS || this.audioUnlocked) return
-
-    if (!this.silentAudioElement) {
-      const audio = document.createElement('audio')
-      audio.loop = true
-      audio.volume = 0.001
-      audio.preload = 'auto'
-      audio.controls = false
-      ;(audio as any).disableRemotePlayback = true
-      audio.setAttribute('playsinline', 'true')
-      audio.setAttribute('webkit-playsinline', 'true')
-      ;(audio as any).playsInline = true
-      audio.style.display = 'none'
-
-      const huffman = (count: number, repeatStr: string): string => {
-        let e = repeatStr
-        for (; count > 1; count--) e += repeatStr
-        return e
-      }
-      const silence = "data:audio/mpeg;base64,//uQx" + huffman(23, "A") + "WGluZwAAAA8AAAACAAACcQCA" + huffman(16, "gICA") + huffman(66, "/") + "8AAABhTEFNRTMuMTAwA8MAAAAAAAAAABQgJAUHQQAB9AAAAnGMHkkI" + huffman(320, "A") + "//sQxAADgnABGiAAQBCqgCRMAAgEAH" + huffman(15, "/") + "7+n/9FTuQsQH//////2NG0jWUGlio5gLQTOtIoeR2WX////X4s9Atb/JRVCbBUpeRUq" + huffman(18, "/") + "9RUi0f2jn/+xDECgPCjAEQAABN4AAANIAAAAQVTEFNRTMuMTAw" + huffman(97, "V") + "Q=="
-      audio.src = silence
-      audio.load()
-
-      document.body.appendChild(audio)
-      this.silentAudioElement = audio
-    }
-
-    // Fire-and-forget audio.play() — called in user gesture context.
-    // When it completes, retry context.resume() in case the first call
-    // didn't work (iOS requires media channel unlock before resume).
-    this.silentAudioElement.play()
-      .then(() => {
-        this.audioUnlocked = true
-        console.log('iOS media channel unlocked')
-
-        // Stop the silent audio immediately — it only needs to play momentarily
-        // to unlock the media channel. Keeping it looping creates a "playback"
-        // audio session that overrides the iOS silent/ringer switch.
-        if (this.silentAudioElement) {
-          this.silentAudioElement.pause()
-          this.silentAudioElement.src = ''
-          if (this.silentAudioElement.parentNode) {
-            this.silentAudioElement.parentNode.removeChild(this.silentAudioElement)
-          }
-          this.silentAudioElement = null
-        }
-
-        // Ensure AudioContext is running now that media is unlocked
-        if (this.processorNode?.context.state !== 'running') {
-          this.processorNode.context.resume()
-        }
-      })
-      .catch((err: unknown) => {
-        console.warn('Silent audio unlock failed:', err)
-      })
   }
 
   async loadTrack(url: string): Promise<void> {
@@ -265,11 +199,6 @@ class AudioEngine {
     if (!this.processorNode) {
       console.warn('Cannot play: not initialized')
       return
-    }
-
-    // iOS/iPadOS unlock — must fire synchronously within user gesture
-    if (this.isIOS) {
-      this.ensureUnlocked()
     }
 
     // Resume AudioContext — MUST be synchronous in user gesture callstack.
@@ -510,22 +439,12 @@ class AudioEngine {
 
     this.webaudioManager = null
 
-    if (this.silentAudioElement) {
-      this.silentAudioElement.pause()
-      this.silentAudioElement.src = ''
-      if (this.silentAudioElement.parentNode) {
-        this.silentAudioElement.parentNode.removeChild(this.silentAudioElement)
-      }
-      this.silentAudioElement = null
-    }
-
     this.started = false
     this.isLoadedFlag = false
     this.isPlayingFlag = false
     this.pendingPlayAfterLoad = false
     this.currentUrl = null
     this.superpowered = null
-    this.audioUnlocked = false
 
     console.log('AudioEngine destroyed')
   }
