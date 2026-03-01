@@ -1270,7 +1270,6 @@ export function PhoneHomeLayout({
     if (card.card_type === 'gallery') {
       const isFullWidth = layout.width === 4
       const isSquare = layout.width === layout.height
-      const maxGalleryH = layout.height * 76 + (layout.height - 1) * 20
       const galleryStyle: React.CSSProperties = {
         gridColumn: isFullWidth ? '1 / -1' : `${layout.col + 1} / span ${layout.width}`,
         gridRow: `${layout.row + 1} / span ${layout.height}`,
@@ -1282,7 +1281,7 @@ export function PhoneHomeLayout({
             isSquare ? 'mx-auto' : 'w-full',
             selectedCardId === card.id && `ring-2 ring-blue-500 ${isWin95 ? 'rounded-[2px]' : is8Bit ? 'rounded-[8px]' : 'rounded-[16px]'}`,
           )}
-          style={{ cursor: 'pointer', maxHeight: maxGalleryH, ...(isSquare ? { aspectRatio: '1' } : {}) }}
+          style={{ cursor: 'pointer', ...(isSquare ? { aspectRatio: '1' } : {}) }}
           onClick={() => handleIconTap(card.id)}
         >
           <PhotoWidget card={card} is8Bit={is8Bit} isWin95={isWin95} />
@@ -1487,7 +1486,7 @@ export function PhoneHomeLayout({
       {pages.map((pageItems, pageIdx) => (
         <div key={pageIdx} className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start' } as React.CSSProperties}>
             <div className="relative h-full w-full">
-              <div className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))` }}>
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`, alignContent: 'start' }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
                   renderGridItem(card, layout, socialIcon, pageIdx),
                 )}
