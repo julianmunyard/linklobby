@@ -928,12 +928,13 @@ export function StaticPhoneHomeLayout({
           >
               {/* Grid: 8 rows without dock, 7 rows with dock (dock = bottom row) */}
               <div
-                className="grid w-full h-full max-w-[430px] mx-auto"
+                className="grid w-full max-w-[430px] mx-auto"
                 style={{
                   gridTemplateColumns: 'repeat(4, 1fr)',
                   gridTemplateRows: `repeat(${hasDock ? MAX_ROWS_PER_PAGE - 1 : MAX_ROWS_PER_PAGE}, minmax(0, 76px))`,
                   columnGap: '12px',
                   rowGap: 'clamp(8px, 2vh, 20px)',
+                  alignContent: 'start',
                 }}
               >
                 {pageItems.map(({ card, layout, socialIcon }) => {

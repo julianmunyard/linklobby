@@ -1486,7 +1486,7 @@ export function PhoneHomeLayout({
       {pages.map((pageItems, pageIdx) => (
         <div key={pageIdx} className="w-full h-full min-w-full max-w-full shrink-0 px-5 pt-3 pb-4 overflow-hidden flex flex-col md:justify-center md:items-center" style={{ scrollSnapAlign: 'start' } as React.CSSProperties}>
             <div className="relative h-full w-full">
-              <div className="grid gap-y-5 gap-x-3 w-full h-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))` }}>
+              <div className="grid gap-y-5 gap-x-3 w-full max-w-[430px] mx-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: `repeat(${MAX_ROWS_PER_PAGE}, minmax(0, 76px))`, alignContent: 'start' }}>
                 {pageItems.map(({ card, layout, socialIcon }) =>
                   renderGridItem(card, layout, socialIcon, pageIdx),
                 )}
