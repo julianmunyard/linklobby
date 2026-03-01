@@ -258,7 +258,6 @@ export function CardPropertyEditor({ card, onClose, onSettingChanged }: CardProp
   function handleContentChange(updates: Record<string, unknown>) {
     const content = { ...(card.content as Record<string, unknown>), ...updates }
     updateCard(card.id, { content })
-    onSettingChanged?.()
   }
 
   // Handle URL blur - validate and auto-fix, or detect embed iframe code
